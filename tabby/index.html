@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudi de l'Estrella Tabby amb Lightkurve</title>
+      <!-- Include the Bootstrap JS file -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+      <!-- Include the Bootstrap CSS file -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        pre {
+            max-width: 100%;
+            overflow-x: auto;
+            padding: 1rem;
+            background-color: #f8f9fa; /* Gray */
+            position: relative;
+        }
+        code {
+            display: block;
+            width: 100%;
+            white-space: pre-wrap;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            cursor: pointer;
+            color: #000;
+        }
+        .copy-feedback {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            font-size: 0.75rem;
+            color: green;
+            display: none;
+        }
+    </style>
+</head>
+<body>  
+<div id="navbarContainer"></div>
+
+  <!-- Include your other page content here -->
+
+  <script>
+    // Fetch and insert the navbar.html content
+    fetch("https://pompeu.neocities.org/navbar.html")
+      .then(response => response.text())
+      .then(content => {
+        document.getElementById("navbarContainer").innerHTML = content;
+      })
+      .catch(error => {
+        console.log("Error fetching navbar.html:", error);
+      });
+  </script>
+      <h1>Estudi de l'Estrella Tabby amb Lightkurve</h1>
+    <p>Lightkurve és una eina de Python desenvolupada per a l'anàlisi de dades fotomètriques de missions com Kepler i TESS. Aquí tens algunes idees per estudiar l'estrella Tabby (KIC 8462852) utilitzant Lightkurve:</p>
+    <ol>
+        <li>
+            <strong>Descàrrega i Visualització de Dades:</strong>
+            <ul>
+                <li><strong>Descàrrega de dades:</strong> Utilitza Lightkurve per descarregar les dades de la missió Kepler per l'estrella Tabby.</li>
+                <li><strong>Visualització de la corba de llum:</strong> Visualitza la corba de llum per identificar els patrons de variabilitat.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Anàlisi de la Variabilitat:</strong>
+            <ul>
+                <li><strong>Anàlisi de la transformada de Fourier:</strong> Identifica qualsevol periodicitat en les dades.</li>
+                <li><strong>Estudi dels dips:</strong> Analitza els descensos en la lluminositat per determinar-ne la profunditat, durada i freqüència.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Detecció de Trànsits:</strong>
+            <ul>
+                <li><strong>Utilització d'algorismes de detecció de trànsits:</strong> Com TESS Transit Search (TLS) per identificar possibles trànsits planetaris.</li>
+                <li><strong>Comparació amb models:</strong> Compara els descensos de llum observats amb models de trànsits per identificar la naturalesa dels objectes que causen els dips.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Anàlisi Estadística:</strong>
+            <ul>
+                <li><strong>Distribució de dips:</strong> Estudia la distribució estadística dels dips per veure si segueixen un patró específic.</li>
+                <li><strong>Comparació amb altres estrelles:</strong> Compara la corba de llum de l'estrella Tabby amb altres estrelles de tipus similar per detectar anomalies.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Estudi de la Llum Reflecteda:</strong>
+            <ul>
+                <li><strong>Modelatge de la pols circumstel·lar:</strong> Utilitza models per simular com la pols circumstel·lar podria estar afectant la lluminositat de l'estrella.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>Implementació amb Lightkurve</h2>
+    <p>A continuació, tens un exemple de codi per començar a treballar amb Lightkurve per analitzar l'estrella Tabby:</p>
+
+  
+    <div class="container">
+        <h3>Codi per veure la corba de llum de l'estel Tabby</h3>
+        <pre>
+            <span class="copy-button"><i class="fas fa-copy"></i></span>
+            <span class="copy-feedback">Copied to clipboard!</span>
+            <code class="language-python">import lightkurve as lk
+
+# Descarregar les dades de Kepler per l'estrella Tabby
+target = "KIC 8462852"
+search_result = lk.search_lightcurvefile(target)
+
+# Baixar els fitxers de corba de llum
+lc_collection = search_result.download_all()
+
+# Unir totes les corbes de llum en una sola
+lc = lc_collection.stitch()
+
+# Visualitzar la corba de llum
+lc.plot()
+            </code>
+        </pre>
+    </div>
+    <script>
+        document.querySelectorAll('.copy-button').forEach(item => {
+            item.addEventListener('click', event => {
+                const codeBlock = item.nextElementSibling.nextElementSibling; // Get the <code> element
+                const codeText = codeBlock.textContent; // Get the text content of the <code> element
+                navigator.clipboard.writeText(codeText).then(function() {
+                    // Show copy feedback
+                    const feedback = item.parentElement.querySelector('.copy-feedback');
+                    feedback.style.display = 'block';
+                    setTimeout(() => {
+                        // Hide feedback after 2 seconds
+                        feedback.style.display = 'none';
+                    }, 2000);
+                }, function(err) {
+                    console.error('Failed to copy to clipboard: ', err);
+                });
+            });
+        });
+    </script>
+      <p>Aquest codi et permetrà visualitzar la corba de llum de l'estrella Tabby. A partir d'aquí, pots continuar amb anàlisis més avançades segons les idees esmentades anteriorment.</p>
+    <p>Si necessites més exemples específics o ajuda amb alguna part del codi, només cal mirar la <a href="https://docs.lightkurve.org/"> documentació oficial de lightkurve</a> i els codis python al <a href="https://github
+    com/drfperez"> Github del professor</a></p> 
+    <p>El codi disponible en github anterior del professor i executat en un Google Colab o en qualsevol editor Python senzill com Mu Editor dona aquesta primera imatge:</p><br>
+    <img src="tabby1.png" class="img-fluid"><br>
+    
+    <p>
+Aquest codi que tens a continuació descarrega i processa les dades de corba de llum de l'estrella Tabby (KIC 8462852) des de la missió Kepler, elimina tendències llargues i aplica la transformada de Fourier per analitzar les components freqüencials de les variacions de lluminositat. Això pot ajudar a detectar periodicitats que podrien indicar la presència d'exoplanetes o altres fenòmens. A continuació es mostra el codi amb comentaris detallats:
+</p><br>
+    <div class="container">
+        <h3>Codi per fer Transformades de Fourier amb la corba de llum de l'estel Tabby</h3>
+        <pre>
+            <span class="copy-button"><i class="fas fa-copy"></i></span>
+            <span class="copy-feedback">Copied to clipboard!</span>
+            <code class="language-python"># Instal·lació de Lightkurve i altres biblioteques necessàries
+!pip install lightkurve numpy matplotlib
+
+# Importar les biblioteques necessàries
+import lightkurve as lk
+import numpy as np
+import matplotlib.pyplot as plt
+
+'''
+La transformada de Fourier (TF) és una tècnica matemàtica que transforma una funció del domini del temps 
+a una funció del domini de les freqüències. En el context d'una corba de llum astronòmica, 
+la TF permet identificar les components freqüencials de les variacions de la lluminositat 
+de l'estrella. Això és útil per detectar periodicitats o cicles en les dades, que poden 
+indicar fenòmens físics com la presència d'exoplanetes, estrelles binàries, o altres fenòmens 
+astrofísics. La TF descompon la corba de llum en una suma de sinusoides amb diferents 
+freqüències i amplituds.
+'''
+
+# Descarregar les dades de Kepler per l'estrella Tabby
+target = "KIC 8462852"  # Definir l'objectiu, l'estrella Tabby
+search_result = lk.search_lightcurvefile(target)  # Cercar arxius de corba de llum per l'estrella
+
+# Baixar els fitxers de corba de llum
+lc_collection = search_result.download_all()  # Descarregar tots els arxius de corba de llum trobats
+
+# Unir totes les corbes de llum en una sola
+lc = lc_collection.stitch()  # Combinar totes les corbes de llum en una única corba contínua
+
+# Eliminar valors NaN i normalitzar la corba de llum
+lc = lc.remove_nans().normalize()  # Eliminar valors NaN i normalitzar la corba per a una millor anàlisi
+
+# Eliminar tendències llargues amb un filtre Savitzky-Golay
+lc_detrended = lc.flatten(window_length=401)  # Aplicar un filtre per eliminar tendències de llarg termini
+
+# Visualitzar la corba de llum processada
+lc_detrended.plot()  # Gràfic de la corba de llum processada
+plt.show()  # Mostrar el gràfic
+
+# Aplicar la Transformada de Fourier
+fft = np.fft.fft(lc_detrended.flux)  # Calcular la TF de la corba de llum
+frequencies = np.fft.fftfreq(len(fft), lc_detrended.time[1].value - lc_detrended.time[0].value)  # Calcular les freqüències corresponents
+
+# Filtrar les freqüències positives
+positive_frequencies = frequencies[frequencies > 0]  # Filtrar per obtenir només les freqüències positives
+positive_fft = np.abs(fft[frequencies > 0])  # Obtenir l'amplitud de les components de freqüència positives
+
+# Visualitzar el resultat de la Transformada de Fourier
+plt.figure(figsize=(10, 6))  # Definir la mida de la figura
+plt.plot(positive_frequencies, positive_fft)  # Gràfic de l'espectre de freqüències
+plt.xlabel("Freqüència (cicles per dia)")  # Etiqueta de l'eix X
+plt.ylabel("Amplitud")  # Etiqueta de l'eix Y
+plt.title("Transformada de Fourier de l'Estrella Tabby")  # Títol del gràfic
+plt.show()  # Mostrar el gràfic
+
+# Ampliar l'àrea entre 0 i 5 cicles per dia
+plt.figure(figsize=(10, 6))  # Definir la mida de la figura
+mask = (positive_frequencies > 0) & (positive_frequencies <= 5)  # Crear una màscara per seleccionar el rang de freqüències desitjat
+plt.plot(positive_frequencies[mask], positive_fft[mask])  # Gràfic de l'espectre de freqüències per al rang seleccionat
+plt.xlabel("Freqüència (cicles per dia)")  # Etiqueta de l'eix X
+plt.ylabel("Amplitud")  # Etiqueta de l'eix Y
+plt.title("Transformada de Fourier (0-5 cicles per dia)")  # Títol del gràfic
+plt.show()  # Mostrar el gràfic</code>
+        </pre>
+    </div>
+
+    <script>
+        document.querySelectorAll('.copy-button').forEach(item => {
+            item.addEventListener('click', event => {
+                const codeBlock = item.nextElementSibling.nextElementSibling; // Get the <code> element
+                const codeText = codeBlock.textContent; // Get the text content of the <code> element
+                navigator.clipboard.writeText(codeText).then(function() {
+                    // Show copy feedback
+                    const feedback = item.parentElement.querySelector('.copy-feedback');
+                    feedback.style.display = 'block';
+                    setTimeout(() => {
+                        // Hide feedback after 2 seconds
+                        feedback.style.display = 'none';
+                    }, 2000);
+                }, function(err) {
+                    console.error('Failed to copy to clipboard: ', err);
+                });
+            });
+        });
+    </script><br>
+    <img src="tabby2.png" class="img-fluid">
+<img src="tabby3.png" class="img-fluid">
+</body>
+</html>
+
