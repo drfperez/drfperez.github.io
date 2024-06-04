@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anell d'Einstein</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <!-- Include the Bootstrap JS file -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+      <!-- Include the Bootstrap CSS file -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+      
+</head>
+<body>  
+<div id="navbarContainer"></div>
+
+  <!-- Include your other page content here -->
+
+  <script>
+    // Fetch and insert the navbar.html content
+    fetch("https://pompeu.neocities.org/navbar.html")
+      .then(response => response.text())
+      .then(content => {
+        document.getElementById("navbarContainer").innerHTML = content;
+      })
+      .catch(error => {
+        console.log("Error fetching navbar.html:", error);
+      });
+  </script>
+    <h1>Lents Gravitacionals</h1>
+    <p>Les lents gravitacionals són un fenomen que es produeix quan la llum d'un objecte distant, com ara una galàxia o una estrella, es corba al voltant d'un altre objecte massiu que es troba entre l'observador i l'objecte distant. Aquest efecte és causat per la gravetat de l'objecte massiu que actua com una lent, deformant l'espai-temps i, per tant, la trajectòria de la llum.</p>
+<p><a href="https://github.com/drfperez/lightkurve"> Google Colab sobre fotònica i lents del professor</a></p>
+
+    <p>Les lents gravitacionals funcionen de manera similar a les lents òptiques, però en lloc de corbar la llum mitjançant la refracció, utilitzen la gravetat per corbar l'espai-temps. Quan la llum d'una font distant passa prop d'un objecte massiu, com ara una galàxia, la gravetat d'aquest objecte deforma l'espai-temps i corba la trajectòria de la llum. Això pot donar lloc a diverses imatges de la mateixa font, arcs de llum o fins i tot anells complets, coneguts com anells d'Einstein, si la font, la lent i l'observador estan alineats perfectament.</p>
+
+    <p>L'estudi de les lents gravitacionals ens permet mesurar masses de galàxies i altres objectes massius, així com investigar la distribució de la matèria fosca a l'univers, ja que aquesta també afecta la trajectòria de la llum. Les fórmules presentades aquí són fonamentals per analitzar i interpretar les observacions de lents gravitacionals en l'astronomia.</p>
+    
+<p>La relació entre la lent gravitatòria i la precessió del periheli de Mercuri és un fenomen fascinant en la física. La teoria de la relativitat general d'Einstein prediu que la massa del Sol distorsiona l'espai-temps al seu voltant, actuant com una lent gravitatòria que desvia la trajectòria de la llum de les estrelles properes. Aquesta distorsió gravitatòria afecta l'òrbita de Mercuri, causant una lleugera precessió en el seu periheli, el punt més proper a l'òrbita del Sol. Aquesta precessió va ser un dels primers èxits de la teoria de la relativitat i continua sent un exemple clau del seu poder predictiu en l'estudi dels objectes celestes.</p>
+
+
+
+      <h2>Càlculs d'òrbita newtonià i relativista</h2>
+      <p>Aquests càlculs mostren la determinació de l'òrbita d'un planeta utilitzant tant la mecànica clàssica com la relativitat general. Comencen amb el càlcul del radi orbital clàssic, seguit per la determinació del factor de correcció relativista per la precessió del periheli. Després, es calcula l'òrbita relativista tenint en compte aquesta correcció. Finalment, es converteix aquesta precessió en unitats d'arcsegons per segle. Els resultats mostren com les petites correccions relativistes afecten les òrbites planetàries, en particular la precessió del periheli.</p>
+<p>La precessió del periheli és el fenomen pel qual el punt de l'òrbita d'un planeta més proper al Sol (anomenat periheli) es desplaça lentament al llarg del temps. Això significa que l'òrbita del planeta no és una el·lipse fixa, sinó que gira gradualment sobre si mateixa. Aquest efecte es deu a diverses influències, incloent-hi les interaccions gravitacionals amb altres planetes i els efectes de la relativitat general, que prediu una petita correcció addicional a la força gravitacional newtoniana. La precessió del periheli de Mercuri va ser una de les primeres proves observacionals que van confirmar la teoria de la relativitat general d'Einstein.</p>
+
+<ol>
+  <li>
+    <h3>Òrbita Clàssica</h3>
+    <p>
+      $$r = a \cdot (1 - e^2) / (1 + e \cdot \cos(\theta))$$
+      on:
+      <ul>
+        <li>\(a = 0.387 \text{ AU}\) (semieix major)</li>
+        <li>\(e = 0.2056\) (excentricitat)</li>
+        <li>\(\theta = 0\) (posició angular inicial)</li>
+      </ul>
+      $$r \approx 0.459 \text{ AU}$$
+    </p>
+  </li>
+  <li>
+    <h3>Factor de Correcció Relativista</h3>
+    <p>
+      $$\Delta\phi = \frac{6 \cdot \pi \cdot G \cdot M_{\text{sol}}}{a \cdot c^2 \cdot (1 - e^2)}$$
+      on:
+      <ul>
+        <li>\(G = 6.67430 \times 10^{-11} \text{ N}\cdot\text{m}^2/\text{kg}^2\) (constant gravitacional)</li>
+        <li>\(M_{\text{sol}} = 1.989 \times 10^{30} \text{ kg}\) (massa del Sol)</li>
+        <li>\(a = 0.387 \text{ AU}\) (semieix major)</li>
+        <li>\(c = 2.998 \times 10^8 \text{ m/s}\) (velocitat de la llum)</li>
+        <li>\(e = 0.2056\) (excentricitat)</li>
+      </ul>
+      $$\Delta\phi \approx 5.018 \times 10^{-7} \text{ rad/òrbita}$$
+    </p>
+  </li>
+  <li>
+    <h3>Òrbita Relativista</h3>
+    <p>
+      $$\phi_{\text{rel}} = \phi + \Delta\phi \cdot t / \text{període}$$
+      on:
+      <ul>
+        <li>\(\phi = 0\) (posició angular inicial)</li>
+        <li>\(t = 0\) (temps inicial)</li>
+        <li>\(\text{període} = 87.9691 \text{ dies}\) (període orbital)</li>
+      </ul>
+      $$\phi_{\text{rel}} \approx 0$$
+      $$r = a \cdot (1 - e^2) / (1 + e \cdot \cos(\phi_{\text{rel}}))$$
+      $$r \approx 0.459 \text{ AU}$$
+    </p>
+  </li>
+  <li>
+    <h3>Precessió del Periheli</h3>
+    <p>
+      $$\Delta\phi_{\text{arcsec}} = \Delta\phi \cdot \frac{180}{\pi} \cdot 3600$$
+      $$\Delta\phi_{\text{arcsec}} \approx 5.018 \times 10^{-7} \text{ rad/òrbita} \cdot \frac{180}{\pi} \cdot 3600$$
+      $$\Delta\phi_{\text{arcsec}} \approx 43.63 \text{ arcsec/sigl}$$
+    </p>
+  </li>
+</ol>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
+
+
+
+    <h1>Anell d'Einstein</h1>
+    <p>Un anell d'Einstein és un fenomen astronòmic que es produeix quan la llum d'un objecte distant, com ara una galàxia o una estrella, es corba al voltant d'un altre objecte massiu que es troba entre l'observador i l'objecte distant. Aquest efecte és causat per la gravetat de l'objecte massiu que actua com una lent, deformant l'espai-temps i, per tant, la trajectòria de la llum.</p>
+
+    <p>La fórmula de l'anell d'Einstein es deriva de la teoria de la relativitat general d'Albert Einstein i es pot expressar com:</p>
+
+    <p>$$ \theta_E = \sqrt{\frac{4GM}{c^2} \cdot \frac{D_{LS}}{D_L D_S}} $$</p>
+
+    <p>On:</p>
+    <ul>
+        <li><b>\( \theta_E \)</b> és el radi angular de l'anell d'Einstein.</li>
+        <li><b>\( G \)</b> és la constant de gravitació universal.</li>
+        <li><b>\( M \)</b> és la massa de l'objecte massiu que actua com a lent.</li>
+        <li><b>\( c \)</b> és la velocitat de la llum en el buit.</li>
+        <li><b>\( D_{LS} \)</b> és la distància entre la lent i la font.</li>
+        <li><b>\( D_L \)</b> és la distància entre l'observador i la lent.</li>
+        <li><b>\( D_S \)</b> és la distància entre l'observador i la font.</li>
+    </ul>
+
+    <h2>Pas a Pas</h2>
+    <ol>
+        <li><b>Definició de l'Anell d'Einstein:</b> Un anell d'Einstein es forma quan una font de llum distant està perfectament alineada amb una lent gravitacional (un objecte massiu) i l'observador. La llum de la font es veu desviada per la gravetat de la lent, formant un cercle complet de llum.</li>
+
+        <li><b>Equació de la desviació de la llum:</b> Segons la relativitat general, la desviació de la llum per un objecte massiu ve determinada per la seva massa. La desviació angular \( \alpha \) és proporcional a la massa de la lent i inversament proporcional a la distància al centre de la massa. La fórmula és:
+            <p>$$ \alpha = \frac{4GM}{c^2 b} $$</p>
+            On \( b \) és el radi del feix de llum en el punt de màxima aproximació a la lent.
+        </li>
+
+
+    <h3>Deducció de l'Equació de la Desviació de la Llum</h3>
+
+    <p>La desviació de la llum per un objecte massiu es pot descriure mitjançant la teoria de la relativitat general. A continuació, deduïm l'equació de la desviació de la llum pas a pas.</p>
+
+    <ul>
+        <li><b>Força gravitacional:</b> Segons la teoria de la relativitat general, la gravetat és una manifestació de la curvatura de l'espai-temps causada per la massa d'un objecte. La força gravitacional que una massa \( M \) exerceix sobre una partícula de llum (foton) a una distància \( r \) ve donada per la llei de Newton:
+            <p>$$ F = \frac{GMm}{r^2} $$</p>
+            On \( G \) és la constant de gravitació universal i \( m \) és la massa del foton.</p>
+        </li>
+        <li><b>Relació entre força i desviació:</b> Tot i que els fotons no tenen massa en repòs, tenen energia \( E \) i, per tant, equivalència de massa \( m \) segons la relació d'Einstein \( E = mc^2 \). Així, podem considerar la força gravitacional que actua sobre el fotó en el seu camí proper a un objecte massiu.</li>
+        <li><b>Trajectòria del fotó:</b> El canvi en la direcció del fotó es produeix a causa de la força gravitacional perpendicular a la seva trajectòria. Si considerem el fotó que passa a una distància \( b \) (distància d'impacte) de la massa, la desviació angular total \( \alpha \) és la integral de la força al llarg del camí del fotó. Aquest càlcul es fa utilitzant la relativitat general, resultant en:
+            <p>$$ \alpha = \frac{4GM}{c^2 b} $$</p>
+            On:
+            <ol>
+                <li>\( \alpha \) és l'angle de desviació.</li>
+                <li>\( G \) és la constant de gravitació universal.</li>
+                <li>\( M \) és la massa de l'objecte massiu.</li>
+                <li>\( c \) és la velocitat de la llum en el buit.</li>
+                <li>\( b \) és la distància mínima entre el fotó i l'objecte massiu (distància d'impacte).</li>
+            </ul>
+        </li>
+        <li><b>Interpretació de l'equació:</b> Aquesta equació mostra que l'angle de desviació és directament proporcional a la massa de l'objecte massiu i inversament proporcional a la distància d'impacte. És a dir, un objecte més massiu o un pas més proper al fotó resultarà en una desviació més gran.</li>
+    </ol>
+
+    <p>Aquesta deducció proporciona una base per comprendre com la llum es desvia quan passa prop d'un objecte massiu, i és fonamental per la formació dels anells d'Einstein en l'astronomia.</p>
+
+        <li><b>Relació angular:</b> La desviació angular es pot relacionar amb el radi angular de l'anell d'Einstein mitjançant la següent fórmula:
+            <p>$$ \theta_E = \frac{D_{LS}}{D_S} \alpha $$</p>
+        </li>
+
+        <li><b>Fórmula final:</b> Substituint \( \alpha \) a la relació anterior i simplificant, arribem a la fórmula de l'anell d'Einstein:
+            <p>$$ \theta_E = \sqrt{\frac{4GM}{c^2} \cdot \frac{D_{LS}}{D_L D_S}} $$</p>
+        </li>
+    </ol>
+
+    <p>Aquesta fórmula ens diu que el radi angular de l'anell d'Einstein depèn directament de la massa de l'objecte massiu (més massa significa un anell més gran) i de les distàncies relatives entre la font, la lent i l'observador. En la pràctica, l'observació d'anells d'Einstein ens permet mesurar la massa de galàxies i altres objectes massius que actuen com a lents, així com estudiar la distribució de la matèria fosca en l'univers.</p><h3>H0LiCOW i Supernova Redsdal</h3>
+<p>H0LiCOW (H0 Lenses in COSMOGRAIL's Wellspring) és un projecte de recerca que utilitza sistemes de lents gravitacionals per mesurar la constant de Hubble (H0), que determina la velocitat a la qual l'univers s'està expandint.</p>
+
+<p>Aquest projecte es basa en l'observació de galàxies llunyanes les imatges de les quals són distorsionades per la gravetat d'una galàxia massiva que hi ha entre elles i la Terra, creant múltiples imatges de la mateixa galàxia llunyana. En mesurar el temps que la llum triga a arribar a la Terra per cada camí diferent (retard temporal), els científics poden calcular les distàncies entre aquestes galàxies i, finalment, determinar la constant de Hubble amb gran precisió.</p>
+
+<p>H0LiCOW combina observacions de telescopis amb anàlisis teòriques avançades per obtenir aquestes mesures, contribuint de manera significativa a la nostra comprensió de l'expansió de l'univers.</p>
+
+<p>Per a més informació sobre els productes de dades de H0LiCOW, pots visitar la seva <a href="https://shsuyu.github.io/H0LiCOW/site/h0licow_data.html">pàgina oficial de dades</a>. També pots accedir al codi de Python per a la inferència de H0 al seu <a href="https://github.com/shsuyu/H0LiCOW-public/blob/master/H0_inference_code%2FH0_inference.ipynb">repositori de GitHub</a>.</p>
+<p>Les supernoves, especialment les de tipus Ia, són essencials per determinar la constant de Hubble (H0) perquè actuen com a "candeles estàndard" amb una lluminositat intrínseca coneguda. Això permet als astrònoms calcular la distància a la supernova mesurant la seva lluminositat aparent. Combinant aquesta distància amb el desplaçament cap al vermell (redshift) de la supernova, que indica la velocitat a la qual s'allunya de nosaltres, es pot determinar H0, que descriu la taxa d'expansió de l'univers.</p>
+
+<p>La supernova Refsdal és d'interès particular perquè és una de les primeres supernoves observades passant per una lent gravitacional. Aquesta situació permet obtenir mesures molt precises del retard temporal, que és el temps diferent que triga la llum de la supernova a arribar a la Terra per diferents camins causats per la distorsió de la lent gravitatòria. Aquestes mesures ajuden a calcular H0 de manera molt precisa i independent del model cosmològic, aportant noves dades per entendre millor l'expansió de l'univers.</p>
+
+<p>La constant de Hubble (H0) és una mesura de la velocitat d'expansió de l'univers. Es defineix com la velocitat a la qual una galàxia s'allunya de nosaltres per unitat de distància. Això vol dir que una galàxia situada el doble de lluny s'allunya el doble de ràpid. El valor aproximat de H0 està al voltant de 70 km/s/Mpc (quilòmetres per segon per megaparsec), tot i que hi ha algunes variacions en les mesures depenent del mètode utilitzat.</p>
+
+<p>Diversos mètodes s'utilitzen per determinar la constant de Hubble, incloent les observacions de supernoves de tipus Ia, les oscil·lacions acústiques bariòniques (BAO), les mesures del fons còsmic de microones (CMB) i les lents gravitacionals. Cada mètode té els seus avantatges i incerteses. Per exemple, les supernoves de tipus Ia proporcionen mesures directes de distàncies, mentre que el CMB ofereix informació sobre l'univers primitiu. Les lents gravitacionals, com en el cas de la supernova Refsdal, permeten calcular el retard temporal per obtenir H0. Sovint, es combinen resultats de diferents mètodes per obtenir una estimació més precisa i robusta de la constant de Hubble.</p>
+    
+</body>
+</html>
