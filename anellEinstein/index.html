@@ -99,7 +99,177 @@
 </ol>
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
 
+<pre><code>
 
+import numpy as np  # Importa el paquet numpy per a operacions matemàtiques amb arrays
+import matplotlib.pyplot as plt  # Importa el paquet matplotlib per a visualització de gràfics
+
+# Constants
+G = 6.67430e-11  # Constant de gravitació universal (m^3 kg^-1 s^-2)
+c = 2.998e8  # Velocitat de la llum (m/s)
+M_sun = 1.989e30  # Massa del Sol (kg)
+AU = 1.496e11  # Unitat Astronòmica (m)
+
+# Paràmetres per a Mercuri
+a = 0.387 * AU  # Semieix major de l'òrbita (m)
+e = 0.2056  # Excentricitat
+period = 87.9691 * 24 * 3600  # Període orbital (s)
+
+# Paràmetres de la simulació
+num_orbits = 100  # Nombre d'òrbites a simular
+num_points_per_orbit = 1000  # Nombre de punts per òrbita
+total_points = num_orbits * num_points_per_orbit  # Total de punts en la simulació
+time_step = period / num_points_per_orbit  # Pas de temps per cada punt
+
+# Òrbita clàssica
+theta = np.linspace(0, 2 * np.pi * num_orbits, total_points)  # Angle theta dividit uniformement
+r_classical = a * (1 - e**2) / (1 + e * np.cos(theta))  # Radi de l'òrbita clàssica
+
+# Factor de correcció relativista
+def relativistic_correction():  # Funció per calcular la correcció relativista
+    return (6 * np.pi * G * M_sun) / (a * c**2 * (1 - e**2))  # Fórmula de la correcció
+
+# Simula l'òrbita amb efectes relativistes
+r_relativistic = []  # Llista per emmagatzemar els radis de l'òrbita relativista
+phi_rel = 0  # Inicialitza l'angle phi relativista
+phis = []  # Llista per emmagatzemar els angles phi relativistes
+rel_corr = relativistic_correction()  # Calcula la correcció relativista
+for t in range(total_points):  # Itera sobre cada punt en la simulació
+    delta_phi = 2 * np.pi / num_points_per_orbit  # Increment de l'angle phi per cada punt
+    phi_rel += delta_phi + rel_corr * time_step / period  # Actualitza l'angle phi relativista
+    r = a * (1 - e**2) / (1 + e * np.cos(phi_rel))  # Calcula el radi de l'òrbita relativista
+    r_relativistic.append(r)  # Afegeix el radi a la llista
+    phis.append(phi_rel)  # Afegeix l'angle phi a la llista
+
+r_relativistic = np.array(r_relativistic)  # Converteix la llista a un array de numpy
+
+# Converteix a coordenades cartesianes
+x_classical = r_classical * np.cos(theta)  # Coordenada x de l'òrbita clàssica
+y_classical = r_classical * np.sin(theta)  # Coordenada y de l'òrbita clàssica
+
+x_relativistic = r_relativistic * np.cos(np.array(phis))  # Coordenada x de l'òrbita relativista
+y_relativistic = r_relativistic * np.sin(np.array(phis))  # Coordenada y de l'òrbita relativista
+
+# Calcula les posicions del periheli per cada òrbita
+perihelion_angles_classical = []  # Llista per emmagatzemar els angles del periheli clàssic
+perihelion_angles_relativistic = []  # Llista per emmagatzemar els angles del periheli relativista
+
+for i in range(num_orbits):  # Itera sobre cada òrbita
+    idx_classical = np.argmin(r_classical[i*num_points_per_orbit:(i+1)*num_points_per_orbit])  # Índex del periheli clàssic
+    idx_relativistic = np.argmin(r_relativistic[i*num_points_per_orbit:(i+1)*num_points_per_orbit])  # Índex del periheli relativista
+
+    perihelion_angles_classical.append(theta[idx_classical + i*num_points_per_orbit])  # Afegeix l'angle del periheli clàssic
+    perihelion_angles_relativistic.append(phis[idx_relativistic + i*num_points_per_orbit])  # Afegeix l'angle del periheli relativista
+
+# Converteix els angles a graus
+perihelion_angles_classical = np.array(perihelion_angles_classical) * 180 / np.pi  # Converteix angles clàssics a graus
+perihelion_angles_relativistic = np.array(perihelion_angles_relativistic) * 180 / np.pi  # Converteix angles relativistes a graus
+
+# Calcula el canvi mitjà en l'angle del periheli per òrbita i el canvi total
+delta_perihelion_per_orbit = np.mean(perihelion_angles_relativistic - perihelion_angles_classical)  # Canvi mitjà per òrbita
+total_delta_perihelion = delta_perihelion_per_orbit * num_orbits  # Canvi total després de totes les òrbites
+
+print(f"Average change in perihelion angle per orbit: {delta_perihelion_per_orbit:.10f} degrees")  # Imprimeix el canvi mitjà
+print(f"Total change in perihelion angle after {num_orbits} orbits: {total_delta_perihelion:.10f} degrees")  # Imprimeix el canvi total
+
+# Traça les òrbites
+plt.figure(figsize=(10, 5))  # Crea una figura amb dues subtrames
+
+plt.subplot(1, 2, 1)  # Primera subtrama
+plt.plot(x_classical / AU, y_classical / AU, label='Classical Orbit')  # Traça l'òrbita clàssica
+plt.xlabel('x (AU)')  # Etiqueta de l'eix x
+plt.ylabel('y (AU)')  # Etiqueta de l'eix y
+plt.title('Classical Orbit of Mercury')  # Títol de la gràfica
+plt.legend()  # Afegeix la llegenda
+
+plt.subplot(1, 2, 2)  # Segona subtrama
+plt.plot(x_relativistic / AU, y_relativistic / AU, label='Relativistic Orbit')  # Traça l'òrbita relativista
+plt.xlabel('x (AU)')  # Etiqueta de l'eix x
+plt.ylabel('y (AU)')  # Etiqueta de l'eix y
+plt.title('Relativistic Orbit of Mercury')  # Títol de la gràfica
+plt.legend()  # Afegeix la llegenda
+
+plt.tight_layout()  # Ajusta l'espai entre les subtrames
+plt.show()  # Mostra la figura
+
+# Traça la precessió del periheli
+plt.figure(figsize=(10, 5))  # Crea una figura
+
+plt.plot(perihelion_angles_classical, label='Classical Perihelion')  # Traça els angles del periheli clàssic
+plt.plot(perihelion_angles_relativistic, label='Relativistic Perihelion')  # Traça els angles del periheli relativista
+plt.xlabel('Orbit Number')  # Etiqueta de l'eix x
+plt.ylabel('Perihelion Angle (degrees)')  # Etiqueta de l'eix y
+plt.title('Perihelion Precession of Mercury')  # Títol de la gràfica
+plt.legend()  # Afegeix la llegenda
+plt.show()  # Mostra la figura
+
+# Calcula la correcció relativista a la precessió del periheli
+relativistic_correction = (6 * np.pi * G * M_sun) / (a * c**2 * (1 - e**2))  # Fórmula de la correcció
+print(f"Relativistic correction to perihelion precession: {relativistic_correction:.10f} radians/orbit")  # Imprimeix la correcció
+
+# Converteix a segons d'arc per segle
+relativistic_correction_arcsec = relativistic_correction * 180 / np.pi * 3600  # Conversió a segons d'arc per segle
+print(f"Relativistic correction to perihelion precession: {relativistic_correction_arcsec:.10f} arcseconds/century")  # Imprimeix la correcció en segons d'arc
+
+# Fórmules matemàtiques i càlcul pas a pas
+
+# 1. Òrbita clàssica:
+# r = a * (1 - e^2) / (1 + e * cos(theta))
+
+print("Classical orbit:")  # Imprimeix la fórmula de l'òrbita clàssica
+print("r = a * (1 - e^2) / (1 + e * cos(theta))")  # Fórmula de l'òrbita clàssica
+print("where:")  # Explica els termes de la fórmula
+print("a = semi-major axis")  # Semieix major
+print("e = eccentricity")  # Excentricitat
+print("theta = angular position")  # Posició angular
+
+# 2. Factor de correcció relativista:
+# Δφ = (6 * π * G * M_sun) / (a * c^2 * (1 - e^2))
+
+print("\nRelativistic correction factor:")  # Imprimeix la fórmula de la correcció relativista
+print("Δφ = (6 * π * G * M_sun) / (a * c^2 * (1 - e^2))")  # Fórmula de la correcció relativista
+print("where:")  # Explica els termes de la fórmula
+print("G = gravitational constant")  # Constant de gravitació universal
+print("M_sun = mass of the Sun")  # Massa del Sol
+print("a = semi-major axis")  # Semieix major
+print("c = speed of light")  # Velocitat de la llum
+print("e = eccentricity")  # Excentricitat
+
+# 3. Òrbita relativista:
+# r = a * (1 - e^2) / (1 + e * cos(phi_rel))
+# phi_rel = phi + Δφ * t / period
+
+print("\nRelativistic orbit:")  # Imprimeix la fórmula de l'òrbita relativista
+print("r = a * (1 - e^2) / (1 + e * cos(phi_rel))")  # Fórmula de l'òrbita relativista
+print("phi_rel = phi + Δφ * t / period")  # Fórmula per calcular l'angle relativista
+print("where:")  # Explica els termes de la fórmula
+print("phi = angular position")  # Posició angular
+print("Δφ = relativistic correction factor")  # Factor de correcció relativista
+print("t = time")  # Temps
+print("period = orbital period")  # Període orbital
+
+# 4. Precessió del periheli:
+# Δφ = (6 * π * G * M_sun) / (a * c^2 * (1 - e^2))
+
+print("\nPerihelion precession:")  # Imprimeix la fórmula de la precessió del periheli
+print("Δφ = (6 * π * G * M_sun) / (a * c^2 * (1 - e^2))")  # Fórmula de la precessió del periheli
+print("where:")  # Explica els termes de la fórmula
+print("G = gravitational constant")  # Constant de gravitació universal
+print("M_sun = mass of the Sun")  # Massa del Sol
+print("a = semi-major axis")  # Semieix major
+print("c = speed of light")  # Velocitat de la llum
+print("e = eccentricity")  # Excentricitat
+
+# 5. Conversió a segons d'arc per segle:
+# Δφ_arcsec = Δφ * 180 / π * 3600
+
+print("\nConversion to arcseconds per century:")  # Imprimeix la fórmula de conversió
+print("Δφ_arcsec = Δφ * 180 / π * 3600")  # Fórmula de conversió a segons d'arc per segle
+print("where:")  # Explica els termes de la fórmula
+print("Δφ = relativistic correction factor")  # Factor de correcció relativista
+print("π = mathematical constant")  # Constant matemàtica
+print("3600 = conversion factor")  # Factor de conversió
+</code></pre>
 
     <h1>Anell d'Einstein</h1>
     <p>Un anell d'Einstein és un fenomen astronòmic que es produeix quan la llum d'un objecte distant, com ara una galàxia o una estrella, es corba al voltant d'un altre objecte massiu que es troba entre l'observador i l'objecte distant. Aquest efecte és causat per la gravetat de l'objecte massiu que actua com una lent, deformant l'espai-temps i, per tant, la trajectòria de la llum.</p>
