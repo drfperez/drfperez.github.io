@@ -1,135 +1,162 @@
-let ship; // Declara la variable per a la nau
-let asteroids = []; // Declara un array per als asteroides
-let lasers = []; // Declara un array per als lasers
-let score = 0; // Declara la puntuació inicial com a 0
-let gameStarted = false; // Declara si el joc ha començat com a fals
-let isMobile; // Declara una variable per detectar si l'usuari està en un dispositiu mòbil
 
-function setup() { // Funció de configuració
-  createCanvas(windowWidth, windowHeight); // Crea un canvas que ocupa tota la finestra del navegador
-  detectDevice(); // Detecta si l'usuari està en un dispositiu mòbil
-  showIntroScreen(); // Mostra la pantalla d'introducció al joc
-  ship = new Ship(); // Crea una nova nau
-  for (let i = 0; i < 10; i++) { // Bucle per a crear 10 asteroides
+let ship;
+let asteroids = [];
+let lasers = [];
+let score = 0;
+let gameStarted = false;
+let isMobile;
+let gameOver = false;
+let intervalId;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  detectDevice();
+  showIntroScreen();
+  ship = new Ship();
+  for (let i = 0; i < 10; i++) {
     asteroids.push(new Asteroid());
   }
+  intervalId = setInterval(addAsteroid, 3000); // Afegir un nou asteroide cada 3 segons
 }
 
-function draw() { // Funció de dibuix
-  background(0); // Estableix el color de fons a negre
+function draw() {
+  background(0);
 
-  if (!gameStarted) { // Si el joc no ha començat encara
-    showIntroScreen(); // Mostra la pantalla d'introducció
+  if (gameOver) {
+    showGameOverScreen();
     return;
   }
 
-  ship.update(); // Actualitza la nau
-  ship.render(); // Dibuixa la nau
-  ship.edges(); // Controla els límits de la nau
+  if (!gameStarted) {
+    showIntroScreen();
+    return;
+  }
 
-  for (let i = lasers.length - 1; i >= 0; i--) { // Bucle per a actualitzar i dibuixar els lasers
-    lasers[i].update(); // Actualitza el laser
-    lasers[i].render(); // Dibuixa el laser
-    if (lasers[i].offscreen()) { // Si el laser surt de la pantalla
-      lasers.splice(i, 1); // Elimina el laser de l'array
-    } else { // Si el laser no surt de la pantalla
-      for (let j = asteroids.length - 1; j >= 0; j--) { // Bucle per a comprovar si el laser impacta amb un asteroide
-        if (lasers[i].hits(asteroids[j])) { // Si el laser impacta amb un asteroide
-          asteroids.splice(j, 1); // Elimina l'asteroide de l'array
-          lasers.splice(i, 1); // Elimina el laser de l'array
-          score++; // Incrementa la puntuació
-          break; // Sortir del bucle interior
+  ship.update();
+  ship.render();
+  ship.edges();
+
+  for (let i = lasers.length - 1; i >= 0; i--) {
+    lasers[i].update();
+    lasers[i].render();
+    if (lasers[i].offscreen()) {
+      lasers.splice(i, 1);
+    } else {
+      for (let j = asteroids.length - 1; j >= 0; j--) {
+        if (lasers[i].hits(asteroids[j])) {
+          asteroids.splice(j, 1);
+          lasers.splice(i, 1);
+          score++;
+          break;
         }
       }
     }
   }
 
-  for (let i = asteroids.length - 1; i >= 0; i--) { // Bucle per a actualitzar i dibuixar els asteroides
-    asteroids[i].update(); // Actualitza l'asteroide
-    asteroids[i].render(); // Dibuixa l'asteroide
-    asteroids[i].edges(); // Controla els límits de l'asteroide
-    if (ship.hits(asteroids[i])) { // Si la nau impacta amb un asteroide
-      console.log("Game Over"); // Mostra "Game Over" a la consola
-      noLoop(); // Atura el joc
+  for (let i = asteroids.length - 1; i >= 0; i--) {
+    asteroids[i].update();
+    asteroids[i].render();
+    asteroids[i].edges();
+    if (ship.hits(asteroids[i])) {
+      console.log("Game Over");
+      gameOver = true;
+      clearInterval(intervalId); // Atura la creació de nous asteroides
     }
   }
 
-  // Mostra la puntuació
-  fill(255); // Estableix el color del text a blanc
-  textSize(24); // Estableix la mida del text a 24
-  textAlign(RIGHT); // Alinea el text a la dreta
-  text("Puntuació: " + score, width - 20, 40); // Mostra la puntuació a la part superior dreta de la pantalla
+  fill(255);
+  textSize(24);
+  textAlign(RIGHT);
+  text("Puntuació: " + score, width - 20, 40);
 }
 
-function detectDevice() { // Funció per detectar el tipus de dispositiu
-  if (/Mobi|Android/i.test(navigator.userAgent)) { // Si l'usuari està en un dispositiu mòbil
-    isMobile = true; // Estableix isMobile a true
-  } else { // Si l'usuari no està en un dispositiu mòbil
-    isMobile = false; // Estableix isMobile a false
-  }
+function showGameOverScreen() {
+  background(0);
+  fill(255);
+  textAlign(CENTER);
+  textSize(32);
+  text("Game Over", width / 2, height / 2 - 40);
+  textSize(24);
+  text("Puntuació final: " + score, width / 2, height / 2);
+  text("Clica o toca per jugar de nou", width / 2, height / 2 + 40);
 }
 
-function showIntroScreen() { // Funció per mostrar la pantalla d'introducció
-  background(0); // Estableix el color de fons a negre
-  fill(255); // Estableix el color del text a blanc
-  textAlign(CENTER); // Alinea el text al centre
-  textSize(32); // Estableix la mida del text a 32
-  text("Joc d'Asteroides", width / 2, height / 3); // Mostra el títol del joc al centre de la pantalla
-  textSize(24); // Estableix la mida del text a 24
-
-  if (isMobile) { // Si l'usuari està en un dispositiu mòbil
-    text("Toca per començar", width / 2, height / 2); // Mostra "Toca per començar" al centre de la pantalla
-    text("Toca per moure i disparar", width / 2, height / 2 + 40); // Mostra "Toca per moure i disparar" sota del text anterior
-  } else { // Si l'usuari no està en un dispositiu mòbil
-    text("Clica per començar", width / 2, height / 2); // Mostra "Clica per començar" al centre de la pantalla
-    text("Clica i arrossega per moure i disparar", width / 2, height / 2 + 40); // Mostra "Clica i arrossega per moure i disparar" sota del text anterior
+function detectDevice() {
+  if (/Mobi|Android/i.test(navigator.userAgent)) {
+    isMobile = true;
+  } else {
+    isMobile = false;
   }
 }
 
-function touchStarted() { // Funció que s'executa quan es toca la pantalla
-  if (!gameStarted) { // Si el joc no ha començat encara
-    gameStarted = true; // Estableix gameStarted a true
-    return false; // Impedeix el comportament per defecte del navegador
-  }
-  if (isMobile) { // Si l'usuari està en un dispositiu mòbil
-    ship.setRotation(atan2(touches[0].y - ship.pos.y, touches[0].x - ship.pos.x)); // Estableix la rotació de la nau basant-se en la posició del toc
-    ship.boost(); // Augmenta la velocitat de la nau
-    ship.fire(); // Dispara un laser
-    return false; // Impedeix el comportament per defecte del navegador
-  }
-}
-
-function touchMoved() { // Funció que s'executa quan es mou el dit per la pantalla
-  if (isMobile) { // Si l'usuari està en un dispositiu mòbil
-    ship.setRotation(atan2(touches[0].y - ship.pos.y, touches[0].x - ship.pos.x)); // Calcula l'angle de rotació de la nau basant-se en la posició del toc
-    ship.boost(); // Augmenta la velocitat de la nau
-    return false; // Impedeix el comportament per defecte del navegador
+function showIntroScreen() {
+  background(0);
+  fill(255);
+  textAlign(CENTER);
+  textSize(32);
+  text("Joc d'Asteroides", width / 2, height / 3);
+  textSize(24);
+  if (isMobile) {
+    text("Toca per començar", width / 2, height / 2);
+    text("Toca per moure i disparar", width / 2, height / 2 + 40);
+  } else {
+    text("Clica per començar", width / 2, height / 2);
+    text("Clica i arrossega per moure i disparar", width / 2, height / 2 + 40);
   }
 }
 
-function mousePressed() { // Funció que s'executa quan es prem el botó del ratolí
-  if (!gameStarted) { // Si el joc no ha començat encara
-    gameStarted = true; // Estableix gameStarted a true
-    return false; // Impedeix el comportament per defecte del navegador
+function touchStarted() {
+  if (!gameStarted) {
+    gameStarted = true;
+    return false;
   }
-  if (!isMobile) { // Si l'usuari no està en un dispositiu mòbil
-    ship.setRotation(atan2(mouseY - ship.pos.y, mouseX - ship.pos.x)); // Calcula l'angle de rotació de la nau basant-se en la posició del ratolí
-    ship.boost(); // Augmenta la velocitat de la nau
-    ship.fire(); // Dispara un laser
-    return false; // Impedeix el comportament per defecte del navegador
+  if (gameOver) {
+    restartGame();
+    return false;
   }
-}
-
-function mouseDragged() { // Funció que s'executa quan es mou el ratolí mentre es manté premut el botó
-  if (!isMobile) { // Si l'usuari no està en un dispositiu mòbil
-    ship.setRotation(atan2(mouseY - ship.pos.y, mouseX - ship.pos.x)); // Calcula l'angle de rotació de la nau basant-se en la posició del ratolí
-    ship.boost(); // Augmenta la velocitat de la nau
-    return false; // Impedeix el comportament per defecte del navegador
+  if (isMobile) {
+    ship.setRotation(atan2(touches[0].y - ship.pos.y, touches[0].x - ship.pos.x));
+    ship.boost();
+    ship.fire();
+    return false;
   }
 }
 
-function windowResized() { // Funció que s'executa quan es redimensiona la finestra del navegador
-  resizeCanvas(windowWidth, windowHeight); // Redimensiona el canvas perquè coincideixi amb les noves dimensions de la finestra
+function mousePressed() {
+  if (!gameStarted) {
+    gameStarted = true;
+    return false;
+  }
+  if (gameOver) {
+    restartGame();
+    return false;
+  }
+  if (!isMobile) {
+    ship.setRotation(atan2(mouseY - ship.pos.y, mouseX - ship.pos.x));
+    ship.boost();
+    ship.fire();
+    return false;
+  }
+}
+
+function restartGame() {
+  gameOver = false;
+  score = 0;
+  ship = new Ship();
+  asteroids = [];
+  lasers = [];
+  for (let i = 0; i < 10; i++) {
+    asteroids.push(new Asteroid());
+  }
+  intervalId = setInterval(addAsteroid, 3000); // Reprendre la creació de nous asteroides
+}
+
+function addAsteroid() {
+  asteroids.push(new Asteroid());
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 class Ship { // Declara la classe Ship
   constructor() { // Constructor de la classe
