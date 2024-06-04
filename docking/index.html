@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docking Molecular i Descriptors: Nous fàrmacs des del Ginkgo i taxans com exemples</title>
+    <style>
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" integrity="sha384-zcGpcjRzGzCjq1dF1Yt3Kj0B0WJLZHsuqC+zmK9X9gxm+nEQxlB/Nfhb1kpGd5B" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFlWpvrB+cD7Y5f+qSr5HcQcNcJw5sE9MxkK4k" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/addons/p5.dom.min.js"></script>
+       <!-- Include the Bootstrap JS file -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+      <!-- Include the Bootstrap CSS file -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+      
+</head>
+<body>  
+<div id="navbarContainer"></div>
+
+  <!-- Include your other page content here -->
+
+  <script>
+    // Fetch and insert the navbar.html content
+    fetch("https://pompeu.neocities.org/navbar.html")
+      .then(response => response.text())
+      .then(content => {
+        document.getElementById("navbarContainer").innerHTML = content;
+      })
+      .catch(error => {
+        console.log("Error fetching navbar.html:", error);
+      });
+  </script>
+<h1>Recerca de nous fàrmacs amb intel·ligència artificial</h1>
+<p>Estudiarem molts possibles nous fàrmacs similars o derivats de fàrmacs coneguts emprant diferents eines: QSAR, docking molecular i recerca amb algorismes aprenentatge profund amb diverses biblioteques python per a la recerca <i>in silico</i> de nous fàrmacs que actuen sobre diverses proteïnes disponibles al Protein Data Bank.</p>
+
+<h2>Productes naturals com fàrmacs</h2>
+<p>Pots dibuixar amb Avogadro i/o altres editor químics online (<i>online chemical editors</i>). Des de Avogadro, Afegir Hidrògens i Optimitzar geometria o estructura i guardar com mol2. Tambe pots transformar compostos químics des de <a href="https://pubchem.ncbi.nlm.nih.gov/#query=">Pubchem </a>(smiles, sdf), <a href="https://www.chemspider.com/">Chemspider</a> o <a href="https://coconut.naturalproducts.net">Base de dades de productes naturals Coconut</a>(mol),  <a href="https://zinc.docking.org/">Zinc database </a>(sdf) mitjançant <a href="https://avogadro.cc/">Avogadro</a> o amb  <a href="https://www.cheminfo.org/Chemistry/Cheminformatics/FormatConverter/index.html"> Conversor formats químics</a></p><p>Base de dades de productes naturals de <a href="http://tcm.cmu.edu.tw/">Medicina Tradicional Xinesa de Taiwan</a></p>
+<h2>Taxans contra el càncer</h2>
+
+<p>Taxans anticancerígens aprovats: paclitaxel (taxol), docetaxel, cabazitaxel</p>
+<p>Altres taxans en estudis clínics en curs: larotaxel, milataxel, ortataxel i tesetaxel </p>
+<img src="taxans2.jpg">
+
+<img src="taxans1.jpg">
+<p>Altres taxans com les taxinines: taxinine A, B, C, J, H, K, etc.</p>
+<img src="taxans3.jpg">
+<p>Altres taxans com la família de les taxines: taxine A, B i C</p>
+<img src="taxans4.jpg">
+<p>I, de moment, la darrera família: les baccatines</p>
+<img src="taxans5.jpg">
+<h2>Anticancer small protein targets</h2>
+<ol>
+    <li>Bcl-2 (B-cell lymphoma 2)</li>
+    <li>Bcl-xL (B-cell lymphoma-extra large)</li>
+    <li>MDM2 (Mouse double minute 2 homolog)</li>
+    <li>p53 (Tumor protein p53)</li>
+    <li>c-Jun (Proto-oncogene c-Jun)</li>
+    <li>c-Fos (Proto-oncogene c-Fos)</li>
+    <li>STAT3 (Signal transducer and activator of transcription 3)</li>
+    <li>Survivin (BIRC5)</li>
+    <li>Hsp70 (Heat shock protein 70)</li>
+    <li>XIAP (X-linked inhibitor of apoptosis protein)</li>
+    <li>Notch1 (Neurogenic locus notch homolog protein 1)</li>
+    <li>Aurora A (Serine/threonine-protein kinase Aurora-A)</li>
+    <li>Aurora B (Serine/threonine-protein kinase Aurora-B)</li>
+    <li>PIM1 (Serine/threonine-protein kinase pim-1)</li>
+    <li>BRAF V600E (B-Raf Proto-Oncogene, Serine/Threonine Kinase)</li>
+    <li>MEK1 (Mitogen-activated protein kinase kinase 1)</li>
+    <li>AKT1 (RAC-alpha serine/threonine-protein kinase)</li>
+    <li>FGFR3 (Fibroblast growth factor receptor 3)</li>
+    <li>EZH2 (Enhancer of zeste homolog 2)</li>
+    <li>ROS1 (Proto-oncogene tyrosine-protein kinase ROS)</li>
+</ol>
+
+
+<h2>Anticancer drug protein targets</h2>
+<ol>
+    <li>Epidermal Growth Factor Receptor (EGFR)</li>
+    <li>Human Epidermal Growth Factor Receptor 2 (HER2)</li>
+    <li>Vascular Endothelial Growth Factor (VEGF)</li>
+    <li>Tyrosine-protein kinase Met (c-Met)</li>
+    <li>Insulin-like Growth Factor 1 Receptor (IGF-1R)</li>
+    <li>B-Raf Proto-Oncogene (BRAF)</li>
+    <li>Mitogen-Activated Protein Kinase (MAPK)</li>
+    <li>Phosphoinositide 3-kinase (PI3K)</li>
+    <li>Protein Kinase B (Akt)</li>
+    <li>Cyclin-Dependent Kinases (CDKs)</li>
+    <li>Mammalian Target of Rapamycin (mTOR)</li>
+    <li>Programmed Cell Death Protein 1 (PD-1)</li>
+    <li>Programmed Death-Ligand 1 (PD-L1)</li>
+    <li>Poly(ADP-ribose) polymerase (PARP)</li>
+    <li>Heat Shock Protein 90 (HSP90)</li>
+    <li>Hypoxia-Inducible Factor 1-alpha (HIF-1α)</li>
+    <li>Transforming Growth Factor-beta (TGF-β)</li>
+    <li>Nuclear Factor-kappa B (NF-κB)</li>
+    <li>Fibroblast Growth Factor Receptor (FGFR)</li>
+    <li>Androgen Receptor (AR)</li>
+</ol>
+<h2>Altres proteïnes diana en farmacologia</h2>
+
+<ol>
+<li>Inhibidors de la acetilcolinesterasa: Ginkgòlids</li>
+<li>Inhibidors de tubulina: Paclitaxel, Docetaxel, Cabazitaxel</li>
+  <li>Inhibidors de la bomba de protons (PPIs): Omeprazol, Pantoprazol, Esomeprazol.</li>
+  <li>Inhibidors de la COX-2: Celecoxib, Etoricoxib.</li>
+  <li>Inhibidors de la HMG-CoA reductasa: Atorvastatina, Simvastatina, Rosuvastatina.</li>
+  <li>Inhibidors de la captació de dopamina: Risperidona, Aripiprazol, Quetiapina.</li>
+  <li>Inhibidors de la monoaminooxidasa (MAOIs): Fenelzina, Tranilcipromina, Selegilina.</li>
+  <li>Inhibidors de la recaptació de serotonina i noradrenalina (SNRIs): Venlafaxina, Duloxetina, Desvenlafaxina.</li>
+  <li>Inhibidors de la recaptació de serotonina (SSRIs): Fluoxetina, Sertralina, Paroxetina.</li>
+  <li>Inhibidors de la recaptació de dopamina: Bupropió, Metilfenidat.</li>
+  <li>Inhibidors de l'enzim PDE-5: Sildenafil, Tadalafil, Vardenafil.</li>
+  <li>Inhibidors de la tirosina-quinasa EGFR: Imatinib, Erlotinib, Gefitinib.</li>
+  <li>Inhibidors de la transcriptasa inversa: Tenofovir, Emtricitabina, Lamivudina.</li>
+  
+  <li>Receptor de dopamina D2: Risperidona</li>
+  <li>Inhibidor VEGF: Fruquintinib</li>
+  <li>Inhibidor tirosina quinasa Bruton (BTK): Pirtobrutinib</li>
+
+<li>Inhibidor Janus quinasa 3 & tirosina quinasa Tec: Ritlecitinib</li>
+
+  <li>Activador Receptor de serotonina 5-HT1A: Gepirona</li>
+<li>Inhibidor de la desacetilasa de histona: Givinostat</li> 
+<li>Inhibidor receptor de endotelina: Aprocitentan</li>
+  <li>Agonista de GLP1: Semaglutida</li>
+  <li>Inhibidor receptor estrogénico: Elacestrant </li>
+<li>Inhibidor receptor glucorticoide: Vamorolona</li>
+  <li>Receptor mu opiode: Fentanil</li>
+  <li>Receptor de N-metil-D-aspartat (NMDA): Memantina</li>
+  <li>Inhibidor de la proteasa principal SARS-CoV2: Nirmatrelvir</li>
+  <li>Inhibidor neuroaminidasa: Oseltamivir</li>
+  <li>Inhibidor mTOR: Rapamicina</li>
+  <li>Inhibidor beta-lactamasa: Cefepima</li>
+<li>Inhibidores CYP51A1: Ketoconazol</li>
+</ol>
+
+    <h1>QSAR i docking molecular: ginkgòlids i taxans</h1>
+    <p><b>QSAR </b>(<i>Quantitative Structure-Activity Relationship</i>) és un mètode utilitzat en la química computacional per predir i comprendre la relació entre la estructura química d'una substància i la seva activitat biològica o propietats físico-químiques. Aquesta tècnica implica l'ús de models estadístics o computacionals per correlacionar les característiques moleculars amb l'activitat observada experimentalment. QSAR és útil en el desenvolupament de fàrmacs, la toxicologia, el disseny de productes químics i altres aplicacions relacionades amb la química i la biologia.</p>
+    <p>El <strong>docking molecular</strong> és una tècnica computacional utilitzada en química i biologia per predir com interactuen dues molècules, com ara un possible fàrmac i una proteïna, a nivell molecular.</p>
+    
+    <h2>Descriptors Moleculars</h2>
+    <p>Els descriptors moleculars són característiques quantitatives que es calculen per descriure una molècula emprades en QSAR. Aquí tens els diferents tipus:</p>
+    
+    <h3>Descriptors 0D</h3>
+    <p>Els descriptors 0D són valors únics que descriuen les propietats globals d'una molècula, com ara la massa molecular o el nombre d'àtoms.</p>
+    
+    <h3>Descriptors 1D</h3>
+    <p>Els descriptors 1D són valors calculats a partir de l'estructura lineal d'una molècula, com ara les empremtes digitals que indiquen amb matrius de 0 i 1 la presència o absència de caracteristiques, subestructures o grups funcionals.</p>
+    
+    <h3>Descriptors 2D</h3>
+    <p>Els descriptors 2D tenen en compte l'estructura plana de la molècula, com ara la topologia de l'estructura molecular o els índexs de Wiener. Els descriptors 2D típics són la matriu d'adjacència, la matriu de Coulomb o la matriu de distància. En el cas de la matriu d'adjacència, el descriptor indica quins àtoms estan units en una molècula. Com que els descriptors 2D són sensibles a les característiques estructurals de la molècula (mida, forma i simetria), són una opció habitual com a descriptors moleculars.</p>
+    
+    <h3>Descriptors 3D</h3>
+    <p>Els descriptors 3D tenen en compte la forma tridimensional de la molècula, com ara el volum o l'àrea de superfície de la molècula. Els descriptors 3D més coneguts són la matriu molecular i els descriptors 3D-MoRSE. En el cas de la matriu molecular, el descriptor representa les coordenades cartesianes (x, y, z) de cada àtom. Aquests descriptors proporcionen molta informació sobre les molècules i tenen l'avantatge de diferenciar molècules isomèriques, cosa que no és el cas de tots els descriptors. Tanmateix, a causa de la seva complexitat, el càlcul dels descriptors geomètrics pot requerir molt de temps.</p>
+    
+    <h3>Descriptors 4D</h3>
+    <p>Els descriptors 4D són descriptors dinàmics que poden canviar amb el temps o en resposta a factors externs, com ara descriptors de flexibilitat molecular o descriptors de reactivitat. Els descriptors 4D també s'anomenen "descriptors basats en quadrícula". Aquests descriptors, a més de la geometria molecular, introdueixen una quarta dimensió. Aquesta nova dimensió normalment caracteritza les interaccions entre la o les molècules i el lloc o els llocs actius d'un receptor o els múltiples estats conformacionals de la o les molècules. Els descriptors 4D comuns són CoMFA i GRID. Un avantatge dels descriptors 4D és que proporcionen més informació que els altres descriptors i sempre són capaços de generar valors diferents per a molècules estructuralment diferents. Tanmateix, com els descriptors 3D, els descriptors 4D no són fàcils d'obtenir a causa de la seva major complexitat.</p>
+    
+    <h3><a href="https://jcheminf.biomedcentral.com/articles/10.1186/s13321-018-0258-y">Mordred</a> descriptors calculator</h3>
+    <img src="mordred.webp">
+     <a href="https://dataprofessor.github.io/ws/bioinformatics/cheminformatics/padelpy/scikit-learn/qsar/qspr/2021/07/06/padelpy.html">Descriptors moleculars i empremtes digitals amb Padelpy</a>
+         <img src="padelpy.jpg">
+    <img src="rdkit.jpg">
+<h3>Tria de descriptors moleculars</h3>
+
+    <p>Amb milers de descriptors moleculars existents, seleccionar els descriptors més adequats és pot fer mitjançant la cerca exhaustiva i els algorismes d'optimització. La cerca exhaustiva, també coneguda com a Model de Subconjunts Totals (ASM) consisteix en la generació de totes les combinacions possibles per a N descriptors a provar, es proven 2^N-1 combinacions de descriptors. Altres estratègies són els algorismes d'optimització, procediments iteratius que es poden utilitzar per trobar la combinació òptima de descriptors d'un conjunt de descriptors moleculars (que condueix al millor model predictiu per a les propietats estudiades). Els algorismes d'optimització més comuns utilitzats en la selecció dels descriptors són la programació evolutiva, l'optimització de colònies de formigues, la cerca seqüencial i els algorismes genètics. </p>
+    <p>En el cas del docking molecular hem de tenir en compte:</p>
+
+<ol>
+  <li><strong>Relevància biològica:</strong> Els descriptors han de reflectir característiques rellevants per a l'interacció entre el fàrmac i el seu receptor biològic. Per exemple, si es preveu una interacció basada en enllaços d'hidrogen, seria crucial incloure descriptors que captin la disponibilitat d'àtoms d'hidrogen donadors i acceptors.</li>
+  <li><strong>Reducció de la dimensionalitat:</strong> Amb milers de descriptors disponibles, triar els més rellevants ajuda a reduir la dimensionalitat del problema. Això no només accelera els càlculs computacionals, sinó que també pot millorar la capacitat del model per generalitzar.</li>
+  <li><strong>Evitar la redundància:</strong> Alguns descriptors poden estar correlacionats entre si, cosa que podria afegir redundància als models i augmentar la probabilitat de sobreajustament. La tria adequada de descriptors pot ajudar a evitar aquesta redundància i millorar la capacitat del model per interpretar les característiques importants.</li>
+  <li><strong>Eficiència computacional:</strong> En el cas del docking, on s'analitzen interaccions moleculars entre dues entitats, l'ús de descriptors apropiats pot optimitzar els càlculs i reduir el temps de processament, permetent una execució més ràpida de les simulacions.</li>
+</ol>
+
+
+    
+        <figure>
+<img  src="QSAR.png">
+<figcaption>QSAR clàssic o amb deep learning</figcaption>     
+</figure>  
+    <figure>
+<img src="docking1.jpg">
+<figcaption>Dimensions dels descriptors moleculars</figcaption>    
+<br>
+    </figure>    
+    <figure>
+<img  src="docking2.jpg">  
+<figcaption>Procés de QSAR</figcaption>    
+</figure>
+
+    <h1>Preparació de Farmàcs amb UCSF Chimera i Avogadro per SwissDock</h1>
+    <section>
+        <h2>Instruccions per a la Proteïna amb UCSF Chimera</h2>
+        <ol>
+            <li>Obre UCSF Chimera.</li>
+            <li>Carrega la teva proteïna PDB fent servir l'opció 'Open'.</li>
+            <li>Identifica i gestiona els lligands presents en l'estructura PDB:
+                <ul>
+                    <li>Si vols mantenir algun lligand per al docking, assegura't que estigui correctament posicionat i que tingui tots els hidrogens necessaris.</li>
+                    <li>Si no és necessari per al teu estudi, pots eliminar els lligands no desitjats mitjançant l'eina 'Select' i després 'Delete'.</li>
+                </ul>
+            </li>
+            <li>Si la proteïna supera els 15000 àtoms, divideix-la en subunitats més petites.</li>
+            <li>Afegeix hidrogens als lligands farmacèutics si és necessari.</li>
+            <li>Utilitza l'eina 'Dock Prep' per a preparar la proteïna i el lligand.</li>
+            <li>Desa la proteïna i el lligand en formats compatibles amb SwissDock.</li>
+        </ol>
+   
+    </section>
+    <section>
+<h2>Preparació de Fàrmacs per a SwissDock</h2>
+        <p>Per buscar i preparar un fàrmac en un format adequat per a SwissDock, segueix aquests passos:</p>
+        <ol>
+            <li>Accedeix a una base de dades de fàrmacs, com ara PubChem o DrugBank.</li>
+            <li>Utilitza la funció de cerca per trobar el fàrmac desitjat.</li>
+            <li>Descarrega l'estructura del fàrmac en format SDF o MOL2, que són formats compatibles amb Chimera.</li>
+            <li>Obre l'estructura del fàrmac amb UCSF Chimera.</li>
+            <li>Afegeix hidrogens a l'estructura del fàrmac si no estan presents.</li>
+            <li>Optimitza la geometria del fàrmac utilitzant eines com 'Tools' > 'Structure Editing' > 'Minimize Structure'.</li>
+            <li>Desa l'estructura del fàrmac optimitzada en format PDB per a la seva posterior utilització en SwissDock.</li>
+        </ol>
+        </section>
+    <section>
+        <h2>Preparació de Fàrmacs amb Avogadro</h2>
+        <p>Per preparar un fàrmac amb Avogadro, segueix aquests passos:</p>
+        <ol>
+            <li>Obre Avogadro.</li>
+            <li>Carrega o dissenya l'estructura del fàrmac.</li>
+            <li>Afegeix hidrogens si són necessaris.</li>
+            <li>Optimitza la geometria del fàrmac utilitzant l'eina d'optimització.</li>
+            <li>Desa l'estructura del fàrmac en format MOL2.</li>
+        </ol>
+    </section>
+    
+    <section>
+        <h2>Conversió de Fitxers per a SwissDock</h2>
+        <p>Per convertir fitxers SDF i SMILES a MOL2:</p>
+        <ol>
+            <li>Utilitza una eina de conversió en línia o un programari com Open Babel.</li>
+            <li>Carrega el fitxer SDF o introdueix la cadena SMILES.</li>
+            <li>Selecciona 'MOL2' com el format de sortida.</li>
+            <li>Converteix el fitxer i desa el nou fitxer MOL2.</li>
+        </ol>
+        <p>Assegura't que el fitxer MOL2 resultant compleixi amb els requisits de SwissDock, incloent la presència de tots els hidrogens i càrregues correctes.</p>
+    </section>
+    <section>
+        <h2>Submissió a SwissDock</h2>
+
+        <p>Un cop preparats, segueix aquests passos per a la submissió a SwissDock:</p>
+        <ol>
+            <li>Ves al lloc web de SwissDock.</li>
+            <li>Carrega els arxius de la proteïna i el lligand.</li>
+            <li>Introdueix un nom per la feina i una adreça de correu electrònic si vols rebre notificacions.</li>
+            <li>Selecciona els paràmetres de docking que desitgis.</li>
+            <li>Envia la teva sol·licitud de docking.</li>
+        </ol>
+    </section>
+    
+        <p>Per a més informació, consulta la <a href="https://www.cgl.ucsf.edu/chimerax/docs/user/index.html" target="_blank">Guia d'Usuari de UCSF ChimeraX</a> i la <a href="http://www.swissdock.ch/docking" target="_blank">pàgina de SwissDock</a>.</p>
+
+    <p>Utilitza el meu <a href="https://colab.research.google.com/github/drfperez/DeepPurpose/blob/main/SwissdockAnalysisOK.ipynb"> Google colab </a>per analitzar les dades i obtenir gràfics com aquest</p>
+    <img src="boxplot.png">
+
+    <h2>Descobriment de Nous Ginkgòlids contra la Acetilcolinesterasa</h2>
+    <p>En la recerca de nous fàrmacs, es realitza el <strong>docking molecular</strong> per predir com interaccionen compostos com els ginkgòlids amb la enzima acetilcolinesterasa, que està implicada en diversos processos biològics com per exemple els trastorns cognitius.</p>
+    <figure>
+    <img  src="ginkgo1.jpg">
+
+    <figcaption>Lactones diterpèniques (ginkgòlids) i sesquiterpènica (bibobàlid)</figcaption>    
+</figure>
+    <figure>
+    
+        <img  src="ginkgo2.jpg">
+        <img  src="ginkgo3.jpg">
+        <img  src="ginkgo4.jpg">
+        <img  src="ginkgo5.jpg">
+        <img  src="ginkgo6.jpg">
+        <p>Ginkgolide P(1) i Ginkgolide Q(2)</p>
+    <img  src="ginkgo7.jpg">
+    
+    <img  src="ginkgo8.jpg">
+    
+<p>Bilobalide A (1), 
+bilobalide B (2), ginkgolide W (3), and ginkgolide Y (4)</p>
+        
+        <h2>Resum dels principals components de Ginkgo</h2>
+          <img  src="ginkgo11.png">
+              <img  src="ginkgo12.png">
+        
+        
+<img  src="docking3.png">  
+<figcaption>Docking donepezil unit a acetilcolinesterasa</figcaption>    
+</figure>
+
+    <h2>Interacció de Taxans amb la Tubulina</h2>
+    <p>Els <strong>taxans</strong> són una classe de compostos utilitzats en quimioteràpia per combatre el càncer. El docking molecular es pot utilitzar per comprendre com aquests taxans interactuen amb la <strong>tubulina</strong>, una proteïna implicada en la divisió cel·lular.</p>
+       <figure>
+    <img  src="taxans.png">
+<figcaption>Taxans anticancerígens</figcaption>    
+</figure>
+  <figure>
+<img  src="docking4.png">  
+<figcaption>Docking paclitaxel (taxol) unit a la &beta;-tubulina</figcaption>    
+</figure>
+<h3>Algorismes d'aprenentatge profund triats: DeepPurpose i Dockstring </h3>
+<p>El projecte que utilitza DeepPurpose i Dockstring en Python es relaciona amb el desenvolupament de noves eines computacionals per a la recerca en química i biologia molecular. DeepPurpose és una llibreria de Python que ofereix models d'aprenentatge profund pre-entrenats per a la predicció de l'activitat biològica de molècules, com ara la interacció amb proteïnes diana, com la acetilcolinesterasa en el cas dels ginkgolids o toxines russes. D'altra banda, Dockstring és una eina que facilita el docking molecular, és a dir, la predicció de la forma i l'afinitat de les molècules químiques quan interaccionen amb les proteïnes. En resum, aquest projecte integra les capacitats predictives de DeepPurpose amb les funcionalitats de Dockstring per a realitzar anàlisis molecular avançats i accelerar la descoberta de nous compostos amb aplicacions en medicina i biotecnologia.</p>
+  <img  src="docking.png"> 
+<p>Per obtenir més informació sobre el projecte, podeu consultar la pàgina oficial de <a href="https://github.com/kexinhuang12345/DeepPurpose">DeepPurpose</a> per conèixer les capacitats dels seus models d'aprenentatge profund. A més, podeu accedir a la documentació de <a href="https://dockstring.github.io/">Dockstring</a> per aprendre com utilitzar aquesta eina per al docking molecular.</p>
+<img  src="deeppurpose.png">
+<img  src="dockstring.png">
+<h1>Exemples de resultats</h1>
+<h3>Resultats de swissdock de la acetilcolinesterasa 1EEA unida a ginkgòlid M (-8.70kcal/mol)</h3>
+<img src="swissdock.jpg">
+<h3>Resultats de taxans amb DeepPurpose amb interfície Tkinter</h3>
+<img src="DeepTk.png">
+<h3>Resultats de ginkgòlids amb DeepPurpose amb interfície Gradio</h3>  
+<img src="DeepGradio.png">
+</body>
+</html>
