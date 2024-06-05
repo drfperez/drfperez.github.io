@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Anàlisi d'Estrelles</title>
+</head>
+<body>
+
+<h1>Anàlisi d'Estrelles</h1>
+
+<h2>1. Corba de llum detrended (Corba de llum processada)</h2>
+<ul>
+    <li><strong>Descripció</strong>: Aquest gràfic mostra la corba de llum de l'estrella després d'haver eliminat les tendències a llarg termini utilitzant un filtre Savitzky-Golay.</li>
+    <li><strong>Objectiu</strong>: Visualitzar la variabilitat intrínseca de la llum de l'estrella un cop s'han eliminat les tendències a llarg termini que podrien interferir amb l'anàlisi de les variacions més ràpides i subtils.</li>
+    <li><strong>Interpretació</strong>: Els punts del gràfic representen la lluminositat de l'estrella en funció del temps. Les variacions poden indicar diferents fenòmens astrofísics, com la presència de planetes, estrelles binàries o taques solars.</li>
+</ul>
+
+<h2>2. Espectre de freqüències (Transformada de Fourier)</h2>
+<ul>
+    <li><strong>Descripció</strong>: Aquest gràfic mostra l'espectre de freqüències obtingut a partir de la transformada de Fourier aplicada a la corba de llum detrended.</li>
+    <li><strong>Objectiu</strong>: Identificar les freqüències dominants en la variació de la llum de l'estrella.</li>
+    <li><strong>Interpretació</strong>: Les freqüències altes representen variacions ràpides, mentre que les freqüències baixes representen variacions més lentes. Els pics més alts indiquen les freqüències amb les amplituds més grans, que són les més significatives en la variabilitat de la llum.</li>
+</ul>
+
+<h2>3. Espectre de freqüències amb els 10 pics més importants</h2>
+<ul>
+    <li><strong>Descripció</strong>: Aquest gràfic és similar al segon, però amb els 10 pics més importants marcats en vermell.</li>
+    <li><strong>Objectiu</strong>: Destacar les freqüències més significatives trobades en l'espectre de freqüències.</li>
+    <li><strong>Interpretació</strong>: Els punts vermells representen les freqüències amb les amplituds més altes, indicant les variacions més importants en la llum de l'estrella. Això ajuda a identificar possibles períodes de rotació, cicles d'activitat estel·lar o la presència de planetes.</li>
+</ul>
+
+<h2>4. Periodograma Lomb-Scargle</h2>
+<ul>
+    <li><strong>Descripció</strong>: Aquest gràfic mostra el periodograma Lomb-Scargle, que és una tècnica per detectar i caracteritzar els períodes en les dades irregularment mostrejades.</li>
+    <li><strong>Objectiu</strong>: Determinar els períodes dominants en la variació de la llum de l'estrella, especialment útil per identificar senyals periòdiques com les causades per exoplanetes.</li>
+    <li><strong>Interpretació</strong>: Els pics en el periodograma indiquen els períodes més probables de les variacions. Un pic alt en una certa freqüència (o període) suggereix un senyal periòdic fort, com el trànsit d'un exoplaneta o la rotació estel·lar.</li>
+</ul>
+
+<h2>5. Periodograma BLS (Box Least Squares) per a la detecció de transits d'exoplanetes</h2>
+<ul>
+    <li><strong>Descripció</strong>: Aquest gràfic mostra el periodograma BLS, utilitzat per detectar transits d'exoplanetes. El gràfic inclou una línia vertical vermella que indica el període més probable.</li>
+    <li><strong>Objectiu</strong>: Identificar possibles transits d'exoplanetes a través de les caigudes periòdiques en la llum de l'estrella.</li>
+    <li><strong>Interpretació</strong>: Els pics en aquest periodograma representen els períodes on hi ha una major probabilitat de detectar un transit d'exoplaneta. El període més probable, indicat per la línia vermella, suggereix el temps entre transits consecutius, que pot utilitzar-se per calcular les característiques de l'exoplaneta, com el seu període orbital.</li>
+</ul>
+
+<h1>Exemples de la sortida per a KIC 8462852</h1>
+
+<h2>1. Corba de llum detrended</h2>
+<ul>
+    <li><strong>Gràfic</strong>: Es veu la variació de la lluminositat de l'estrella KIC 8462852 amb les tendències llargues eliminades.</li>
+</ul>
+
+<h2>2. Espectre de freqüències</h2>
+<ul>
+    <li><strong>Gràfic</strong>: Es veu la distribució de les freqüències amb les seves respectives amplituds. Els pics més alts indiquen les freqüències dominants.</li>
+</ul>
+
+<h2>3. Espectre de freqüències amb els 10 pics més importants</h2>
+<ul>
+    <li><strong>Gràfic</strong>: Similar a l'anterior, però amb els 10 pics més alts marcats en vermell per destacar les freqüències més significatives.</li>
+</ul>
+
+<h2>4. Periodograma Lomb-Scargle</h2>
+<ul>
+    <li><strong>Gràfic</strong>: Es veu la potència de les diferents freqüències, destacant els períodes més probables de la variabilitat de la llum.</li>
+</ul>
+
+<h2>5. Periodograma BLS</h2>
+<ul>
+    <li><strong>Gràfic</strong>: Es veu la potència dels diferents períodes, amb una línia vertical vermella que indica el període més probable per a un transit d'exoplaneta, suggerint la possible detecció d'un exoplaneta orbitant l'estrella KIC 8462852.</li>
+</ul>
+
+</body>
+</html>
