@@ -1,0 +1,37 @@
+[
+  {
+    "planet": "Sun",
+    "imageSource": "https://images.nationalgeographic.org/image/upload/t_edhub_resource_key_image/v1638882786/EducationHub/photos/sun-blasts-a-m66-flare.jpg",
+    "explanation": "The Sun represents vitality and energy. It is the center of our solar system."
+  },
+  {
+    "planet": "Moon",
+    "imageSource": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/1200px-FullMoon2010.jpg",
+    "explanation": "The Moon symbolizes emotions and intuition. It has a significant influence on tides."
+  },
+  {
+    "planet": "Mars",
+    "imageSource": "https://www.solarsystemscope.com/spacepedia/images/handbook/renders/mars.png",
+    "explanation": "Mars embodies passion and determination. It is often called the 'Red Planet'."
+  },
+  {
+    "planet": "Mercury",
+    "imageSource": "https://www.thesun.co.uk/wp-content/uploads/2021/06/NINTCHDBPICT000310723231.jpg",
+    "explanation": "Mercury represents communication and intellect. It is the closest planet to the Sun."
+  },
+  {
+    "planet": "Jupiter",
+    "imageSource": "https://noirlab.edu/public/media/archives/images/screen/noirlab2116e.jpg",
+    "explanation": "Jupiter symbolizes expansion and abundance. It is the largest planet in our solar system."
+  },
+  {
+    "planet": "Venus",
+    "imageSource": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Venus_globe.jpg/1280px-Venus_globe.jpg",
+    "explanation": "Venus embodies love and beauty. It is often referred to as the 'Evening Star'."
+  },
+  {
+    "planet": "Saturn",
+   "imageSource": "https://starwalk.space/gallery/images/saturn-planet-guide/1920x1080.jpg",
+    "explanation": "Saturn represents discipline and responsibility. It is known for its iconic rings."
+  }
+]
