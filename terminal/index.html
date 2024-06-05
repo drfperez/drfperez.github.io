@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>xterm.js Example</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+      <!-- Include the Bootstrap JS file -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+      <!-- Include the Bootstrap CSS file -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+      
+</head>
+<body>  
+<div id="navbarContainer"></div>
+
+  <!-- Include your other page content here -->
+
+  <script>
+    // Fetch and insert the navbar.html content
+    fetch("https://pompeu.neocities.org/navbar.html")
+      .then(response => response.text())
+      .then(content => {
+        document.getElementById("navbarContainer").innerHTML = content;
+      })
+      .catch(error => {
+        console.log("Error fetching navbar.html:", error);
+      });
+  </script>
+    <div id="terminal"></div>
+    <input type="text" id="codeInput" />
+    <button id="executeButton">Execute Code</button>
+
+    <div id="explanation">
+        <h2>Terminal Instructions</h2>
+        <ul>
+            <li><strong>ls</strong> - List files in the current directory</li>
+            <li><strong>pwd</strong> - Show the current directory</li>
+            <li><strong>cd &lt;directory&gt;</strong> - Change directory</li>
+            <li><strong>mkdir &lt;directory&gt;</strong> - Create a new directory</li>
+            <li><strong>rm &lt;file&gt;</strong> - Remove a file</li>
+            <li><strong>cp &lt;source&gt; &lt;destination&gt;</strong> - Copy a file</li>
+            <li><strong>mv &lt;source&gt; &lt;destination&gt;</strong> - Move or rename a file</li>
+            <li><strong>cat &lt;file&gt;</strong> - Display the contents of a file</li>
+            <li><strong>echo &lt;text&gt;</strong> - Display the specified text</li>
+            <li><strong>date</strong> - Show the current date and time</li>
+            <li><strong>clear</strong> - Clear the terminal</li>
+            <li><strong>help</strong> - Show available commands</li>
+        </ul>
+    </div>
+
+    <script>
+        // Create an xterm.js Terminal instance
+        const term = new Terminal();
+
+        // Attach the terminal to the DOM element
+        term.open(document.getElementById('terminal'));
+
+        // Example: Writing text to the terminal
+        term.writeln('Hello, xterm.js!');
+
+        // Example: Listening for keystrokes
+        term.onKey(e => {
+            // Do something with the keystroke event
+            console.log('Key pressed:', e.key);
+        });
+
+        // Command object mapping
+        const commands = {
+            ls: () => term.writeln('file1.txt  file2.txt  file3.txt'),
+            pwd: () => term.writeln('/home/user'),
+            cd: args => {
+                if (args.length === 2) {
+                    term.writeln(`Change directory to: ${args[1]}`);
+                } else {
+                    term.writeln('Usage: cd <directory>');
+                }
+            },
+            mkdir: args => {
+                if (args.length === 2) {
+                    term.writeln(`Create directory: ${args[1]}`);
+                } else {
+                    term.writeln('Usage: mkdir <directory>');
+                }
+            },
+            rm: args => {
+                if (args.length === 2) {
+                    term.writeln(`Remove file: ${args[1]}`);
+                } else {
+                    term.writeln('Usage: rm <file>');
+                }
+            },
+            cp: args => {
+                if (args.length === 3) {
+                    term.writeln(`Copy file from ${args[1]} to ${args[2]}`);
+                } else {
+                    term.writeln('Usage: cp <source> <destination>');
+                }
+            },
+            mv: args => {
+                if (args.length === 3) {
+                    term.writeln(`Move file from ${args[1]} to ${args[2]}`);
+                } else {
+                    term.writeln('Usage: mv <source> <destination>');
+                }
+            },
+            cat: args => {
+                if (args.length === 2) {
+                    term.writeln(`Display contents of file: ${args[1]}`);
+                } else {
+                    term.writeln('Usage: cat <file>');
+                }
+            },
+            echo: args => {
+                if (args.length === 2) {
+                    term.writeln(`Display text: ${args[1]}`);
+                } else {
+                    term.writeln('Usage: echo <text>');
+                }
+            },
+            date: () => term.writeln(new Date().toString()),
+            clear: () => term.clear(),
+            help: () => {
+                term.writeln('Available commands:');
+                term.writeln('ls - List files in the current directory');
+                term.writeln('pwd - Show the current directory');
+                term.writeln('cd <directory> - Change directory');
+                term.writeln('mkdir <directory> - Create a new directory');
+                term.writeln('rm <file> - Remove a file');
+                term.writeln('cp <source> <destination> - Copy a file');
+                term.writeln('mv <source> <destination> - Move or rename a file');
+                term.writeln('cat <file> - Display the contents of a file');
+                term.writeln('echo <text> - Display the specified text');
+                term.writeln('date - Show the current date and time');
+                term.writeln('clear - Clear the terminal');
+                term.writeln('help - Show available commands or help <command> for an specific command');
+            },
+           
+
+  
+  // ...existing commands...
+  help: args => {
+    if (args.length === 2) {
+      const command = args[1];
+      const commandHelp = commandHelpInfo[command];
+      if (commandHelp) {
+        term.writeln(`Help for command '${command}':`);
+        term.writeln(commandHelp.description);
+        term.writeln('Usage: ' + commandHelp.usage);
+      } else {
+        term.writeln(`Unknown command: ${command}`);
+      }
+    } else {
+      term.writeln('Usage: help <command>');
+    }
+  },
+  default: code => term.writeln(`Unknown command: ${code}`)
+};
+
+
+// Command help information object
+const commandHelpInfo = {
+  ls: {
+    description: 'List files in the current directory',
+    usage: 'ls'
+  },
+  pwd: {
+    description: 'Show the current directory',
+    usage: 'pwd'
+  },
+  cd: {
+    description: 'Change directory',
+    usage: 'cd <directory>'
+  },
+  mkdir: {
+    description: 'Create a new directory',
+    usage: 'mkdir <directory>'
+  },
+  rm: {
+    description: 'Remove a file',
+    usage: 'rm <file>'
+  },
+  cp: {
+    description: 'Copy a file',
+    usage: 'cp <source> <destination>'
+  },
+  mv: {
+    description: 'Move or rename a file',
+    usage: 'mv <source> <destination>'
+  },
+  cat: {
+    description: 'Display the contents of a file',
+    usage: 'cat <file>'
+  },
+  echo: {
+    description: 'Display the specified text',
+    usage: 'echo <text>'
+  },
+  date: {
+    description: 'Show the current date and time',
+    usage: 'date'
+  },
+  clear: {
+    description: 'Clear the terminal',
+    usage: 'clear'
+  },
+  help: {
+    description: 'Show available commands or get help for a specific command',
+    usage: 'help [<command>]'
+  }
+};
+
+
+           
+        
+
+        // Function to execute code in the terminal
+        function executeCode() {
+            const code = document.getElementById('codeInput').value;
+            term.writeln(`\r\nExecuting code: ${code}`);
+
+            const args = code.trim().split(' ');
+            const command = args[0];
+            const execute = commands[command] || commands.default;
+            execute(args);
+        }
+
+        // Bind click event to execute button
+        document.getElementById('executeButton').addEventListener('click', executeCode);
+    </script>
+</body>
+</html>
+
+
