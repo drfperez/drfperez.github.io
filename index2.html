@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Web del professor</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" type="image/x-icon" href="logo.ico">
+</head>
+<body class="bg-gray-100">
+  <nav class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <a href="#" class="flex items-center">
+            <img src="logo.png" alt="Logo" class="h-12 w-12">
+            <span class="ml-3 text-xl font-semibold">Prof. F. Pérez</span>
+          </a>
+        </div>
+        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+          <div class="relative">
+            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-gray-300 focus:ring focus:ring-gray-200" id="codingDropdown" aria-expanded="false" aria-haspopup="true">
+              <i class="fas fa-code mr-2"></i> Coding
+              <svg class="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+            <div class="hidden absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" role="menu" aria-orientation="vertical" aria-labelledby="codingDropdown">
+              <div class="py-1" role="none">
+                <a href="./asteroids" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-meteor mr-2"></i> Asteroids</a>
+                <a href="./editor" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-file-code mr-2"></i> Code editor</a>
+                <a href="./game" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-gamepad mr-2"></i> Game</a>
+                <a href="./wordle" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-puzzle-piece mr-2"></i> Wordle</a>
+                <a href="./hangman" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-keyboard mr-2"></i> Hangman</a>
+                <a href="./pong" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-table-tennis mr-2"></i> Pong</a>
+                <a href="./8m" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-question-circle mr-2"></i> Passaparaula</a>
+              </div>
+            </div>
+          </div>
+          <div class="relative">
+            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-gray-300 focus:ring focus:ring-gray-200" id="scienceDropdown" aria-expanded="false" aria-haspopup="true">
+              <i class="fas fa-flask mr-2"></i> Science
+              <svg class="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+            <div class="hidden absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" role="menu" aria-orientation="vertical" aria-labelledby="scienceDropdown">
+              <div class="py-1" role="none">
+                <a href="./anellEinstein" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-star mr-2"></i> Lent gravitacional</a>
+                <a href="./tabby" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-mercury mr-2"></i> Tabby star</a>
+                <a href="./roemer" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-globe-americas mr-2"></i> Roemer experiment</a>
+                <a href="./docking" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-laptop-medical mr-2"></i> Docking</a>
+                <a href="./lightcurve" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-light-bulb mr-2"></i> Lightcurve</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center sm:hidden">
+          <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-500 focus:outline-none focus:bg-gray-100 focus:text-gray-500">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+            </svg>
+          </button>
+        </div>
+        <div class="hidden sm:flex items-center">
+          <input type="text" class="form-input rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="Search">
+          <button class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-700">
+            Search
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="hidden sm:hidden" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1">
+        <a href="./index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 bg-gray-50 hover:text-gray-900 hover:bg-gray-100"><i class="fas fa-home mr-2"></i> Home</a>
+        <div class="relative">
+          <button class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 bg-gray-50 hover:text-gray-900 hover:bg-gray-100" id="mobile-codingDropdown" aria-expanded="false" aria-haspopup="true">
+            <i class="fas fa-code mr-2"></i> Coding
+            <svg class="ml-1 h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <div class="hidden" role="menu" aria-orientation="vertical" aria-labelledby="mobile-codingDropdown">
+            <a href="./asteroids" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-meteor mr-2"></i> Asteroids</a>
+            <a href="./editor" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-file-code mr-2"></i> Code editor</a>
+            <a href="./game" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-gamepad mr-2"></i> Game</a>
+            <a href="./wordle" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-puzzle-piece mr-2"></i> Wordle</a>
+            <a href="./hangman" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-keyboard mr-2"></i> Hangman</a>
+            <a href="./pong" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-table-tennis mr-2"></i> Pong</a>
+            <a href="./8m" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-question-circle mr-2"></i> Passaparaula</a>
+          </div>
+        </div>
+        <div class="relative">
+          <button class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 bg-gray-50 hover:text-gray-900 hover:bg-gray-100" id="mobile-scienceDropdown" aria-expanded="false" aria-haspopup="true">
+            <i class="fas fa-flask mr-2"></i> Science
+            <svg class="ml-1 h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <div class="hidden" role="menu" aria-orientation="vertical" aria-labelledby="mobile-scienceDropdown">
+            <a href="./anellEinstein" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-star mr-2"></i> Lent gravitacional</a>
+            <a href="./tabby" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-mercury mr-2"></i> Tabby star</a>
+            <a href="./roemer" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-globe-americas mr-2"></i> Roemer experiment</a>
+            <a href="./docking" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-laptop-medical mr-2"></i> Docking</a>
+            <a href="./lightcurve" class="block px-3 py-2 text-base text-gray-700 hover:bg-gray-100"><i class="fas fa-light-bulb mr-2"></i> Lightcurve</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold mb-4">Anàlisi d'Estrelles</h1>
+    <h1 class="text-xl font-semibold mb-2">Hello Pompeu students</h1>
+    <h3 class="text-lg mb-4">You will find some projects based on codes using different programming languages and libraries designed for students at Pompeu Fabra High School (Martorell, Barcelona) by Prof. Francesc Perez about <a href="https://pompeu.neocities.org/syllabus" class="text-indigo-600 hover:text-indigo-500">my official syllabus</a></h3>
+    <p class="mb-4">To have an idea of the coding tools used in Science and Technology project look at the presentation below:</p>
+    <iframe src="//www.slideshare.net/slideshow/embed_code/key/q3AYaIlc1GYmTs" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" class="border border-gray-300 mt-4 w-full max-w-full" allowfullscreen></iframe>
+    <div class="mt-4">
+      More info at my other websites about:
+      <a href="http://xtec.cat/~fperez5" target="_blank" class="text-indigo-600 hover:text-indigo-500">Catalan website</a>,
+      <a href="https://blocs.xtec.cat/tecno" target="_blank" class="text-indigo-600 hover:text-indigo-500">main website</a>,
+      <a href="https://phytotherapy.neocities.org" target="_blank" class="text-indigo-600 hover:text-indigo-500">phytotherapy website</a>,
+      <a href="https://blocs.xtec.cat/arteducation" target="_blank" class="text-indigo-600 hover:text-indigo-500">art education</a>,
+      <a href="https://blocs.xtec.cat/5cities" target="_blank" class="text-indigo-600 hover:text-indigo-500">5 cities</a>,
+      <a href="https://blocs.xtec.cat/comeonstage/" target="_blank" class="text-indigo-600 hover:text-indigo-500">come on stage</a>.
+    </div>
+  </div>
+
+  <!-- Dropdown functionality script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropdownToggles = document.querySelectorAll('[aria-haspopup="true"]');
+      dropdownToggles.forEach(function(toggle) {
+        toggle.addEventListener('click', function() {
+          const menu = this.nextElementSibling;
+          menu.classList.toggle('hidden');
+        });
+      });
+
+      // Mobile menu button
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenuButton.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
+
+
