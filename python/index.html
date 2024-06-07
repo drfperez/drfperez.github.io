@@ -92,17 +92,20 @@ else:
             catch (e) {
                 addToOutput(`${e}`);
             }
-            #code.value = '';
         }
 
         (async () => { 
             output.value = 'Initializing...\n';
 
-            // init Pyodide
-            window.pyodide = await loadPyodide({ stdout: addToOutput, stderr: addToOutput });
-            output.value += 'Ready!\n';
-
+            try {
+                // init Pyodide
+                window.pyodide = await loadPyodide({ stdout: addToOutput, stderr: addToOutput });
+                output.value += 'Ready!\n';
+            } catch (e) {
+                addToOutput(`Error initializing Pyodide: ${e}`);
+            }
         })();
     </script>
 </body>
 </html>
+
