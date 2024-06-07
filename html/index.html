@@ -165,10 +165,11 @@
                 var day = now.getDay();
                 fetchPlanetData(day)
                   .then(function(planetInfo) {
+                    console.log("Planet for today is: " + planetInfo.planet);
                     document.getElementById('planet').textContent = "Today is " + getDayOfWeek(day) + ", which is associated with the planet " + planetInfo.planet + ".";
                     document.getElementById('planetImage').src = planetInfo.imageSource;
                     document.getElementById('planetImage').style.display = 'inline'; // Show the image
-                    console.log("Planet for today is: " + planetInfo.planet);
+                    
                   })
                   .catch(function(error) {
                     console.log('Error:', error);
