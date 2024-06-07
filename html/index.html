@@ -168,6 +168,7 @@
                     document.getElementById('planet').textContent = "Today is " + getDayOfWeek(day) + ", which is associated with the planet " + planetInfo.planet + ".";
                     document.getElementById('planetImage').src = planetInfo.imageSource;
                     document.getElementById('planetImage').style.display = 'inline'; // Show the image
+                    console.log("Planet for today is: " + planetInfo.planet);
                   })
                   .catch(function(error) {
                     console.log('Error:', error);
@@ -183,7 +184,6 @@
                       var planetData = JSON.parse(request.responseText);
                       var planetInfo = planetData[day] || { planet: 'Unknown', imageSource: '', explanation: 'The association with an unknown planet.' };
                       resolve(planetInfo);
-                      console.log("Planet for today is: " + planetInfo);
                     } else {
                       reject('Error: Could not fetch planet data.');
                     }
