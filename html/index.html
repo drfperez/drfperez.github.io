@@ -41,10 +41,24 @@
     }
 
     #codeEditor {
-      flex: 1;
-      width: 100%;
-      resize: none;
-      overflow: auto;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ccc;
+      resize: vertical;
+      height: 100vh;
+    }
+
+    #codeEditor::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    #codeEditor::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 10px;
+    }
+
+    #codeEditor::-webkit-scrollbar-track {
+      background-color: #f1f1f1;
     }
 
     #runButton {
@@ -72,11 +86,6 @@
       margin-top: 10px;
       padding-top: 20px;
       overflow: auto;
-    }
-
-    #outputContainer {
-      overflow: auto;
-      height: 100%;
     }
 
     #outputFrame {
