@@ -198,6 +198,7 @@
                       var planetData = JSON.parse(request.responseText);
                       var planetInfo = planetData[day] || { planet: 'Unknown', imageSource: '', explanation: 'The association with an unknown planet.' };
                       resolve(planetInfo);
+                      console.log("Planet for today is: " + planetInfo);
                     } else {
                       reject('Error: Could not fetch planet data.');
                     }
@@ -213,7 +214,7 @@
                 var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 return daysOfWeek[day];
               }
-              console.log("Planet for today is: " + planet);
+              
             </script>
           </body>
         </html>
