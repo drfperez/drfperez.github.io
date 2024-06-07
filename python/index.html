@@ -40,29 +40,22 @@
 <body>  
     <div id="simple-example">
         <textarea id='code' rows='10'>
-import sys
 import math
 
-# Solve the quadratic equation: ax^2 + bx + c = 0
+def solve_quadratic(a, b, c):
+    discriminant = b**2 - 4*a*c
+    if discriminant >= 0:
+        root1 = (-b + math.sqrt(discriminant)) / (2*a)
+        root2 = (-b - math.sqrt(discriminant)) / (2*a)
+        return f"Root 1: {root1}\nRoot 2: {root2}"
+    else:
+        return "No real roots"
 
 a = 2
 b = -7
 c = 3
-
-# Calculate discriminant
-discriminant = b**2 - 4*a*c
-
-# Check if the equation has real roots
-if discriminant >= 0:
-    # Calculate the two roots
-    root1 = (-b + math.sqrt(discriminant)) / (2*a)
-    root2 = (-b - math.sqrt(discriminant)) / (2*a)
-
-    # Print the roots
-    print("Root 1:", root1)
-    print("Root 2:", root2)
-else:
-    print("No real roots")
+result = solve_quadratic(a, b, c)
+print(result)
         </textarea>
         <button id='run' onclick='evaluatePython()'>Run</button>
         <div>You can execute any Python code. Just enter something in the box above and click the button.</div>
