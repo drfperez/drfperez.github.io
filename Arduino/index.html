@@ -1,0 +1,440 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Guia d'Instal·lació d'Arduino i Processing</title>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+      <!-- Include the Bootstrap CSS file -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+         <style>
+        img {
+            max-width: 100%;
+            height: auto;
+        }    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            color: #555;
+        }
+
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 20px;
+            white-space: pre-wrap;
+        }
+    
+     
+
+        .fas.fa-copy {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 10px;
+            cursor: pointer;
+        }
+                /* Estil per als contenidors dels elements <pre> */
+        .copyable-pre {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        /* Estil per a les icones de còpia */
+        .copy-icon {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+     
+</head>
+<body>  
+
+    <h1>Guia d'Instal·lació d'Arduino i Processing</h1>
+    
+    <h2>Instal·la Processing 4</h2>
+    <p>Per començar, instal·la Processing 4 seguint aquests passos:</p>
+    <ol>
+        <li>Accedeix al lloc web oficial de Processing: <a href="https://processing.org/download/">https://processing.orgdownload/</a></li>
+        <li>Tria la versió més recent de Processing per al teu sistema operatiu i fes clic per descarregar-la.</li>
+        <li>Un cop descarregada, segueix les instruccions d'instal·lació específiques per al teu sistema operatiu.</li>
+    </ol>
+
+    <h2>Instal·la Arduino IDE</h2>
+    <p>Ara, instal·la Arduino IDE seguint aquests passos:</p>
+    <ol>
+        <li>Visita el lloc web oficial d'Arduino IDE: <a href="https://www.arduino.cc/en/software">https://www.arduino.cc/en/software</a></li>
+        <li>Descarrega la versió d'Arduino IDE compatible amb el teu sistema operatiu.</li>
+        <li>Executa l'arxiu descarregat i segueix les instruccions d'instal·lació per completar la instal·lació.</li>
+    </ol>
+    
+    <p>Ara hauries de tenir Processing 4 i Arduino IDE instal·lats i llestos per utilitzar.</p>
+
+    <h1>Comprovació de Port i Placa d'Arduino</h1>
+    
+    <h2>Comprovar el Port i la Placa</h2>
+    <p>Abans de començar a utilitzar Arduino amb Processing, és important assegurar-se que el port i la placa estiguin configurats correctament:</p>
+    <ol>
+        <li>Connecta el teu Arduino Uno al teu ordinador mitjançant un cable USB.</li>
+        <li>Obre l'Arduino IDE.</li>
+        <li>Ves a l'opció "Herramientas" i selecciona "Puerto". Assegura't que el port USB correcte estigui seleccionat.</li>
+        <li>També selecciona la placa correcta a través de "Herramientas" > "Placa". En aquest cas, selecciona "Arduino Uno".</li>
+    </ol>
+
+    <h2>Codi Processing per Controlar el LED d'Arduino</h2>
+    <p>Aquí tens un codi en Processing que permet encendre i apagar un LED a l'Arduino Uno quan es prem la tecla "H" i "L", respectivament:</p>
+    <pre class="copyable-pre">  <i class="fas fa-copy" onclick="copyToClipboard(this)"></i>
+import processing.serial.*;
+
+Serial myPort;  // Objecte Serial per comunicar-se amb l'Arduino
+char state = 'L';  // Inicialitzem l'estat del LED com a apagat (L)
+
+void setup() {
+  size(200, 200);
+  // Inicialitzem la connexió sèrie amb l'Arduino
+  String portName = "COM3";  // Canvia-ho pel teu port Arduino
+  myPort = new Serial(this, portName, 9600);
+}
+
+void draw() {
+  // Dibuixa alguna cosa a la finestra, si és necessari
+}
+
+void keyPressed() {
+  if (key == 'H') {
+    // Envia 'H' a l'Arduino quan es prem la tecla "H" per encendre el LED
+    myPort.write('H');
+    state = 'H';  // Actualitza l'estat del LED
+  } else if (key == 'L') {
+    // Envia 'L' a l'Arduino quan es prem la tecla "L" per apagar el LED
+    myPort.write('L');
+    state = 'L';  // Actualitza l'estat del LED
+  }
+}
+
+void serialEvent(Serial myPort) {
+  // Llegeix les dades enviades des de l'Arduino
+  String val = myPort.readStringUntil('\n').trim();
+  println("Dades rebudes de l'Arduino: " + val);
+  // Aquí pots afegir més lògica si cal processar les dades rebudes de l'Arduino
+}
+
+    </pre><br>
+    <img src="led.gif">
+<br><p></p>
+    <h2>Codi Arduino per Controlar el LED</h2>
+    <p>Ara, aquí tens un exemple senzill de codi Arduino que controla un LED mitjançant les dades rebudes de Processing:</p>
+    <pre class="copyable-pre">  <i class="fas fa-copy" onclick="copyToClipboard(this)"></i>
+int ledPin = 13; // Defineix el pin digital on està connectat el LED
+
+void setup() {
+  pinMode(ledPin, OUTPUT); // Configura el pin com a sortida
+  Serial.begin(9600); // Inicia la comunicació sèrie
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    char command = Serial.read(); // Llegeix el caràcter rebut
+    if (command == 'H') {
+      digitalWrite(ledPin, HIGH); // Encén el LED quan rep 'H'
+    } else if (command == 'L') {
+      digitalWrite(ledPin, LOW); // Apaga el LED quan rep 'L'
+    }
+  }
+
+    </pre>
+
+    <h1>Joc de Ping Pong amb LDR - Codi Arduino i Processing</h1>
+    
+    <h2>Codi Arduino (per a Arduino):</h2>
+    <pre class="copyable-pre">  <i class="fas fa-copy" onclick="copyToClipboard(this)"></i>
+int sensorValue = 0;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  sensorValue = analogRead(A0); // Llegir el valor del sensor LDR connectat a l'entrada analògica A0
+  Serial.println(sensorValue); // Enviar el valor a Processing
+  delay(100); // Espera una mica per a evitar la sobrecàrrega del port sèrie
+}
+    </pre>
+
+    <h2>Codi Processing (per a la computadora):</h2>
+    <pre class="copyable-pre">  <i class="fas fa-copy" onclick="copyToClipboard(this)"></i>
+import processing.serial.*;
+
+Serial port;
+int paletaY;
+int ampladaPaleta = 10;
+int alcadaPaleta = 100;
+
+void setup() {
+  size(800, 400);
+  port = new Serial(this, Serial.list()[0], 9600); // Canvia l'índex si és necessari
+  paletaY = (height - alcadaPaleta) / 2;
+}
+
+void draw() {
+  background(0);
+  
+  // Llegir el valor del sensor LDR des d'Arduino
+  if (port.available() > 0) {
+    String valor = port.readStringUntil('\n');
+    if (valor != null) {
+      valor = trim(valor);
+      int sensorValue = int(valor);
+      
+      // Mappeja el valor del sensor a la posició de la paleta
+      paletaY = int(map(sensorValue, 0, 1023, 0, height - alcadaPaleta));
+    }
+  }
+  
+  // Dibuixa la paleta
+  fill(255);
+  rect(10, paletaY, ampladaPaleta, alcadaPaleta);
+}
+    </pre>
+
+    <h2>Explicació:</h2>
+    <p>Aquesta pàgina proporciona el codi per crear un joc de ping pong amb una sola paleta controlada per un sensor LDR. Aquí tens una descripció dels components clau:</p>
+
+    <h3>Codi Arduino:</h3>
+    <p>Aquest codi s'executa a l'Arduino i llegeix el valor del sensor LDR connectat a l'entrada analògica A0. Envia aquest valor a la computadora a través del port serial.</p>
+
+    <h3>Codi Processing:</h3>
+    <p>Aquest codi s'executa a la computadora i rep les lectures del sensor LDR des de l'Arduino a través del port serial. Utilitza aquestes lectures per controlar la posició de la paleta en una finestra gràfica. La paleta es mou verticalment segons les lectures del sensor LDR.</p>
+
+    <p>Amb aquests dos codis i una connexió sèrie entre l'Arduino i la computadora, podràs controlar una paleta de ping pong mitjançant un sensor LDR.</p>
+<br><hr>
+
+<h2>Regula intensitat de LED amb tecla + i -</h2>
+<pre class="copyable-pre">  <i class="fas fa-copy" onclick="copyToClipboard(this)"></i>
+
+//CODI Arduino 
+// Definim el pin PWM on connectem el LED
+#define LED_PIN 9
+
+// Definim les variables per a guardar el valor del LED i el byte rebut
+int ledValue = 0;
+byte receivedByte;
+
+void setup() {
+  // Iniciem la comunicació serial a 9600 bauds
+  Serial.begin(9600);
+  // Establim el pin del LED com a sortida
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  // Comprovem si hi ha dades disponibles al port serial
+  if (Serial.available() > 0) {
+    // Llegim el byte rebut
+    receivedByte = Serial.read();
+    // Si el byte és '+' augmentem el valor del LED en 10 unitats
+    if (receivedByte == '+') {
+      ledValue = ledValue + 10;
+      // Si el valor supera el màxim de 255, el fixem a 255
+      if (ledValue > 255) {
+        ledValue = 255;
+      }
+    }
+    // Si el byte és '-' disminuïm el valor del LED en 10 unitats
+    if (receivedByte == '-') {
+      ledValue = ledValue - 10;
+      // Si el valor és inferior al mínim de 0, el fixem a 0
+      if (ledValue < 0) {
+        ledValue = 0;
+      }
+    }
+    // Enviem el valor del LED al port serial per a mostrar-lo al monitor
+    Serial.println(ledValue);
+    // Establim el valor del LED com a senyal PWM al pin corresponent
+    analogWrite(LED_PIN, ledValue);
+  }
+}
+
+</pre>
+<pre class="copyable-pre">  <i class="fas fa-copy" onclick="copyToClipboard(this)"></i>
+
+//CODI Processing 
+// Importem la llibreria de comunicació serial
+import processing.serial.*;
+
+// Definim una variable per a guardar l'objecte Serial
+Serial myPort;
+
+void setup() {
+  // Iniciem una finestra de 200x200 píxels
+  size(200, 200);
+  // Obtenim la llista de ports disponibles i mostrem el primer
+  println(Serial.list());
+  // Creem un nou objecte Serial amb el primer port i la mateixa velocitat que l'Arduino
+  myPort = new Serial(this, Serial.list()[0], 9600);
+}
+
+void draw() {
+  // No fem res al bucle principal
+}
+
+void keyPressed() {
+  // Quan es prem una tecla, comprovem si és '+' o '-'
+  if (key == '+' || key == '-') {
+    // Si és així, enviem el caràcter al port serial per a que l'Arduino el rebi
+    myPort.write(key);
+  }
+}
+
+</pre>
+
+
+
+
+<h2> Pràctiques senzilles amb LEDS</h2>
+<p>Aquí hi ha algunes pràctiques possibles que podeu fer amb un LED, Arduino Uno i Processing 4:</p>
+<ul>
+<li>Crear un semàfor que canviï de color segons el temps o el clic del ratolí. Podeu usar un LED RGB o tres LEDs de colors diferents. Aquesta pràctica us ensenyarà com usar els pins digitals d'Arduino, com enviar i rebre dades entre Arduino i Processing, i com crear una interfície gràfica senzilla amb Processing. Podeu trobar un exemple similar a <a href="https://www.instructables.com/How-to-control-LEDs-with-Processing-and-Arduino/">aquest</a>.</li>
+<li>Fer que el LED parpalleji al ritme de la música. Podeu usar una biblioteca de Processing com Minim per analitzar el so i enviar el valor de l'amplitud a Arduino. Aquesta pràctica us ensenyarà com usar els pins analògics d'Arduino, com treballar amb so i FFT amb Processing, i com modular la brillantor del LED amb PWM. Podeu trobar un exemple similar a <a href="https://learn.sparkfun.com/tutorials/connecting-arduino-to-processing/all">aquest</a>.</li>
+<li>Controlar el color del LED amb un potenciòmetre. Podeu usar un potenciòmetre connectat a un pin analògic d'Arduino per llegir el valor de la resistència variable i enviar-lo a Processing. Després, podeu usar aquest valor per triar un color del cercle cromàtic i enviar-lo de tornada a Arduino per canviar el color del LED RGB. Aquesta pràctica us ensenyarà com usar els sensors analògics amb Arduino, com convertir els valors numèrics en colors, i com crear una comunicació bidireccional entre Arduino i Processing. Podeu intentar fer aquesta idea.</li>
+</ul>
+
+<h2> Encendre LED quan cara detectada</h2>
+<p>Et dono els dos codis per copiar i pegar. El primer és el codi de Processing, que s’encarrega de capturar la imatge de la webcam, detectar les cares i enviar una senyal a Arduino. El segon és el codi d’Arduino, que s’encarrega de rebre la senyal i encendre o apagar el LED. Aquí els tens:</p>
+
+<pre class="copyable-pre">  <i class="fas fa-copy" onclick="copyToClipboard(this)"></i>// Codi de Processing
+import processing.serial.*; // Importem la biblioteca Serial per comunicar-nos amb Arduino
+import gab.opencv.*; // Importem la biblioteca OpenCV per fer visió per ordinador
+OpenCV opencv; // Creem un objecte OpenCV
+Serial port; // Creem un objecte Serial
+PImage src; // Creem una variable per guardar la imatge de la webcam
+boolean faceDetected = false; // Creem una variable per indicar si s'ha detectat una cara o no
+
+void setup() {
+  size(640, 480); // Definim la mida de la finestra
+  opencv = new OpenCV(this, 640, 480); // Inicialitzem l'objecte OpenCV amb la mateixa mida que la finestra
+  opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE); // Carreguem el fitxer XML que conté les característiques de les cares humanes
+  port = new Serial(this, Serial.list()[0], 9600); // Inicialitzem l'objecte Serial amb el primer port disponible i una velocitat de 9600 bauds
+}
+
+void draw() {
+  src = opencv.getSnapshot(); // Capturem la imatge de la webcam
+  image(src, 0, 0); // Mostrem la imatge a la finestra
+  opencv.loadImage(src); // Carreguem la imatge a l'objecte OpenCV
+  Rectangle[] faces = opencv.detect(); // Detectem les cares a la imatge
+  if (faces.length > 0) { // Si hi ha alguna cara...
+    faceDetected = true; // Actualitzem la variable faceDetected a true
+    for (int i = 0; i < faces.length; i++) { // Per cada cara detectada...
+      rect(faces[i].x, faces[i].y, faces[i].width, faces[i].height); // Dibuixem un rectangle al voltant de la cara
+    }
+  } else { // Si no hi ha cap cara...
+    faceDetected = false; // Actualitzem la variable faceDetected a false
+  }
+  port.write(faceDetected ? '1' : '0'); // Enviem un '1' o un '0' a Arduino segons el valor de faceDetected
+}
+
+</pre>
+
+<pre class="copyable-pre">  <i class="fas fa-copy" onclick="copyToClipboard(this)"></i>// Codi d'Arduino
+int ledPin = 13; // Definim el pin on està connectat el LED
+char data; // Creem una variable per guardar les dades rebudes per serial
+
+void setup() {
+  pinMode(ledPin, OUTPUT); // Definim el pin del LED com a sortida
+  Serial.begin(9600); // Iniciem la comunicació serial a 9600 bauds
+}
+
+void loop() {
+  if (Serial.available() > 0) { // Si hi ha alguna dada disponible per serial...
+    data = Serial.read(); // Llegim la dada i la guardem a la variable data
+    if (data == '1') { // Si la dada és un '1'...
+      digitalWrite(ledPin, HIGH); // Encenem el LED
+    } else if (data == '0') { // Si la dada és un '0'...
+      digitalWrite(ledPin, LOW); // Apaguem el LED
+    }
+  }
+}
+
+</pre>
+<br>
+<h1>Projecte Camp Base Lunar</h1>
+<p><b>Idea que val 33% de la nota trimestral. Es valora innovació i realització amb diferents biblioteques de Processing</b>. Per exemple comptar les cares en un mòdul lunar concret pot servir per regular la quantitat d'oxigen disponible i diòxid de carboni expulsat que es proporcional al número de personed presents detectades com a cares. </p>
+<h2>Idea inicial de projecte a fer: Comptador de cares amb Arduino</h2>
+<p>No puc donar-te en aquest projecte els dos codis per copiar i enganxar, perquè això seria una forma de plagi i no et beneficiaria en el teu aprenentatge. El que et puc oferir és revisar els codis anteriors, una explicació del codi a realitzar i alguns recursos addicionals que et poden ajudar a entendre’l millor. Així podràs modificar-lo i adaptar-lo a les teves necessitats. 😊</p>
+<p>La part de Processing és la que s'encarrega de capturar la imatge de la càmera, detectar les cares amb OpenCV i enviar el nombre de cares detectades a Arduino per al port serial. La part d'Arduino és la que rep el nombre de cares per al port serial i encén els LEDs corresponents amb el sensor de distància.
+</p><p>
+
+La part de Processing té les següents seccions:</p><p>
+
+- La primera secció és on importem les llibreries Serial i OpenCV, que ens permeten comunicar-nos amb Arduino i detectar les cares, respectivament. També creem els objectes Serial, OpenCV i numFaces, que representen el port serial, l'objecte OpenCV i el nombre de cares detectades.</p><p>
+- La segona secció és on definim la funció setup, que s'executa una sola vegada quan iniciem el programa. En aquesta funció, definim la mida de la finestra, iniciem la comunicació amb Arduino pel primer port disponible i amb una velocitat de 9600 bauds, iniciem l'objecte OpenCV amb la mateixa mida que la finestra i carreguem el classificador de cares que ve amb la llibreria OpenCV.</p><p>
+- La tercera secció és on definim la funció draw, que s'executa contínuament mentre el programa està en marxa. En aquesta funció, carreguem la imatge de la càmera a l'objecte OpenCV, mostrem la imatge de la càmera a la finestra, no omplim els rectangles que dibuixarem després, obtenim una llista de rectangles que representen les cares detectades amb OpenCV, actualitzem el valor de numFaces amb el nombre d'elements de la llista, enviem el valor de numFaces a Arduino per al port serial i dibuixem els rectangles al voltant de les cares detectades.</p><p>
+</p><p>
+La part d'Arduino té les següents seccions:
+</p><p>
+- La primera secció és on definim les constants i variables que utilitzarem en el programa. Les constants són els pins on connectarem els LEDs i el sensor de distància, i les variables són el nombre de cares rebudes per al port serial i les distàncies mesurades pel sensor.</p><p>
+- La segona secció és on definim la funció setup, que s'executa una sola vegada quan iniciem el programa. En aquesta funció, iniciem la comunicació serial amb una velocitat de 9600 bauds i configurem els pins dels LEDs com a sortides.</p><p>
+- La tercera secció és on definim la funció loop, que s'executa contínuament mentre el programa està en marxa. En aquesta funció, comprovem si hi ha dades disponibles per al port serial, si n'hi ha llegim el valor i l'emmagatzemem a la variable numFaces, fem un bucle per a cada LED i comprovem si el seu número és menor o igual que el nombre de cares, si és així encenem el LED corresponent i si no l'apaguem, fem un altre bucle per a cada sensor i llegim la distància mesurada pel sensor corresponent i l'emmagatzemem a la variable distance[i], on i és l'índex del sensor, i finalment fem un altre bucle per a cada LED i comprovem si la distància mesurada pel sensor corresponent és menor que un llindar determinat, si és així apaguem el LED corresponent i si no el deixem com està.</p><p>
+
+
+
+Espero que aquesta explicació et sigui útil per al teu projecte. 😊
+
+</p>
+
+<p> Millora el projecte, fes que soni musica depenent de la posició x,y de la cara, etc... Pots buscar el GitHub del professor explicat a Madrid el 2015 i altres exemples i millora'ls.</p>
+
+    <script>        // Funció per copiar el contingut d'un <pre> al porta-retalls
+        function copyToClipboard(iconElement) {
+            var preElement = iconElement.parentElement; // Obtenim l'element pare del botó d'ícona
+            var textArea = document.createElement("textarea"); // Creem un element de text temporal
+            textArea.value = preElement.textContent; // Assignem el contingut del <pre> al text temporal
+            document.body.appendChild(textArea); // Afegim l'element de text al cos de la pàgina
+            textArea.select(); // Seleccionem el contingut del text
+            document.execCommand("copy"); // Copiem el contingut al porta-retalls
+            document.body.removeChild(textArea); // Eliminem l'element de text temporal
+            alert("Contingut copiat al Porta-retalls!"); // Mostrem un missatge d'alerta
+        }
+        
+    </script>
+    <h1>Recursos d'Arduino i Processing</h1>
+    
+    <h2>Arduino Project Hub</h2>
+    <p><a href="https://create.arduino.cc/projecthub/">Arduino Project Hub</a> ofereix una àmplia gamma de projectes i tutorials d'Arduino amb codi i instruccions pas a pas.</p>
+
+    <h2>Processing.org</h2>
+    <p>La pàgina oficial de <a href="https://processing.org/examples/">Processing</a> ofereix exemples i tutorials per ajudar-te a començar amb la programació creativa. També pots trobar exemples incorporats a totes les <a href="https://processing.org/reference/libraries"> biblioteques </a>que amplien enormement les possibilitats de Processing</p>
+
+    <h2>Instructables Arduino</h2>
+    <p>Consulta <a href="https://www.instructables.com/circuits/arduino/projects/">Instructables Arduino</a> per trobar una gran col·lecció de projectes d'Arduino amb guies detallades i vídeos.</p>
+
+    <h2>Adafruit Learning System</h2>
+    <p><a href="https://learn.adafruit.com/">Adafruit Learning System</a> proporciona tutorials d'Arduino i electrònica en general, amb una varietat de projectes interessants.</p>
+
+    <h2>YouTube</h2>
+    <p>Cerca tutorials d'Arduino i Processing a <a href="https://www.youtube.com/">YouTube</a>. Hi ha molts creadors de contingut que comparteixen projectes i tutorials en vídeo.</p>
+
+    <h2>Foros de Comunitats</h2>
+    <p>Explora preguntes i respostes sobre projectes d'Arduino i Processing als fòrums de comunitats, com ara el <a href="https://forum.arduino.cc/">fòrum d'Arduino</a> o el <a href="https://forum.processing.org/">fòrum de Processing</a>.</p>
+    
+        <h2>Web del mateix professor</h2>
+    <p>Explora apartat 'Microcontrollers' i sobre projectes d'Arduino i Processing de blocs XTEC del <a href="https://blocs.xtec.cat/tecno/">
+professor F. Pérez</a>.</p>
+</body>
+</html>
