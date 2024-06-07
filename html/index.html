@@ -24,8 +24,8 @@
       flex-direction: column;
       position: relative;
       box-sizing: border-box;
-      padding: 10px;
       border: 1px solid #ccc;
+      overflow: hidden;
     }
 
     .area-title {
@@ -40,26 +40,23 @@
       z-index: 1;
     }
 
+    #codeEditorContainer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
     #codeEditor {
-      overflow-y: auto;
+      flex: 1;
+      height: 100%;
       padding: 10px;
       border: 1px solid #ccc;
-      resize: vertical;
-      height: 100vh;
-      overflow-y: scroll;
     }
 
-    #codeEditor::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    #codeEditor::-webkit-scrollbar-thumb {
-      background-color: #ccc;
-      border-radius: 10px;
-    }
-
-    #codeEditor::-webkit-scrollbar-track {
-      background-color: #f1f1f1;
+    .CodeMirror {
+      height: 100%;
     }
 
     #runButton {
@@ -131,93 +128,95 @@
   <div id="container">
     <div class="area">
       <div class="area-title">Code Editor</div>
-      <textarea id="codeEditor">
-        <!-- Your code goes here -->
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Greeting based on time and day</title>
-          <style>
-            .morning {
-              color: green;
-            }
-            .afternoon {
-              color: blue;
-            }
-            .evening {
-              color: red;
-            }
-            #planetImage {
-              display: none;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>Greeting based on time and day</h1>
-          <button onclick="showGreeting()">Click me</button>
-          <p id="greeting"></p>
-          <p id="planet"></p>
-          <img id="planetImage" src="" alt="Planet Image">
+      <div id="codeEditorContainer">
+        <textarea id="codeEditor">
+          <!-- Your code goes here -->
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Greeting based on time and day</title>
+            <style>
+              .morning {
+                color: green;
+              }
+              .afternoon {
+                color: blue;
+              }
+              .evening {
+                color: red;
+              }
+              #planetImage {
+                display: none;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Greeting based on time and day</h1>
+            <button onclick="showGreeting()">Click me</button>
+            <p id="greeting"></p>
+            <p id="planet"></p>
+            <img id="planetImage" src="" alt="Planet Image">
 
-          <script>
-            function showGreeting() {
-              var now = new Date();
-              var hour = now.getHours();
-              console.log("Time is after " + hour + ":00 h");
-              var greeting = '';
+            <script>
+              function showGreeting() {
+                var now = new Date();
+                var hour = now.getHours();
+                console.log("Time is after " + hour + ":00 h");
+                var greeting = '';
 
-              if (hour >= 0 && hour < 12) {
-                greeting = 'Good morning!';
-                document.getElementById('greeting').className = 'morning';
-              } else if (hour >= 12 && hour < 18) {
-                greeting = 'Good afternoon!';
-                document.getElementById('greeting').className = 'afternoon';
-              } else {
-                greeting = 'Good evening!';
-                document.getElementById('greeting').className = 'evening';
+                if (hour >= 0 && hour < 12) {
+                  greeting = 'Good morning!';
+                  document.getElementById('greeting').className = 'morning';
+                } else if (hour >= 12 && hour < 18) {
+                  greeting = 'Good afternoon!';
+                  document.getElementById('greeting').className = 'afternoon';
+                } else {
+                  greeting = 'Good evening!';
+                  document.getElementById('greeting').className = 'evening';
+                }
+
+                document.getElementById('greeting').textContent = greeting;
+
+                var day = now.getDay();
+                fetchPlanetData(day)
+                  .then(function(planetInfo) {
+                    document.getElementById('planet').textContent = "Today is " + getDayOfWeek(day) + ", which is associated with the planet " + planetInfo.planet + ".";
+                    document.getElementById('planetImage').src = planetInfo.imageSource;
+                    document.getElementById('planetImage').style.display = 'inline'; // Show the image
+                  })
+                  .catch(function(error) {
+                    console.log('Error:', error);
+                  });
               }
 
-              document.getElementById('greeting').textContent = greeting;
-
-              var day = now.getDay();
-              fetchPlanetData(day)
-                .then(function(planetInfo) {
-                  document.getElementById('planet').textContent = "Today is " + getDayOfWeek(day) + ", which is associated with the planet " + planetInfo.planet + ".";
-                  document.getElementById('planetImage').src = planetInfo.imageSource;
-                  document.getElementById('planetImage').style.display = 'inline'; // Show the image
-                })
-                .catch(function(error) {
-                  console.log('Error:', error);
-                });
-            }
-
-            function fetchPlanetData(day) {
-              return new Promise(function(resolve, reject) {
-                var request = new XMLHttpRequest();
-                request.open('GET', 'planetData.json', true);
-                request.onload = function() {
-                  if (request.status >= 200 && request.status < 400) {
-                    var planetData = JSON.parse(request.responseText);
-                    var planetInfo = planetData[day] || { planet: 'Unknown', imageSource: '', explanation: 'The association with an unknown planet.' };
-                    resolve(planetInfo);
-                  } else {
+              function fetchPlanetData(day) {
+                return new Promise(function(resolve, reject) {
+                  var request = new XMLHttpRequest();
+                  request.open('GET', 'planetData.json', true);
+                  request.onload = function() {
+                    if (request.status >= 200 && request.status < 400) {
+                      var planetData = JSON.parse(request.responseText);
+                      var planetInfo = planetData[day] || { planet: 'Unknown', imageSource: '', explanation: 'The association with an unknown planet.' };
+                      resolve(planetInfo);
+                    } else {
+                      reject('Error: Could not fetch planet data.');
+                    }
+                  };
+                  request.onerror = function() {
                     reject('Error: Could not fetch planet data.');
-                  }
-                };
-                request.onerror = function() {
-                  reject('Error: Could not fetch planet data.');
-                };
-                request.send();
-              });
-            }
+                  };
+                  request.send();
+                });
+              }
 
-            function getDayOfWeek(day) {
-              var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-              return daysOfWeek[day];
-            }
-          </script>
-        </body>
-      </textarea>
+              function getDayOfWeek(day) {
+                var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                return daysOfWeek[day];
+              }
+            </script>
+          </body>
+        </textarea>
+      </div>
     </div>
     <button id="runButton" onclick="runCode()">Run</button>
     <div class="area">
@@ -271,3 +270,4 @@
   </script>
 </body>
 </html>
+
