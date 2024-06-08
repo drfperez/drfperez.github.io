@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      overflow: hidden;
+    }
+
+    .area-title {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #f2f2f2;
+      padding: 5px;
+      font-weight: bold;
+      box-sizing: border-box;
+      z-index: 1;
+    }
+
+    #codeEditorContainer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #codeEditor {
+      flex: 1;
+      height: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .CodeMirror {
+      height: 100%;
+    }
+
+    #runButton {
+      width: fit-content;
+      margin: 10px auto;
+      display: block;
+    }
+
+    #outputContainer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      padding: 5px;
+      overflow: auto;
+    }
+
+    #consoleArea {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ccc;
+      background-color: #f2f2f2;
+      margin-top: 10px;
+      padding-top: 20px;
+      overflow: auto;
+    }
+
+    #outputFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    #planetImage {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.64.0/codemirror.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.64.0/mode/htmlmixed/htmlmixed.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.64.0/mode/xml/xml.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.64.0/mode/css/css.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.64.0/mode/javascript/javascript.js"></script>
+  <!-- Include the Bootstrap JS file -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Include the Bootstrap CSS file -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div id="container">
+    <div class="area">
+      <div class="area-title">Code Editor</div>
+      <div id="codeEditorContainer">
+        <textarea id="codeEditor">
+          
+<!-- Your code goes here -->
+
+<<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Choice Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Multiple Choice Quiz</h1>
+        <form id="quiz-form">
+            <div class="question">
+                <p>1. What is the capital of France?</p>
+                <label>
+                    <input type="radio" name="q1" value="a"> Berlin
+                </label><br>
+                <label>
+                    <input type="radio" name="q1" value="b"> Madrid
+                </label><br>
+                <label>
+                    <input type="radio" name="q1" value="c"> Paris
+                </label><br>
+                <label>
+                    <input type="radio" name="q1" value="d"> Rome
+                </label>
+            </div>
+            <div class="question">
+                <p>2. Which planet is known as the Red Planet?</p>
+                <label>
+                    <input type="radio" name="q2" value="a"> Earth
+                </label><br>
+                <label>
+                    <input type="radio" name="q2" value="b"> Mars
+                </label><br>
+                <label>
+                    <input type="radio" name="q2" value="c"> Jupiter
+                </label><br>
+                <label>
+                    <input type="radio" name="q2" value="d"> Venus
+                </label>
+            </div>
+            <div class="question">
+                <p>3. What is the largest ocean on Earth?</p>
+                <label>
+                    <input type="radio" name="q3" value="a"> Atlantic Ocean
+                </label><br>
+                <label>
+                    <input type="radio" name="q3" value="b"> Indian Ocean
+                </label><br>
+                <label>
+                    <input type="radio" name="q3" value="c"> Arctic Ocean
+                </label><br>
+                <label>
+                    <input type="radio" name="q3" value="d"> Pacific Ocean
+                </label>
+            </div>
+            <button type="button" onclick="calculateScore()">Submit</button>
+        </form>
+        <div id="result"></div>
+    </div>
+    <script>
+        function calculateScore() {
+            var form = document.getElementById('quiz-form');
+            var q1 = form.q1.value;
+            var q2 = form.q2.value;
+            var q3 = form.q3.value;
+
+            var score = 0;
+
+            if (q1 === "c") {
+                score++;
+            }
+            if (q2 === "b") {
+                score++;
+            }
+            if (q3 === "d") {
+                score++;
+            }
+
+            var result = document.getElementById('result');
+            result.innerHTML = 'Your score is: ' + score + ' out of 3';
+        }
+    </script>
+</body>
+</html>
+        </textarea>
+      </div>
+    </div>
+    <button id="runButton" onclick="runCode()">Run</button>
+    <div class="area">
+      <div class="area-title">Output</div>
+      <div id="outputContainer">
+        <iframe id="outputFrame" frameborder="0" scrolling="yes"></iframe>
+      </div>
+    </div>
+
+    <div class="area">
+      <div class="area-title">Console</div>
+      <div id="consoleArea">
+        <div id="consoleOutput"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
+      lineNumbers: true,
+      mode: "htmlmixed",
+      htmlMode: true,
+      theme: "default",
+    });
+
+    function runCode() {
+      var code = editor.getValue();
+      var iframe = document.getElementById("outputFrame");
+
+      // Clear previous console messages
+      var consoleOutput = document.getElementById("consoleOutput");
+      consoleOutput.innerHTML = "";
+
+      iframe.contentWindow.console = {
+        log: function () {
+          var output = document.createElement("div");
+          output.textContent = Array.from(arguments).join(" ");
+          consoleOutput.appendChild(output);
+        },
+        error: function () {
+          var output = document.createElement("div");
+          output.textContent = "Error: " + Array.from(arguments).join(" ");
+          output.style.color = "red";
+          consoleOutput.appendChild(output);
+        }
+      };
+
+      iframe.contentDocument.open();
+      iframe.contentDocument.write(code);
+      iframe.contentDocument.close();
+    }
+  </script>
+</body>
+</html>
