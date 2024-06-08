@@ -118,7 +118,7 @@
           
 <!-- Your code goes here -->
 
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -159,6 +159,14 @@
 
         button:hover {
             background-color: #0056b3;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
         }
     </style>
 </head>
@@ -216,30 +224,57 @@
         <div id="result"></div>
     </div>
     <script>
+        const startTime = new Date().getTime();
+
         function calculateScore() {
-            var form = document.getElementById('quiz-form');
-            var q1 = form.q1.value;
-            var q2 = form.q2.value;
-            var q3 = form.q3.value;
+            const form = document.getElementById('quiz-form');
+            const q1 = form.q1.value;
+            const q2 = form.q2.value;
+            const q3 = form.q3.value;
 
-            var score = 0;
+            const correctAnswers = {
+                q1: 'c',
+                q2: 'b',
+                q3: 'd'
+            };
 
-            if (q1 === "c") {
-                score++;
-            }
-            if (q2 === "b") {
-                score++;
-            }
-            if (q3 === "d") {
-                score++;
-            }
+            let score = 0;
 
-            var result = document.getElementById('result');
-            result.innerHTML = 'Your score is: ' + score + ' out of 3';
+            const questions = [q1, q2, q3];
+            const questionDivs = document.querySelectorAll('.question');
+
+            questions.forEach((answer, index) => {
+                const labels = questionDivs[index].querySelectorAll('label');
+                labels.forEach(label => {
+                    const input = label.querySelector('input');
+                    if (input.value === correctAnswers[`q${index + 1}`]) {
+                        if (input.checked) {
+                            score++;
+                            label.classList.add('correct');
+                        } else {
+                            label.classList.remove('incorrect');
+                        }
+                    } else {
+                        if (input.checked) {
+                            label.classList.add('incorrect');
+                        } else {
+                            label.classList.remove('correct');
+                            label.classList.remove('incorrect');
+                        }
+                    }
+                });
+            });
+
+            const endTime = new Date().getTime();
+            const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
+
+            const result = document.getElementById('result');
+            result.innerHTML = `Your score is: ${score} out of 3 <br> Time taken: ${timeTaken} seconds`;
         }
     </script>
 </body>
 </html>
+
         </textarea>
       </div>
     </div>
