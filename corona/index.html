@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Problema de l'Escalfament Coronal</title>
+</head>
+<body>
+    <h1>El Problema de l'Escalfament Coronal</h1>
+    <p>El Sol té una atmosfera externa anomenada corona que és sorprenentment molt més calenta que la seva superfície visible, la fotosfera. Mentre que la fotosfera té una temperatura d'uns 5.500-6.000 graus Celsius, la corona pot arribar a temperatures d'entre 1 i 3 milions de graus Celsius. Aquest gran contrast en les temperatures és conegut com el "problema de l'escalfament coronal".</p>
+
+    <h2>Descobriment del Ferro en Eclipsis Solars</h2>
+    <p>Durant els eclipsis solars, es van observar línies espectrals que no es podien atribuir a cap element conegut a temperatures normals. A la dècada de 1930, el físic suec Bengt Edlén va identificar aquestes línies com a causades pel ferro fortament ionitzat, el que només pot existir a temperatures molt altes, suggerint així la presència de temperatures d'alguns milions de graus a la corona.</p>
+
+    <h3>Qui i Quan</h3>
+    <p>Les primeres observacions detallades de la corona es van realitzar durant eclipsis solars al segle XIX. No obstant això, va ser Bengt Edlén a la dècada de 1930 qui va fer la identificació crucial de les línies espectrals del ferro.</p>
+
+    <h2>Hipòtesis Actuals sobre l'Escalfament Coronal</h2>
+    <ul>
+        <li><strong>Ones d'Alfven:</strong> Es creu que les ones magnètiques, anomenades ones d'Alfven, podrien transferir energia a la corona, escalfant-la a temperatures molt altes.</li>
+        <li><strong>Nanofulguracions:</strong> Petites però freqüents fulguracions magnètiques, anomenades nanofulguracions, podrien ser responsables de l'escalfament de la corona.</li>
+    </ul>
+
+    <h2>Estudiar el Problema amb Python</h2>
+    <p>Per estudiar aquest problema amb Python, podríem utilitzar dades d'observacions solars i simular els processos d'escalfament. A continuació es mostra un exemple de codi Python per analitzar dades de temperatures solars:</p>
+    <pre><code class="language-python">
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Suposem que tenim dades de temperatures de la fotosfera i la corona
+temps_fotosfera = 6000  # en graus Celsius
+temps_corona = [1e6, 1.5e6, 2e6, 2.5e6, 3e6]  # temperatures en diverses regions de la corona
+
+# Distàncies relatives de la fotosfera a la corona (en milers de quilòmetres)
+distancies = [1, 2, 3, 4, 5]
+
+plt.figure(figsize=(10, 6))
+plt.plot(distancies, temps_corona, label='Temperatura de la Corona', marker='o')
+plt.axhline(y=temps_fotosfera, color='r', linestyle='-', label='Temperatura de la Fotosfera')
+
+plt.xlabel('Distància de la Fotosfera (milers de km)')
+plt.ylabel('Temperatura (°C)')
+plt.title('Temperatura de la Fotosfera vs. Corona')
+plt.legend()
+plt.grid(True)
+plt.show()
+    </code></pre>
+</body>
+</html>
