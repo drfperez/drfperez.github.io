@@ -33,6 +33,25 @@
             display: none;
         }
     </style>
+	  <script>
+        document.querySelectorAll('.copy-button').forEach(item => {
+            item.addEventListener('click', event => {
+                const codeBlock = item.nextElementSibling.nextElementSibling; // Get the <code> element
+                const codeText = codeBlock.textContent; // Get the text content of the <code> element
+                navigator.clipboard.writeText(codeText).then(function() {
+                    // Show copy feedback
+                    const feedback = item.parentElement.querySelector('.copy-feedback');
+                    feedback.style.display = 'block';
+                    setTimeout(() => {
+                        // Hide feedback after 2 seconds
+                        feedback.style.display = 'none';
+                    }, 2000);
+                }, function(err) {
+                    console.error('Failed to copy to clipboard: ', err);
+                });
+            });
+        });
+    </script>
   </head>
   <body>
 	    <h1>Joc Timber amb C++</h1>
