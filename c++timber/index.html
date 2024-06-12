@@ -808,27 +808,23 @@ return 0;
 	  </code></pre>
 	
 	</div>  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-      const copyButtons = document.querySelectorAll('.copy-button');
-      copyButtons.forEach(button => {
-        button.addEventListener('click', function() {
-          const codeBlock = button.previousElementSibling;
-          const codeText = codeBlock.textContent;
-
-          // Copy the text to the clipboard
-          navigator.clipboard.writeText(codeText).then(() => {
-            // Show feedback to the user
-            const feedback = button.nextElementSibling;
-            feedback.style.display = 'inline';
-            setTimeout(() => {
-              feedback.style.display = 'none';
-            }, 2000);
-          }).catch(err => {
-            console.error('Failed to copy text: ', err);
-          });
+  document.querySelectorAll('.copy-button').forEach(item => {
+            item.addEventListener('click', event => {
+                const codeBlock = item.nextElementSibling.nextElementSibling; // Get the <code> element
+                const codeText = codeBlock.textContent; // Get the text content of the <code> element
+                navigator.clipboard.writeText(codeText).then(function() {
+                    // Show copy feedback
+                    const feedback = item.parentElement.querySelector('.copy-feedback');
+                    feedback.style.display = 'block';
+                    setTimeout(() => {
+                        // Hide feedback after 2 seconds
+                        feedback.style.display = 'none';
+                    }, 2000);
+                }, function(err) {
+                    console.error('Failed to copy to clipboard: ', err);
+                });
+            });
         });
-      });
-    });
 </script>
 
 		</body>
