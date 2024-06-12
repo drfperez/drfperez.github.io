@@ -1,0 +1,82 @@
+<html>
+  <head>
+  
+  </head>
+  <body>
+<pre><code>
+// Aquest és el codi principal del nostre joc "Timber!!!". Es crearà una finestra en pantalla completa, es carregarà una textura de fons, es dibuixarà aquesta textura a la pantalla, i es gestionaran els inputs del jugador per tancar la finestra quan es premi la tecla Escape. A cada iteració del bucle principal del joc, s'actualitzarà i es dibuixarà l'escena.
+
+// Incloem les biblioteques importants
+#include <SFML/Graphics.hpp>
+
+// Facilitem l'ús del codi amb "using namespace"
+using namespace sf;
+
+// Aquí comença el nostre joc amb la funció main()
+int main()
+{
+	// Creem un objecte VideoMode per definir la resolució de la pantalla
+	VideoMode vm(1920, 1080);
+
+	// Creem i obrim una finestra per al joc
+	RenderWindow window(vm, "Timber!!!", Style::Fullscreen);
+
+	// Creem una textura per guardar un gràfic a la GPU
+	Texture textureBackground;
+
+	// Carreguem un gràfic dins de la textura
+	textureBackground.loadFromFile("graphics/background.png");
+
+	// Creem un sprite
+	Sprite spriteBackground;
+
+	// Assignem la textura al sprite
+	spriteBackground.setTexture(textureBackground);
+
+	// Ajustem la posició del sprite de fons per cobrir tota la pantalla
+	spriteBackground.setPosition(0, 0);
+
+	// Bucle principal del joc
+	while (window.isOpen())
+	{
+		/*
+		**************************************** 
+		Gestionem l'input del jugador
+		****************************************
+		*/
+
+		// Tanquem la finestra si es prem la tecla Escape
+		if (Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+			window.close();
+		}
+
+		/*
+		**************************************** 
+		Actualitzem l'escena
+		****************************************
+		*/
+
+
+		/*
+		**************************************** 
+		Dibuixem l'escena
+		****************************************
+		*/
+
+		// Esborrem tot de l'últim frame
+		window.clear();
+
+		// Dibuixem l'escena del joc aquí
+		window.draw(spriteBackground);
+
+		// Mostrem tot el que acabem de dibuixar
+		window.display();
+	}
+
+	// Retornem 0 per indicar que el programa ha acabat correctament
+	return 0;
+}
+</code></pre>
+</body>
+</html>
