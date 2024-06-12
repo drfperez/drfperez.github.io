@@ -358,6 +358,411 @@ int main()
 		  
 	  </code></pre>
   <h2>Tercera versió</h2>
+	  <pre><code>
+		  // Inclou les llibreries importants
+#include <sstream>
+#include <SFML/Graphics.hpp>
+
+// Fa que el codi sigui més fàcil d'escriure amb "using namespace"
+using namespace sf;
+
+// Aquest és el punt d'inici del nostre joc int main()
+int main()
+{
+    // Codi extra per fer captures de pantalla
+    RenderTexture renderTexture;
+    renderTexture.create(1920, 1080);
+    bool shotTaken = true;
+    ////////////////////////////////////
+
+    // Crear un objecte de mode de vídeo
+    VideoMode vm(1920, 1080);
+
+    // Crear i obrir una finestra per al joc
+    RenderWindow window(vm, "Timber!!!", Style::Fullscreen);
+
+    // Crear una textura per mantenir un gràfic a la GPU
+    Texture textureBackground;
+
+    // Carregar un gràfic a la textura
+    textureBackground.loadFromFile("graphics/background.png");
+
+    // Crear un sprite
+    Sprite spriteBackground;
+
+    // Adjuntar la textura al sprite
+    spriteBackground.setTexture(textureBackground);
+
+    // Posar el spriteBackground per cobrir la pantalla
+    spriteBackground.setPosition(0, 0);
+
+    // Crear un sprite d'arbre
+    Texture textureTree;
+    textureTree.loadFromFile("graphics/tree.png");
+    Sprite spriteTree;
+    spriteTree.setTexture(textureTree);
+    spriteTree.setPosition(810, 0);
+
+    // Preparar l'abella
+    Texture textureBee;
+    textureBee.loadFromFile("graphics/bee.png");
+    Sprite spriteBee;
+    spriteBee.setTexture(textureBee);
+    spriteBee.setPosition(0, 800);
+
+    // L'abella està actualment en moviment?
+    bool beeActive = false;
+
+    // Quina velocitat pot volar l'abella
+    float beeSpeed = 0.0f;
+
+    // Crear 3 sprites de núvols amb una textura
+    Texture textureCloud;
+
+    // Carregar una nova textura
+    textureCloud.loadFromFile("graphics/cloud.png");
+
+    // 3 nous sprites amb la mateixa textura
+    Sprite spriteCloud1;
+    Sprite spriteCloud2;
+    Sprite spriteCloud3;
+    spriteCloud1.setTexture(textureCloud);
+    spriteCloud2.setTexture(textureCloud);
+    spriteCloud3.setTexture(textureCloud);
+
+    // Posicionar els núvols a l'esquerra de la pantalla
+    // a diferents altures
+    spriteCloud1.setPosition(0, 0);
+    spriteCloud2.setPosition(0, 250);
+    spriteCloud3.setPosition(0, 500);
+
+    // Els núvols estan actualment a la pantalla?
+    bool cloud1Active = false;
+    bool cloud2Active = false;
+    bool cloud3Active = false;
+
+    // Quina velocitat té cada núvol?
+    float cloud1Speed = 0.0f;
+    float cloud2Speed = 0.0f;
+    float cloud3Speed = 0.0f;
+
+    // Variables per controlar el temps
+    Clock clock;
+
+    // Barra de temps
+    RectangleShape timeBar;
+    float timeBarStartWidth = 400;
+    float timeBarHeight = 80;
+    timeBar.setSize(Vector2f(timeBarStartWidth, timeBarHeight));
+    timeBar.setFillColor(Color::Red);
+    timeBar.setPosition((1920 / 2) - timeBarStartWidth / 2, 980);
+
+    Time gameTimeTotal;
+    float timeRemaining = 6.0f;
+    float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining;
+
+    // Seguir si el joc està en marxa
+    bool paused = true;
+
+    // Dibuixar text
+    int score = 0;
+
+    Text messageText;
+    Text scoreText;
+
+    // Necessitem triar una font
+    Font font;
+    font.loadFromFile("fonts/KOMIKAP_.ttf");
+
+    // Assignar la font al nostre missatge
+    messageText.setFont(font);
+    scoreText.setFont(font);
+
+    // Assignar el missatge real
+    messageText.setString("Press Enter to start!");
+    scoreText.setString("Score = 0");
+
+    // Fer-lo molt gran
+    messageText.setCharacterSize(75);
+    scoreText.setCharacterSize(100);
+
+    // Triar un color
+    messageText.setFillColor(Color::White);
+    scoreText.setFillColor(Color::White);
+
+    // Posicionar el text
+    FloatRect textRect = messageText.getLocalBounds();
+
+    messageText.setOrigin(textRect.left +
+        textRect.width / 2.0f,
+        textRect.top +
+        textRect.height / 2.0f);
+
+    messageText.setPosition(1920 / 2.0f, 1080 / 2.0f);
+
+    scoreText.setPosition(20, 20);
+
+    while (window.isOpen())
+    {
+        /*
+        ****************************************
+        Gestionar les entrades dels jugadors
+        ****************************************
+        */
+
+        if (Keyboard::isKeyPressed(Keyboard::Escape))
+        {
+            window.close();
+        }
+
+        // Iniciar el joc
+        if (Keyboard::isKeyPressed(Keyboard::Return))
+        {
+            paused = false;
+
+            // Reiniciar el temps i la puntuació
+            score = 0;
+            timeRemaining = 6;
+        }
+
+        /*
+        ****************************************
+        Actualitzar l'escena
+        ****************************************
+        */
+
+        if (!paused)
+        {
+            // Mesurar el temps
+            Time dt = clock.restart();
+
+            // Restar del temps restant
+            timeRemaining -= dt.asSeconds();
+            // Ajustar la mida de la barra de temps
+            timeBar.setSize(Vector2f(timeBarWidthPerSecond *
+                timeRemaining, timeBarHeight));
+
+            if (timeRemaining <= 0.0f) {
+                // Per a les captures de pantalla
+                shotTaken = false;
+
+                // Pausar el joc
+                paused = true;
+
+                // Canviar el missatge que es mostra al jugador
+                messageText.setString("Out of time!!");
+
+                // Reposicionar el text segons la seva nova mida
+                FloatRect textRect = messageText.getLocalBounds();
+                messageText.setOrigin(textRect.left +
+                    textRect.width / 2.0f,
+                    textRect.top +
+                    textRect.height / 2.0f);
+
+                messageText.setPosition(1920 / 2.0f, 1080 / 2.0f);
+            }
+
+            // Configurar l'abella
+            if (!beeActive)
+            {
+                // Quina velocitat té l'abella
+                srand((int)time(0));
+                beeSpeed = (rand() % 200) + 200;
+
+                // Quina alçada té l'abella
+                srand((int)time(0) * 10);
+                float height = (rand() % 500) + 500;
+                spriteBee.setPosition(2000, height);
+                beeActive = true;
+            }
+            else
+            {
+                // Moure l'abella
+                spriteBee.setPosition(
+                    spriteBee.getPosition().x -
+                    (beeSpeed * dt.asSeconds()),
+                    spriteBee.getPosition().y);
+
+                // L'abella ha arribat a l'extrem esquerre de la pantalla?
+                if (spriteBee.getPosition().x < -100)
+                {
+                    // Configurar-la per ser una nova abella al proper fotograma
+                    beeActive = false;
+                }
+            }
+
+            // Gestionar els núvols
+            // Núvol 1
+            if (!cloud1Active)
+            {
+                // Quina velocitat té el núvol
+                srand((int)time(0) * 10);
+                cloud1Speed = (rand() % 200);
+
+                // Quina alçada té el núvol
+                srand((int)time(0) * 10);
+                float height = (rand() % 150);
+                spriteCloud1.setPosition(-200, height);
+                cloud1Active = true;
+            }
+            else
+            {
+                spriteCloud1.setPosition(
+                    spriteCloud1.getPosition().x +
+                    (cloud1Speed * dt.asSeconds()),
+                    spriteCloud1.getPosition().y);
+
+                // El núvol ha arribat a l'extrem dret de la pantalla?
+                if (spriteCloud1.getPosition().x > 1920)
+                {
+                    // Configurar-lo per ser un nou núvol al proper fotograma
+                    cloud1Active = false;
+                }
+            }
+            // Núvol 2
+            if (!cloud2Active)
+            {
+                // Quina velocitat té el núvol
+                srand((int)time(0) * 20);
+                cloud2Speed = (rand() % 200);
+
+                // Quina alçada té el núvol
+                srand((int)time(0) * 20);
+                float height = (rand() % 300) - 150;
+                spriteCloud2.setPosition(-200, height);
+                cloud2Active = true;
+            }
+            else
+            {
+                spriteCloud2.setPosition(
+                    spriteCloud2.getPosition().x +
+                    (cloud2Speed * dt.asSeconds()),
+                    spriteCloud2.getPosition().y);
+
+                // El núvol ha arribat a l'extrem dret de la pantalla?
+                if (spriteCloud2.getPosition().x > 1920)
+                {
+                    // Configurar-lo per ser un nou núvol al proper fotograma
+                    cloud2Active = false;
+                }
+            }
+
+            // Núvol 3
+            if (!cloud3Active)
+            {
+                // Quina velocitat té el núvol
+srand((int)time(0) * 30);
+cloud3Speed = (rand() % 200);
+            // Quina alçada té el núvol
+            srand((int)time(0) * 30);
+            float height = (rand() % 450) - 150;
+            spriteCloud3.setPosition(-200, height);
+            cloud3Active = true;
+        }
+        else
+        {
+            spriteCloud3.setPosition(
+                spriteCloud3.getPosition().x +
+                (cloud3Speed * dt.asSeconds()),
+                spriteCloud3.getPosition().y);
+
+            // El núvol ha arribat a l'extrem dret de la pantalla?
+            if (spriteCloud3.getPosition().x > 1920)
+            {
+                // Configurar-lo per ser un nou núvol al proper fotograma
+                cloud3Active = false;
+            }
+        }
+
+        // Actualitzar el text de la puntuació
+        std::stringstream ss;
+        ss << "Puntuació = " << puntuació;
+        scoreText.setString(ss.str());
+
+    } // Fi si (!pausat)
+
+    /*
+    ****************************************
+    Dibuixar l'escena
+    ****************************************
+    */
+
+    // Netegem tot de l'últim fotograma
+    window.clear();
+
+    // Dibuixem la nostra escena del joc aquí
+    window.draw(spriteBackground);
+
+    // Dibuixem els núvols
+    window.draw(spriteCloud1);
+    window.draw(spriteCloud2);
+    window.draw(spriteCloud3);
+
+    // Dibuixem l'arbre
+    window.draw(spriteTree);
+
+    // Dibuixem l'insecte
+    window.draw(spriteBee);
+
+    // Dibuixem la puntuació
+    window.draw(scoreText);
+
+    // Dibuixem la barra de temps
+    window.draw(timeBar);
+
+    if (paused)
+    {
+        // Dibuixem el nostre missatge
+        window.draw(messageText);
+    }
+
+    // Mostrem tot el que hem dibuixat
+    window.display();
+
+    // Codi extra utilitzat per fer una captura de pantalla
+    if (!shotTaken)
+    {
+        
+        // Netejem la textura de renderització
+        renderTexture.clear();
+
+        renderTexture.draw(spriteBackground);
+        renderTexture.draw(spriteCloud1);
+        renderTexture.draw(spriteCloud2);
+        renderTexture.draw(spriteCloud3);
+
+        // Dibuixem l'arbre
+        renderTexture.draw(spriteTree);
+
+        // Dibuixem l'insecte
+        renderTexture.draw(spriteBee);
+
+        // Dibuixem la puntuació
+        renderTexture.draw(scoreText);
+
+        // Dibuixem la barra de temps
+        renderTexture.draw(timeBar);
+
+        if (paused)
+        {
+            // Dibuixem el nostre missatge
+            renderTexture.draw(messageText);
+        }
+
+        // Actualitzem la textura de renderització
+        renderTexture.display();
+
+        // Creem una imatge de sf::Image i copiem el contingut de la textura de renderització
+        sf::Image screenshot = renderTexture.getTexture().copyToImage();
+
+        // Desem la captura de pantalla en un fitxer
+        screenshot.saveToFile("screenshot.png");
+        shotTaken = true;
+    }
+}
+return 0;
+}
+	  </code></pre>
 	  
 </body>
 </html>
