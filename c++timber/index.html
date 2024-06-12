@@ -78,5 +78,280 @@ int main()
 	return 0;
 }
 </code></pre>
+
+	  <h2>Seona versió</h2>
+	  <pre><code>
+
+// Aquest codi implementa un joc anomenat "Timber!!!". Es crea una finestra a pantalla completa, es carrega una textura de fons, un arbre, un insecte (abellot) i núvols. Es gestionen els inputs del jugador i es mouen els objectes a la pantalla en funció del temps transcorregut. A cada iteració del bucle principal del joc, s'actualitza i es dibuixa l'escena.
+
+// Incloem les biblioteques importants
+#include <SFML/Graphics.hpp>
+
+// Facilitem l'ús del codi amb "using namespace"
+using namespace sf;
+
+// Aquí comença el nostre joc amb la funció main()
+int main()
+{
+	// Definim la puntuació del jugador
+	int playerScore;
+
+	// Definim la inicial del jugador
+	char playerInitial;
+
+	// Definim el valor de pi
+	float valuePi;
+
+	// Definim si el jugador està viu o mort
+	bool isAlive;
+
+	// Assignem valors incorrectes per exemplificar errors
+	playerScore = 'J';
+	playerInitial = 0;
+	valuePi = true;
+	isAlive = 3.141f;
+
+	// Creem un objecte VideoMode per definir la resolució de la pantalla
+	VideoMode vm(1920, 1080);
+
+	// Creem i obrim una finestra per al joc
+	RenderWindow window(vm, "Timber!!!", Style::Fullscreen);
+
+	// Creem una textura per guardar un gràfic a la GPU
+	Texture textureBackground;
+
+	// Carreguem un gràfic dins de la textura
+	textureBackground.loadFromFile("graphics/background.png");
+
+	// Creem un sprite
+	Sprite spriteBackground;
+
+	// Assignem la textura al sprite
+	spriteBackground.setTexture(textureBackground);
+
+	// Ajustem la posició del sprite de fons per cobrir tota la pantalla
+	spriteBackground.setPosition(0, 0);
+
+	// Creem un sprite per a l'arbre
+	Texture textureTree;
+	textureTree.loadFromFile("graphics/tree.png");
+	Sprite spriteTree;
+	spriteTree.setTexture(textureTree);
+	spriteTree.setPosition(810, 0);
+
+	// Preparem l'abellot
+	Texture textureBee;
+	textureBee.loadFromFile("graphics/bee.png");
+	Sprite spriteBee;
+	spriteBee.setTexture(textureBee);
+	spriteBee.setPosition(0, 800);
+
+	// Definim si l'abellot està en moviment
+	bool beeActive = false;
+
+	// Definim la velocitat de l'abellot
+	float beeSpeed = 0.0f;
+
+	// Creem 3 sprites de núvols a partir d'una sola textura
+	Texture textureCloud;
+
+	// Carreguem una nova textura
+	textureCloud.loadFromFile("graphics/cloud.png");
+
+	// Creem 3 nous sprites amb la mateixa textura
+	Sprite spriteCloud1;
+	Sprite spriteCloud2;
+	Sprite spriteCloud3;
+	spriteCloud1.setTexture(textureCloud);
+	spriteCloud2.setTexture(textureCloud);
+	spriteCloud3.setTexture(textureCloud);
+
+	// Posicionem els núvols a l'esquerra de la pantalla a diferents alçades
+	spriteCloud1.setPosition(0, 0);
+	spriteCloud2.setPosition(0, 250);
+	spriteCloud3.setPosition(0, 500);
+
+	// Definim si els núvols estan actualment en pantalla
+	bool cloud1Active = false;
+	bool cloud2Active = false;
+	bool cloud3Active = false;
+
+	// Definim la velocitat de cada núvol
+	float cloud1Speed = 0.0f;
+	float cloud2Speed = 0.0f;
+	float cloud3Speed = 0.0f;
+
+	// Variables per controlar el temps
+	Clock clock;
+
+	// Bucle principal del joc
+	while (window.isOpen())
+	{
+		/*
+		****************************************
+		Gestionem l'input del jugador
+		****************************************
+		*/
+
+		// Tanquem la finestra si es prem la tecla Escape
+		if (Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+			window.close();
+		}
+
+		/*
+		****************************************
+		Actualitzem l'escena
+		****************************************
+		*/
+
+		// Mesurem el temps
+		Time dt = clock.restart();
+
+		// Configurem l'abellot
+		if (!beeActive)
+		{
+			// Definim la velocitat de l'abellot
+			srand((int)time(0));
+			beeSpeed = (rand() % 200) + 200;
+
+			// Definim l'alçada de l'abellot
+			srand((int)time(0) * 10);
+			float height = (rand() % 500) + 500;
+			spriteBee.setPosition(2000, height);
+			beeActive = true;
+		}
+		else
+		// Movem l'abellot
+		{
+			spriteBee.setPosition(
+				spriteBee.getPosition().x -
+				(beeSpeed * dt.asSeconds()),
+				spriteBee.getPosition().y);
+
+			// L'abellot ha arribat al límit esquerre de la pantalla?
+			if (spriteBee.getPosition().x < -100)
+			{
+				// Preparem l'abellot per a la següent iteració
+				beeActive = false;
+			}
+		}
+
+		// Gestionem els núvols
+		// Núvol 1
+		if (!cloud1Active)
+		{
+			// Definim la velocitat del núvol
+			srand((int)time(0) * 10);
+			cloud1Speed = (rand() % 200);
+
+			// Definim l'alçada del núvol
+			srand((int)time(0) * 10);
+			float height = (rand() % 150);
+			spriteCloud1.setPosition(-200, height);
+			cloud1Active = true;
+		}
+		else
+		{
+			spriteCloud1.setPosition(
+				spriteCloud1.getPosition().x +
+				(cloud1Speed * dt.asSeconds()),
+				spriteCloud1.getPosition().y);
+
+			// El núvol ha arribat al límit dret de la pantalla?
+			if (spriteCloud1.getPosition().x > 1920)
+			{
+				// Preparem el núvol per a la següent iteració
+				cloud1Active = false;
+			}
+		}
+		// Núvol 2
+		if (!cloud2Active)
+		{
+			// Definim la velocitat del núvol
+			srand((int)time(0) * 20);
+			cloud2Speed = (rand() % 200);
+
+			// Definim l'alçada del núvol
+			srand((int)time(0) * 20);
+			float height = (rand() % 300) - 150;
+			spriteCloud2.setPosition(-200, height);
+			cloud2Active = true;
+		}
+		else
+		{
+			spriteCloud2.setPosition(
+				spriteCloud2.getPosition().x +
+				(cloud2Speed * dt.asSeconds()),
+				spriteCloud2.getPosition().y);
+
+			// El núvol ha arribat al límit dret de la pantalla?
+			if (spriteCloud2.getPosition().x > 1920)
+			{
+				// Preparem el núvol per a la següent iteració
+				cloud2Active = false;
+			}
+		}
+
+		// Núvol 3
+		if (!cloud3Active)
+		{
+			// Definim la velocitat del núvol
+			srand((int)time(0) * 30);
+			cloud3Speed = (rand() % 200);
+
+			// Definim l'alçada del núvol
+			srand((int)time(0) * 30);
+			float height = (rand() % 450) - 150;
+			spriteCloud3.setPosition(-200, height);
+			cloud3Active = true;
+		}
+		else
+		{
+			spriteCloud3.setPosition(
+				spriteCloud3.getPosition().x +
+				(cloud3Speed * dt.asSeconds()),
+				spriteCloud3.getPosition().y);
+
+			// El núvol ha arribat al límit dret de la pantalla?
+			if (spriteCloud3.getPosition().x > 1920)
+			{
+				// Preparem el núvol per a la següent iteració
+				cloud3Active = false;
+			}
+		}
+
+		/*
+		****************************************
+		Dibuixem l'escena
+		****************************************
+		*/
+
+		// Esborrem tot de l'últim frame 
+		window.clear();
+
+		// Dibuixem l'escena del joc aquí
+		window.draw(spriteBackground);
+
+		// Dibuixem els núvols
+		window.draw(spriteCloud1);
+		window.draw(spriteCloud2);
+		window.draw(spriteCloud3);
+
+		// Dibuixem l'arbre
+		window.draw(spriteTree);
+
+		// Dibuixem l'insecte (abellot)
+		window.draw(spriteBee);
+
+		// Mostrem tot el que acabem de dibuixar 
+		window.display();
+	}
+
+	// Retornem 0 per indicar que el programa ha acabat correctament
+	return 0;
+}
+		  
+	  </code></pre>
 </body>
 </html>
