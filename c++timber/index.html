@@ -807,6 +807,520 @@ cloud3Speed = (rand() % 200);
 return 0;
 }
 	  </code></pre>
+		<h2>Quarta versió</h2>
+		<pre>
+			```cpp
+// Incloure biblioteques importants
+#include <sstream>
+#include <SFML/Graphics.hpp>
+
+// Facilitar l'escriptura de codi amb "using namespace"
+using namespace sf;
+
+// Declaració de la funció
+void updateBranches(int seed);
+
+const int NUM_BRANCHES = 6; // Nombre de branques
+Sprite branches[NUM_BRANCHES]; // Vector de sprites per a les branques
+
+// On es troba el jugador/la branca?
+// Esquerra o Dreta
+enum class side { LEFT, RIGHT, NONE }; // Enumeració per les posicions de les branques
+side branchPositions[NUM_BRANCHES]; // Vector per emmagatzemar les posicions de les branques
+
+// Aquí comença el nostre joc amb la funció main()
+int main()
+{
+	// Codi extra per fer captures de pantalla
+	RenderTexture renderTexture; // Texture per renderitzar
+	renderTexture.create(1920, 1080); // Crear textura de 1920x1080
+	bool shotTaken = true; // Variable per comprovar si s'ha fet la captura
+	////////////////////////////////////
+
+	// Crear un objecte de mode vídeo
+	VideoMode vm(1920, 1080); // Definir la resolució de la finestra
+
+	// Crear i obrir una finestra per al joc
+	RenderWindow window(vm, "Timber!!!", Style::Fullscreen); // Crear la finestra en mode pantalla completa
+
+	// Crear una textura per a una gràfica a la GPU
+	Texture textureBackground; // Definir la textura de fons
+
+	// Carregar una gràfica a la textura
+	textureBackground.loadFromFile("graphics/background.png"); // Carregar la imatge de fons
+
+	// Crear un sprite
+	Sprite spriteBackground; // Definir el sprite de fons
+
+	// Adjuntar la textura al sprite
+	spriteBackground.setTexture(textureBackground); // Establir la textura al sprite
+
+	// Posicionar el spriteBackground per cobrir la pantalla
+	spriteBackground.setPosition(0, 0); // Posicionar el sprite al (0,0)
+
+	// Crear un sprite d'arbre
+	Texture textureTree; // Definir la textura de l'arbre
+	textureTree.loadFromFile("graphics/tree.png"); // Carregar la imatge de l'arbre
+	Sprite spriteTree; // Definir el sprite de l'arbre
+	spriteTree.setTexture(textureTree); // Establir la textura al sprite
+	spriteTree.setPosition(810, 0); // Posicionar l'arbre
+
+	// Preparar l'abella
+	Texture textureBee; // Definir la textura de l'abella
+	textureBee.loadFromFile("graphics/bee.png"); // Carregar la imatge de l'abella
+	Sprite spriteBee; // Definir el sprite de l'abella
+	spriteBee.setTexture(textureBee); // Establir la textura al sprite
+	spriteBee.setPosition(0, 800); // Posicionar l'abella
+
+	// L'abella està actualment en moviment?
+	bool beeActive = false; // Variable per comprovar si l'abella està activa
+
+	// A quina velocitat pot volar l'abella
+	float beeSpeed = 0.0f; // Definir la velocitat de l'abella
+
+	// Crear 3 sprites de núvols a partir d'1 textura
+	Texture textureCloud; // Definir la textura del núvol
+
+	// Carregar 1 nova textura
+	textureCloud.loadFromFile("graphics/cloud.png"); // Carregar la imatge del núvol
+
+	// 3 nous sprites amb la mateixa textura
+	Sprite spriteCloud1; // Definir el primer núvol
+	Sprite spriteCloud2; // Definir el segon núvol
+	Sprite spriteCloud3; // Definir el tercer núvol
+	spriteCloud1.setTexture(textureCloud); // Establir la textura al primer núvol
+	spriteCloud2.setTexture(textureCloud); // Establir la textura al segon núvol
+	spriteCloud3.setTexture(textureCloud); // Establir la textura al tercer núvol
+
+	// Posicionar els núvols a l'esquerra de la pantalla a diferents alçades
+	spriteCloud1.setPosition(0, 0); // Posicionar el primer núvol
+	spriteCloud2.setPosition(0, 250); // Posicionar el segon núvol
+	spriteCloud3.setPosition(0, 500); // Posicionar el tercer núvol
+
+	// Els núvols estan actualment a la pantalla?
+	bool cloud1Active = false; // Variable per comprovar si el primer núvol està actiu
+	bool cloud2Active = false; // Variable per comprovar si el segon núvol està actiu
+	bool cloud3Active = false; // Variable per comprovar si el tercer núvol està actiu
+
+	// A quina velocitat va cada núvol?
+	float cloud1Speed = 0.0f; // Definir la velocitat del primer núvol
+	float cloud2Speed = 0.0f; // Definir la velocitat del segon núvol
+	float cloud3Speed = 0.0f; // Definir la velocitat del tercer núvol
+
+	// Variables per controlar el temps
+	Clock clock; // Definir el rellotge
+
+	// Barra de temps
+	RectangleShape timeBar; // Definir la barra de temps
+	float timeBarStartWidth = 400; // Amplada inicial de la barra de temps
+	float timeBarHeight = 80; // Alçada de la barra de temps
+	timeBar.setSize(Vector2f(timeBarStartWidth, timeBarHeight)); // Establir la mida de la barra de temps
+	timeBar.setFillColor(Color::Red); // Establir el color de la barra de temps
+	timeBar.setPosition((1920 / 2) - timeBarStartWidth / 2, 980); // Posicionar la barra de temps
+
+	Time gameTimeTotal; // Temps total del joc
+	float timeRemaining = 6.0f; // Temps restant
+	float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining; // Amplada de la barra de temps per segon
+
+	// Controlar si el joc està en marxa
+	bool paused = true; // Variable per comprovar si el joc està en pausa
+
+	// Dibuixar text
+	int score = 0; // Puntuació inicial
+
+	Text messageText; // Text per al missatge
+	Text scoreText; // Text per a la puntuació
+
+	// Cal triar una font
+	Font font; // Definir la font
+	font.loadFromFile("fonts/KOMIKAP_.ttf"); // Carregar la font
+
+	// Establir la font per al missatge
+	messageText.setFont(font); // Establir la font per al missatge
+	scoreText.setFont(font); // Establir la font per a la puntuació
+
+	// Assignar el missatge real
+	messageText.setString("Press Enter to start!"); // Text del missatge inicial
+	scoreText.setString("Score = 0"); // Text de la puntuació inicial
+
+	// Fer-lo molt gran
+	messageText.setCharacterSize(75); // Mida del text del missatge
+	scoreText.setCharacterSize(100); // Mida del text de la puntuació
+
+	// Triar un color
+	messageText.setFillColor(Color::White); // Color del text del missatge
+	scoreText.setFillColor(Color::White); // Color del text de la puntuació
+
+	// Posicionar el text
+	FloatRect textRect = messageText.getLocalBounds(); // Obtenir les dimensions del text
+
+	messageText.setOrigin(textRect.left +
+		textRect.width / 2.0f,
+		textRect.top +
+		textRect.height / 2.0f); // Centrar l'origen del text
+
+	messageText.setPosition(1920 / 2.0f, 1080 / 2.0f); // Posicionar el text al centre de la pantalla
+
+	scoreText.setPosition(20, 20); // Posicionar el text de la puntuació
+
+	// Preparar 5 branques
+	Texture textureBranch; // Definir la textura de les branques
+	textureBranch.loadFromFile("graphics/branch.png"); // Carregar la imatge de les branques
+
+	// Establir la textura per a cada sprite de branca
+	for (int i = 0; i < NUM_BRANCHES; i++) {
+		branches[i].setTexture(textureBranch); // Establir la textura per a cada branca
+		branches[i].setPosition(-2000, -2000); // Posicionar les branques fora de la pantalla
+
+		// Establir l'origen del sprite al centre
+		// Podem girar-lo sense canviar la seva posició
+		branches[i].setOrigin(220, 20); // Establir l'origen al centre
+	}
+
+	/*
+	* Codi temporal
+	updateBranches(1); // Actualitzar les branques amb una llavor específica
+	updateBranches(2); // Actualitzar les branques amb una altra llavor
+	updateBranches(3); // Actualitzar les branques amb una altra llavor
+	updateBranches(4); // Actualitzar les branques amb una altra llavor
+	updateBranches(5); // Actualitzar les branques amb una altra llavor
+	*/
+
+	while (window.isOpen())
+	{
+		/*
+		****************************************
+		Gestionar l'entrada dels jugadors
+		****************************************
+		*/
+
+		if (Keyboard::isKeyPressed(Keyboard::Escape)) // Si es prem la tecla Esc
+		{
+			window.close(); // Tancar la finestra
+
+
+		}
+
+		// Començar el joc
+		if (Keyboard::isKeyPressed(Keyboard::Return)) // Si es prem la tecla Enter
+		{
+			paused = false; // Treure la pausa
+
+			// Reiniciar el temps i la puntuació
+			score = 0; // Reiniciar la puntuació
+			timeRemaining = 6; // Reiniciar el temps restant
+
+			shotTaken = false; // Variable per indicar que no s'ha fet la captura de pantalla
+		}
+
+		/*
+		****************************************
+		Actualitzar l'escena
+		****************************************
+		*/
+
+		if (!paused) // Si el joc no està en pausa
+		{
+			// Mesurar el temps
+			Time dt = clock.restart(); // Reiniciar el rellotge i obtenir el temps passat
+
+			// Restar el temps restant
+			timeRemaining -= dt.asSeconds(); // Restar els segons passats del temps restant
+			// Redimensionar la barra de temps
+			timeBar.setSize(Vector2f(timeBarWidthPerSecond *
+				timeRemaining, timeBarHeight)); // Establir la mida de la barra de temps
+
+			if (timeRemaining <= 0.0f) { // Si el temps s'ha acabat
+
+				// Pausar el joc
+				paused = true; // Pausar el joc
+
+				// Canviar el missatge mostrat al jugador
+				messageText.setString("Out of time!!"); // Establir el text del missatge de final de temps
+
+				// Reposicionar el text basant-se en la seva nova mida
+				FloatRect textRect = messageText.getLocalBounds(); // Obtenir les dimensions del text
+				messageText.setOrigin(textRect.left +
+					textRect.width / 2.0f,
+					textRect.top +
+					textRect.height / 2.0f); // Centrar l'origen del text
+
+				messageText.setPosition(1920 / 2.0f, 1080 / 2.0f); // Posicionar el text al centre de la pantalla
+
+			}
+
+			// Configurar l'abella
+			if (!beeActive) // Si l'abella no està activa
+			{
+				// Quina velocitat té l'abella
+				srand((int)time(0)); // Establir la llavor del generador aleatori
+				beeSpeed = (rand() % 200) + 200; // Generar una velocitat aleatòria per a l'abella
+
+				// Quina alçada té l'abella
+				srand((int)time(0) * 10); // Establir una altra llavor per a l'alçada
+				float height = (rand() % 500) + 500; // Generar una alçada aleatòria per a l'abella
+				spriteBee.setPosition(2000, height); // Posicionar l'abella fora de la pantalla
+				beeActive = true; // Indicar que l'abella està activa
+
+			}
+			else // Moure l'abella
+			{
+				spriteBee.setPosition(
+					spriteBee.getPosition().x -
+					(beeSpeed * dt.asSeconds()),
+					spriteBee.getPosition().y); // Moure l'abella cap a l'esquerra
+
+				// L'abella ha arribat al límit esquerre de la pantalla?
+				if (spriteBee.getPosition().x < -100) // Si l'abella ha sortit de la pantalla
+				{
+					// Configurar una nova abella per al següent frame
+					beeActive = false; // Indicar que l'abella ja no està activa
+				}
+			}
+
+			// Gestionar els núvols
+			// Núvol 1
+			if (!cloud1Active) // Si el primer núvol no està actiu
+			{
+				// Quina velocitat té el núvol
+				srand((int)time(0) * 10); // Establir la llavor per a la velocitat del núvol
+				cloud1Speed = (rand() % 200); // Generar una velocitat aleatòria per al núvol
+
+				// Quina alçada té el núvol
+				srand((int)time(0) * 10); // Establir la llavor per a l'alçada del núvol
+				float height = (rand() % 150); // Generar una alçada aleatòria per al núvol
+				spriteCloud1.setPosition(-200, height); // Posicionar el núvol fora de la pantalla
+				cloud1Active = true; // Indicar que el núvol està actiu
+			}
+			else
+			{
+				spriteCloud1.setPosition(
+					spriteCloud1.getPosition().x +
+					(cloud1Speed * dt.asSeconds()),
+					spriteCloud1.getPosition().y); // Moure el núvol cap a la dreta
+
+				// El núvol ha arribat al límit dret de la pantalla?
+				if (spriteCloud1.getPosition().x > 1920) // Si el núvol ha sortit de la pantalla
+				{
+					// Configurar un nou núvol per al següent frame
+					cloud1Active = false; // Indicar que el núvol ja no està actiu
+				}
+			}
+
+			// Núvol 2
+			if (!cloud2Active) // Si el segon núvol no està actiu
+			{
+				// Quina velocitat té el núvol
+				srand((int)time(0) * 20); // Establir la llavor per a la velocitat del núvol
+				cloud2Speed = (rand() % 200); // Generar una velocitat aleatòria per al núvol
+
+				// Quina alçada té el núvol
+				srand((int)time(0) * 20); // Establir la llavor per a l'alçada del núvol
+				float height = (rand() % 300) - 150; // Generar una alçada aleatòria per al núvol
+				spriteCloud2.setPosition(-200, height); // Posicionar el núvol fora de la pantalla
+				cloud2Active = true; // Indicar que el núvol està actiu
+			}
+			else
+			{
+				spriteCloud2.setPosition(
+					spriteCloud2.getPosition().x +
+					(cloud2Speed * dt.asSeconds()),
+					spriteCloud2.getPosition().y); // Moure el núvol cap a la dreta
+
+				// El núvol ha arribat al límit dret de la pantalla?
+				if (spriteCloud2.getPosition().x > 1920) // Si el núvol ha sortit de la pantalla
+				{
+					// Configurar un nou núvol per al següent frame
+					cloud2Active = false; // Indicar que el núvol ja no està actiu
+				}
+			}
+
+			// Núvol 3
+			if (!cloud3Active) // Si el tercer núvol no està actiu
+			{
+				// Quina velocitat té el núvol
+				srand((int)time(0) * 30); // Establir la llavor per a la velocitat del núvol
+				cloud3Speed = (rand() % 200); // Generar una velocitat aleatòria per al núvol
+
+				// Quina alçada té el núvol
+				srand((int)time(0) * 30); // Establir la llavor per a l'alçada del núvol
+				float height = (rand() % 450) - 150; // Generar una alçada aleatòria per al núvol
+				spriteCloud3.setPosition(-200, height); // Posicionar el núvol fora de la pantalla
+				cloud3Active = true; // Indicar que el núvol està actiu
+			}
+			else
+			{
+				spriteCloud3.setPosition(
+					spriteCloud3.getPosition().x +
+					(cloud3Speed * dt.asSeconds()),
+					spriteCloud3.getPosition().y); // Moure el núvol cap a la dreta
+
+				// El núvol ha arribat al límit dret de la pantalla?
+				if (spriteCloud3.getPosition().x > 1920) // Si el núvol ha sortit de la pantalla
+				{
+					// Configurar un nou núvol per al següent frame
+					cloud3Active = false; // Indicar que el núvol ja no està actiu
+				}
+			}
+
+			// Actualitzar el text de la puntuació
+			std::stringstream ss; // Crear un stringstream
+			ss << "Score = " << score; // Actualitzar el text amb la puntuació
+			scoreText.setString(ss.str()); // Establir el text de la puntuació
+
+			// Actualitzar els sprites de les branques
+			for (int i = 0; i < NUM_BRANCHES; i++)
+			{
+				float height = i * 150; // Establir l'alçada de cada branca
+
+				if (branchPositions[i] == side::LEFT) // Si la branca està a l'esquerra
+				{
+					// Moure el sprite a l'esquerra
+					branches[i].setPosition(610, height); // Posicionar la branca
+
+ a l'esquerra
+
+					// Girar el sprite al revés
+					branches[i].setRotation(180); // Girar la branca
+				}
+				else if (branchPositions[i] == side::RIGHT) // Si la branca està a la dreta
+				{
+					// Moure el sprite a la dreta
+					branches[i].setPosition(1330, height); // Posicionar la branca a la dreta
+
+					// Establir la rotació del sprite a normal
+					branches[i].setRotation(0); // Girar la branca a la seva posició normal
+				}
+				else // Si no hi ha branca
+				{
+					// Amagar la branca
+					branches[i].setPosition(3000, height); // Posicionar la branca fora de la pantalla
+				}
+			}
+		} // Final del if(!paused)
+
+		/*
+		****************************************
+		Dibuixar l'escena
+		****************************************
+		*/
+
+		// Esborrar tot de l'últim frame
+		window.clear(); // Esborrar la finestra
+
+		// Dibuixar l'escena del joc
+		window.draw(spriteBackground); // Dibuixar el fons
+
+		// Dibuixar els núvols
+		window.draw(spriteCloud1); // Dibuixar el primer núvol
+		window.draw(spriteCloud2); // Dibuixar el segon núvol
+		window.draw(spriteCloud3); // Dibuixar el tercer núvol
+
+		// Dibuixar les branques
+		for (int i = 0; i < NUM_BRANCHES; i++)
+		{
+			window.draw(branches[i]); // Dibuixar cada branca
+		}
+
+		// Dibuixar l'arbre
+		window.draw(spriteTree); // Dibuixar l'arbre
+
+		// Dibuixar l'insecte
+		window.draw(spriteBee); // Dibuixar l'abella
+
+		// Dibuixar la puntuació
+		window.draw(scoreText); // Dibuixar el text de la puntuació
+
+		// Dibuixar la barra de temps
+		window.draw(timeBar); // Dibuixar la barra de temps
+
+		if (paused) // Si el joc està en pausa
+		{
+			// Dibuixar el missatge
+			window.draw(messageText); // Dibuixar el text del missatge
+		}
+
+		// Mostrar tot el que acabem de dibuixar
+		window.display(); // Mostrar el contingut de la finestra
+
+		// Codi extra per a la captura de pantalla
+		if (!shotTaken) // Si no s'ha fet la captura de pantalla
+		{
+			// Esborrar la textura de renderització
+			renderTexture.clear(); // Esborrar la textura
+
+			renderTexture.draw(spriteBackground); // Dibuixar el fons a la textura
+			renderTexture.draw(spriteCloud1); // Dibuixar el primer núvol a la textura
+			renderTexture.draw(spriteCloud2); // Dibuixar el segon núvol a la textura
+			renderTexture.draw(spriteCloud3); // Dibuixar el tercer núvol a la textura
+
+			// Dibuixar l'arbre
+			renderTexture.draw(spriteTree); // Dibuixar l'arbre a la textura
+
+			// Dibuixar les branques
+			for (int i = 0; i < NUM_BRANCHES; i++)
+			{
+				renderTexture.draw(branches[i]); // Dibuixar cada branca a la textura
+			}
+
+			// Dibuixar l'insecte
+			renderTexture.draw(spriteBee); // Dibuixar l'abella a la textura
+
+			// Dibuixar la puntuació
+			renderTexture.draw(scoreText); // Dibuixar el text de la puntuació a la textura
+
+			// Dibuixar la barra de temps
+			renderTexture.draw(timeBar); // Dibuixar la barra de temps a la textura
+
+			if (paused) // Si el joc està en pausa
+			{
+				// Dibuixar el missatge
+				renderTexture.draw(messageText); // Dibuixar el text del missatge a la textura
+			}
+
+			// Actualitzar la textura de renderització
+			renderTexture.display(); // Actualitzar la textura
+
+			// Crear una sf::Image i copiar el contingut de la textura de renderització
+			sf::Image screenshot = renderTexture.getTexture().copyToImage(); // Crear una imatge amb el contingut de la textura
+
+			// Guardar la captura de pantalla en un fitxer
+			screenshot.saveToFile("screenshot.png"); // Guardar la imatge en un fitxer
+			shotTaken = true; // Indicar que la captura de pantalla s'ha fet
+		}
+	}
+	return 0; // Final del programa
+}
+
+// Definició de la funció
+void updateBranches(int seed) // Funció per actualitzar les branques
+{
+	// Moure totes les branques una posició cap avall
+	for (int j = NUM_BRANCHES - 1; j > 0; j--) // Per cada branca des de la última fins a la primera
+	{
+		branchPositions[j] = branchPositions[j - 1]; // Moure la posició de cada branca una posició cap avall
+	}
+
+	// Generar una nova branca a la posició 0
+	// Esquerra, Dreta o Cap
+	srand((int)time(0) + seed); // Establir la llavor per al generador aleatori
+	int r = (rand() % 5); // Generar un número aleatori entre 0 i 4
+
+	switch (r) { // Depenent del valor de r
+	case 0:
+		branchPositions[0] = side::LEFT; // Posicionar la branca a l'esquerra
+		break;
+
+	case 1:
+		branchPositions[0] = side::RIGHT; // Posicionar la branca a la dreta
+		break;
+
+	default:
+		branchPositions[0] = side::NONE; // No posar cap branca
+		break;
+	}
+}
+		</pre>
 	
 	</div>  <script>
   document.querySelectorAll('.copy-button').forEach(item => {
