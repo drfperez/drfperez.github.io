@@ -1347,7 +1347,803 @@ void updateBranches(int seed) // Funció per actualitzar les branques
 }
 		</pre>
 	
-	</div>  <script>
+	</div> 
+				<h2>Sisena versió</h2>
+				<pre>
+
+// Aquest codi és per a un joc anomenat "Timber!!!". 
+// Utilitza la biblioteca SFML per gestionar gràfics, so i entrada d'usuari. 
+// El joc consisteix a tallar un arbre mentre s'eviten branques que cauen.
+// Es creen diversos objectes de sprite per representar elements del joc com el fons, l'arbre, les branques, el jugador, etc. 
+// Es controla el moviment de núvols i una abella per donar vida a l'escena.
+// Es monitoritza el temps de joc i es mostra una barra de temps que es va reduint.
+// El jugador pot moure's a l'esquerra o a la dreta per evitar les branques que cauen, i el joc acaba quan el temps s'acaba o una branca colpeja al jugador.
+
+#include <sstream>  // Inclou biblioteques importants
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <iostream>
+
+using namespace sf;  // Facilita l'ús del codi amb "using namespace"
+
+void updateBranches(int seed);  // Declaració de funció
+
+const int NUM_BRANCHES = 6;  // Defineix el nombre de branques
+Sprite branches[NUM_BRANCHES];  // Crea un array de sprites per a les branques
+
+enum class side { LEFT, RIGHT, NONE };  // Defineix una enumeració per a les posicions de les branques
+side branchPositions[NUM_BRANCHES];  // Crea un array per guardar les posicions de les branques
+
+int main()  // Funció principal del joc
+{
+    RenderTexture renderTexture;  // Crea una textura de renderitzat per a captures de pantalla
+    renderTexture.create(1920, 1080);
+    bool shotTaken = true;
+
+    VideoMode vm(1920, 1080);  // Crea un objecte de mode de vídeo
+    RenderWindow window(vm, "Timber!!!", Style::Fullscreen);  // Crea i obre una finestra de joc
+
+    Texture textureBackground;  // Crea una textura per al gràfic de fons
+    textureBackground.loadFromFile("graphics/background.png");  // Carrega el gràfic a la textura
+    Sprite spriteBackground;  // Crea un sprite
+    spriteBackground.setTexture(textureBackground);  // Assigna la textura al sprite
+    spriteBackground.setPosition(0, 0);  // Col·loca el sprite de fons per cobrir la pantalla
+
+    Texture textureTree;  // Crea una textura per a l'arbre
+    textureTree.loadFromFile("graphics/tree.png");
+    Sprite spriteTree;  // Crea un sprite per a l'arbre
+    spriteTree.setTexture(textureTree);
+    spriteTree.setPosition(810, 0);
+
+    Texture textureBee;  // Prepara l'abella
+    textureBee.loadFromFile("graphics/bee.png");
+    Sprite spriteBee;
+    spriteBee.setTexture(textureBee);
+    spriteBee.setPosition(0, 800);
+    bool beeActive = false;  // L'abella està en moviment?
+    float beeSpeed = 0.0f;  // Velocitat de l'abella
+
+    Texture textureCloud;  // Crea textures i sprites per als núvols
+    textureCloud.loadFromFile("graphics/cloud.png");
+    Sprite spriteCloud1;
+    Sprite spriteCloud2;
+    Sprite spriteCloud3;
+    spriteCloud1.setTexture(textureCloud);
+    spriteCloud2.setTexture(textureCloud);
+    spriteCloud3.setTexture(textureCloud);
+    spriteCloud1.setPosition(0, 0);
+    spriteCloud2.setPosition(0, 250);
+    spriteCloud3.setPosition(0, 500);
+    bool cloud1Active = false;  // Els núvols estan en moviment?
+    bool cloud2Active = false;
+    bool cloud3Active = false;
+    float cloud1Speed = 0.0f;  // Velocitat dels núvols
+    float cloud2Speed = 0.0f;
+    float cloud3Speed = 0.0f;
+
+    Clock clock;  // Variables per controlar el temps
+
+    RectangleShape timeBar;  // Barra de temps
+    float timeBarStartWidth = 400;
+    float timeBarHeight = 80;
+    timeBar.setSize(Vector2f(timeBarStartWidth, timeBarHeight));
+    timeBar.setFillColor(Color::Red);
+    timeBar.setPosition((1920 / 2) - timeBarStartWidth / 2, 980);
+
+    Time gameTimeTotal;
+    float timeRemaining = 6.0f;
+    float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining;
+
+    bool paused = true;  // Segueix el joc en marxa?
+
+    int score = 0;  // Variables per al text
+
+    Text messageText;
+    Text scoreText;
+
+    Font font;  // Selecciona una font
+    font.loadFromFile("fonts/KOMIKAP_.ttf");
+    messageText.setFont(font);
+    scoreText.setFont(font);
+    messageText.setString("Press Enter to start!");  // Assigna el missatge
+    scoreText.setString("Score = 0");
+
+    messageText.setCharacterSize(75);  // Fa el text gran
+    scoreText.setCharacterSize(100);
+
+    messageText.setFillColor(Color::White);  // Tria un color
+    scoreText.setFillColor(Color::White);
+
+    FloatRect textRect = messageText.getLocalBounds();  // Col·loca el text
+    messageText.setOrigin(textRect.left +
+        textRect.width / 2.0f,
+        textRect.top +
+        textRect.height / 2.0f);
+    messageText.setPosition(1920 / 2.0f, 1080 / 2.0f);
+    scoreText.setPosition(20, 20);
+
+    Texture textureBranch;  // Prepara 5 branques
+    textureBranch.loadFromFile("graphics/branch.png");
+
+    for (int i = 0; i < NUM_BRANCHES; i++) {  // Configura la textura per a cada sprite de branca
+        branches[i].setTexture(textureBranch);
+        branches[i].setPosition(-2000, -2000);  // Amaga les branques fora de la pantalla
+        branches[i].setOrigin(220, 20);  // Configura el centre del sprite per permetre la rotació
+    }
+
+    Texture texturePlayer;  // Prepara el jugador
+    texturePlayer.loadFromFile("graphics/player.png");
+    Sprite spritePlayer;
+    spritePlayer.setTexture(texturePlayer);
+    spritePlayer.setPosition(580, 720);
+    side playerSide = side::LEFT;  // El jugador comença a l'esquerra
+
+    Texture textureRIP;  // Prepara la làpida
+    textureRIP.loadFromFile("graphics/rip.png");
+    Sprite spriteRIP;
+    spriteRIP.setTexture(textureRIP);
+    spriteRIP.setPosition(600, 860);
+
+    Texture textureAxe;  // Prepara la destral
+    textureAxe.loadFromFile("graphics/axe.png");
+    Sprite spriteAxe;
+    spriteAxe.setTexture(textureAxe);
+    spriteAxe.setPosition(700, 830);
+    const float AXE_POSITION_LEFT = 700;  // Posicions de la destral
+    const float AXE_POSITION_RIGHT = 1075;
+
+    Texture textureLog;  // Prepara el tronc volador
+    textureLog.loadFromFile("graphics/log.png");
+    Sprite spriteLog;
+    spriteLog.setTexture(textureLog);
+    spriteLog.setPosition(810, 720);
+    bool logActive = false;  // Algunes variables útils relacionades amb el tronc
+    float logSpeedX = 1000;
+    float logSpeedY = -1500;
+
+    bool acceptInput = false;  // Control de l'entrada del jugador
+
+    SoundBuffer chopBuffer;  // Prepara el so
+    if (!chopBuffer.loadFromFile("sound/chop.wav"))
+    {
+        std::cout << "didn't load";
+    }
+    Sound chop;
+    chop.setBuffer(chopBuffer);
+    SoundBuffer deathBuffer;
+    deathBuffer.loadFromFile("sound/death.wav");
+    Sound death;
+    death.setBuffer(deathBuffer);
+    SoundBuffer ootBuffer;
+    ootBuffer.loadFromFile("sound/out_of_time.wav");
+    Sound outOfTime;
+    outOfTime.setBuffer(ootBuffer);
+
+    while (window.isOpen())  // Bucle principal del joc
+    {
+        Event event;
+        while (window.pollEvent(event))  // Gestiona l'entrada del jugador
+        {
+            if (event.type == Event::KeyReleased && !paused)
+            {
+                acceptInput = true;  // Permet l'entrada de nou
+                spriteAxe.setPosition(2000, spriteAxe.getPosition().y);  // Amaga la destral
+            }
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::Escape))  // Tanca la finestra si es prem "Escape"
+        {
+            window.close();
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::Return))  // Comença el joc si es prem "Enter"
+        {
+            paused = false;
+            score = 0;
+            timeRemaining = 6;
+            
+
+         // Reseteja el temps restant
+                        for (int i = 1; i < NUM_BRANCHES; i++)  // Amaga totes les branques
+                        {
+                                branchPositions[i] = side::NONE;
+                        }
+
+                        spriteRIP.setPosition(675, 2000);  // Amaga la tomba
+                        spritePlayer.setPosition(580, 720);  // Col·loca el jugador a la posició inicial
+                        acceptInput = true;  // Permet l'entrada del jugador
+                }
+
+                // Controla l'entrada del jugador
+                if (acceptInput)
+                {
+                        // Si es prem la tecla dreta
+                        if (Keyboard::isKeyPressed(Keyboard::Right))
+                        {
+                                playerSide = side::RIGHT;  // Canvia el jugador al costat dret
+                                score++;  // Incrementa la puntuació
+                                timeRemaining += (2 / score) + .15;  // Augmenta el temps restant
+                                spriteAxe.setPosition(AXE_POSITION_RIGHT, spriteAxe.getPosition().y);  // Col·loca la destral a la dreta
+                                spritePlayer.setPosition(1200, 720);  // Col·loca el jugador a la dreta
+                                updateBranches(score);  // Actualitza les branques
+                                spriteLog.setPosition(810, 720);  // Col·loca el tronc volant
+                                logSpeedX = -5000;  // Canvia la direcció del tronc
+                                logActive = true;  // Activa el tronc volant
+                                acceptInput = false;  // Desactiva l'entrada del jugador
+                                chop.play();  // Reprodueix el so de la destral
+                        }
+
+                        // Si es prem la tecla esquerra
+                        if (Keyboard::isKeyPressed(Keyboard::Left))
+                        {
+                                playerSide = side::                                LEFT;  // Canvia el jugador al costat esquerre
+                                score++;  // Incrementa la puntuació
+                                timeRemaining += (2 / score) + .15;  // Augmenta el temps restant
+                                spriteAxe.setPosition(AXE_POSITION_LEFT, spriteAxe.getPosition().y);  // Col·loca la destral a l'esquerra
+                                spritePlayer.setPosition(580, 720);  // Col·loca el jugador a l'esquerra
+                                updateBranches(score);  // Actualitza les branques
+                                spriteLog.setPosition(810, 720);  // Col·loca el tronc volant
+                                logSpeedX = 5000;  // Canvia la direcció del tronc
+                                logActive = true;  // Activa el tronc volant
+                                acceptInput = false;  // Desactiva l'entrada del jugador
+                                chop.play();  // Reprodueix el so de la destral
+                        }
+                }
+
+                if (!paused)
+                {
+                        // Actualitza el temps restant
+                        Time dt = clock.restart();
+                        timeRemaining -= dt.asSeconds();
+                        timeBar.setSize(Vector2f(timeBarWidthPerSecond * timeRemaining, timeBarHeight));
+
+                        if (timeRemaining <= 0.0f)
+                        {
+                                paused = true;  // Posa el joc en pausa
+                                messageText.setString("Out of time!!");  // Mostra missatge de final de temps
+                                FloatRect textRect = messageText.getLocalBounds();
+                                messageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+                                messageText.setPosition(1920 / 2.0f, 1080 / 2.0f);
+                                outOfTime.play();  // Reprodueix el so de final de temps
+                        }
+
+                        // Actualitza la posició de l'abella
+                        if (!beeActive)
+                        {
+                                // Velocitat de l'abella
+                                srand((int)time(0) * 10);
+                                beeSpeed = (rand() % 200) + 200;
+
+                                // Posició de l'abella
+                                srand((int)time(0) * 10);
+                                float height = (rand() % 500) + 500;
+                                spriteBee.setPosition(2000, height);
+                                beeActive = true;  // Activa l'abella
+                        }
+                        else
+                        {
+                                spriteBee.setPosition(spriteBee.getPosition().x - (beeSpeed * dt.asSeconds()), spriteBee.getPosition().y);
+                                if (spriteBee.getPosition().x < -100)
+                                {
+                                        beeActive = false;  // Desactiva l'abella
+                                }
+                        }
+
+                        // Actualitza la posició dels núvols
+                        if (!cloud1Active)
+                        {
+                                srand((int)time(0) * 10);
+                                cloud1Speed = (rand() % 200);
+
+                                srand((int)time(0) * 10);
+                                float height = (rand() % 150);
+                                spriteCloud1.setPosition(-200, height);
+                                cloud1Active = true;  // Activa el núvol
+                        }
+                        else
+                        {
+                                spriteCloud1.setPosition(spriteCloud1.getPosition().x + (cloud1Speed * dt.asSeconds()), spriteCloud1.getPosition().y);
+                                if (spriteCloud1.getPosition().x > 1920)
+                                {
+                                        cloud1Active = false;  // Desactiva el núvol
+                                }
+                        }
+
+                        if (!cloud2Active)
+                        {
+                                srand((int)time(0) * 20);
+                                cloud2Speed = (rand() % 200);
+
+                                srand((int)time(0) * 20);
+                                float height = (rand() % 300) - 150;
+                                spriteCloud2.setPosition(-200, height);
+                                cloud2Active = true;  // Activa el núvol
+                        }
+                        else
+                        {
+                                spriteCloud2.setPosition(spriteCloud2.getPosition().x + (cloud2Speed * dt.asSeconds()), spriteCloud2.getPosition().y);
+                                if (spriteCloud2.getPosition().x > 1920)
+                                {
+                                        cloud2Active = false;  // Desactiva el núvol
+                                }
+                        }
+
+                        if (!cloud3Active)
+                        {
+                                srand((int)time(0) * 30);
+                                cloud3Speed = (rand() % 200);
+
+                                srand((int)time(0) * 30);
+                                float height = (rand() % 450) - 150;
+                                spriteCloud3.setPosition(-200, height);
+                                cloud3Active = true;  // Activa el núvol
+                        }
+                        else
+                        {
+                                spriteCloud3.setPosition(spriteCloud3.getPosition().x + (cloud3Speed * dt.asSeconds()), spriteCloud3.getPosition().y);
+                                if (spriteCloud3.getPosition().x > 1920)
+                                {
+                                        cloud3Active = false;  // Desactiva el núvol
+                                }
+                        }
+
+                        // Actualitza el tronc volant
+                        if (logActive)
+                        {
+                                spriteLog.setPosition(spriteLog.getPosition().x + (logSpeedX * dt.asSeconds()), spriteLog.getPosition().y + (logSpeedY * dt.asSeconds()));
+
+                                if (spriteLog.getPosition().x < -100 || spriteLog.getPosition().x > 2000)
+                                {
+                                        logActive = false;  // Desactiva el tronc volant
+                                }
+                        }
+
+                        // Actualitza les branques
+                        for (int i = 0; i < NUM_BRANCHES; i++)
+                        {
+                                float height = i * 150;
+                                if (branchPositions[i] == side::LEFT)
+                                {
+                                        branches[i].setPosition(610, height);
+                                        branches[i].setRotation(180);
+                                }
+                                else if (branchPositions[i] == side::RIGHT)
+                                {
+                                        branches[i].setPosition(1330, height);
+                                        branches[i].setRotation(0);
+                                }
+                                else
+                                {
+                                        branches[i].setPosition(3000, height);  // Amaga les branques
+                                }
+                        }
+
+                        // Detecta col·lisions
+                        if (branchPositions[5] == playerSide)
+                        {
+                                paused = true;
+                                acceptInput = false;
+
+                                spriteRIP.setPosition(525, 760);
+                                spritePlayer.setPosition(2000, 660);
+
+                                messageText.setString("SQUISHED!!");
+                                FloatRect textRect = messageText.getLocalBounds();
+                                messageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+                                messageText.setPosition(1920 / 2.0f, 1080 / 2.0f);
+
+                                death.play();
+                        }
+                }
+
+                // Dibuixa l'escena
+                window.clear();
+                window.draw(spriteBackground);
+                window.draw(spriteCloud1);
+                window.draw(spriteCloud2);
+                window.draw(spriteCloud3);
+                for (int i = 0; i < NUM_BRANCHES; i++)
+                {
+                        window.draw(branches[i]);
+                }
+                window.draw(spriteTree);
+                window.draw(spritePlayer);
+                window.draw(spriteAxe);
+                window.draw(spriteLog);
+                window.draw(spriteRIP);
+                window.draw(spriteBee);
+                window.draw(scoreText);
+                window.draw(timeBar);
+                if (paused)
+                {
+                        window.draw(messageText);
+                }
+
+                window.display();
+        }
+        return 0;
+}
+
+void updateBranches(int seed)
+{
+        for (int j = NUM_BRANCHES - 1; j > 0; j--)
+        {
+                branchPositions[j] = branchPositions[j - 1];
+        }
+
+        srand((int)time(0) + seed);
+        int r = (rand() % 5);
+        switch (r)
+        {
+        case 0:
+                branchPositions[0] = side::LEFT;
+                break;
+        case 1:
+                branchPositions[0] = side::RIGHT;
+                break;
+        default:
+                branchPositions[0] = side::NONE;
+                break;
+        }
+}
+        }
+
+        void updateBranches(int seed)
+        {
+                for (int j = NUM_BRANCHES - 1; j > 0; j--)
+                {
+                        branchPositions[j] = branchPositions[j - 1];
+                }
+
+                srand((int)time(0) + seed);
+                int r = (rand() % 5);
+                switch (r)
+                {
+                case 0:
+                        branchPositions[0] = side::LEFT;
+                        break;
+                case 1:
+                        branchPositions[0] = side::RIGHT;
+                        break;
+                default:
+                        branchPositions[0] = side::NONE;
+                        break;
+                }
+        }
+}
+            // Assegura't que la làpida estigui amagada
+            // Establim la posició de la làpida lluny de la pantalla per amagar-la.
+            spriteRIP.setPosition(675, 2000);
+
+            // Mou el jugador a la seva posició inicial
+            // Establim la posició del jugador a la part esquerra de la pantalla.
+            spritePlayer.setPosition(580, 720);
+
+            // Permet acceptar entrada de l'usuari
+            // Activem la bandera per permetre l'entrada del jugador.
+            acceptInput = true;
+        }
+
+        // Control del jugador per assegurar que acceptem entrada
+        if (acceptInput)
+        {
+            // Gestió del cursor dret
+            if (Keyboard::isKeyPressed(Keyboard::Right))
+            {
+                // Canvia el costat del jugador a la dreta
+                playerSide = side::RIGHT;
+                // Incrementa el marcador
+                score++;
+                // Incrementa el temps restant en funció de la puntuació actual
+                timeRemaining += (2 / score) + .15;
+
+                // Mou la destral a la posició de la dreta
+                spriteAxe.setPosition(AXE_POSITION_RIGHT, spriteAxe.getPosition().y);
+                // Mou el jugador a la posició de la dreta
+                spritePlayer.setPosition(1200, 720);
+
+                // Actualitza les branques en funció de la puntuació
+                updateBranches(score);
+
+                // Configura el tronc per començar a moure's
+                spriteLog.setPosition(810, 720);
+                logSpeedX = -5000;
+                logActive = true;
+
+                // Desactiva l'entrada fins que el jugador hagi acabat d'animar-se
+                acceptInput = false;
+
+                // Reprodueix el so de tallar
+                chop.play();
+            }
+
+            // Gestió del cursor esquerre
+            if (Keyboard::isKeyPressed(Keyboard::Left))
+            {
+                // Canvia el costat del jugador a l'esquerra
+                playerSide = side::LEFT;
+                // Incrementa el marcador
+                score++;
+                // Incrementa el temps restant en funció de la puntuació actual
+                timeRemaining += (2 / score) + .15;
+
+                // Mou la destral a la posició de l'esquerra
+                spriteAxe.setPosition(AXE_POSITION_LEFT, spriteAxe.getPosition().y);
+                // Mou el jugador a la posició de l'esquerra
+                spritePlayer.setPosition(580, 720);
+
+                // Actualitza les branques en funció de la puntuació
+                updateBranches(score);
+
+                // Configura el tronc per començar a moure's
+                spriteLog.setPosition(810, 720);
+                logSpeedX = 5000;
+                logActive = true;
+
+                // Desactiva l'entrada fins que el jugador hagi acabat d'animar-se
+                acceptInput = false;
+
+                // Reprodueix el so de tallar
+                chop.play();
+            }
+        }
+
+        // Actualitza l'escena
+        if (!paused)
+        {
+            // Recupera el temps transcorregut des de l'últim frame
+            Time dt = clock.restart();
+            // Redueix el temps restant
+            timeRemaining -= dt.asSeconds();
+            // Actualitza la mida de la barra de temps restant
+            timeBar.setSize(Vector2f(timeBarWidthPerSecond * timeRemaining, timeBarHeight));
+
+            // Comprova si el temps s'ha acabat
+            if (timeRemaining <= 0.0f)
+            {
+                // Pausa el joc i mostra el missatge de "Out of time"
+                paused = true;
+                messageText.setString("Out of time!!");
+                FloatRect textRect = messageText.getLocalBounds();
+                messageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+                messageText.setPosition(1920 / 2.0f, 1080 / 2.0f);
+
+                // Reprodueix el so de fi de temps
+                outOfTime.play();
+            }
+
+            // Gestió de l'abella
+            if (!beeActive)
+            {
+                // Configura la velocitat i la posició inicial de l'abella
+                srand((int)time(0));
+                beeSpeed = (rand() % 200) + 200;
+                srand((int)time(0) * 10);
+                float height = (rand() % 500) + 500;
+                spriteBee.setPosition(2000, height);
+                beeActive = true;
+            }
+            else
+            {
+                // Mou l'abella cap a l'esquerra
+                spriteBee.setPosition(spriteBee.getPosition().x - (beeSpeed * dt.asSeconds()), spriteBee.getPosition().y);
+                if (spriteBee.getPosition().x < -100)
+                {
+                    // Si l'abella surt de la pantalla, la desactivem
+                    beeActive = false;
+                }
+            }
+
+            // Gestió del núvol 1
+            if (!cloud1Active)
+            {
+                // Configura la velocitat i la posició inicial del núvol 1
+                srand((int)time(0) * 10);
+                cloud1Speed = (rand() % 200);
+                srand((int)time(0) * 10);
+                float height = (rand() % 150);
+                spriteCloud1.setPosition(-200, height);
+                cloud1Active = true;
+            }
+            else
+            {
+                // Mou el núvol 1 cap a la dreta
+                spriteCloud1.setPosition(spriteCloud1.getPosition().x + (cloud1Speed * dt.asSeconds()), spriteCloud1.getPosition().y);
+                if (spriteCloud1.getPosition().x > 1920)
+                {
+                    // Si el núvol 1 surt de la pantalla, el desactivem
+                    cloud1Active = false;
+                }
+            }
+
+            // Gestió del núvol 2
+            if (!cloud2Active)
+            {
+                // Configura la velocitat i la posició inicial del núvol 2
+                srand((int)time(0) * 20);
+                cloud2Speed = (rand() % 200);
+                srand((int)time(0) * 20);
+                float height = (rand() % 300) - 150;
+                spriteCloud2.setPosition(-200, height);
+                cloud2Active = true;
+            }
+            else
+            {
+                // Mou el núvol 2 cap a la dreta
+                spriteCloud2.setPosition(spriteCloud2.getPosition().x + (cloud2Speed * dt.asSeconds()), spriteCloud2.getPosition().y);
+                if (spriteCloud2.getPosition().x > 1920)
+                {
+                    // Si el núvol 2 surt de la pantalla, el desactivem
+                    cloud2Active = false;
+                }
+            }
+
+            // Gestió del núvol 3
+            if (!cloud3Active)
+            {
+                // Configura la velocitat i la posició inicial del núvol 3
+                srand((int)time(0) * 30);
+                cloud3Speed = (rand() % 200);
+                srand((int)time(0) * 30);
+                float height = (rand() % 450) - 150;
+                spriteCloud3.setPosition(-200, height);
+                cloud3Active = true;
+            }
+            else
+            {
+                // Mou el núvol 3 cap a la dreta
+                spriteCloud3.setPosition(spriteCloud3.getPosition().x + (cloud3Speed * dt.asSeconds()), spriteCloud3.getPosition().y);
+                if (spriteCloud3.getPosition().x > 1920)
+                {
+                    // Si el núvol 3 surt de la pantalla, el desactivem
+                    cloud3Active = false;
+                }
+            }
+
+            // Actualitza el marcador
+            std::stringstream ss;
+            ss << "Score = " << score;
+            scoreText.setString(ss.str());
+
+            // Actualitza la posició de les branques
+            for (int i = 0; i < NUM_BRANCHES; i++)
+            {
+                float height = i * 150;
+
+                if (branchPositions[i] == side::LEFT)
+                {
+                    // Si la branca està a l'esquerra, la posicionem a la part esquerra de la pantalla
+                    branches[i].setPosition(610, height);
+                    branches[i].setRotation(180);
+                }
+                else if (branchPositions[i] == side::RIGHT)
+                {
+                    // Si la branca està a la dreta, la posicionem a la part dreta de la pantalla
+                    branches[i].setPosition(1330, height);
+                    branches[i].setRotation(0);
+                }
+                else
+                {
+                    // Si la branca no és visible, la posicionem fora de la pantalla
+                    branches[i].setPosition(3000, height);
+                }
+            }
+
+            // Gestió del tronc en moviment
+            if (logActive)
+            {
+                // Mou el tronc en funció de la seva velocitat
+                spriteLog.setPosition(spriteLog.getPosition().x + (logSpeedX * dt.asSeconds()), spriteLog.getPosition().y + (logSpeedY * dt.asSeconds()));
+                if (spriteLog.getPosition().x < -100 || spriteLog.getPosition().x > 2000)
+                {
+                                        // Si el tronc surt de la pantalla, el desactivem i el tornem a la seva posició inicial
+                    logActive = false;
+                    spriteLog.setPosition(810, 720);
+                }
+            }
+
+            // Comprova si el jugador ha estat aixafat per una branca
+            if (branchPositions[5] == playerSide)
+            {
+                // Si el jugador està en la mateixa posició que la branca, el joc es pausa i el jugador mor
+                paused = true;
+                acceptInput = false;
+
+                // Mostra la làpida en la posició del jugador
+                spriteRIP.setPosition(525, 760);
+                // Mou el jugador fora de la pantalla
+                spritePlayer.setPosition(2000, 660);
+
+                // Mostra el missatge de "SQUISHED"
+                messageText.setString("SQUISHED!!");
+                FloatRect textRect = messageText.getLocalBounds();
+                messageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+                messageText.setPosition(1920 / 2.0f, 1080 / 2.0f);
+
+                // Reprodueix el so de mort
+                death.play();
+            }
+        }
+
+        // Dibuixa l'escena
+        window.clear();
+        window.draw(spriteBackground);
+        window.draw(spriteCloud1);
+        window.draw(spriteCloud2);
+        window.draw(spriteCloud3);
+
+        // Dibuixa les branques
+        for (int i = 0; i < NUM_BRANCHES; i++)
+        {
+            window.draw(branches[i]);
+        }
+
+        window.draw(spriteTree);
+        window.draw(spritePlayer);
+        window.draw(spriteAxe);
+        window.draw(spriteLog);
+        window.draw(spriteRIP);
+        window.draw(spriteBee);
+        window.draw(scoreText);
+        window.draw(timeBar);
+
+        // Si el joc està en pausa, mostra el missatge de pausa
+        if (paused)
+        {
+            window.draw(messageText);
+        }
+
+        window.display();
+
+        // Pren una captura de pantalla si no s'ha pres
+        if (!shotTaken)
+        {
+            renderTexture.clear();
+            renderTexture.draw(spriteBackground);
+            renderTexture.draw(spriteCloud1);
+            renderTexture.draw(spriteCloud2);
+            renderTexture.draw(spriteCloud3);
+            renderTexture.draw(spriteTree);
+
+            for (int i = 0; i < NUM_BRANCHES; i++)
+            {
+                renderTexture.draw(branches[i]);
+            }
+
+            renderTexture.draw(spriteBee);
+            renderTexture.draw(spritePlayer);
+            renderTexture.draw(spriteAxe);
+            renderTexture.draw(spriteLog);
+            renderTexture.draw(spriteRIP);
+            renderTexture.draw(scoreText);
+            renderTexture.draw(timeBar);
+
+            if (paused)
+            {
+                renderTexture.draw(messageText);
+            }
+
+            renderTexture.display();
+
+            // Desa la captura de pantalla en un fitxer
+            sf::Image screenshot = renderTexture.getTexture().copyToImage();
+            screenshot.saveToFile("screenshot.png");
+            shotTaken = true;
+        }
+    }
+
+    return 0;
+}
+
+
+
+
+					
+				</pre>
+				
+						  
+				
+				<script>
   document.querySelectorAll('.copy-button').forEach(item => {
             item.addEventListener('click', event => {
                 const codeBlock = item.nextElementSibling.nextElementSibling; // Get the <code> element
