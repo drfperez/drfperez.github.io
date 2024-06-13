@@ -3,6 +3,55 @@
   <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>C++ amb jocs</title>
+
+	  A més de highlight.js, necessites també el full d'estils (CSS) per assegurar-te que el codi ressaltat es veu correctament. Aquí tens el procediment complet per incloure highlight.js i els seus estils en el teu document HTML per ressaltar codi C++:
+
+### 1. Inclou highlight.js i els estils CSS
+
+Pots utilitzar un CDN per incloure highlight.js i els estils necessaris. Per exemple, utilitzarem el tema `default` de highlight.js.
+
+### 2. Inicia highlight.js
+
+Assegura't d'inicialitzar highlight.js després que el document HTML s'hagi carregat completament.
+
+### Exemple complet:
+
+```html
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ressaltat de Codi C++</title>
+    <!-- Inclou el full d'estils de highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+</head>
+<body>
+
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+
+int main() {
+    std::cout &lt;&lt; "Hola, món!" &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<!-- Inclou highlight.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<!-- Inicia highlight.js -->
+<script>hljs.highlightAll();</script>
+
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+ 
+
+
+   <script>hljs.highlightAll();</script>
+   
+
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
