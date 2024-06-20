@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<!-- Defineix el tipus de document com HTML5 -->
+<html lang="ca">
+<!-- Indica que el llenguatge de la pàgina és el català -->
+<head>
+    <!-- Metadades del document -->
+    <meta charset="UTF-8">
+    <!-- Defineix la codificació de caràcters com UTF-8 -->
+    <title>Percentatge de Respostes Correctes</title>
+    <!-- Títol de la pàgina -->
+    <style>
+    /* Reset d'alguns estils per consistència entre navegadors */
+    body, h1, h2, ul, li, p, button {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Estils del body */
+    body {
+        background-color: #f5f5f5;
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+    }
+
+    /* Estils del header */
+    h1 {
+        font-size: 2rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    /* Estils del sub-header */
+    h2 {
+        font-size: 1.5rem;
+        color: #34495e;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    /* Estils de la llista */
+    ul {
+        list-style: none;
+        padding-left: 20px;
+    }
+
+    li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    input[type="checkbox"] {
+        margin-right: 10px;
+        transform: scale(1.2);
+    }
+
+    /* Estils del botó */
+    button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 20px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    button:hover {
+        background-color: #2980b9;
+    }
+
+    /* Estils per les seleccions correctes i incorrectes */
+    .correcte {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .incorrecte {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .columns {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .columns ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .columns li {
+        flex-basis: 45%;
+        margin: 10px;
+    }
+
+    .columns li input[type="checkbox"] {
+        margin-right: 10px;
+    }
+    </style>
+</head>
+<body>
+    <h1>Selecciona els aliments de temporada</h1>
+    <!-- Títol principal de la pàgina -->
+
+    <h2>Fruites</h2>
+    <!-- Sub-títol per a la secció de fruites -->
+    <div class="columns">
+    <ul>
+        <!-- Llista de fruites amb checkbox per seleccionar-les -->
+        <li><input type="checkbox" id="Poma"> Poma</li>
+        <li><input type="checkbox" id="Maduixa"> Maduixa</li>
+        <li><input type="checkbox" id="Pera"> Pera</li>
+        <li><input type="checkbox" id="Clementina"> Clementina</li>
+        <li><input type="checkbox" id="Satsuma"> Satsuma</li>
+        <li><input type="checkbox" id="Mandarina"> Mandarina</li>
+        <li><input type="checkbox" id="Taronja navel"> Taronja navel</li>
+        <li><input type="checkbox" id="Taronja blanca"> Taronja blanca</li>
+        <li><input type="checkbox" id="Poma Golden"> Poma Golden</li>
+        <li><input type="checkbox" id="Fuji"> Fuji</li>
+        <li><input type="checkbox" id="Reineta"> Reineta</li>
+        <li><input type="checkbox" id="Gala"> Gala</li>
+        <li><input type="checkbox" id="Pera Llimonera"> Pera Llimonera</li>
+        <li><input type="checkbox" id="Ercolini"> Ercolini</li>
+        <li><input type="checkbox" id="Williams"> Williams</li>
+        <li><input type="checkbox" id="Blanquilla"> Blanquilla</li>
+        <li><input type="checkbox" id="Conference"> Conference</li>
+        <li><input type="checkbox" id="Pruna"> Pruna</li>
+        <li><input type="checkbox" id="Préssec"> Préssec</li>
+        <li><input type="checkbox" id="Nectarina"> Nectarina</li>
+        <li><input type="checkbox" id="Albercoc"> Albercoc</li>
+        <li><input type="checkbox" id="Maduixot"> Maduixot</li>
+        <li><input type="checkbox" id="Cirera"> Cirera</li>
+        <li><input type="checkbox" id="Figa"> Figa</li>
+        <li><input type="checkbox" id="Raïm"> Raïm</li>
+        <li><input type="checkbox" id="Nespra"> Nespra</li>
+        <!-- Altres fruites... -->
+    </ul>
+    </div>
+
+    <h2>Hortalisses</h2>
+    <!-- Sub-títol per a la secció d'hortalisses -->
+    <div class="columns">
+    <ul>
+        <!-- Llista d'hortalisses amb checkbox per seleccionar-les -->
+        <li><input type="checkbox" id="Pastanaga"> Pastanaga</li>
+        <li><input type="checkbox" id="Col"> Col</li>
+        <li><input type="checkbox" id="Patata primerenca"> Patata primerenca</li>
+        <li><input type="checkbox" id="Patata tardana"> Patata tardana</li>
+        <li><input type="checkbox" id="Ceba"> Ceba</li>
+        <li><input type="checkbox" id="Calçot"> Calçot</li>
+        <li><input type="checkbox" id="All tendre"> All tendre</li>
+        <li><input type="checkbox" id="Porro"> Porro</li>
+        <li><input type="checkbox" id="Mongeta verda"> Mongeta verda</li>
+        <li><input type="checkbox" id="Faves"> Faves</li>
+        <li><input type="checkbox" id="Pèsols"> Pèsols</li>
+        <li><input type="checkbox" id="Espinacs"> Espinacs</li>
+        <li><input type="checkbox" id="Bleda"> Bleda</li>
+        <li><input type="checkbox" id="Enciam"> Enciam</li>
+        <li><input type="checkbox" id="Escarola"> Escarola</li>
+        <li><input type="checkbox" id="Tomàquet"> Tomàquet</li>
+        <li><input type="checkbox" id="Pebrot"> Pebrot</li>
+        <li><input type="checkbox" id="Carxofa"> Carxofa</li>
+        <li><input type="checkbox" id="Api"> Api</li>
+        <li><input type="checkbox" id="Albergínia"> Albergínia</li>
+        <li><input type="checkbox" id="Carbassó"> Carbassó</li>
+        <li><input type="checkbox" id="Col-i-flor"> Col-i-flor</li>
+        <li><input type="checkbox" id="Bròquil"> Bròquil</li>
+        <li><input type="checkbox" id="Cogombre"> Cogombre</li>
+        <li><input type="checkbox" id="Meló"> Meló</li>
+        <li><input type="checkbox" id="Síndria"> Síndria</li>
+        <!-- Altres hortalisses... -->
+    </ul>
+    </div>
+<!-- Sub-títol per a la secció de peixos -->
+<h2>Peixos</h2>
+<div class="columns">
+    <!-- Contenidor per a la llista de peixos amb flexbox -->
+    <ul>
+        <!-- Llista de peixos amb checkbox per seleccionar-los -->
+        <li><input type="checkbox" id="Tonyina"> Tonyina</li>
+        <li><input type="checkbox" id="Salmó"> Salmó</li>
+        <li><input type="checkbox" id="Maire"> Maire</li>
+        <li><input type="checkbox" id="Seitó"> Seitó</li>
+        <li><input type="checkbox" id="Galera"> Galera</li>
+        <li><input type="checkbox" id="Sípia"> Sípia</li>
+        <li><input type="checkbox" id="Llenguado"> Llenguado</li>
+        <li><input type="checkbox" id="Gamba"> Gamba</li>
+        <li><input type="checkbox" id="Sardina"> Sardina</li>
+        <li><input type="checkbox" id="Calamar"> Calamar</li>
+        <li><input type="checkbox" id="Sonso"> Sonso</li>
+        <li><input type="checkbox" id="Bonítol"> Bonítol</li>
+        <li><input type="checkbox" id="Verat"> Verat</li>
+        <li><input type="checkbox" id="Lluç"> Lluç</li>
+        <li><input type="checkbox" id="Escórpora"> Escórpora</li>
+        <!-- Altres peixos... -->
+    </ul>
+</div>
+
+<!-- Botó per calcular el percentatge de respostes correctes -->
+<button onclick="calcularPercentatge()">Calcular Percentatge</button>
+<!-- Paràgraf per mostrar el resultat del càlcul -->
+<p id="resultat"></p>
+<!-- Div per mostrar errors en cas que hi hagi problemes en carregar dades -->
+<div id="errors" class="error"></div>
+
+<!-- Inici del codi JavaScript per gestionar la interacció -->
+<script>
+    async function calcularPercentatge() {
+        try {
+            // Carregar dades des del fitxer "temporada3.json"
+            const resposta = await fetch('temporada3.json');
+            const temporada = await resposta.json();
+
+            const seleccions = [
+                // Fruites
+                { id: "Poma", tipus: "fruites" },
+                { id: "Maduixa", tipus: "fruites" },
+                { id: "Pera", tipus: "fruites" },
+                { id: "Clementina", tipus: "fruites" },
+                { id: "Satsuma", tipus: "fruites" },
+                { id: "Mandarina", tipus: "fruites" },
+                { id: "Taronja navel", tipus: "fruites" },
+                { id: "Taronja blanca", tipus: "fruites" },
+                { id: "Poma Golden", tipus: "fruites" },
+                { id: "Fuji", tipus: "fruites" },
+                { id: "Reineta", tipus: "fruites" },
+                { id: "Gala", tipus: "fruites" },
+                { id: "Pera Llimonera", tipus: "fruites" },
+                { id: "Ercolini", tipus: "fruites" },
+                { id: "Williams", tipus: "fruites" },
+                { id: "Blanquilla", tipus: "fruites" },
+                { id: "Conference", tipus: "fruites" },
+                { id: "Pruna", tipus: "fruites" },
+                { id: "Préssec", tipus: "fruites" },
+                { id: "Nectarina", tipus: "fruites" },
+                { id: "Albercoc", tipus: "fruites" },
+                { id: "Maduixot", tipus: "fruites" },
+                { id: "Cirera", tipus: "fruites" },
+                { id: "Figa", tipus: "fruites" },
+                { id: "Raïm", tipus: "fruites" },
+                { id: "Nespra", tipus: "fruites" },
+                // Hortalisses
+                { id: "Pastanaga", tipus: "hortalisses" },
+                { id: "Col", tipus: "hortalisses" },
+                { id: "Patata primerenca", tipus: "hortalisses" },
+                { id: "Patata tardana", tipus: "hortalisses" },
+                { id: "Ceba", tipus: "hortalisses" },
+                { id: "Calçot", tipus: "hortalisses" },
+                { id: "All tendre", tipus: "hortalisses" },
+                { id: "Porro", tipus: "hortalisses" },
+                { id: "Mongeta verda", tipus: "hortalisses" },
+                { id: "Faves", tipus: "hortalisses" },
+                { id: "Pèsols", tipus: "hortalisses" },
+                { id: "Espinacs", tipus: "hortalisses" },
+                { id: "Bleda", tipus: "hortalisses" },
+                { id: "Enciam", tipus: "hortalisses" },
+                { id: "Escarola", tipus: "hortalisses" },
+                { id: "Tomàquet", tipus: "hortalisses" },
+                { id: "Pebrot", tipus: "hortalisses" },
+                { id: "Carxofa", tipus: "hortalisses" },
+                { id: "Api", tipus: "hortalisses" },
+                { id: "Albergínia", tipus: "hortalisses" },
+                { id: "Carbassó", tipus: "hortalisses" },
+                { id: "Col-i-flor", tipus: "hortalisses" },
+                { id: "Bròquil", tipus: "hortalisses" },
+                { id: "Cogombre", tipus: "hortalisses" },
+                { id: "Meló", tipus: "hortalisses" },
+                { id: "Síndria", tipus: "hortalisses" },
+                // Peixos
+                { id: "Tonyina", tipus: "peixos" },
+                { id: "Salmó", tipus: "peixos" },
+                { id: "Maire", tipus: "peixos" },
+                { id: "Seitó", tipus: "peixos" },
+                { id: "Galera", tipus: "peixos" },
+                { id: "Sípia", tipus: "peixos" },
+                { id: "Llenguado", tipus: "peixos" },
+                { id: "Gamba", tipus: "peixos" },
+                { id: "Sardina", tipus: "peixos" },
+                { id: "Calamar", tipus: "peixos" },
+                { id: "Sonso", tipus: "peixos" },
+                { id: "Bonítol", tipus: "peixos" },
+                { id: "Verat", tipus: "peixos" },
+                { id: "Lluç", tipus: "peixos" },
+                { id: "Escórpora", tipus: "peixos" }
+            ];
+
+            // Obtenir el mes actual (els mesos en JavaScript són de 0 a 11, per això s'afegeix 1)
+            const mesActual = new Date().getMonth() + 1;
+
+            let totalSeleccionats = 0;
+            let totalCorrectes = 0;
+
+            // Recórrer les seleccions per verificar quins aliments són de temporada
+            seleccions.forEach(seleccio => {
+                const checkbox = document.getElementById(seleccio.id);
+                const parentLi = checkbox.parentElement;
+                if (checkbox.checked) {
+                    totalSeleccionats++;
+                    const aliment = temporada[seleccio.tipus].find(a => a.nom === seleccio.id);
+                    if (aliment && aliment.mesos.includes(mesActual)) {
+                        totalCorrectes++;
+                        parentLi.classList.add('correcte');
+                        parentLi.classList.remove('incorrecte');
+                    } else {
+                        parentLi.classList.add('incorrecte');
+                        parentLi.classList.remove('correcte');
+                    }
+                } else {
+                    parentLi.classList.remove('correcte');
+                    parentLi.classList.remove('incorrecte');
+                }
+            });
+
+            // Calcular el percentatge total de respostes correctes
+            const percentatgeTotal = totalSeleccionats > 0 ? (totalCorrectes / totalSeleccionats) * 100 : 0;
+
+            // Mostrar el resultat al paràgraf amb id "resultat"
+            document.getElementById("resultat").innerHTML = `
+                Percentatge de respostes correctes:<br>
+                Total: ${percentatgeTotal.toFixed(2)}%
+            `;
+        } catch (error) {
+            // Mostrar un error si hi ha problemes en carregar les dades
+            document.getElementById("errors").textContent = 'Hi ha hagut un error en carregar les dades. Assegura\'t que el fitxer "temporada3.json" existeix i està correctament format.';
+            console.error('Error:', error);
+        }
+    }
+        </script>
+    </div>
+</body>
+</html>
+
+
+
+    
+
