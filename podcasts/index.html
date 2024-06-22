@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Podcast with Speech Recognition</title>
+    <title>Podcasts with Real-Time Speech Recognition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
     <style>
         body {
@@ -113,23 +113,30 @@
         // Initialize Web Speech API
         var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'en-US';
-        recognition.interimResults = false;
+        recognition.interimResults = true; // Enable interim results
         recognition.maxAlternatives = 1;
 
         recognition.onresult = function(event) {
-            var result = event.results[0][0].transcript;
-            document.getElementById('result').innerText = 'You said: ' + result;
+            var interimTranscript = '';
+            for (var i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    interimTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+            document.getElementById('result').innerText = 'You said: ' + interimTranscript;
 
             // Example action based on recognized words
-            if (result.includes('play')) {
+            if (interimTranscript.includes('play')) {
                 playSound();
-            } else if (result.includes('pause')) {
+            } else if (interimTranscript.includes('pause')) {
                 pauseSound();
-            } else if (result.includes('stop')) {
+            } else if (interimTranscript.includes('stop')) {
                 stopSound();
-            } else if (result.includes('volume up')) {
+            } else if (interimTranscript.includes('volume up')) {
                 changeVolume(Math.min(sound.volume() + 0.1, 1));
-            } else if (result.includes('volume down')) {
+            } else if (interimTranscript.includes('volume down')) {
                 changeVolume(Math.max(sound.volume() - 0.1, 0));
             }
         };
@@ -149,3 +156,4 @@
     </script>
 </body>
 </html>
+
