@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Podcast Player</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <!-- Font Awesome CDN link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />  
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #player {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            background-color: transparent;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ddd;
+        }
+        #progress-bar {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 10px;
+        }
+        #progress {
+            width: 0;
+            height: 100%;
+            background-color: #007bff;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+        }
+        #captions {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            height: 100px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            display: none; /* Hidden by default */
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div id="player">
+        <h1>Science Podcast Player</h1>
+        <select id="mp3-select" onchange="loadTrack()">
+            <option selected>Select podcast file...</option>
+            <option value="podcast1.mp3">Exoplanets and pollution</option>
+            <option value="podcast2.mp3">Prions and organic agriculture</option>
+            <!-- Add more options as needed -->
+        </select>
+        <br><br>
+        <button onclick="restartSound()"><i class="fas fa-redo-alt"></i></button>
+        <button onclick="rewindSound()"><i class="fas fa-backward"></i></button>
+        <button id="playPauseButton" onclick="togglePlayPause()"><i class="fas fa-play"></i></button>
+        <button onclick="forwardSound()"><i class="fas fa-forward"></i></button>
+        <button onclick="stopSound()"><i class="fas fa-stop"></i></button>
+        <button onclick="toggleCaptions()"><i class="fas fa-closed-captioning"></i></button>
+        <div id="progress-bar">
+            <div id="progress"></div>
+        </div>
+        <div id="captions"></div>
+    </div>
+
+    <script>
+        var sound = null;
+        var playPauseButton = document.getElementById('playPauseButton');
+        var captionsDiv = document.getElementById('captions');
+        var subtitles = [];
+        var showCaptions = false;
+        var wordIntervals = [];
+
+        function loadTrack() {
+            var mp3Select = document.getElementById('mp3-select');
+            var mp3File = mp3Select.options[mp3Select.selectedIndex].value;
+            var vttFile = mp3File.replace('.mp3', '.vtt');
+
+            if (sound) {
+                sound.unload();
+            }
+
+            sound = new Howl({
+                src: [mp3File],
+                volume: 0.5,
+                onplay: function() {
+                    updateProgress();
+                    playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+                },
+                onpause: function() {
+                    cancelAnimationFrame(updateProgress);
+                    playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+                },
+                onstop: function() {
+                    cancelAnimationFrame(updateProgress);
+                    playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+                    document.getElementById('progress').style.width = '0%';
+                },
+                onend: function() {
+                    cancelAnimationFrame(updateProgress);
+                    playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+                    document.getElementById('progress').style.width = '0%';
+                }
+            });
+
+            fetch(vttFile)
+                .then(response => response.text())
+                .then(data => {
+                    subtitles = parseVTT(data);
+                });
+        }
+
+        function togglePlayPause() {
+            if (sound && sound.playing()) {
+                sound.pause();
+            } else if (sound && !sound.playing()) {
+                sound.play();
+            }
+        }
+
+        function restartSound() {
+            if (sound) {
+                sound.stop();
+                sound.play();
+            }
+        }
+
+        function rewindSound() {
+            if (sound) {
+                var seek = sound.seek() || 0;
+                sound.seek(Math.max(seek - 10, 0)); // Rewind by 10 seconds
+            }
+        }
+
+        function forwardSound() {
+            if (sound) {
+                var seek = sound.seek() || 0;
+                sound.seek(Math.min(seek + 10, sound.duration())); // Forward by 10 seconds
+            }
+        }
+
+        function stopSound() {
+            if (sound) {
+                sound.stop();
+            }
+        }
+
+        function updateProgress() {
+            var progressBar = document.getElementById('progress');
+            var seek = sound.seek() || 0;
+            progressBar.style.width = ((seek / sound.duration()) * 100) + '%';
+            if (sound.playing()) {
+                requestAnimationFrame(updateProgress);
+            }
+            updateCaptions();
+        }
+
+        function toggleCaptions() {
+            showCaptions = !showCaptions;
+            captionsDiv.style.display = showCaptions ? 'block' : 'none';
+        }
+
+        function updateCaptions() {
+            if (!showCaptions) return;
+            var seek = sound.seek() || 0;
+
+            for (let i = 0; i < subtitles.length; i++) {
+                if (seek >= subtitles[i].start && seek <= subtitles[i].end) {
+                    var words = subtitles[i].text.split(' ');
+                    var highlightedWords = words.map((word, index) => {
+                        var wordStart = subtitles[i].start + index * (subtitles[i].duration / words.length);
+                        var wordEnd = wordStart + (subtitles[i].duration / words.length);
+                        if (seek >= wordStart && seek <= wordEnd) {
+                            return `<span class="highlight">${word}</span>`;
+                        }
+                        return word;
+                    });
+                    captionsDiv.innerHTML = highlightedWords.join(' ');
+                    break;
+                } else {
+                    captionsDiv.innerHTML = '';
+                }
+            }
+        }
+
+        function parseVTT(data) {
+            const pattern = /(\d+:\d+:\d+\.\d+)\s-->\s(\d+:\d+:\d+\.\d+)\s*\n([^]+?)(?=\n\n|\n*$)/g;
+            let result;
+            const subtitles = [];
+
+            while ((result = pattern.exec(data)) !== null) {
+                subtitles.push({
+                    start: timeStringToSeconds(result[1]),
+                    end: timeStringToSeconds(result[2]),
+                    text: result[3].trim().replace(/\n/g, ' '),
+                    duration: timeStringToSeconds(result[2]) - timeStringToSeconds(result[1])
+                });
+            }
+
+            return subtitles;
+        }
+
+        function timeStringToSeconds(timeString) {
+            const [hours, minutes, seconds] = timeString.split(':');
+            return (+hours) * 60 * 60 + (+minutes) * 60 + (+parseFloat(seconds));
+        }
+    </script>
+</body>
+</html>
