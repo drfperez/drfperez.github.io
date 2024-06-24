@@ -127,7 +127,7 @@
                 }
             });
 
-            fetch('subtitles.vtt')
+            fetch('podcast1.vtt')
                 .then(response => response.text())
                 .then(data => {
                     subtitles = parseVTT(data);
