@@ -1,0 +1,2977 @@
+WEBVTT
+
+1
+00:00:05.320 --> 00:00:08.100
+(Transcrito por TurboScribe.ai. Actualizar a Ilimitado para eliminar este mensaje.) This is a science podcast for June 21st,
+
+2
+00:00:08.160 --> 00:00:08.720
+2024.
+
+3
+00:00:09.320 --> 00:00:11.700
+I'm Megan Cantwell, filling in for Sarah Crespi.
+
+4
+00:00:12.080 --> 00:00:14.160
+First up this week, staff writer Dan Cleary
+
+5
+00:00:14.160 --> 00:00:15.800
+joins me to talk about the hunt for
+
+6
+00:00:15.800 --> 00:00:17.200
+habitable exoplanets.
+
+7
+00:00:17.820 --> 00:00:19.740
+What started as a search focused on Earth
+
+8
+00:00:19.740 --> 00:00:22.480
+-like rocky planets is expanding to planets with
+
+9
+00:00:22.480 --> 00:00:26.200
+thicker atmospheres, or even planets wrapped entirely in
+
+10
+00:00:26.200 --> 00:00:26.540
+water.
+
+11
+00:00:27.160 --> 00:00:30.020
+Next, producer Arianna Remmel talks to researcher Ava
+
+12
+00:00:30.020 --> 00:00:34.020
+Fannershtil about an unexpected source of volatile organic
+
+13
+00:00:34.020 --> 00:00:37.000
+compounds causing air quality to worsen on hot
+
+14
+00:00:37.000 --> 00:00:38.180
+days in Los Angeles.
+
+15
+00:00:43.320 --> 00:00:45.200
+If you were to be on one of
+
+16
+00:00:45.200 --> 00:00:47.700
+the planets in the TRAPPIST-1 system, what
+
+17
+00:00:47.700 --> 00:00:48.520
+would that be like?
+
+18
+00:00:48.600 --> 00:00:49.600
+What would that feel like?
+
+19
+00:00:49.940 --> 00:00:52.600
+Living on one of these planets around TRAPPIST
+
+20
+00:00:52.600 --> 00:00:56.240
+-1 would be very bizarre to us.
+
+21
+00:00:56.600 --> 00:00:58.680
+You'd be living in this sort of strip
+
+22
+00:00:58.680 --> 00:01:02.520
+around the order of nighttime and daytime in
+
+23
+00:01:02.520 --> 00:01:03.440
+perpetual sunset.
+
+24
+00:01:03.739 --> 00:01:06.080
+The other thing that would be very peculiar
+
+25
+00:01:06.080 --> 00:01:09.340
+would be the other planets because they're all
+
+26
+00:01:09.340 --> 00:01:10.720
+very bunched close together.
+
+27
+00:01:10.980 --> 00:01:13.640
+When one came close, it would be larger
+
+28
+00:01:13.640 --> 00:01:14.360
+than the moon.
+
+29
+00:01:14.860 --> 00:01:16.920
+If more than one of those planets were
+
+30
+00:01:16.920 --> 00:01:19.480
+inhabited, you would be able to see the
+
+31
+00:01:19.480 --> 00:01:23.060
+lights of towns and buildings and so on
+
+32
+00:01:23.060 --> 00:01:25.260
+on a neighboring planet as it drifted by.
+
+33
+00:01:25.560 --> 00:01:27.860
+It would be a strange, very science fiction
+
+34
+00:01:27.860 --> 00:01:30.960
+-like existence living on one of these planets.
+
+35
+00:01:31.320 --> 00:01:33.140
+There's no doubt that living on a planet
+
+36
+00:01:33.140 --> 00:01:35.720
+in the TRAPPIST-1 system 41 light-years
+
+37
+00:01:35.720 --> 00:01:38.880
+away from Earth would be nothing like existence
+
+38
+00:01:38.880 --> 00:01:39.760
+as we know it.
+
+39
+00:01:40.340 --> 00:01:42.180
+But that doesn't rule out the possibility that
+
+40
+00:01:42.180 --> 00:01:44.000
+there could be some sort of life present.
+
+41
+00:01:44.360 --> 00:01:46.640
+This Week in Science staff reporter Dan Cleary
+
+42
+00:01:46.640 --> 00:01:48.760
+wrote about the hunt for other Earth-like
+
+43
+00:01:48.760 --> 00:01:51.480
+planets and the hurdles that researchers have faced
+
+44
+00:01:51.480 --> 00:01:53.060
+so far in this pursuit.
+
+45
+00:01:53.460 --> 00:01:54.860
+Thank you so much for joining me on
+
+46
+00:01:54.860 --> 00:01:55.580
+the podcast, Dan.
+
+47
+00:01:55.860 --> 00:01:56.540
+My pleasure.
+
+48
+00:01:56.820 --> 00:01:58.400
+This is definitely not the first sort of
+
+49
+00:01:58.400 --> 00:02:01.520
+story where you've covered potentially life on other
+
+50
+00:02:01.520 --> 00:02:03.400
+planets, whether other planets are habitable.
+
+51
+00:02:03.600 --> 00:02:06.500
+But now, within the past few years, JWST
+
+52
+00:02:06.500 --> 00:02:09.580
+finally launched, giving us new insight into these
+
+53
+00:02:09.580 --> 00:02:09.860
+planets.
+
+54
+00:02:10.000 --> 00:02:11.700
+What can we probe into these planets that
+
+55
+00:02:11.700 --> 00:02:12.440
+we couldn't before?
+
+56
+00:02:13.160 --> 00:02:16.000
+What JWST gives them, first of all, is
+
+57
+00:02:16.000 --> 00:02:17.340
+it's a space telescope.
+
+58
+00:02:17.640 --> 00:02:20.860
+So it's looking at objects a long way
+
+59
+00:02:20.860 --> 00:02:23.760
+away, but without the interference from the atmosphere
+
+60
+00:02:23.760 --> 00:02:24.480
+in between.
+
+61
+00:02:25.360 --> 00:02:27.560
+JWST is not only a lot bigger than
+
+62
+00:02:27.560 --> 00:02:30.940
+Hubble, but it covers a very different wavelength
+
+63
+00:02:30.940 --> 00:02:31.580
+range.
+
+64
+00:02:31.920 --> 00:02:33.940
+So it's mostly in the infrared.
+
+65
+00:02:34.240 --> 00:02:36.000
+It can look at cooler objects.
+
+66
+00:02:36.240 --> 00:02:40.560
+It can hopefully detect molecules that are useful
+
+67
+00:02:40.560 --> 00:02:43.960
+to life in the atmospheres of these sort
+
+68
+00:02:43.960 --> 00:02:45.620
+of planets that we've been talking about.
+
+69
+00:02:45.720 --> 00:02:48.560
+They already are discovering amazing things, but mostly,
+
+70
+00:02:48.860 --> 00:02:53.000
+thus far, about much bigger and hotter planets.
+
+71
+00:02:53.000 --> 00:02:56.520
+To look at the smaller, cooler ones that
+
+72
+00:02:56.520 --> 00:03:00.180
+could possibly host life, it takes more time.
+
+73
+00:03:00.800 --> 00:03:02.840
+Researchers have had such a long time to
+
+74
+00:03:02.840 --> 00:03:04.860
+dream up their kind of ideal list of
+
+75
+00:03:04.860 --> 00:03:07.380
+exoplanets to look at that may be habitable.
+
+76
+00:03:07.600 --> 00:03:09.660
+What are the main ones that researchers are
+
+77
+00:03:09.660 --> 00:03:11.420
+hoping to look at with JWST?
+
+78
+00:03:11.860 --> 00:03:14.560
+Well, apart from TRAPPIST-1, which is the
+
+79
+00:03:14.560 --> 00:03:17.440
+sort of ideal because it's so close, it's
+
+80
+00:03:17.440 --> 00:03:20.200
+only 41 light-years away, it has these
+
+81
+00:03:20.200 --> 00:03:22.820
+seven Earth-sized planets.
+
+82
+00:03:23.360 --> 00:03:25.940
+And as such, it makes a sort of
+
+83
+00:03:25.940 --> 00:03:31.140
+ideal laboratory for astronomers to look at habitability
+
+84
+00:03:31.140 --> 00:03:33.740
+because they've got a whole collection of planets
+
+85
+00:03:33.740 --> 00:03:37.660
+of different temperatures because they're all different distances
+
+86
+00:03:37.660 --> 00:03:38.500
+from the star.
+
+87
+00:03:38.680 --> 00:03:42.140
+So they can see how temperature and their
+
+88
+00:03:42.140 --> 00:03:45.840
+different orbits affect their possible habitability.
+
+89
+00:03:46.420 --> 00:03:49.020
+You could look at different sorts of planets
+
+90
+00:03:49.020 --> 00:03:50.640
+other than small and rocky.
+
+91
+00:03:50.960 --> 00:03:54.380
+The slightly larger planets, you could have water
+
+92
+00:03:54.380 --> 00:03:54.780
+worlds.
+
+93
+00:03:54.980 --> 00:03:58.200
+There's one particular one that is again quite
+
+94
+00:03:58.200 --> 00:04:02.540
+close to Earth, which is called LHS 1140
+
+95
+00:04:02.540 --> 00:04:02.840
+b.
+
+96
+00:04:03.360 --> 00:04:07.760
+It's about 1.7 times larger than Earth.
+
+97
+00:04:07.760 --> 00:04:11.740
+There's an even larger planet, which is called
+
+98
+00:04:11.740 --> 00:04:16.820
+K2-18 b, which is more like Neptune
+
+99
+00:04:16.820 --> 00:04:18.240
+than it is like Earth.
+
+100
+00:04:18.480 --> 00:04:20.640
+It's got a thick atmosphere, which is going
+
+101
+00:04:20.640 --> 00:04:22.080
+to be principally hydrogen.
+
+102
+00:04:22.520 --> 00:04:24.740
+Planets are formed with hydrogen, but if they're
+
+103
+00:04:24.740 --> 00:04:28.240
+small, hydrogen just boils away because it's very
+
+104
+00:04:28.240 --> 00:04:28.800
+volatile.
+
+105
+00:04:29.220 --> 00:04:30.920
+But a bigger planet can hold onto the
+
+106
+00:04:30.920 --> 00:04:31.160
+hydrogen.
+
+107
+00:04:31.540 --> 00:04:33.900
+Observing a large planet like that with a
+
+108
+00:04:33.900 --> 00:04:38.060
+thick atmosphere is easier for JWST to do
+
+109
+00:04:38.060 --> 00:04:40.960
+because the signal of the light coming through
+
+110
+00:04:40.960 --> 00:04:42.860
+the atmosphere is going to be stronger.
+
+111
+00:04:43.340 --> 00:04:45.760
+So some people say we should be looking
+
+112
+00:04:45.760 --> 00:04:49.600
+at large planets like that because your chances
+
+113
+00:04:49.600 --> 00:04:52.640
+of getting a positive signal are greater.
+
+114
+00:04:53.420 --> 00:04:55.260
+The planets that are in the TRAPPIST-1
+
+115
+00:04:55.260 --> 00:04:57.560
+system, they're similar to us in size, right?
+
+116
+00:04:57.740 --> 00:04:58.960
+What are kind of the factors that are
+
+117
+00:04:58.960 --> 00:05:01.260
+making not only an exoplanet interesting to observe,
+
+118
+00:05:01.380 --> 00:05:03.980
+but what makes them good specifically for JWST
+
+119
+00:05:03.980 --> 00:05:05.640
+to get interesting results from?
+
+120
+00:05:06.040 --> 00:05:09.320
+Despite, you know, the great power of JWST,
+
+121
+00:05:09.600 --> 00:05:11.500
+if they look at a system like TRAPPIST
+
+122
+00:05:11.500 --> 00:05:14.560
+-1, they can't actually see the planets themselves.
+
+123
+00:05:15.020 --> 00:05:16.960
+The glare of a star is still too
+
+124
+00:05:16.960 --> 00:05:20.000
+great, and the distance between the planet and
+
+125
+00:05:20.000 --> 00:05:22.340
+the star is too small for even a
+
+126
+00:05:22.340 --> 00:05:25.880
+big telescope like JWST to separate them.
+
+127
+00:05:26.160 --> 00:05:28.140
+So what you have to do is look
+
+128
+00:05:28.140 --> 00:05:31.220
+at how the light from the whole system
+
+129
+00:05:31.220 --> 00:05:35.140
+changes, and that works particularly well if you're
+
+130
+00:05:35.140 --> 00:05:36.760
+looking at the system edge-on.
+
+131
+00:05:36.960 --> 00:05:39.740
+So you're seeing the planets move around the
+
+132
+00:05:39.740 --> 00:05:41.860
+star, and they pass in front of the
+
+133
+00:05:41.860 --> 00:05:43.720
+star, so they're blocking a little bit of
+
+134
+00:05:43.720 --> 00:05:46.480
+its light, and some of that starlight is
+
+135
+00:05:46.480 --> 00:05:47.920
+coming through their atmosphere.
+
+136
+00:05:48.760 --> 00:05:51.960
+And also when they move behind the star,
+
+137
+00:05:51.960 --> 00:05:55.820
+suddenly the light from the planet is disappearing.
+
+138
+00:05:56.300 --> 00:05:58.780
+And so by comparing the light from the
+
+139
+00:05:58.780 --> 00:06:01.680
+whole system with the light when the planet
+
+140
+00:06:01.680 --> 00:06:04.660
+is suddenly gone, you can subtract one from
+
+141
+00:06:04.660 --> 00:06:07.300
+the other and get the signal that is
+
+142
+00:06:07.300 --> 00:06:08.600
+just coming from the planet.
+
+143
+00:06:09.260 --> 00:06:11.540
+So those are the two techniques that astronomers
+
+144
+00:06:11.540 --> 00:06:12.440
+are using.
+
+145
+00:06:12.780 --> 00:06:14.880
+A transit, when it goes across the front,
+
+146
+00:06:15.000 --> 00:06:17.500
+and the other technique is watching it disappear
+
+147
+00:06:17.500 --> 00:06:19.900
+behind the star and seeing what disappears.
+
+148
+00:06:20.620 --> 00:06:24.320
+Edge-on planetary systems are key to studying
+
+149
+00:06:24.320 --> 00:06:27.120
+exoplanets, but also closeness to Earth.
+
+150
+00:06:27.400 --> 00:06:29.640
+If you go very much further away, it
+
+151
+00:06:29.640 --> 00:06:32.040
+gets much, much more difficult, and you have
+
+152
+00:06:32.040 --> 00:06:34.120
+to use a lot of telescope time to
+
+153
+00:06:34.120 --> 00:06:35.220
+get the same information.
+
+154
+00:06:35.660 --> 00:06:37.160
+Telescope time is very precious.
+
+155
+00:06:37.560 --> 00:06:39.420
+It seems like, okay, there's seven planets, maybe
+
+156
+00:06:39.420 --> 00:06:40.420
+they would have been able to take a
+
+157
+00:06:40.420 --> 00:06:42.080
+look at everything by now, but that's definitely
+
+158
+00:06:42.080 --> 00:06:43.000
+not the case.
+
+159
+00:06:43.100 --> 00:06:44.740
+They have not looked at every single planet
+
+160
+00:06:44.740 --> 00:06:46.080
+in the TRAPPIST-1 system.
+
+161
+00:06:46.460 --> 00:06:48.040
+So the two that they've looked at so
+
+162
+00:06:48.040 --> 00:06:50.280
+far, have the results been promising there, or
+
+163
+00:06:50.280 --> 00:06:52.120
+were they expecting to see an atmosphere or
+
+164
+00:06:52.120 --> 00:06:53.840
+potentially anything habitable?
+
+165
+00:06:54.320 --> 00:06:56.380
+Yeah, well, they looked at the two nearest
+
+166
+00:06:56.380 --> 00:06:59.280
+to the star, which are called B and
+
+167
+00:06:59.280 --> 00:06:59.600
+C.
+
+168
+00:07:00.380 --> 00:07:04.700
+They didn't find any evidence of an atmosphere,
+
+169
+00:07:04.940 --> 00:07:06.320
+or at least not a thick atmosphere.
+
+170
+00:07:06.620 --> 00:07:10.100
+It's possible that TRAPPIST-1C might have something
+
+171
+00:07:10.100 --> 00:07:13.760
+very much thinner than is on Earth, and
+
+172
+00:07:13.760 --> 00:07:16.700
+we can't detect it yet, but those results
+
+173
+00:07:16.700 --> 00:07:17.800
+were a bit disappointing.
+
+174
+00:07:18.180 --> 00:07:20.500
+They have looked at most of the others
+
+175
+00:07:20.500 --> 00:07:24.420
+very briefly, and again, they couldn't detect an
+
+176
+00:07:24.420 --> 00:07:27.540
+atmosphere, but what they did discover is that
+
+177
+00:07:27.540 --> 00:07:30.500
+the star is making their job much harder.
+
+178
+00:07:30.780 --> 00:07:33.020
+Ideally, you would have a star that was
+
+179
+00:07:33.020 --> 00:07:37.220
+just given a steady backlight for your observations,
+
+180
+00:07:37.220 --> 00:07:39.860
+but actually the star has a lot of
+
+181
+00:07:39.860 --> 00:07:44.740
+sunspots and flares, and that complicates the data
+
+182
+00:07:44.740 --> 00:07:46.880
+you're trying to get about the planet, because
+
+183
+00:07:46.880 --> 00:07:50.000
+you've got to disentangle this sort of variability
+
+184
+00:07:50.000 --> 00:07:53.720
+of the star from the variability of the
+
+185
+00:07:53.720 --> 00:07:59.120
+planet, and that's forcing astronomers to come up
+
+186
+00:07:59.120 --> 00:08:01.460
+with new techniques to try and separate those
+
+187
+00:08:01.460 --> 00:08:02.140
+two signals.
+
+188
+00:08:02.740 --> 00:08:03.440
+So do they think it's going to be
+
+189
+00:08:03.440 --> 00:08:05.620
+possible to separate it, or could it potentially
+
+190
+00:08:05.620 --> 00:08:08.200
+not be possible, in which case we aren't
+
+191
+00:08:08.200 --> 00:08:09.460
+going to get any sort of clear answer
+
+192
+00:08:09.460 --> 00:08:11.200
+on anything in the TRAPPIST-1 system?
+
+193
+00:08:11.720 --> 00:08:13.680
+Well, you know, they're clever people.
+
+194
+00:08:13.780 --> 00:08:15.020
+They're coming up with new things.
+
+195
+00:08:15.400 --> 00:08:18.180
+In the third year of observing, which is
+
+196
+00:08:18.180 --> 00:08:20.880
+just about to start, they're testing in one
+
+197
+00:08:20.880 --> 00:08:24.520
+of these techniques where they're looking at two
+
+198
+00:08:24.520 --> 00:08:27.580
+of the planets around TRAPPIST-1, planet B
+
+199
+00:08:27.580 --> 00:08:28.860
+and planet E.
+
+200
+00:08:29.400 --> 00:08:31.900
+Since they now know that B has no
+
+201
+00:08:31.900 --> 00:08:35.780
+atmosphere, they're looking at these two planets, which
+
+202
+00:08:35.780 --> 00:08:38.860
+transit the front of the star in quick
+
+203
+00:08:38.860 --> 00:08:39.380
+succession.
+
+204
+00:08:39.780 --> 00:08:42.020
+So they know B is going to produce
+
+205
+00:08:42.020 --> 00:08:45.520
+a spectrum with no atmosphere, and then they
+
+206
+00:08:45.520 --> 00:08:48.860
+can compare that to when E transits across,
+
+207
+00:08:49.020 --> 00:08:51.340
+which when the star won't have changed very
+
+208
+00:08:51.340 --> 00:08:54.880
+much, and E, they hope, has an atmosphere.
+
+209
+00:08:54.880 --> 00:08:58.660
+So any differences between those two spectra, hopefully,
+
+210
+00:08:59.000 --> 00:09:02.120
+will be signs coming from the atmosphere of
+
+211
+00:09:02.120 --> 00:09:03.280
+TRAPPIST-1E.
+
+212
+00:09:03.560 --> 00:09:04.320
+That's the plan.
+
+213
+00:09:04.620 --> 00:09:07.000
+But it's going to take a lot of
+
+214
+00:09:07.000 --> 00:09:10.160
+transits over the next two years to get
+
+215
+00:09:10.160 --> 00:09:12.880
+enough information to see that signal.
+
+216
+00:09:13.340 --> 00:09:15.420
+And how many times is it transiting in
+
+217
+00:09:15.420 --> 00:09:17.100
+a view that we can see per year?
+
+218
+00:09:17.140 --> 00:09:18.560
+It's a lot more than our Earth, right?
+
+219
+00:09:18.820 --> 00:09:22.700
+All of those planets, the longest orbit is
+
+220
+00:09:22.700 --> 00:09:23.640
+less than three weeks.
+
+221
+00:09:24.080 --> 00:09:26.880
+So they're all making quite quick orbits around
+
+222
+00:09:26.880 --> 00:09:27.440
+the star.
+
+223
+00:09:27.840 --> 00:09:29.880
+But just because of the orientation of the
+
+224
+00:09:29.880 --> 00:09:32.540
+telescope and so on, you can't, you know,
+
+225
+00:09:32.540 --> 00:09:33.660
+look at them all the time.
+
+226
+00:09:33.780 --> 00:09:37.160
+This little experiment of comparing planet E and
+
+227
+00:09:37.160 --> 00:09:39.100
+planet B, they're going to do it 15
+
+228
+00:09:39.100 --> 00:09:40.860
+times over the next two years.
+
+229
+00:09:40.920 --> 00:09:43.100
+And hopefully that'll give them enough signal.
+
+230
+00:09:43.500 --> 00:09:46.160
+They'll be able to discern something of an
+
+231
+00:09:46.160 --> 00:09:49.280
+atmosphere above the noise of the star.
+
+232
+00:09:49.280 --> 00:09:50.840
+This is going to be done over the
+
+233
+00:09:50.840 --> 00:09:52.080
+course of two years.
+
+234
+00:09:52.340 --> 00:09:54.380
+When it comes to looking at those planets
+
+235
+00:09:54.380 --> 00:09:55.700
+in the TRAPPIST-1 system that are a
+
+236
+00:09:55.700 --> 00:09:58.320
+little further from the M dwarf, how much
+
+237
+00:09:58.320 --> 00:09:59.580
+longer is it going to take to observe
+
+238
+00:09:59.580 --> 00:09:59.880
+that?
+
+239
+00:10:00.040 --> 00:10:01.220
+To one, get an answer of does it
+
+240
+00:10:01.220 --> 00:10:01.820
+have an atmosphere?
+
+241
+00:10:02.020 --> 00:10:04.780
+But then additionally to that, what's actually in
+
+242
+00:10:04.780 --> 00:10:05.280
+the atmosphere?
+
+243
+00:10:05.580 --> 00:10:08.140
+So looking at lots of transits, I've seen
+
+244
+00:10:08.140 --> 00:10:11.000
+estimates of over 100 hours of observing.
+
+245
+00:10:11.240 --> 00:10:14.580
+So many, many, many transits to get a
+
+246
+00:10:14.580 --> 00:10:16.020
+detection of carbon dioxide.
+
+247
+00:10:16.540 --> 00:10:21.400
+So that's a molecule they think probably exists
+
+248
+00:10:21.400 --> 00:10:23.560
+around these sorts of planets.
+
+249
+00:10:23.960 --> 00:10:26.200
+And it has a very strong signal that
+
+250
+00:10:26.200 --> 00:10:28.700
+JWST in particular can pick up.
+
+251
+00:10:29.100 --> 00:10:31.480
+Could you put into context 100 hours in
+
+252
+00:10:31.480 --> 00:10:31.900
+a year?
+
+253
+00:10:32.040 --> 00:10:34.040
+How much time is that from all of
+
+254
+00:10:34.040 --> 00:10:35.960
+the time that JWST has to observe?
+
+255
+00:10:36.300 --> 00:10:38.500
+In a whole year, it has 10,000
+
+256
+00:10:38.500 --> 00:10:38.940
+hours.
+
+257
+00:10:39.240 --> 00:10:41.940
+A lot of that goes to completely unrelated
+
+258
+00:10:41.940 --> 00:10:42.920
+sorts of science.
+
+259
+00:10:42.920 --> 00:10:46.360
+Of those 10,000 hours, about 30%
+
+260
+00:10:46.360 --> 00:10:49.520
+is typically spent on exoplanets.
+
+261
+00:10:50.120 --> 00:10:52.520
+And that's all different sorts of exoplanets.
+
+262
+00:10:52.800 --> 00:10:56.100
+So the amount of time spent actually looking
+
+263
+00:10:56.100 --> 00:11:00.780
+at TRAPPIST-1 is maybe a couple or
+
+264
+00:11:00.780 --> 00:11:03.060
+3% of the total time.
+
+265
+00:11:03.260 --> 00:11:06.640
+But still, that is dozens or hundreds of
+
+266
+00:11:06.640 --> 00:11:06.980
+hours.
+
+267
+00:11:07.540 --> 00:11:10.660
+It's a small chunk of what JWST does,
+
+268
+00:11:10.880 --> 00:11:13.820
+but everyone wants to use JWST.  So there's
+
+269
+00:11:13.820 --> 00:11:14.720
+a lot of competition.
+
+270
+00:11:15.160 --> 00:11:16.920
+Of the people you talk to, what are
+
+271
+00:11:16.920 --> 00:11:18.540
+kind of the main ideas that people think
+
+272
+00:11:18.540 --> 00:11:20.440
+we should be investing in right now to
+
+273
+00:11:20.440 --> 00:11:22.140
+find these habitable zones?
+
+274
+00:11:22.440 --> 00:11:24.460
+A lot of people think TRAPPIST-1 is
+
+275
+00:11:24.460 --> 00:11:26.740
+what we should be focusing on because it's
+
+276
+00:11:26.740 --> 00:11:27.380
+so close.
+
+277
+00:11:27.500 --> 00:11:28.840
+It has so many planets.
+
+278
+00:11:29.500 --> 00:11:34.720
+The Space Telescope Science Institute, which operates JWST,
+
+279
+00:11:35.360 --> 00:11:39.080
+they're donating 500 hours over the next year
+
+280
+00:11:39.080 --> 00:11:41.260
+to sort of widen this search.
+
+281
+00:11:41.540 --> 00:11:44.860
+And so astronomers have suggested what they should
+
+282
+00:11:44.860 --> 00:11:48.100
+do is just look at 15 to 20
+
+283
+00:11:48.100 --> 00:11:51.780
+other systems where there's a known Earth-sized
+
+284
+00:11:51.780 --> 00:11:54.860
+planet and just see whether there's an atmosphere
+
+285
+00:11:54.860 --> 00:11:56.080
+around it.
+
+286
+00:11:56.460 --> 00:11:59.240
+These other planets, are they also similarly orbiting
+
+287
+00:11:59.240 --> 00:12:01.380
+around these more turbulent M-dwarfs, or are
+
+288
+00:12:01.380 --> 00:12:03.540
+they like in very sort of different systems?
+
+289
+00:12:03.540 --> 00:12:07.300
+Typically, they would be around M-dwarfs because
+
+290
+00:12:07.300 --> 00:12:10.280
+you have this issue of not having a
+
+291
+00:12:10.280 --> 00:12:12.840
+star that's too bright, which would just, you
+
+292
+00:12:12.840 --> 00:12:15.020
+know, overwhelm the signal from the planet.
+
+293
+00:12:15.580 --> 00:12:18.740
+When this type of star, M-dwarfs, are
+
+294
+00:12:18.740 --> 00:12:23.000
+young, they're particularly turbulent and they blast out
+
+295
+00:12:23.000 --> 00:12:26.160
+a lot of X-rays and extreme ultraviolet
+
+296
+00:12:26.160 --> 00:12:26.540
+light.
+
+297
+00:12:26.720 --> 00:12:29.240
+It could just boil the atmospheres away.
+
+298
+00:12:29.400 --> 00:12:32.520
+And so these Earth-like planets very close
+
+299
+00:12:32.520 --> 00:12:34.740
+to that star could have nothing.
+
+300
+00:12:34.900 --> 00:12:36.340
+They could just be bare rocks.
+
+301
+00:12:36.480 --> 00:12:37.260
+We don't know.
+
+302
+00:12:37.360 --> 00:12:40.500
+And that's why the search is so intense
+
+303
+00:12:40.500 --> 00:12:42.320
+at the moment, just to find out whether
+
+304
+00:12:42.320 --> 00:12:45.080
+some of these atmospheres survive.
+
+305
+00:12:45.860 --> 00:12:48.120
+If it turns out that it's unlikely that
+
+306
+00:12:48.120 --> 00:12:50.280
+there will be an atmosphere around an M
+
+307
+00:12:50.280 --> 00:12:52.700
+-dwarf, then what other types of planets could
+
+308
+00:12:52.700 --> 00:12:53.900
+potentially be habitable?
+
+309
+00:12:53.900 --> 00:12:56.900
+People have done a lot of atmospheric modeling,
+
+310
+00:12:57.260 --> 00:13:00.260
+so taking what they think the ingredients of
+
+311
+00:13:00.260 --> 00:13:03.620
+a planet will be and playing around with
+
+312
+00:13:03.620 --> 00:13:07.400
+the parameters to see what atmosphere it might
+
+313
+00:13:07.400 --> 00:13:09.500
+have, whether it would have oceans.
+
+314
+00:13:10.320 --> 00:13:11.680
+There have been a lot of suggestions that
+
+315
+00:13:11.680 --> 00:13:14.240
+you might have water worlds, an ocean that
+
+316
+00:13:14.240 --> 00:13:15.720
+just covers the entire planet.
+
+317
+00:13:16.000 --> 00:13:18.440
+And that, you know, could be a habitable
+
+318
+00:13:18.440 --> 00:13:19.180
+exoplanet.
+
+319
+00:13:19.180 --> 00:13:21.180
+It might not have anything that looks like
+
+320
+00:13:21.180 --> 00:13:24.840
+us on it, but it could have microorganisms
+
+321
+00:13:24.840 --> 00:13:27.060
+that thrive in the global ocean.
+
+322
+00:13:27.520 --> 00:13:29.700
+When we're thinking about biosignatures that would be
+
+323
+00:13:29.700 --> 00:13:31.780
+present in an atmosphere that has life, we're
+
+324
+00:13:31.780 --> 00:13:33.680
+obviously thinking about our own planet.
+
+325
+00:13:33.780 --> 00:13:34.880
+But I guess if it were a water
+
+326
+00:13:34.880 --> 00:13:37.640
+world, could it potentially have different biosignatures or
+
+327
+00:13:37.640 --> 00:13:39.980
+what could we expect to look for that
+
+328
+00:13:39.980 --> 00:13:41.340
+would indicate there's life there?
+
+329
+00:13:41.560 --> 00:13:44.240
+The whole subject of biosignatures is very tricky
+
+330
+00:13:44.240 --> 00:13:48.780
+because we only have one planet with life
+
+331
+00:13:48.780 --> 00:13:49.160
+on it.
+
+332
+00:13:49.160 --> 00:13:52.660
+We have life growing in hot springs or
+
+333
+00:13:52.660 --> 00:13:56.280
+hydrothermal vents deeper under the ocean where there's
+
+334
+00:13:56.280 --> 00:13:59.240
+no light, but they're getting heat from hot
+
+335
+00:13:59.240 --> 00:14:02.460
+brine coming up from beneath the seabed.
+
+336
+00:14:02.920 --> 00:14:05.120
+So we know that life can live in
+
+337
+00:14:05.120 --> 00:14:09.260
+all sorts of bizarre situations, but viewing an
+
+338
+00:14:09.260 --> 00:14:12.460
+exoplanet from tens or hundreds of light years
+
+339
+00:14:12.460 --> 00:14:15.820
+away, trying to discern that is very, very
+
+340
+00:14:15.820 --> 00:14:16.180
+difficult.
+
+341
+00:14:16.180 --> 00:14:19.580
+What you're looking for is an atmosphere that's
+
+342
+00:14:19.580 --> 00:14:20.860
+in disequilibrium.
+
+343
+00:14:21.100 --> 00:14:24.020
+So it's in a state that you can't
+
+344
+00:14:24.020 --> 00:14:27.080
+explain how it could maintain itself in that
+
+345
+00:14:27.080 --> 00:14:31.480
+state unless there was a biological mechanism going
+
+346
+00:14:31.480 --> 00:14:32.400
+on in that planet.
+
+347
+00:14:32.640 --> 00:14:36.160
+What JWST can do is find the planets
+
+348
+00:14:36.160 --> 00:14:39.720
+that have the right physical conditions, the right
+
+349
+00:14:39.720 --> 00:14:43.760
+temperature, liquid water, enough light getting to the
+
+350
+00:14:43.760 --> 00:14:46.600
+surface, all of those things that life might
+
+351
+00:14:46.600 --> 00:14:47.100
+need.
+
+352
+00:14:47.560 --> 00:14:49.320
+That's the sort of thing you can discern
+
+353
+00:14:49.320 --> 00:14:53.260
+with JWST, but actually spotting whether life is
+
+354
+00:14:53.260 --> 00:14:55.660
+there may have to wait for the next
+
+355
+00:14:55.660 --> 00:14:56.040
+telescope.
+
+356
+00:14:56.640 --> 00:14:58.760
+Are there plans for any other telescopes that
+
+357
+00:14:58.760 --> 00:15:00.960
+could potentially gather this information?
+
+358
+00:15:01.620 --> 00:15:02.900
+Yeah, there are.
+
+359
+00:15:03.140 --> 00:15:06.680
+NASA, you know, it's very, very early stages,
+
+360
+00:15:07.040 --> 00:15:09.660
+but they are looking at a larger telescope,
+
+361
+00:15:09.880 --> 00:15:12.260
+which is going to be called the Habitable
+
+362
+00:15:12.260 --> 00:15:13.700
+Worlds Observatory.
+
+363
+00:15:13.700 --> 00:15:15.480
+That sounds very targeted to look for this
+
+364
+00:15:15.480 --> 00:15:15.920
+stuff, Ben.
+
+365
+00:15:16.680 --> 00:15:18.240
+Exactly, exactly.
+
+366
+00:15:18.640 --> 00:15:22.140
+Which would be similar to JWST in that
+
+367
+00:15:22.140 --> 00:15:24.440
+it has a folding mirror, but it would
+
+368
+00:15:24.440 --> 00:15:26.800
+be larger and it would probably look at
+
+369
+00:15:26.800 --> 00:15:29.980
+different wavelengths, might be optical light rather than
+
+370
+00:15:29.980 --> 00:15:30.380
+infrared.
+
+371
+00:15:30.800 --> 00:15:33.380
+But other people are also looking at the
+
+372
+00:15:33.380 --> 00:15:36.980
+possibility of having a sort of a flotilla
+
+373
+00:15:36.980 --> 00:15:38.560
+of separate telescopes.
+
+374
+00:15:38.560 --> 00:15:41.600
+If you have several telescopes flying in formations
+
+375
+00:15:41.600 --> 00:15:45.840
+hundreds or thousands of kilometers apart and you
+
+376
+00:15:45.840 --> 00:15:49.460
+combine their light through a process called interferometry,
+
+377
+00:15:49.760 --> 00:15:52.800
+you get a very, very detailed image, you
+
+378
+00:15:52.800 --> 00:15:54.400
+know, as if you had a telescope that
+
+379
+00:15:54.400 --> 00:15:58.360
+was as wide as those telescopes are separated.
+
+380
+00:15:58.620 --> 00:16:01.240
+So, say they were 100 kilometers apart, it
+
+381
+00:16:01.240 --> 00:16:02.760
+would be like you had a 100-kilometer
+
+382
+00:16:02.760 --> 00:16:03.280
+telescope.
+
+383
+00:16:03.760 --> 00:16:04.400
+Wow, that's cool.
+
+384
+00:16:04.400 --> 00:16:06.700
+Yeah, so it doesn't gather as much light
+
+385
+00:16:06.700 --> 00:16:09.100
+as 100 kilometers, but it has the resolution,
+
+386
+00:16:09.360 --> 00:16:10.660
+the fineness of detail.
+
+387
+00:16:11.340 --> 00:16:13.740
+And with something like that, you might be
+
+388
+00:16:13.740 --> 00:16:16.740
+able to zoom in on an exoplanet and
+
+389
+00:16:16.740 --> 00:16:19.840
+see whether it has areas of ocean and
+
+390
+00:16:19.840 --> 00:16:23.300
+areas of continent or cloud cover or ice
+
+391
+00:16:23.300 --> 00:16:25.920
+caps, things that we would recognize in an
+
+392
+00:16:25.920 --> 00:16:28.200
+image of a planet in our solar system.
+
+393
+00:16:28.400 --> 00:16:32.120
+That requires very sophisticated technology we don't yet
+
+394
+00:16:32.120 --> 00:16:34.060
+have, but people are working on it.
+
+395
+00:16:34.060 --> 00:16:36.220
+Working on the designs of how you would
+
+396
+00:16:36.220 --> 00:16:37.640
+achieve that sort of telescope.
+
+397
+00:16:37.980 --> 00:16:40.600
+Part of the job of JWST is to
+
+398
+00:16:40.600 --> 00:16:43.260
+beat a path for the next telescope to
+
+399
+00:16:43.260 --> 00:16:44.580
+have an even closer look.
+
+400
+00:16:44.920 --> 00:16:45.720
+Thank you so much, Dan.
+
+401
+00:16:45.960 --> 00:16:46.520
+My pleasure.
+
+402
+00:16:46.860 --> 00:16:48.800
+Dan Cleary is a staff reporter at Science.
+
+403
+00:16:49.000 --> 00:16:50.380
+You can find a link to the story
+
+404
+00:16:50.380 --> 00:16:52.920
+we talked about and see what your view
+
+405
+00:16:52.920 --> 00:16:54.980
+might look like from a TRAPPIST-1 planet
+
+406
+00:16:54.980 --> 00:16:56.860
+at science.org podcast.
+
+407
+00:16:57.580 --> 00:16:59.900
+Stay tuned for a chat with producer Ariana
+
+408
+00:16:59.900 --> 00:17:02.540
+Remmel and Ava Fannerstill about why a warming
+
+409
+00:17:02.540 --> 00:17:04.359
+world could worsen air pollution.
+
+410
+00:17:10.050 --> 00:17:13.510
+Photochemical smog is a notoriously noxious form of
+
+411
+00:17:13.510 --> 00:17:16.270
+air pollution that blankets the landscape in a
+
+412
+00:17:16.270 --> 00:17:19.210
+complex concoction of ozone and aerosols.
+
+413
+00:17:19.589 --> 00:17:21.690
+And it's a health risk that's all too
+
+414
+00:17:21.690 --> 00:17:24.849
+familiar to denizens of megacities like Los Angeles,
+
+415
+00:17:24.990 --> 00:17:28.450
+California, where gas-powered motor vehicles generate some
+
+416
+00:17:28.450 --> 00:17:30.670
+of the toxic chemicals that react to form
+
+417
+00:17:30.670 --> 00:17:34.070
+smog, such as volatile organic compounds called VOCs.
+
+418
+00:17:34.790 --> 00:17:38.190
+After decades of air quality regulations, VOC emissions
+
+419
+00:17:38.190 --> 00:17:41.170
+from cars and other anthropogenic sources have declined.
+
+420
+00:17:41.770 --> 00:17:44.890
+Yet Angelenos are still plagued by the hazardous
+
+421
+00:17:44.890 --> 00:17:48.050
+haze, especially during the hot summer months.
+
+422
+00:17:48.630 --> 00:17:51.450
+This week in science, Ava Fannerstill and colleagues
+
+423
+00:17:51.450 --> 00:17:54.570
+wrote about an overlooked source of volatile organic
+
+424
+00:17:54.570 --> 00:17:57.870
+compounds and why that matters for urban planning
+
+425
+00:17:57.870 --> 00:17:59.010
+in a warming world.
+
+426
+00:17:59.010 --> 00:18:00.790
+Welcome to the science podcast, Ava.
+
+427
+00:18:01.230 --> 00:18:02.430
+Hi, thanks for having me.
+
+428
+00:18:02.910 --> 00:18:05.470
+So urban air pollution is a hot topic
+
+429
+00:18:05.470 --> 00:18:07.850
+in atmospheric chemistry, especially in California.
+
+430
+00:18:08.410 --> 00:18:10.290
+I understand that you did this research while
+
+431
+00:18:10.290 --> 00:18:12.290
+you were a postdoc at UC Berkeley.
+
+432
+00:18:12.690 --> 00:18:15.010
+Did you ever experience air pollution from photochemical
+
+433
+00:18:15.010 --> 00:18:17.250
+smog or other sources while you lived in
+
+434
+00:18:17.250 --> 00:18:17.790
+the Bay Area?
+
+435
+00:18:18.290 --> 00:18:20.110
+Yeah, in the summer months when I was
+
+436
+00:18:20.110 --> 00:18:22.830
+living in Berkeley, there often were spare the
+
+437
+00:18:22.830 --> 00:18:25.570
+air alerts that told us to stay inside
+
+438
+00:18:25.570 --> 00:18:28.450
+and don't drive and things like that because
+
+439
+00:18:28.450 --> 00:18:30.390
+there was dangerous photochemical smog.
+
+440
+00:18:30.550 --> 00:18:31.510
+So yeah, it happened.
+
+441
+00:18:31.650 --> 00:18:33.810
+Although air pollution is much more of a
+
+442
+00:18:33.810 --> 00:18:35.330
+problem in Los Angeles than in the Bay
+
+443
+00:18:35.330 --> 00:18:35.590
+Area.
+
+444
+00:18:36.290 --> 00:18:38.290
+Certainly, there are many things that we know
+
+445
+00:18:38.290 --> 00:18:40.650
+about what causes smog.
+
+446
+00:18:40.870 --> 00:18:43.370
+What was the data gap that you were
+
+447
+00:18:43.370 --> 00:18:45.890
+trying to address in this particular study?
+
+448
+00:18:46.070 --> 00:18:48.550
+We were trying to find out, on the
+
+449
+00:18:48.550 --> 00:18:51.410
+one hand, why air pollution in Los Angeles
+
+450
+00:18:51.410 --> 00:18:52.730
+is temperature dependent.
+
+451
+00:18:53.230 --> 00:18:55.810
+I mean, of course, the chemistry goes faster
+
+452
+00:18:55.810 --> 00:18:57.130
+when temperatures are hotter.
+
+453
+00:18:57.270 --> 00:18:58.890
+So that's one part of the explanation that
+
+454
+00:18:58.890 --> 00:18:59.530
+is already known.
+
+455
+00:18:59.610 --> 00:19:01.730
+But that's the other part of, might also
+
+456
+00:19:01.730 --> 00:19:03.710
+the emissions change when it gets hotter and
+
+457
+00:19:03.710 --> 00:19:05.250
+the composition of emissions change.
+
+458
+00:19:05.790 --> 00:19:08.710
+And the other question was, why has air
+
+459
+00:19:08.710 --> 00:19:11.190
+pollution stagnated for at least the last decade
+
+460
+00:19:11.190 --> 00:19:13.210
+or so and not gotten better?
+
+461
+00:19:13.210 --> 00:19:15.930
+Although our cars are getting cleaner with all
+
+462
+00:19:15.930 --> 00:19:17.510
+the regulations that are in place.
+
+463
+00:19:18.050 --> 00:19:19.890
+There is a lot of chemistry that goes
+
+464
+00:19:19.890 --> 00:19:20.750
+on in the atmosphere.
+
+465
+00:19:20.750 --> 00:19:23.690
+You pointed specifically to volatile organic compounds.
+
+466
+00:19:24.190 --> 00:19:25.230
+Can you tell me a little bit more
+
+467
+00:19:25.230 --> 00:19:29.330
+about what those compounds are and the other
+
+468
+00:19:29.330 --> 00:19:32.130
+chemical players that are contributing to this type
+
+469
+00:19:32.130 --> 00:19:32.690
+of air pollution?
+
+470
+00:19:33.310 --> 00:19:33.410
+Yeah.
+
+471
+00:19:33.550 --> 00:19:37.850
+So you all know volatile organic compounds because
+
+472
+00:19:37.850 --> 00:19:39.530
+many of them are fragrant.
+
+473
+00:19:39.730 --> 00:19:40.650
+So you can smell them.
+
+474
+00:19:41.050 --> 00:19:42.730
+For example, the smell of a pine forest
+
+475
+00:19:42.730 --> 00:19:45.370
+or the smell of your perfume or also
+
+476
+00:19:45.370 --> 00:19:46.130
+bad smells.
+
+477
+00:19:46.330 --> 00:19:49.030
+All those are usually volatile organic compounds.
+
+478
+00:19:49.030 --> 00:19:51.570
+And they are present in the atmosphere in
+
+479
+00:19:51.570 --> 00:19:53.830
+very, very low levels and parts per billion
+
+480
+00:19:53.830 --> 00:19:54.690
+levels and below.
+
+481
+00:19:55.070 --> 00:19:56.950
+Despite that, they are really important for our
+
+482
+00:19:56.950 --> 00:20:00.090
+atmospheric chemistry because they are so reactive, they
+
+483
+00:20:00.090 --> 00:20:02.490
+can contribute to the formation of air pollutants.
+
+484
+00:20:03.110 --> 00:20:05.870
+Some examples would be terpenes that come out
+
+485
+00:20:05.870 --> 00:20:08.010
+of plants and that create, for example, this
+
+486
+00:20:08.010 --> 00:20:10.410
+nice pine smell or lemon smell is also
+
+487
+00:20:10.410 --> 00:20:10.910
+a terpene.
+
+488
+00:20:11.550 --> 00:20:14.030
+And then you also have typical traffic emissions
+
+489
+00:20:14.030 --> 00:20:16.930
+like benzene that is also by itself already
+
+490
+00:20:16.930 --> 00:20:17.870
+a cancerous VOC.
+
+491
+00:20:18.910 --> 00:20:22.770
+So how exactly are these VOCs reacting to
+
+492
+00:20:22.770 --> 00:20:24.890
+form ozone and aerosols?
+
+493
+00:20:25.390 --> 00:20:25.570
+Yeah.
+
+494
+00:20:25.670 --> 00:20:27.590
+So for that, you need sunlight.
+
+495
+00:20:28.350 --> 00:20:30.910
+And with the sunlight in the atmosphere, you
+
+496
+00:20:30.910 --> 00:20:34.050
+create radicals that then react very rapidly with
+
+497
+00:20:34.050 --> 00:20:35.610
+the reactive VOCs.
+
+498
+00:20:36.230 --> 00:20:39.230
+This reaction forms over a reaction chain on
+
+499
+00:20:39.230 --> 00:20:41.490
+the one hand particles because to oxidize them,
+
+500
+00:20:41.630 --> 00:20:43.630
+they get heavier and at some point they
+
+501
+00:20:43.630 --> 00:20:44.370
+can stick together.
+
+502
+00:20:44.370 --> 00:20:47.530
+And become really aerosol particles.
+
+503
+00:20:47.730 --> 00:20:49.290
+And when you inhale them, that creates a
+
+504
+00:20:49.290 --> 00:20:49.770
+health problem.
+
+505
+00:20:50.410 --> 00:20:52.150
+On the other hand, if you also have
+
+506
+00:20:52.150 --> 00:20:55.690
+nitrogen oxides from cars present in the atmosphere,
+
+507
+00:20:56.110 --> 00:20:59.030
+then this reaction also forms ozone.
+
+508
+00:20:59.290 --> 00:21:01.690
+So the bad ozone that's close to us
+
+509
+00:21:01.690 --> 00:21:04.490
+at the surface, not the good ozone that
+
+510
+00:21:04.490 --> 00:21:06.790
+protects us from UV light in the stratosphere.
+
+511
+00:21:07.210 --> 00:21:09.390
+And the bad ozone, if we inhale it
+
+512
+00:21:09.390 --> 00:21:11.730
+also is really bad for our lungs.
+
+513
+00:21:11.870 --> 00:21:13.410
+It also damages plant tissue.
+
+514
+00:21:13.410 --> 00:21:15.930
+So it reduces harvests and so on.
+
+515
+00:21:16.490 --> 00:21:18.810
+For that form, you need the combustion of
+
+516
+00:21:18.810 --> 00:21:21.810
+fossil fuel emissions that form nitrogen oxides.
+
+517
+00:21:22.510 --> 00:21:24.470
+And these then together with the VOCs form
+
+518
+00:21:24.470 --> 00:21:24.890
+the ozone.
+
+519
+00:21:25.530 --> 00:21:27.930
+So we know that VOCs contribute to air
+
+520
+00:21:27.930 --> 00:21:28.330
+pollution.
+
+521
+00:21:28.770 --> 00:21:32.370
+And we know that emissions from traffic have
+
+522
+00:21:32.370 --> 00:21:34.210
+declined over the last few decades.
+
+523
+00:21:34.330 --> 00:21:36.090
+So what are we missing here?
+
+524
+00:21:36.510 --> 00:21:38.570
+Yeah, that was exactly the question that we
+
+525
+00:21:38.570 --> 00:21:39.550
+posed in our study.
+
+526
+00:21:39.550 --> 00:21:43.090
+And that is why we equipped a small
+
+527
+00:21:43.090 --> 00:21:46.770
+aircraft with really high-tech instrumentation that can
+
+528
+00:21:46.770 --> 00:21:49.010
+measure hundreds of VOCs at the same time.
+
+529
+00:21:49.390 --> 00:21:52.410
+And not just measure the VOC concentrations, but
+
+530
+00:21:52.410 --> 00:21:56.670
+also directly measure emissions by a complex method
+
+531
+00:21:56.670 --> 00:21:58.890
+that we call airborne eddy covariance.
+
+532
+00:21:59.030 --> 00:22:01.390
+For that, we also need really high-speed
+
+533
+00:22:01.390 --> 00:22:02.030
+wind measurements.
+
+534
+00:22:02.790 --> 00:22:05.550
+And by combining these concentration measurements with the
+
+535
+00:22:05.550 --> 00:22:08.290
+wind measurements, we can then calculate emission fluxes.
+
+536
+00:22:08.290 --> 00:22:11.670
+So we can directly quantify how much is
+
+537
+00:22:11.670 --> 00:22:14.310
+emitted per area and time in a certain
+
+538
+00:22:14.310 --> 00:22:16.070
+location that we're flying over.
+
+539
+00:22:16.710 --> 00:22:18.810
+And doing that for hundreds of VOCs at
+
+540
+00:22:18.810 --> 00:22:20.550
+the same time then, of course, helps us
+
+541
+00:22:20.550 --> 00:22:22.570
+to find out what is emitted where and
+
+542
+00:22:22.570 --> 00:22:24.950
+which might be VOC species that have been
+
+543
+00:22:24.950 --> 00:22:27.450
+overlooked in the past or underestimated in the
+
+544
+00:22:27.450 --> 00:22:28.090
+emission models.
+
+545
+00:22:28.610 --> 00:22:30.370
+Tell me a little bit more about this
+
+546
+00:22:30.370 --> 00:22:32.910
+aircraft and, like, what taking these measurements actually
+
+547
+00:22:32.910 --> 00:22:33.570
+looked like.
+
+548
+00:22:33.570 --> 00:22:36.250
+Yeah, so this aircraft, it's a twin otter
+
+549
+00:22:36.250 --> 00:22:38.350
+propeller aircraft, really small.
+
+550
+00:22:38.510 --> 00:22:39.930
+You can't really stand up in there.
+
+551
+00:22:40.430 --> 00:22:43.610
+There were two pilots, two scientists, and then
+
+552
+00:22:43.610 --> 00:22:46.170
+space for three or four scientific instruments.
+
+553
+00:22:46.850 --> 00:22:50.290
+And we were flying at a thousand feet
+
+554
+00:22:50.290 --> 00:22:52.070
+altitude over Los Angeles.
+
+555
+00:22:52.330 --> 00:22:55.090
+So it's really low, not a usual aircraft
+
+556
+00:22:55.090 --> 00:22:57.050
+altitude that you are allowed to fly at.
+
+557
+00:22:57.410 --> 00:22:58.930
+And we got actually a lot of trouble
+
+558
+00:22:58.930 --> 00:23:01.510
+because in Los Angeles, there were lots of
+
+559
+00:23:01.510 --> 00:23:04.710
+airports and you fly from one tower airspace
+
+560
+00:23:04.710 --> 00:23:06.390
+into the next one every five minutes.
+
+561
+00:23:07.010 --> 00:23:08.850
+So our pilots had to do a lot
+
+562
+00:23:08.850 --> 00:23:11.450
+of talking with all these towers to explain
+
+563
+00:23:11.450 --> 00:23:12.770
+them what we're doing and that we do
+
+564
+00:23:12.770 --> 00:23:14.450
+not want to be diverted from our route
+
+565
+00:23:14.450 --> 00:23:17.490
+because it's also important to fly at the
+
+566
+00:23:17.490 --> 00:23:20.370
+same altitude, straight lines to do these measurements.
+
+567
+00:23:20.970 --> 00:23:22.750
+Since it was summer in Los Angeles and
+
+568
+00:23:22.750 --> 00:23:25.110
+we were flying really close to the surface,
+
+569
+00:23:25.410 --> 00:23:27.290
+it also got quite hot in the aircraft.
+
+570
+00:23:27.430 --> 00:23:28.570
+It didn't have any air conditioning.
+
+571
+00:23:29.070 --> 00:23:31.370
+We had to cool one of our instruments.
+
+572
+00:23:31.370 --> 00:23:33.070
+So my colleague had to lie down on
+
+573
+00:23:33.070 --> 00:23:34.990
+the aircraft floor and put ice packs on
+
+574
+00:23:34.990 --> 00:23:36.470
+the instrument to keep it from shutting down.
+
+575
+00:23:36.990 --> 00:23:38.530
+So, yeah, we were lucky it didn't happen
+
+576
+00:23:38.530 --> 00:23:40.190
+because then we would have lost a lot
+
+577
+00:23:40.190 --> 00:23:40.510
+of data.
+
+578
+00:23:41.070 --> 00:23:41.450
+Oh, my goodness.
+
+579
+00:23:41.550 --> 00:23:44.590
+That is certainly a demonstration of your dedication
+
+580
+00:23:44.590 --> 00:23:45.670
+to this project.
+
+581
+00:23:46.030 --> 00:23:48.010
+So with all of the effort that went
+
+582
+00:23:48.010 --> 00:23:50.170
+into taking these measurements, what did you actually
+
+583
+00:23:50.170 --> 00:23:50.710
+find?
+
+584
+00:23:51.210 --> 00:23:53.790
+We did these kinds of flights at different
+
+585
+00:23:53.790 --> 00:23:54.310
+temperatures.
+
+586
+00:23:54.550 --> 00:23:57.190
+So we flew patterns over Los Angeles or
+
+587
+00:23:57.190 --> 00:23:59.390
+let's say the greater Los Angeles basin.
+
+588
+00:23:59.390 --> 00:24:02.210
+That way we were able to map emissions
+
+589
+00:24:02.210 --> 00:24:06.170
+and compare them with emission models, but also
+
+590
+00:24:06.170 --> 00:24:08.610
+to see how these emissions depend on temperature.
+
+591
+00:24:09.470 --> 00:24:13.170
+And what we found was that temperature-dependent
+
+592
+00:24:13.170 --> 00:24:17.490
+emissions comprise the major part of the air
+
+593
+00:24:17.490 --> 00:24:19.550
+pollutant formation from these emissions.
+
+594
+00:24:20.150 --> 00:24:22.450
+So the temperature-dependent part of the emissions
+
+595
+00:24:22.450 --> 00:24:24.790
+is the biggest chunk of what contributes to
+
+596
+00:24:24.790 --> 00:24:26.390
+ozone formation and particle formation.
+
+597
+00:24:26.710 --> 00:24:30.330
+And that was kind of surprising because the
+
+598
+00:24:30.330 --> 00:24:33.230
+typical traffic emissions are not temperature dependent.
+
+599
+00:24:33.370 --> 00:24:36.690
+So it's really other sources that are doing
+
+600
+00:24:36.690 --> 00:24:37.010
+this.
+
+601
+00:24:37.430 --> 00:24:39.550
+And we found that a big part of
+
+602
+00:24:39.550 --> 00:24:43.610
+that is terpenes coming from plants mostly.
+
+603
+00:24:43.850 --> 00:24:46.170
+I mean, there's also terpenes and lots of
+
+604
+00:24:46.170 --> 00:24:50.010
+fragrance products that contribute, but a big part
+
+605
+00:24:50.010 --> 00:24:51.810
+of it must be plants because it's so
+
+606
+00:24:51.810 --> 00:24:52.950
+strongly temperature dependent.
+
+607
+00:24:53.550 --> 00:24:56.570
+And another result was also that some human
+
+608
+00:24:56.570 --> 00:24:59.990
+-made emissions, so anthropogenic emissions, are also temperature
+
+609
+00:24:59.990 --> 00:25:00.410
+dependent.
+
+610
+00:25:00.950 --> 00:25:03.010
+For example, solvents, which makes sense physically, they
+
+611
+00:25:03.010 --> 00:25:04.950
+evaporate more when it gets hotter.
+
+612
+00:25:05.130 --> 00:25:07.470
+But this was not yet considered in emission
+
+613
+00:25:07.470 --> 00:25:07.850
+models.
+
+614
+00:25:08.450 --> 00:25:10.910
+So I understand that heat helps to speed
+
+615
+00:25:10.910 --> 00:25:11.970
+up chemical reactions.
+
+616
+00:25:11.970 --> 00:25:14.470
+That makes sense that VOCs that are already
+
+617
+00:25:14.470 --> 00:25:16.830
+present are going to be on the fast
+
+618
+00:25:16.830 --> 00:25:18.590
+track to making some of these pollutants.
+
+619
+00:25:18.590 --> 00:25:23.910
+Why are the plants making more terpenes in
+
+620
+00:25:23.910 --> 00:25:24.370
+the heat?
+
+621
+00:25:24.510 --> 00:25:26.030
+Help me understand that element of this.
+
+622
+00:25:26.510 --> 00:25:26.610
+Yeah.
+
+623
+00:25:26.750 --> 00:25:28.610
+So it's actually a well-known fact that
+
+624
+00:25:28.610 --> 00:25:30.550
+plant emissions depend on temperature.
+
+625
+00:25:30.750 --> 00:25:32.090
+So the hotter it gets, the more they
+
+626
+00:25:32.090 --> 00:25:32.370
+emit.
+
+627
+00:25:32.850 --> 00:25:35.170
+Why they actually do that is not entirely
+
+628
+00:25:35.170 --> 00:25:35.490
+known.
+
+629
+00:25:35.610 --> 00:25:36.730
+There are different theories.
+
+630
+00:25:36.990 --> 00:25:40.670
+So they might be protecting their tissues from
+
+631
+00:25:40.670 --> 00:25:42.150
+reactive oxygen species.
+
+632
+00:25:42.150 --> 00:25:46.330
+They might also be protecting themselves against oxidants
+
+633
+00:25:46.330 --> 00:25:50.030
+like ozone, because then the ozone reacts away
+
+634
+00:25:50.030 --> 00:25:51.290
+with the terpenes that they emit.
+
+635
+00:25:51.790 --> 00:25:54.810
+And they, of course, also sometimes use terpenes
+
+636
+00:25:54.810 --> 00:25:56.150
+to communicate with each other.
+
+637
+00:25:56.650 --> 00:25:59.290
+And under stress, these emissions can even increase
+
+638
+00:25:59.290 --> 00:25:59.550
+more.
+
+639
+00:25:59.650 --> 00:26:01.470
+So then it can be orders of magnitude
+
+640
+00:26:01.470 --> 00:26:03.690
+higher than what you would expect from the
+
+641
+00:26:03.690 --> 00:26:04.850
+normal temperature dependence.
+
+642
+00:26:05.390 --> 00:26:07.150
+And I guess if terpenes are also some
+
+643
+00:26:07.150 --> 00:26:09.430
+of the molecules that are associated with fragrances,
+
+644
+00:26:09.430 --> 00:26:12.170
+it kind of makes sense that summer and
+
+645
+00:26:12.170 --> 00:26:14.790
+spring, when plants are flowering, there might also
+
+646
+00:26:14.790 --> 00:26:15.550
+be more terpenes.
+
+647
+00:26:15.610 --> 00:26:16.090
+Is that right?
+
+648
+00:26:16.570 --> 00:26:17.270
+Yeah, that's correct.
+
+649
+00:26:17.770 --> 00:26:20.430
+I mean, we cannot really distinguish where our
+
+650
+00:26:20.430 --> 00:26:23.210
+terpenes came from, but certainly when we were
+
+651
+00:26:23.210 --> 00:26:26.290
+flying, we saw that huge areas in Los
+
+652
+00:26:26.290 --> 00:26:28.970
+Angeles had these flowering jacaranda trees.
+
+653
+00:26:29.230 --> 00:26:32.010
+So many streets were purple, which looked really
+
+654
+00:26:32.010 --> 00:26:33.970
+beautiful from the plane perspective.
+
+655
+00:26:33.970 --> 00:26:37.310
+And the flowering can cause orders of magnitude
+
+656
+00:26:37.310 --> 00:26:40.010
+higher emissions compared to normal situations as well.
+
+657
+00:26:40.110 --> 00:26:42.450
+So that could certainly have been a contributor.
+
+658
+00:26:43.290 --> 00:26:44.830
+OK, so what I'm hearing here is that
+
+659
+00:26:44.830 --> 00:26:48.210
+the terpenes emitted by plants might actually be
+
+660
+00:26:48.210 --> 00:26:51.890
+an overlooked source of follicle organic compounds that
+
+661
+00:26:51.890 --> 00:26:53.230
+are contributing to air pollution.
+
+662
+00:26:53.330 --> 00:26:55.610
+But I don't think the solution is to,
+
+663
+00:26:55.710 --> 00:26:57.430
+like, cut down all the trees, right?
+
+664
+00:26:57.490 --> 00:26:59.330
+I mean, there are some really clear benefits
+
+665
+00:26:59.330 --> 00:27:01.330
+to having green spaces in cities.
+
+666
+00:27:01.330 --> 00:27:04.890
+But climate change projections are telling us that
+
+667
+00:27:04.890 --> 00:27:07.450
+summers are going to get hotter, that extreme
+
+668
+00:27:07.450 --> 00:27:09.650
+weather events like heat waves are going to
+
+669
+00:27:09.650 --> 00:27:10.650
+become more frequent.
+
+670
+00:27:11.150 --> 00:27:14.330
+So did your research point to other strategies
+
+671
+00:27:14.330 --> 00:27:16.030
+that we might be able to try to
+
+672
+00:27:16.030 --> 00:27:18.910
+compensate for the fact that these plants naturally
+
+673
+00:27:18.910 --> 00:27:20.710
+emit more terpenes in the heat?
+
+674
+00:27:21.230 --> 00:27:21.770
+Yeah, absolutely.
+
+675
+00:27:22.370 --> 00:27:24.250
+So, yeah, of course, it's not a solution
+
+676
+00:27:24.250 --> 00:27:25.510
+to get rid of the trees in our
+
+677
+00:27:25.510 --> 00:27:28.710
+cities because they provide shade, they improve local
+
+678
+00:27:28.710 --> 00:27:29.190
+climate.
+
+679
+00:27:29.510 --> 00:27:30.370
+They are really important.
+
+680
+00:27:30.370 --> 00:27:34.010
+Now, what is important to consider is that
+
+681
+00:27:34.010 --> 00:27:36.890
+what you need for ozone formation from these
+
+682
+00:27:36.890 --> 00:27:38.830
+VOCs that are emitted by the plants is
+
+683
+00:27:38.830 --> 00:27:41.650
+also nitrogen oxides that are emitted by the
+
+684
+00:27:41.650 --> 00:27:42.690
+burning of fossil fuels.
+
+685
+00:27:43.170 --> 00:27:45.350
+So if you get rid of the fossil
+
+686
+00:27:45.350 --> 00:27:47.450
+fuel use, then you also get rid of
+
+687
+00:27:47.450 --> 00:27:47.810
+the ozone.
+
+688
+00:27:48.530 --> 00:27:51.890
+So reducing our use of fossil fuels for
+
+689
+00:27:51.890 --> 00:27:56.010
+powering our cars and our electricity has many
+
+690
+00:27:56.010 --> 00:27:56.470
+benefits.
+
+691
+00:27:56.470 --> 00:27:58.810
+So it will not only reduce the temperature
+
+692
+00:27:58.810 --> 00:28:01.250
+increase that increases then the terpene emissions, but
+
+693
+00:28:01.250 --> 00:28:04.710
+it will also locally reduce the air production
+
+694
+00:28:04.710 --> 00:28:06.690
+because you need to get rid of the
+
+695
+00:28:06.690 --> 00:28:08.890
+nitrogen oxides and then your plant emissions are
+
+696
+00:28:08.890 --> 00:28:10.570
+no longer a problem for ozone.
+
+697
+00:28:11.350 --> 00:28:13.590
+Another point is also since we cannot really
+
+698
+00:28:13.590 --> 00:28:16.230
+regulate the emissions from trees, what we can
+
+699
+00:28:16.230 --> 00:28:18.330
+regulate is the anthropogenic part of the emissions.
+
+700
+00:28:19.030 --> 00:28:21.610
+So as we saw in our study, some
+
+701
+00:28:21.610 --> 00:28:24.690
+anthropogenic parts of the emissions are also temperature
+
+702
+00:28:24.690 --> 00:28:27.610
+dependent like solvents and this whole part of
+
+703
+00:28:27.610 --> 00:28:30.870
+solvents and household chemicals has not been very
+
+704
+00:28:30.870 --> 00:28:32.150
+much regulated in the past.
+
+705
+00:28:32.650 --> 00:28:34.690
+So I think there's also quite a lot
+
+706
+00:28:34.690 --> 00:28:37.230
+to gain in looking at how these chemicals
+
+707
+00:28:37.230 --> 00:28:38.310
+impact air pollution.
+
+708
+00:28:39.350 --> 00:28:40.870
+And last but not least, of course, when
+
+709
+00:28:40.870 --> 00:28:42.570
+you do urban greening in your city and
+
+710
+00:28:42.570 --> 00:28:45.230
+plant trees, you can, apart from other factors,
+
+711
+00:28:45.350 --> 00:28:47.750
+of course, like how is your tree adapted
+
+712
+00:28:47.750 --> 00:28:49.870
+to the local climate and how much shade
+
+713
+00:28:49.870 --> 00:28:50.570
+does it need to create?
+
+714
+00:28:50.570 --> 00:28:53.630
+One factor should also be how much VOCs
+
+715
+00:28:53.630 --> 00:28:54.270
+does it emit?
+
+716
+00:28:54.850 --> 00:28:56.850
+There are some species that emit more VOCs
+
+717
+00:28:56.850 --> 00:28:57.330
+than others.
+
+718
+00:28:57.610 --> 00:28:59.890
+So that can certainly be a factor to
+
+719
+00:28:59.890 --> 00:29:03.330
+consider to enhance air quality in our cities.
+
+720
+00:29:04.110 --> 00:29:05.790
+This is such fascinating research.
+
+721
+00:29:05.910 --> 00:29:07.790
+Thank you so much for joining us on
+
+722
+00:29:07.790 --> 00:29:10.030
+the podcast today to share your results.
+
+723
+00:29:10.550 --> 00:29:10.710
+Yeah.
+
+724
+00:29:10.770 --> 00:29:12.030
+Thank you so much for having me.
+
+725
+00:29:12.370 --> 00:29:13.790
+It was a pleasure to speak with you.
+
+726
+00:29:14.390 --> 00:29:16.910
+Eva Pfannestiller is an atmospheric chemist at the
+
+727
+00:29:16.910 --> 00:29:18.350
+Research Center Jülich.
+
+728
+00:29:18.350 --> 00:29:20.230
+Be sure to read the paper from Pfannestiller
+
+729
+00:29:20.230 --> 00:29:21.930
+and colleagues in science this week.
+
+730
+00:29:22.410 --> 00:29:24.330
+It's available now, and you can find a
+
+731
+00:29:24.330 --> 00:29:26.770
+link at science.org slash podcast.
+
+732
+00:29:27.830 --> 00:29:30.130
+And that concludes this edition of the Science
+
+733
+00:29:30.130 --> 00:29:30.490
+Podcast.
+
+734
+00:29:30.990 --> 00:29:33.370
+If you have any comments or suggestions, write
+
+735
+00:29:33.370 --> 00:29:36.930
+to us at sciencepodcast at aaas.org.
+
+736
+00:29:37.510 --> 00:29:39.670
+To find us on a podcast app, search
+
+737
+00:29:39.670 --> 00:29:42.570
+for Science Magazine, or you can listen on
+
+738
+00:29:42.570 --> 00:29:45.510
+our website, science.org slash podcast.
+
+739
+00:29:46.090 --> 00:29:48.710
+This show was edited by me, Megan Cantwell,
+
+740
+00:29:49.070 --> 00:29:51.730
+Ariana Rammel, Sarah Crespi, and Kevin MacLean.
+
+741
+00:29:52.030 --> 00:29:54.210
+We also had production help from Megan Tuck
+
+742
+00:29:54.210 --> 00:29:54.910
+at Podigy.
+
+743
+00:29:55.470 --> 00:29:57.550
+Our music is by Jeffrey Cook and Wen
+
+744
+00:29:57.550 --> 00:29:58.150
+Kui Wen.
