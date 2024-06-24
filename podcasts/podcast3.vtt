@@ -1,0 +1,2017 @@
+WEBVTT
+
+1
+00:00:00.420 --> 00:00:02.600
+(Transcrito por TurboScribe.ai. Actualizar a Ilimitado para eliminar este mensaje.) This podcast is supported by the Icahn School
+
+2
+00:00:02.600 --> 00:00:05.440
+of Medicine at Mount Sinai, one of America's
+
+3
+00:00:05.440 --> 00:00:07.320
+leading research medical schools.
+
+4
+00:00:07.800 --> 00:00:10.460
+Icahn Mount Sinai is the academic arm of
+
+5
+00:00:10.460 --> 00:00:12.840
+the eight-hospital Mount Sinai Health System in
+
+6
+00:00:12.840 --> 00:00:13.340
+New York City.
+
+7
+00:00:13.760 --> 00:00:16.860
+It's consistently among the top recipients of NIH
+
+8
+00:00:16.860 --> 00:00:17.320
+funding.
+
+9
+00:00:18.080 --> 00:00:20.820
+Researchers at Icahn Mount Sinai have made breakthrough
+
+10
+00:00:20.820 --> 00:00:23.620
+discoveries in many fields vital to advancing the
+
+11
+00:00:23.620 --> 00:00:27.460
+health of patients, including cancer, COVID and long
+
+12
+00:00:27.460 --> 00:00:31.619
+COVID, cardiology, neuroscience and artificial intelligence.
+
+13
+00:00:32.260 --> 00:00:34.540
+The Icahn School of Medicine at Mount Sinai,
+
+14
+00:00:34.940 --> 00:00:35.760
+we find a way.
+
+15
+00:00:42.010 --> 00:00:44.970
+This is a science podcast for November 17th,
+
+16
+00:00:44.970 --> 00:00:45.770
+2023.
+
+17
+00:00:46.310 --> 00:00:47.170
+I'm Sarah Crespi.
+
+18
+00:00:47.530 --> 00:00:49.650
+First up this week, have you been talking
+
+19
+00:00:49.650 --> 00:00:51.310
+to Alexa about the weather lately?
+
+20
+00:00:51.930 --> 00:00:54.590
+Staff writer, Paul Vucin, joins us to discuss
+
+21
+00:00:54.590 --> 00:00:58.630
+how artificial intelligence is suddenly and shockingly good
+
+22
+00:00:58.630 --> 00:01:02.250
+at forecasting the weather, using way fewer resources
+
+23
+00:01:02.250 --> 00:01:03.730
+than other modeling systems.
+
+24
+00:01:04.430 --> 00:01:07.770
+Next, we're focusing on municipal solid waste, things
+
+25
+00:01:07.770 --> 00:01:11.150
+like landfills, composting centers, garbage dumps, and how
+
+26
+00:01:11.150 --> 00:01:13.870
+these sites may offer a more straightforward path
+
+27
+00:01:13.870 --> 00:01:15.390
+to lower carbon emissions.
+
+28
+00:01:15.970 --> 00:01:19.150
+Researcher Zengxuan Hui discusses his science paper on
+
+29
+00:01:19.150 --> 00:01:22.130
+this overlooked source of methane and some plausible
+
+30
+00:01:22.130 --> 00:01:24.470
+solutions for reducing these emissions.
+
+31
+00:01:29.620 --> 00:01:32.040
+I used to live in a large metropolitan
+
+32
+00:01:32.040 --> 00:01:34.220
+area and one of the big city perks
+
+33
+00:01:34.220 --> 00:01:36.160
+that I enjoyed the most was that there
+
+34
+00:01:36.160 --> 00:01:39.300
+was a daily weather blog run by experts,
+
+35
+00:01:39.640 --> 00:01:43.280
+including meteorologists, just talking about the weather for
+
+36
+00:01:43.280 --> 00:01:46.420
+the day, giving in-depth explanations of what
+
+37
+00:01:46.420 --> 00:01:48.180
+I was seeing out my window or what
+
+38
+00:01:48.180 --> 00:01:49.160
+happened last night.
+
+39
+00:01:49.620 --> 00:01:51.160
+And I learned a lot, and I learned
+
+40
+00:01:51.160 --> 00:01:53.260
+a lot about some weather phenomena on the
+
+41
+00:01:53.260 --> 00:01:53.560
+podcast.
+
+42
+00:01:54.080 --> 00:01:56.120
+I do know we have about a 10
+
+43
+00:01:56.120 --> 00:01:58.800
+-day forecast range with some certainty, and we're
+
+44
+00:01:58.800 --> 00:02:01.260
+pretty darn good at six days of forecasting,
+
+45
+00:02:01.680 --> 00:02:03.800
+six days out, and that there are competing
+
+46
+00:02:03.800 --> 00:02:06.320
+models used to make these type of predictions.
+
+47
+00:02:06.660 --> 00:02:09.180
+But now there's a new modeler in town.
+
+48
+00:02:09.600 --> 00:02:12.160
+This week, staff writer Paul Vucin wrote about
+
+49
+00:02:12.160 --> 00:02:15.980
+AI's contribution to weather forecasting and the surprising
+
+50
+00:02:15.980 --> 00:02:18.820
+leaps these systems are making in predictive power.
+
+51
+00:02:19.340 --> 00:02:19.820
+Hi, Paul.
+
+52
+00:02:19.980 --> 00:02:21.220
+Welcome back to the Science Podcast.
+
+53
+00:02:21.920 --> 00:02:22.920
+Hi, good to be here.
+
+54
+00:02:23.200 --> 00:02:24.540
+I know all of us have been taken
+
+55
+00:02:24.540 --> 00:02:27.340
+off guard at some point by improvements in
+
+56
+00:02:27.340 --> 00:02:29.180
+AI, you know, whether it's writing an email
+
+57
+00:02:29.180 --> 00:02:32.020
+or predicting protein structures, but I hate to
+
+58
+00:02:32.020 --> 00:02:34.380
+say it, weather was not on my radar.
+
+59
+00:02:35.160 --> 00:02:37.420
+Did you see this coming, Paul, this leap
+
+60
+00:02:37.420 --> 00:02:38.700
+in forecasting by AI?
+
+61
+00:02:39.080 --> 00:02:40.540
+You know, I don't think a lot of
+
+62
+00:02:40.540 --> 00:02:43.060
+people saw it coming if you go back
+
+63
+00:02:43.060 --> 00:02:45.620
+even two, two and a half years ago.
+
+64
+00:02:46.060 --> 00:02:49.000
+People had been trying this five years ago,
+
+65
+00:02:49.000 --> 00:02:50.880
+and it just didn't seem like it worked
+
+66
+00:02:50.880 --> 00:02:51.420
+that well.
+
+67
+00:02:51.540 --> 00:02:54.020
+And then all of a sudden, it did
+
+68
+00:02:54.020 --> 00:02:54.360
+work.
+
+69
+00:02:54.820 --> 00:02:58.220
+There are modelers out there using supercomputers, basically,
+
+70
+00:02:58.420 --> 00:02:59.300
+to put out forecasts.
+
+71
+00:02:59.360 --> 00:03:01.720
+They're using math and measurements and physics.
+
+72
+00:03:02.120 --> 00:03:03.960
+And this has improved over the years, kind
+
+73
+00:03:03.960 --> 00:03:05.600
+of at a large cost, like in terms
+
+74
+00:03:05.600 --> 00:03:06.560
+of computing power.
+
+75
+00:03:06.980 --> 00:03:09.760
+And now these AI models are turning out
+
+76
+00:03:09.760 --> 00:03:11.280
+pretty competitive results.
+
+77
+00:03:11.420 --> 00:03:12.420
+You know, how do they stack up?
+
+78
+00:03:12.460 --> 00:03:15.240
+How do the European model and the AI
+
+79
+00:03:15.240 --> 00:03:16.820
+modelers, how do they compare?
+
+80
+00:03:17.380 --> 00:03:21.360
+Yeah, so the European Weather Forecasting Agency is
+
+81
+00:03:21.360 --> 00:03:23.080
+the top performer in the world.
+
+82
+00:03:23.220 --> 00:03:26.140
+And they use these very physically based models
+
+83
+00:03:26.140 --> 00:03:28.880
+that ingest all the observations from satellites and
+
+84
+00:03:28.880 --> 00:03:31.860
+everything, and then solve all the equations of
+
+85
+00:03:31.860 --> 00:03:35.140
+fluid motion on a little grid that stimulates
+
+86
+00:03:35.140 --> 00:03:36.220
+the entire atmosphere.
+
+87
+00:03:36.640 --> 00:03:37.940
+So that's the top in class.
+
+88
+00:03:38.160 --> 00:03:41.320
+Now, these kind of AI models are matching
+
+89
+00:03:41.320 --> 00:03:44.600
+the top weather forecasting model or exceeding it.
+
+90
+00:03:44.740 --> 00:03:47.620
+In some cases, 90% of the different
+
+91
+00:03:47.620 --> 00:03:50.140
+metrics looked at over a 10-day forecast.
+
+92
+00:03:50.580 --> 00:03:50.680
+Right.
+
+93
+00:03:51.320 --> 00:03:52.520
+And what are they doing differently?
+
+94
+00:03:52.880 --> 00:03:55.240
+Well, so fundamentally, these have been trained by
+
+95
+00:03:55.240 --> 00:03:55.940
+the weather models.
+
+96
+00:03:56.100 --> 00:03:58.480
+They take the data, the weather data that
+
+97
+00:03:58.480 --> 00:04:00.180
+has been run through these models.
+
+98
+00:04:00.500 --> 00:04:02.240
+And they've been doing this now for 40
+
+99
+00:04:02.240 --> 00:04:02.520
+years.
+
+100
+00:04:02.680 --> 00:04:05.640
+So they take this gigantic data set, they
+
+101
+00:04:05.640 --> 00:04:06.620
+ingest it.
+
+102
+00:04:06.880 --> 00:04:08.760
+And I mean, this is classic deep learning,
+
+103
+00:04:08.860 --> 00:04:10.640
+but on a very kind of large scale
+
+104
+00:04:10.640 --> 00:04:12.760
+over a graph versus, you know, like an
+
+105
+00:04:12.760 --> 00:04:13.880
+image type processing.
+
+106
+00:04:13.880 --> 00:04:15.459
+They're not solving equations.
+
+107
+00:04:15.700 --> 00:04:18.899
+They're just learning patterns really over a very
+
+108
+00:04:18.899 --> 00:04:22.300
+complex incomprehensible scale to us in this black
+
+109
+00:04:22.300 --> 00:04:22.680
+box.
+
+110
+00:04:23.060 --> 00:04:25.720
+And it's spitting out what should come next.
+
+111
+00:04:26.220 --> 00:04:28.020
+This is what we see with the ones
+
+112
+00:04:28.020 --> 00:04:29.320
+that write emails for us.
+
+113
+00:04:29.440 --> 00:04:31.220
+They have this huge corpus that they've studied.
+
+114
+00:04:31.360 --> 00:04:34.400
+It has a really good model for saying,
+
+115
+00:04:34.520 --> 00:04:36.400
+that's the word that comes next in an
+
+116
+00:04:36.400 --> 00:04:36.600
+email.
+
+117
+00:04:36.760 --> 00:04:38.680
+That's the most likely next word and doing
+
+118
+00:04:38.680 --> 00:04:40.900
+that at the paragraph scale or doing it
+
+119
+00:04:40.900 --> 00:04:42.500
+at the global scale for weather.
+
+120
+00:04:42.920 --> 00:04:45.280
+Are all the models that are out there,
+
+121
+00:04:45.300 --> 00:04:46.860
+all the different AIs because there's not just
+
+122
+00:04:46.860 --> 00:04:50.620
+one company or one academic institution working on
+
+123
+00:04:50.620 --> 00:04:50.760
+this.
+
+124
+00:04:50.800 --> 00:04:52.420
+Are they all doing the same thing or
+
+125
+00:04:52.420 --> 00:04:53.740
+are there, should we lump them all together
+
+126
+00:04:53.740 --> 00:04:55.320
+or are some of them different than others?
+
+127
+00:04:55.740 --> 00:04:57.340
+You know, I would lump them.
+
+128
+00:04:59.380 --> 00:04:59.820
+Okay.
+
+129
+00:05:00.100 --> 00:05:03.340
+There are differences in architecture, but as these
+
+130
+00:05:03.340 --> 00:05:06.040
+have gotten big enough and as long as
+
+131
+00:05:06.040 --> 00:05:07.880
+you have enough computing power to throw at
+
+132
+00:05:07.880 --> 00:05:10.760
+the start, enough data, it doesn't seem to
+
+133
+00:05:10.760 --> 00:05:12.060
+matter that much.
+
+134
+00:05:12.200 --> 00:05:13.920
+You know, it's kind of 1%, 2%
+
+135
+00:05:13.920 --> 00:05:14.440
+differences.
+
+136
+00:05:15.060 --> 00:05:18.060
+You can have different approaches, but really in
+
+137
+00:05:18.060 --> 00:05:19.460
+the end you're getting to about the same
+
+138
+00:05:19.460 --> 00:05:19.840
+place.
+
+139
+00:05:20.320 --> 00:05:20.420
+Right.
+
+140
+00:05:20.740 --> 00:05:22.560
+We should talk about computing power here.
+
+141
+00:05:22.640 --> 00:05:26.320
+I mentioned supercomputers being involved in the forecasting
+
+142
+00:05:26.320 --> 00:05:28.380
+that's been done for the past 40 years.
+
+143
+00:05:28.580 --> 00:05:31.120
+That's not what happens when you've already trained
+
+144
+00:05:31.120 --> 00:05:32.940
+your model and now you want to, you
+
+145
+00:05:32.940 --> 00:05:35.440
+know, have an AI in your newsroom.
+
+146
+00:05:35.440 --> 00:05:38.800
+It doesn't need multiple banks of servers and
+
+147
+00:05:38.800 --> 00:05:39.460
+processors.
+
+148
+00:05:40.200 --> 00:05:40.340
+Nope.
+
+149
+00:05:40.420 --> 00:05:44.020
+It just needs one fancy desktop computer that's
+
+150
+00:05:44.020 --> 00:05:46.480
+designed for running these type of models and
+
+151
+00:05:46.480 --> 00:05:49.060
+it can run it in one minute versus
+
+152
+00:05:49.060 --> 00:05:52.580
+say two hours for a gigantic supercomputer.
+
+153
+00:05:53.220 --> 00:05:54.240
+What does that mean?
+
+154
+00:05:54.360 --> 00:05:56.340
+Like how does that change the world?
+
+155
+00:05:56.500 --> 00:05:58.560
+I feel like it should, but maybe I
+
+156
+00:05:58.560 --> 00:06:00.160
+don't need to model weather in my house.
+
+157
+00:06:00.460 --> 00:06:01.960
+You don't need to model weather in your
+
+158
+00:06:01.960 --> 00:06:02.240
+house.
+
+159
+00:06:02.360 --> 00:06:03.300
+What is the impact here?
+
+160
+00:06:03.300 --> 00:06:04.920
+I mean, the impact is going to be
+
+161
+00:06:04.920 --> 00:06:07.820
+more for these weather agencies, you know, who
+
+162
+00:06:07.820 --> 00:06:09.720
+are really starting to look at this closely.
+
+163
+00:06:10.120 --> 00:06:12.940
+Right now they run these models a lot
+
+164
+00:06:12.940 --> 00:06:15.720
+of times over, 50 times the European model
+
+165
+00:06:15.720 --> 00:06:17.960
+is run as slightly a higher or lower
+
+166
+00:06:17.960 --> 00:06:18.520
+resolution.
+
+167
+00:06:19.040 --> 00:06:20.780
+Every six hours, they kind of do this
+
+168
+00:06:20.780 --> 00:06:22.080
+over and over four times a day.
+
+169
+00:06:22.420 --> 00:06:24.320
+And that kind of running it over and
+
+170
+00:06:24.320 --> 00:06:27.080
+over gives you some more sense of the
+
+171
+00:06:27.080 --> 00:06:29.760
+possibility in the future because, you know, butterfly
+
+172
+00:06:29.760 --> 00:06:32.460
+effect and chaos in the atmosphere, that's all
+
+173
+00:06:32.460 --> 00:06:33.240
+super expensive.
+
+174
+00:06:33.780 --> 00:06:34.960
+If they're able to figure out how to
+
+175
+00:06:34.960 --> 00:06:37.200
+make these AI models first able to continue
+
+176
+00:06:37.200 --> 00:06:39.620
+to verify that they are fit for purpose
+
+177
+00:06:39.620 --> 00:06:41.740
+and all the different ways that are needed
+
+178
+00:06:41.740 --> 00:06:44.720
+and establish some trust in them, you can
+
+179
+00:06:44.720 --> 00:06:46.040
+maybe start kind of doing this a lot
+
+180
+00:06:46.040 --> 00:06:46.660
+more cheaply.
+
+181
+00:06:46.940 --> 00:06:49.440
+Maybe that's just less CO2 emissions from what
+
+182
+00:06:49.440 --> 00:06:51.560
+you're running, or you can kind of devote
+
+183
+00:06:51.560 --> 00:06:54.060
+that computing power to solving other problems like
+
+184
+00:06:54.060 --> 00:06:56.500
+how to better ingest all this weather data
+
+185
+00:06:56.500 --> 00:06:57.780
+or things like that.
+
+186
+00:06:58.180 --> 00:06:58.280
+Yeah.
+
+187
+00:06:58.320 --> 00:07:00.720
+Speaking of ingesting, do we need to training
+
+188
+00:07:00.720 --> 00:07:02.560
+these AI models?
+
+189
+00:07:02.680 --> 00:07:04.900
+Do they need to keep refining their predictions?
+
+190
+00:07:05.280 --> 00:07:07.980
+Yeah, they would certainly have to periodically update
+
+191
+00:07:07.980 --> 00:07:08.360
+these.
+
+192
+00:07:08.920 --> 00:07:11.280
+This Google DeepMind model that is in science
+
+193
+00:07:11.280 --> 00:07:14.080
+this week, they ran, it took like four
+
+194
+00:07:14.080 --> 00:07:17.780
+weeks on their dedicated machines to train it.
+
+195
+00:07:18.280 --> 00:07:19.660
+So, you know, it's something you can see
+
+196
+00:07:19.660 --> 00:07:23.520
+it theoretically doing every year without being a
+
+197
+00:07:23.520 --> 00:07:24.100
+huge issue.
+
+198
+00:07:24.440 --> 00:07:26.500
+We're talking about weather here, you know, what
+
+199
+00:07:26.500 --> 00:07:28.840
+happens day to day, but could an AI
+
+200
+00:07:28.840 --> 00:07:32.200
+like this model climate change, make predictions about
+
+201
+00:07:32.200 --> 00:07:32.900
+climate change?
+
+202
+00:07:33.360 --> 00:07:33.520
+Yeah.
+
+203
+00:07:33.640 --> 00:07:36.140
+So climate is a totally different issue in
+
+204
+00:07:36.140 --> 00:07:38.720
+many ways because the past, this data we
+
+205
+00:07:38.720 --> 00:07:41.200
+have, is not necessarily predictive of the future
+
+206
+00:07:41.200 --> 00:07:41.840
+of the climate.
+
+207
+00:07:42.100 --> 00:07:44.200
+You know, we're changing things a lot.
+
+208
+00:07:44.380 --> 00:07:47.440
+There are things in the future, ice sheets
+
+209
+00:07:47.440 --> 00:07:51.700
+melting, things collapsing that just wouldn't be in
+
+210
+00:07:51.700 --> 00:07:52.460
+the training data.
+
+211
+00:07:52.660 --> 00:07:54.640
+So it would be very difficult to trust
+
+212
+00:07:54.640 --> 00:07:56.340
+these projections going forward.
+
+213
+00:07:56.340 --> 00:07:58.580
+But there are ways that it could be
+
+214
+00:07:58.580 --> 00:08:01.100
+very helpful where you can take these climate
+
+215
+00:08:01.100 --> 00:08:01.440
+models.
+
+216
+00:08:01.500 --> 00:08:03.040
+There's this new class of climate model that
+
+217
+00:08:03.040 --> 00:08:06.800
+runs in super high resolutions, directly recreating lots
+
+218
+00:08:06.800 --> 00:08:07.760
+of stuff in the atmosphere.
+
+219
+00:08:08.300 --> 00:08:10.200
+And we can only afford to run this
+
+220
+00:08:10.200 --> 00:08:12.960
+on supercomputers for a few years at a
+
+221
+00:08:12.960 --> 00:08:13.320
+time.
+
+222
+00:08:13.440 --> 00:08:14.700
+It's kind of slowly pushing out.
+
+223
+00:08:14.940 --> 00:08:17.060
+So you get that running long enough, and
+
+224
+00:08:17.060 --> 00:08:19.380
+then you can train the AI on that
+
+225
+00:08:19.380 --> 00:08:21.340
+and run it a bunch of times.
+
+226
+00:08:21.340 --> 00:08:23.400
+And then you really start to get a
+
+227
+00:08:23.400 --> 00:08:26.160
+lot more value from all that computing power
+
+228
+00:08:26.160 --> 00:08:27.120
+that you've poured into it.
+
+229
+00:08:27.220 --> 00:08:28.540
+So there's a lot of promise there.
+
+230
+00:08:28.960 --> 00:08:30.460
+Are we going to stop doing the numerical
+
+231
+00:08:30.460 --> 00:08:33.799
+modeling, you know, using physics, using measurement to
+
+232
+00:08:33.799 --> 00:08:34.860
+make forecasts?
+
+233
+00:08:35.220 --> 00:08:36.980
+Not anytime in the near future.
+
+234
+00:08:37.460 --> 00:08:38.700
+We have a lot of trust in this
+
+235
+00:08:38.700 --> 00:08:40.100
+numerical weather modeling.
+
+236
+00:08:40.500 --> 00:08:41.880
+And you know, if the AI is a
+
+237
+00:08:41.880 --> 00:08:44.360
+black box, there's that question of how far
+
+238
+00:08:44.360 --> 00:08:45.020
+do you trust it?
+
+239
+00:08:45.420 --> 00:08:48.840
+Also, these numerical weather models are producing the
+
+240
+00:08:48.840 --> 00:08:51.300
+data sets that the AI is being trained
+
+241
+00:08:51.300 --> 00:08:51.520
+on.
+
+242
+00:08:51.620 --> 00:08:53.300
+There's kind of, you can't get there without
+
+243
+00:08:53.300 --> 00:08:53.580
+that.
+
+244
+00:08:53.980 --> 00:08:57.180
+There's some theoretical future where perhaps the AI
+
+245
+00:08:57.180 --> 00:09:01.580
+can start ingesting the satellite data directly, or
+
+246
+00:09:01.580 --> 00:09:03.640
+all the sensor data directly, and take it
+
+247
+00:09:03.640 --> 00:09:04.160
+end to end.
+
+248
+00:09:04.260 --> 00:09:06.340
+But we are very far away from that,
+
+249
+00:09:06.480 --> 00:09:06.960
+I believe.
+
+250
+00:09:07.200 --> 00:09:08.680
+Or maybe we're just two years away.
+
+251
+00:09:08.720 --> 00:09:09.080
+Who knows?
+
+252
+00:09:10.440 --> 00:09:10.760
+Okay.
+
+253
+00:09:11.080 --> 00:09:14.480
+What will AI do next?
+
+254
+00:09:14.560 --> 00:09:15.720
+How is it going to affect your beat
+
+255
+00:09:15.720 --> 00:09:16.620
+next, Paul?
+
+256
+00:09:17.760 --> 00:09:19.660
+What area is it going to affect?
+
+257
+00:09:20.460 --> 00:09:21.980
+It's filtering in lots of ways.
+
+258
+00:09:22.140 --> 00:09:25.960
+I mean, the image recognition parts of it
+
+259
+00:09:25.960 --> 00:09:28.080
+are just almost unremarkable at this point, where
+
+260
+00:09:28.080 --> 00:09:30.600
+like, oh, this can spot icebergs better.
+
+261
+00:09:30.760 --> 00:09:32.160
+It's like, yeah, you know, of course, again,
+
+262
+00:09:32.440 --> 00:09:35.320
+anything that's a visual learning type of thing.
+
+263
+00:09:35.560 --> 00:09:36.920
+I'll have another story in a few weeks
+
+264
+00:09:36.920 --> 00:09:39.300
+that will also be about AI and satellites,
+
+265
+00:09:39.560 --> 00:09:40.580
+and look out for that.
+
+266
+00:09:41.900 --> 00:09:42.580
+That's great.
+
+267
+00:09:42.720 --> 00:09:42.940
+Okay.
+
+268
+00:09:43.080 --> 00:09:44.920
+Well, thank you so much for coming on
+
+269
+00:09:44.920 --> 00:09:45.400
+the show, Paul.
+
+270
+00:09:45.400 --> 00:09:45.960
+I appreciate it.
+
+271
+00:09:46.160 --> 00:09:46.820
+Yeah, thank you.
+
+272
+00:09:46.820 --> 00:09:49.260
+Paul Vucin is a staff writer for Science.
+
+273
+00:09:49.600 --> 00:09:50.880
+You can find a link to the story
+
+274
+00:09:50.880 --> 00:09:53.140
+and a related science paper at science.org
+
+275
+00:09:53.140 --> 00:09:53.960
+slash podcast.
+
+276
+00:09:54.540 --> 00:09:57.760
+Stay tuned for a big steaming pile of
+
+277
+00:09:57.760 --> 00:09:58.340
+science.
+
+278
+00:09:58.940 --> 00:10:02.700
+Researchers Zengxuan Hui talks about modeling landfill emissions
+
+279
+00:10:02.700 --> 00:10:04.080
+on a global scale.
+
+280
+00:10:12.860 --> 00:10:15.340
+We don't think about garbage enough.
+
+281
+00:10:15.720 --> 00:10:18.240
+According to a paper this week in Science,
+
+282
+00:10:18.240 --> 00:10:21.980
+global municipal waste is a missed opportunity for
+
+283
+00:10:21.980 --> 00:10:24.740
+reducing emissions and meeting climate goals.
+
+284
+00:10:25.460 --> 00:10:27.800
+Zengxuan Hui is an author on the article,
+
+285
+00:10:28.000 --> 00:10:29.580
+and he's here to talk about it.
+
+286
+00:10:29.840 --> 00:10:30.260
+Hi, Hui.
+
+287
+00:10:30.380 --> 00:10:31.420
+Welcome to the Science Podcast.
+
+288
+00:10:32.000 --> 00:10:33.040
+Hi, thanks for having me.
+
+289
+00:10:33.380 --> 00:10:33.760
+Oh, sure.
+
+290
+00:10:34.180 --> 00:10:36.780
+So how is the landfill in my town
+
+291
+00:10:36.780 --> 00:10:40.300
+or in your town related to climate change
+
+292
+00:10:40.300 --> 00:10:40.900
+and emissions?
+
+293
+00:10:41.060 --> 00:10:42.420
+Why is it a carbon source?
+
+294
+00:10:43.140 --> 00:10:45.900
+Solid waste are actually made up of a
+
+295
+00:10:45.900 --> 00:10:47.840
+large variety of compositions.
+
+296
+00:10:48.280 --> 00:10:49.980
+It is made up of, for example, food
+
+297
+00:10:49.980 --> 00:10:52.800
+waste, paper waste, plastic waste, and so on.
+
+298
+00:10:53.300 --> 00:10:56.980
+So the organic content in waste decomposes and
+
+299
+00:10:56.980 --> 00:11:00.760
+predominantly generates methane gas, making solid waste one
+
+300
+00:11:00.760 --> 00:11:03.360
+of the top methane and methane sectors in
+
+301
+00:11:03.360 --> 00:11:03.680
+the world.
+
+302
+00:11:04.240 --> 00:11:07.240
+And methane is an even stronger greenhouse gas
+
+303
+00:11:07.240 --> 00:11:08.200
+than carbon dioxide.
+
+304
+00:11:08.700 --> 00:11:08.900
+Yeah.
+
+305
+00:11:09.100 --> 00:11:11.860
+So methane is a potent greenhouse gas that
+
+306
+00:11:11.860 --> 00:11:15.420
+traps significantly higher amounts of heat than that
+
+307
+00:11:15.420 --> 00:11:16.260
+of carbon dioxide.
+
+308
+00:11:16.760 --> 00:11:19.740
+So for example, let's consider a scenario where
+
+309
+00:11:19.740 --> 00:11:23.080
+we have two different sources of emissions, one
+
+310
+00:11:23.080 --> 00:11:26.520
+releasing methane and the other releasing carbon dioxide
+
+311
+00:11:26.520 --> 00:11:29.380
+in the same quantities over 20 years.
+
+312
+00:11:29.980 --> 00:11:32.480
+The methane emission will trap 80 times more
+
+313
+00:11:32.480 --> 00:11:35.500
+heat than the carbon dioxide emissions over those
+
+314
+00:11:35.500 --> 00:11:36.060
+20 years.
+
+315
+00:11:36.060 --> 00:11:39.340
+And this emphasizes the urgency of addressing methane
+
+316
+00:11:39.340 --> 00:11:42.780
+emission to effectively mitigate short-term climate change.
+
+317
+00:11:42.880 --> 00:11:43.500
+Yeah.
+
+318
+00:11:43.640 --> 00:11:45.280
+So we do hear a lot about reducing
+
+319
+00:11:45.280 --> 00:11:48.860
+emissions from things like energy sources, like going
+
+320
+00:11:48.860 --> 00:11:52.480
+solar, or reducing emissions from cars by switching
+
+321
+00:11:52.480 --> 00:11:53.820
+to electrical vehicles.
+
+322
+00:11:54.140 --> 00:11:56.100
+There are a lot of sources of carbon
+
+323
+00:11:56.100 --> 00:11:56.460
+out there.
+
+324
+00:11:56.580 --> 00:11:59.540
+Why is it important to focus on municipal
+
+325
+00:11:59.540 --> 00:12:02.040
+waste, garbage, landfills, that kinds of thing?
+
+326
+00:12:02.040 --> 00:12:04.720
+I think solid waste management is a powerful
+
+327
+00:12:04.720 --> 00:12:06.600
+but overlooked climate solution.
+
+328
+00:12:07.200 --> 00:12:10.180
+Some may perceive waste management as a relatively
+
+329
+00:12:10.180 --> 00:12:14.200
+minor contributor to overall greenhouse gas emissions, like
+
+330
+00:12:14.200 --> 00:12:17.180
+compared to the big boys such as energy
+
+331
+00:12:17.180 --> 00:12:18.420
+and transportation.
+
+332
+00:12:18.960 --> 00:12:22.000
+But we may be undermining its climate impact
+
+333
+00:12:22.000 --> 00:12:25.400
+because the major greenhouse gas emissions from solid
+
+334
+00:12:25.400 --> 00:12:26.760
+waste is methane.
+
+335
+00:12:27.180 --> 00:12:30.140
+And methane actually traps significantly higher amounts of
+
+336
+00:12:30.140 --> 00:12:31.740
+heat than carbon dioxide.
+
+337
+00:12:32.180 --> 00:12:34.440
+So in your paper, you attempted to quantify
+
+338
+00:12:34.440 --> 00:12:36.980
+this, to count up to some extent how
+
+339
+00:12:36.980 --> 00:12:39.880
+much is coming off of these sources for
+
+340
+00:12:39.880 --> 00:12:40.660
+carbon emissions.
+
+341
+00:12:41.220 --> 00:12:42.680
+Can you talk a little bit about what
+
+342
+00:12:42.680 --> 00:12:45.800
+timescale you looked at and how you counted
+
+343
+00:12:45.800 --> 00:12:46.500
+this up?
+
+344
+00:12:46.760 --> 00:12:49.580
+We forecasted the business as usual greenhouse gas
+
+345
+00:12:49.580 --> 00:12:52.740
+emissions that would be emitted from the solid
+
+346
+00:12:52.740 --> 00:12:55.960
+waste sector from 2021 until 2050.
+
+347
+00:12:56.660 --> 00:12:58.820
+After we did this forecast, we actually tried
+
+348
+00:12:58.820 --> 00:13:01.400
+to explore whether there are any technical and
+
+349
+00:13:01.400 --> 00:13:05.280
+financially plausible mitigation strategies within the solid waste
+
+350
+00:13:05.280 --> 00:13:08.500
+management, and we visualized them into future emissions
+
+351
+00:13:08.500 --> 00:13:09.380
+pathway as well.
+
+352
+00:13:09.740 --> 00:13:11.220
+So what are some of the ways that
+
+353
+00:13:11.220 --> 00:13:14.180
+we could cut back on emissions from landfills,
+
+354
+00:13:14.480 --> 00:13:15.620
+from solid waste?
+
+355
+00:13:16.040 --> 00:13:18.700
+Yeah, so we understand that every country faces
+
+356
+00:13:18.700 --> 00:13:21.900
+a unique and exclusive version of this challenge
+
+357
+00:13:21.900 --> 00:13:24.200
+to improve their solid waste management.
+
+358
+00:13:24.680 --> 00:13:27.620
+And it is important to propose mitigation strategies
+
+359
+00:13:27.620 --> 00:13:31.880
+based on their diverse situation regarding its required
+
+360
+00:13:31.880 --> 00:13:36.160
+costs, technology readiness, skilled worker requirements, and their
+
+361
+00:13:36.160 --> 00:13:37.700
+standing in the waste management hierarchy.
+
+362
+00:13:38.380 --> 00:13:42.400
+So considering these requirements, we explored four individual
+
+363
+00:13:42.400 --> 00:13:46.040
+mitigation strategies for reducing emissions from the solid
+
+364
+00:13:46.040 --> 00:13:46.560
+waste sector.
+
+365
+00:13:47.140 --> 00:13:50.920
+So firstly, it is retrofitting landfills with biogas
+
+366
+00:13:50.920 --> 00:13:51.300
+capture.
+
+367
+00:13:51.860 --> 00:13:54.940
+Secondly, diverting organic waste for composting.
+
+368
+00:13:55.120 --> 00:13:58.180
+Thirdly, diverting organic waste for anaerobic digestion.
+
+369
+00:13:58.880 --> 00:14:01.600
+And lastly, reducing waste generation by 50%
+
+370
+00:14:01.600 --> 00:14:03.140
+relative to 2020 levels.
+
+371
+00:14:04.120 --> 00:14:06.480
+Okay, so looking across these four different scenarios,
+
+372
+00:14:07.040 --> 00:14:09.060
+some of these are more social or behavioral
+
+373
+00:14:09.060 --> 00:14:09.620
+interventions.
+
+374
+00:14:09.620 --> 00:14:12.000
+I'm thinking, you know, reducing how much waste
+
+375
+00:14:12.000 --> 00:14:14.000
+we create in the first place or sorting
+
+376
+00:14:14.000 --> 00:14:15.320
+out trash from compost.
+
+377
+00:14:15.940 --> 00:14:17.120
+Others are more technological.
+
+378
+00:14:17.540 --> 00:14:18.900
+And these are things that you're talking about,
+
+379
+00:14:18.980 --> 00:14:22.220
+like retrofitting landfills to capture methane.
+
+380
+00:14:22.620 --> 00:14:25.520
+Or another kind of technical intervention is these
+
+381
+00:14:25.520 --> 00:14:27.620
+biogas digesters.
+
+382
+00:14:27.800 --> 00:14:32.420
+So you basically digest compost with microbes and
+
+383
+00:14:32.420 --> 00:14:34.140
+then you get that methane.
+
+384
+00:14:34.400 --> 00:14:38.240
+And either the retrofitted landfill methane or the
+
+385
+00:14:38.240 --> 00:14:40.820
+digest methane, that can be burned as fuel,
+
+386
+00:14:40.960 --> 00:14:42.500
+which is, you know, a less carbon-intense
+
+387
+00:14:42.500 --> 00:14:45.000
+approach than just releasing the atmosphere.
+
+388
+00:14:46.340 --> 00:14:48.360
+You know, when you calculate across all these
+
+389
+00:14:48.360 --> 00:14:51.820
+different waste situations that countries have, who fits
+
+390
+00:14:51.820 --> 00:14:52.960
+best with what?
+
+391
+00:14:53.060 --> 00:14:55.100
+Like, who should be doing which of these
+
+392
+00:14:55.100 --> 00:14:57.500
+things to get the most benefit from these
+
+393
+00:14:57.500 --> 00:14:57.960
+strategies?
+
+394
+00:14:58.500 --> 00:15:01.260
+Our findings found that high-income countries should
+
+395
+00:15:01.260 --> 00:15:04.580
+prioritize reducing their waste volume and lower-income
+
+396
+00:15:04.580 --> 00:15:07.620
+countries should prioritize managing their organic waste more
+
+397
+00:15:07.620 --> 00:15:08.100
+sustainably.
+
+398
+00:15:08.600 --> 00:15:11.820
+This is because lower-income countries generally tend
+
+399
+00:15:11.820 --> 00:15:14.600
+to generate waste compositions with a higher organic
+
+400
+00:15:14.600 --> 00:15:17.400
+content, as opposed to high-income countries.
+
+401
+00:15:17.980 --> 00:15:20.600
+But generally speaking, the two levers that we
+
+402
+00:15:20.600 --> 00:15:23.860
+identified for minimizing greenhouse gas emissions from global
+
+403
+00:15:23.860 --> 00:15:26.660
+solid waste system is firstly, to reduce the
+
+404
+00:15:26.660 --> 00:15:27.880
+waste volume being generated.
+
+405
+00:15:28.380 --> 00:15:31.220
+And secondly, managing organic waste more sustainably.
+
+406
+00:15:31.680 --> 00:15:34.040
+And if these were maximized, if this was
+
+407
+00:15:34.040 --> 00:15:37.200
+something that people did and took on, how
+
+408
+00:15:37.200 --> 00:15:40.980
+much reduction could we potentially see in emissions
+
+409
+00:15:40.980 --> 00:15:42.620
+from solid waste?
+
+410
+00:15:43.000 --> 00:15:46.820
+These proposed mitigation strategies by themselves would be
+
+411
+00:15:46.820 --> 00:15:49.600
+able to reduce the greenhouse gas emissions that
+
+412
+00:15:49.600 --> 00:15:51.940
+would be emitted and cumulated in the atmosphere
+
+413
+00:15:51.940 --> 00:15:54.640
+in the next 30 years by 27 to
+
+414
+00:15:54.640 --> 00:15:57.060
+70 percent relative to business as usual.
+
+415
+00:15:57.600 --> 00:16:00.480
+Okay, so how does that translate into the
+
+416
+00:16:00.480 --> 00:16:03.300
+1.5 degree limit that we're trying to
+
+417
+00:16:03.300 --> 00:16:03.760
+stay under?
+
+418
+00:16:04.340 --> 00:16:06.720
+Staying within the 1.5 degree Celsius limit
+
+419
+00:16:06.720 --> 00:16:09.100
+requires adopting more than one strategy.
+
+420
+00:16:09.560 --> 00:16:11.800
+But we find that if we adopt multiple
+
+421
+00:16:11.800 --> 00:16:16.380
+strategies, including retrofitting landfills, composting our organic waste
+
+422
+00:16:16.380 --> 00:16:19.660
+and halving our waste generation, could actually prevent
+
+423
+00:16:19.660 --> 00:16:22.600
+overshooting the Paris Agreement temperature limits.
+
+424
+00:16:23.020 --> 00:16:25.620
+What's more interesting is this will also result
+
+425
+00:16:25.620 --> 00:16:28.440
+in a global solid waste system with net
+
+426
+00:16:28.440 --> 00:16:31.040
+zero warming relative to 2020 levels.
+
+427
+00:16:31.480 --> 00:16:33.800
+In other words, no further warming is induced
+
+428
+00:16:33.800 --> 00:16:35.320
+compared to 2020 levels.
+
+429
+00:16:35.840 --> 00:16:37.960
+Let's talk about the Global Methane Pledge.
+
+430
+00:16:38.060 --> 00:16:40.320
+I think most people are familiar with climate
+
+431
+00:16:40.320 --> 00:16:42.380
+agreements, but maybe they haven't heard about this
+
+432
+00:16:42.380 --> 00:16:43.640
+other one about methane.
+
+433
+00:16:44.080 --> 00:16:46.920
+Methane was determined to be of particular importance
+
+434
+00:16:46.920 --> 00:16:50.000
+at the 26th United Nations Climate Change Conference
+
+435
+00:16:50.000 --> 00:16:52.360
+of the Parties because it has a short
+
+436
+00:16:52.360 --> 00:16:56.340
+lifetime of approximately one decade, so cutting its
+
+437
+00:16:56.340 --> 00:16:59.300
+emission can rapidly decelerate near-term global warming.
+
+438
+00:16:59.300 --> 00:17:02.720
+So more than 100 countries come together to
+
+439
+00:17:02.720 --> 00:17:05.339
+sign the Global Methane Pledge, aiming to curb
+
+440
+00:17:05.339 --> 00:17:08.579
+30% of global methane emission by 2030
+
+441
+00:17:08.579 --> 00:17:10.960
+using a 2020 level baseline.
+
+442
+00:17:11.240 --> 00:17:12.400
+How does this help with that?
+
+443
+00:17:12.700 --> 00:17:16.480
+We actually look into whether the mitigation strategies
+
+444
+00:17:16.480 --> 00:17:19.520
+that we propose can actually help us to
+
+445
+00:17:19.520 --> 00:17:21.220
+achieve the Global Methane Pledge.
+
+446
+00:17:21.720 --> 00:17:24.200
+Well, it's actually achievable, but there's a catch.
+
+447
+00:17:24.200 --> 00:17:27.940
+Because we designed these mitigation strategies only to
+
+448
+00:17:27.940 --> 00:17:31.160
+be fully adopted by 2050, so it cannot
+
+449
+00:17:31.160 --> 00:17:34.060
+actually reduce 30% of methane emission from
+
+450
+00:17:34.060 --> 00:17:36.000
+the solid waste sector in a timely manner.
+
+451
+00:17:36.420 --> 00:17:38.860
+We will actually need to accelerate the complete
+
+452
+00:17:38.860 --> 00:17:41.880
+adoption of mitigation strategies by at least 9
+
+453
+00:17:41.880 --> 00:17:44.980
+to 17 years, which is to completely adopt
+
+454
+00:17:44.980 --> 00:17:49.160
+all these strategies by 2033 to 2044, depending
+
+455
+00:17:49.160 --> 00:17:52.200
+on the mitigation strategies, in order for us
+
+456
+00:17:52.200 --> 00:17:54.340
+to be on track with the progress to
+
+457
+00:17:54.340 --> 00:17:55.800
+achieve the Global Methane Pledge.
+
+458
+00:17:56.180 --> 00:17:58.520
+Kind of the surprise here, I think, besides
+
+459
+00:17:58.520 --> 00:18:00.400
+the fact that this is such an impactful
+
+460
+00:18:00.400 --> 00:18:03.980
+intervention, is that all the technologies that you're
+
+461
+00:18:03.980 --> 00:18:06.720
+talking about are already in existence, so they
+
+462
+00:18:06.720 --> 00:18:10.200
+don't rely on a bunch of innovations to,
+
+463
+00:18:10.280 --> 00:18:11.580
+you know, say, take carbon out of the
+
+464
+00:18:11.580 --> 00:18:14.320
+air or invent a new kind of battery.
+
+465
+00:18:14.640 --> 00:18:16.980
+It's just, do these things we already know
+
+466
+00:18:16.980 --> 00:18:17.740
+how to do?
+
+467
+00:18:17.740 --> 00:18:20.440
+What do you see as the hurdles to
+
+468
+00:18:20.440 --> 00:18:21.500
+getting this to happen?
+
+469
+00:18:22.200 --> 00:18:24.000
+So the good thing is these technologies are
+
+470
+00:18:24.000 --> 00:18:27.720
+actually readily available technologies, but to realize an
+
+471
+00:18:27.720 --> 00:18:31.900
+efficient waste management system, policymakers need to utilize
+
+472
+00:18:31.900 --> 00:18:34.660
+three types of policy tools to also promote
+
+473
+00:18:34.660 --> 00:18:37.020
+people to actually do these kinds of things.
+
+474
+00:18:37.520 --> 00:18:39.320
+I want to highlight that the first one
+
+475
+00:18:39.320 --> 00:18:42.880
+is direct regulation, which is encompassing laws to
+
+476
+00:18:42.880 --> 00:18:46.100
+be enforced rigorously, such as mandating waste segregation
+
+477
+00:18:46.100 --> 00:18:47.060
+in each household.
+
+478
+00:18:47.720 --> 00:18:52.180
+Secondly, economic incentive and disincentive to encourage reduction
+
+479
+00:18:52.180 --> 00:18:54.960
+in waste generation and increase recycling efforts.
+
+480
+00:18:55.600 --> 00:18:58.020
+And thirdly, social tools, such as the promotion
+
+481
+00:18:58.020 --> 00:19:03.040
+of education campaigns to inculcate environmental values in
+
+482
+00:19:03.040 --> 00:19:04.800
+communities to generate less waste.
+
+483
+00:19:05.420 --> 00:19:06.100
+Thank you so much, Hoi.
+
+484
+00:19:06.460 --> 00:19:06.880
+Thank you.
+
+485
+00:19:06.940 --> 00:19:07.820
+Happy to be on here.
+
+486
+00:19:07.820 --> 00:19:11.680
+Zhang Xuan Hoi was a MPhil graduate student
+
+487
+00:19:11.680 --> 00:19:13.680
+at the time that this research was conducted
+
+488
+00:19:13.680 --> 00:19:16.560
+at the New Energy Science and Engineering Department
+
+489
+00:19:16.560 --> 00:19:19.000
+at Xiamen University in Malaysia.
+
+490
+00:19:19.480 --> 00:19:20.960
+You can find a link to the paper
+
+491
+00:19:20.960 --> 00:19:23.840
+we discussed at science.org slash podcast.
+
+492
+00:19:25.140 --> 00:19:27.580
+And that concludes this edition of the Science
+
+493
+00:19:27.580 --> 00:19:27.960
+Podcast.
+
+494
+00:19:28.380 --> 00:19:30.600
+If you have any comments or suggestions, write
+
+495
+00:19:30.600 --> 00:19:33.960
+to us at sciencepodcast at aaas.org.
+
+496
+00:19:34.360 --> 00:19:36.580
+To find us on the apps, search for
+
+497
+00:19:36.580 --> 00:19:37.340
+Science Magazine.
+
+498
+00:19:37.820 --> 00:19:39.260
+Or you can listen to the show on
+
+499
+00:19:39.260 --> 00:19:41.920
+our website, science.org slash podcast.
+
+500
+00:19:42.540 --> 00:19:45.060
+This show was edited by me, Sarah Crespi,
+
+501
+00:19:45.180 --> 00:19:48.100
+and Kevin MacLean with production help from Podigy.
+
+502
+00:19:48.740 --> 00:19:51.380
+Jeffrey Cook composed the music on behalf of
+
+503
+00:19:51.380 --> 00:19:53.300
+Science and its publisher, AAAS.
+
+504
+00:19:53.760 --> 00:19:54.900
+Thanks for joining us.
