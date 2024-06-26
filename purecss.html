@@ -4,125 +4,134 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web del professor</title>
-  
-  <!-- PureCSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/3.0.0/pure-min.css" integrity="sha384-8HhPr06Xm0MlZy8UtOpv8VR0Zz9awNU2l7pH5RuHOx4x48MwP4tqBiX9NRFVKT4E" crossorigin="anonymous">
-  
-  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/purecss@3.0.0/build/pure-min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="icon" type="image/x-icon" href="logo.ico">
+  <style>
+    .pure-menu-hidden { display: none; }
+    .pure-menu-list { list-style-type: none; padding: 0; }
+    .pure-menu-item { padding: 10px 0; }
+  </style>
 </head>
-<body class="pure-u-1">
+<body>
 
   <!-- Navbar -->
-  <nav class="pure-menu pure-menu-horizontal">
-    <div class="pure-g">
-      <div class="pure-u-1 pure-u-md-1-2">
-        <div class="pure-menu-heading">
-          <!-- Logo -->
-          <img src="logo.png" alt="Logo" class="pure-img" style="height: 32px; width: 32px; margin-right: 8px;">
-          <a href="#" class="pure-menu-link">Prof. F. Pérez</a>
-        </div>
-      </div>
-      <div class="pure-u-1 pure-u-md-1-2">
-        <ul class="pure-menu-list">
-          <li class="pure-menu-item"><a href="./index.html" class="pure-menu-link"><i class="fas fa-home mr-2"></i>Pàgina principal</a></li>
-          <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-            <a href="#" id="menuLink1" class="pure-menu-link"><i class="fas fa-code mr-2"></i>Programació informàtica</a>
-            <ul class="pure-menu-children">
-              <li class="pure-menu-item"><a href="./terminal" class="pure-menu-link"><i class="fas fa-terminal mr-2"></i>Terminal</a></li>
-              <li class="pure-menu-item"><a href="./editor" class="pure-menu-link"><i class="fas fa-laptop-code mr-2"></i>Editor de codi</a></li>
-              <li class="pure-menu-item"><a href="./python" class="pure-menu-link"><i class="fab fa-python mr-2"></i>Python</a></li>
-              <li class="pure-menu-item"><a href="./reditor" class="pure-menu-link"><i class="fa-brands fa-r-project mr-2"></i>R code editor</a></li>
-              <li class="pure-menu-item"><a href="./hellor" class="pure-menu-link"><i class="fas fa-r mr-2"></i>Hello R</a></li>
-              <li class="pure-menu-item"><a href="./html" class="pure-menu-link"><i class="fas fa-file-code mr-2"></i>Saludant amb codi</a></li>
-              <li class="pure-menu-item"><a href="./taula" class="pure-menu-link"><i class="fas fa-table mr-2"></i>Taula interactiva</a></li>
-              <li class="pure-menu-item"><a href="./quiz" class="pure-menu-link"><i class="fas fa-question mr-2"></i>Quiz</a></li>
-              <li class="pure-menu-item"><a href="./c++1" class="pure-menu-link"><i class="fas fa-gears mr-2"></i>Jocs C++</a></li>
-              <li class="pure-menu-item"><a href="./c++timber" class="pure-menu-link"><i class="fas fa-tree mr-2"></i>Timber C++</a></li>
-            </ul>
-          </li>
-          <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-            <a href="#" id="menuLink2" class="pure-menu-link"><i class="fas fa-flask mr-2"></i>Projectes</a>
-            <ul class="pure-menu-children">
-              <li class="pure-menu-item"><a href="./projectes" class="pure-menu-link"><i class="fa-solid fa-list-check fa-diagram-project mr-2"></i>Alguns projectes</a></li>
-              <li class="pure-menu-item"><a href="./anellEinstein" class="pure-menu-link"><i class="fas fa-star mr-2"></i>Lent gravitacional</a></li>
-              <li class="pure-menu-item"><a href="./tabby" class="pure-menu-link"><i class="fas fa-mercury mr-2"></i>Estrella Tabby</a></li>
-              <li class="pure-menu-item"><a href="./lightcurve" class="pure-menu-link"><i class="fas fa-lightbulb mr-2"></i>Corbes de llum</a></li>
-              <li class="pure-menu-item"><a href="./corona" class="pure-menu-link"><i class="fas fa-sun mr-2"></i>Corona solar</a></li>
-              <li class="pure-menu-item"><a href="./roemer" class="pure-menu-link"><i class="fas fa-globe-americas mr-2"></i>Roemer experiment</a></li>
-              <li class="pure-menu-item"><a href="./bradley" class="pure-menu-link"><i class="fas fa-globe mr-2"></i>Recerca de Bradley</a></li>
-              <li class="pure-menu-item"><a href="./aliments" class="pure-menu-link"><i class="fas fa-apple-whole mr-2"></i>Aliments de temporada</a></li>
-              <li class="pure-menu-item"><a href="./docking" class="pure-menu-link"><i class="fas fa-laptop-medical mr-2"></i>Recerca de fàrmacs</a></li>
-              <li class="pure-menu-item"><a href="./Arduino" class="pure-menu-link"><i class="fas fa-robot mr-2"></i>Projectes Robòtica</a></li>
-              <li class="pure-menu-item"><a href="./podcasts" class="pure-menu-link"><i class="fas fa-podcast mr-2"></i>Science podcasts</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </div>
+  <nav class="pure-menu pure-menu-horizontal pure-menu-fixed">
+    <a href="#" class="pure-menu-heading pure-menu-link">
+      <img src="logo.png" alt="Logo" class="pure-img" style="height: 32px;">
+      Prof. F. Pérez
+    </a>
+    <ul id="main-menu" class="pure-menu-list">
+      <!-- Menu items will be populated by JavaScript -->
+    </ul>
+    <a href="javascript:void(0);" class="pure-menu-link" id="hamburger"><i class="fas fa-bars"></i></a>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <nav id="mobile-menu" class="pure-menu pure-menu-vertical pure-menu-hidden">
+    <ul id="mobile-menu-list" class="pure-menu-list">
+      <!-- Mobile menu items will be populated by JavaScript -->
+    </ul>
   </nav>
 
   <!-- Main Content -->
-  <div class="pure-g">
+  <div class="pure-g" style="max-width: 1200px; margin: auto; padding: 20px;">
     <div class="pure-u-1">
-      <h1 class="pure-h1">Benvinguts</h1>
-      <p class="pure-lead">Hola estudiants del Pompeu!</p>
-      <h3 class="pure-h3">Hi trobareu projectes molt diversos relacionant llenguatges de programació amb diferents camps com robòtica, medicina i astronomia dissenyats pel Prof. Francesc Pérez.</h3>
-      <h4 class="pure-h4">Més informació en altres webs meves:</h4>
-      <div class="pure-g">
-        <div class="pure-u-1 pure-u-md-1-2">
-          <ul class="pure-menu-list">
-            <li class="pure-menu-item"><a href="http://github.com/drfperez" target="_blank" class="pure-menu-link"><i class="fa-brands fa-github mr-2"></i>Github del professor</a></li>
-            <li class="pure-menu-item"><a href="https://blocs.xtec.cat/tecno" target="_blank" class="pure-menu-link"><i class="fas fa-blog mr-2"></i>Bloc Xtec</a></li>
-            <li class="pure-menu-item"><a href="https://pompeu.neocities.org" target="_blank" class="pure-menu-link"><i class="fas fa-globe mr-2"></i>Bloc de Neocities</a></li>
-          </ul>
-        </div>
-        <div class="pure-u-1 pure-u-md-1-2">
-          <ul class="pure-menu-list">
-            <li class="pure-menu-item"><a href="https://blocs.xtec.cat/arteducation" target="_blank" class="pure-menu-link"><i class="fas fa-palette mr-2"></i>Bloc d'Art</a></li>
-            <li class="pure-menu-item"><a href="https://blocs.xtec.cat/5cities" target="_blank" class="pure-menu-link"><i class="fas fa-tree mr-2"></i>Bloc de Medi Ambient</a></li>
-            <li class="pure-menu-item"><a href="https://blocs.xtec.cat/comeonstage/" target="_blank" class="pure-menu-link"><i class="fas fa-theater-masks mr-2"></i>Bloc de Teatre</a></li>
-          </ul>
-        </div>
+      <h1 class="pure-u-1 text-3xl font-bold">Benvinguts</h1>
+      <p class="pure-u-1 mt-4">Hola estudiants del Pompeu!</p>
+      <h3 class="pure-u-1 text-xl mt-4">Hi trobareu projectes molt diversos relacionant llenguatges de programació amb diferents camps com robòtica, medicina i astronomia dissenyats pel Prof. Francesc Pérez.</h3>
+      <h4 class="pure-u-1 text-lg font-semibold">Més informació en altres webs meves:</h4>
+      <div class="pure-u-1 pure-u-md-1-2">
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item"><a href="http://github.com/drfperez" target="_blank" class="pure-menu-link"><i class="fa-brands fa-github mr-2"></i>Github del professor</a></li>
+          <li class="pure-menu-item"><a href="https://blocs.xtec.cat/tecno" target="_blank" class="pure-menu-link"><i class="fas fa-blog mr-2"></i>Bloc Xtec</a></li>
+          <li class="pure-menu-item"><a href="https://pompeu.neocities.org" target="_blank" class="pure-menu-link"><i class="fas fa-globe mr-2"></i>Bloc de Neocities</a></li>
+        </ul>
+      </div>
+      <div class="pure-u-1 pure-u-md-1-2">
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item"><a href="https://blocs.xtec.cat/arteducation" target="_blank" class="pure-menu-link"><i class="fas fa-palette mr-2"></i>Bloc d'Art</a></li>
+          <li class="pure-menu-item"><a href="https://blocs.xtec.cat/5cities" target="_blank" class="pure-menu-link"><i class="fas fa-tree mr-2"></i>Bloc de Medi Ambient</a></li>
+          <li class="pure-menu-item"><a href="https://blocs.xtec.cat/comeonstage/" target="_blank" class="pure-menu-link"><i class="fas fa-theater-masks mr-2"></i>Bloc de Teatre</a></li>
+        </ul>
       </div>
     </div>
-  </main>
+  </div>
 
   <script>
-    const hamburger = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const codingDropdownButton = document.getElementById('codingDropdownButton');
-    const codingDropdown = document.getElementById('codingDropdown');
-    const scienceDropdownButton = document.getElementById('scienceDropdownButton');
-    const scienceDropdown = document.getElementById('scienceDropdown');
-    const mobileCodingDropdownButton = document.getElementById('mobileCodingDropdownButton');
-    const mobileCodingDropdown = document.getElementById('mobileCodingDropdown');
-    const mobileScienceDropdownButton = document.getElementById('mobileScienceDropdownButton');
-    const mobileScienceDropdown = document.getElementById('mobileScienceDropdown');
+    const menuData = [
+      { text: 'Pàgina principal', icon: 'fa-home', href: './index.html' },
+      {
+        text: 'Programació informàtica', icon: 'fa-code', children: [
+          { text: 'Terminal', icon: 'fa-terminal', href: './terminal' },
+          { text: 'Editor de codi', icon: 'fa-laptop-code', href: './editor' },
+          { text: 'Python', icon: 'fab fa-python', href: './python' },
+          { text: 'R code editor', icon: 'fa-brands fa-r-project', href: './reditor' },
+          { text: 'Hello R', icon: 'fas fa-r', href: './hellor' },
+          { text: 'Saludant amb codi', icon: 'fas fa-file-code', href: './html' },
+          { text: 'Taula interactiva', icon: 'fas fa-table', href: './taula' },
+          { text: 'Quiz', icon: 'fas fa-question', href: './quiz' },
+          { text: 'Jocs C++', icon: 'fas fa-gears', href: './c++1' },
+          { text: 'Timber C++', icon: 'fas fa-tree', href: './c++timber' },
+        ]
+      },
+      {
+        text: 'Projectes', icon: 'fa-flask', children: [
+          { text: 'Alguns projectes', icon: 'fa-solid fa-list-check fa-diagram-project', href: './projectes' },
+          { text: 'Lent gravitacional', icon: 'fa-star', href: './anellEinstein' },
+          { text: 'Estrella Tabby', icon: 'fa-mercury', href: './tabby' },
+          { text: 'Corbes de llum', icon: 'fa-lightbulb', href: './lightcurve' },
+          { text: 'Corona solar', icon: 'fa-sun', href: './corona' },
+          { text: 'Roemer experiment', icon: 'fa-globe-americas', href: './roemer' },
+          { text: 'Recerca de Bradley', icon: 'fa-globe', href: './bradley' },
+          { text: 'Aliments de temporada', icon: 'fa-apple-whole', href: './aliments' },
+          { text: 'Recerca de fàrmacs', icon: 'fa-laptop-medical', href: './docking' },
+          { text: 'Projectes Robòtica', icon: 'fa-robot', href: './Arduino' },
+          { text: 'Science podcasts', icon: 'fa-podcast', href: './podcasts' },
+        ]
+      }
+    ];
 
-    hamburger.addEventListener('click', () => {
-      mobileMenu.classList.toggle('pure-menu-hidden');
-    });
+    function createMenuItems(menuItems, parentElement) {
+      menuItems.forEach(item => {
+        const li = document.createElement('li');
+        li.classList.add('pure-menu-item');
 
-    codingDropdownButton.addEventListener('click', () => {
-      codingDropdown.classList.toggle('pure-menu-hidden');
-    });
+        if (item.children) {
+          const a = document.createElement('a');
+          a.href = 'javascript:void(0)';
+          a.classList.add('pure-menu-link');
+          a.innerHTML = `<i class="fas ${item.icon} mr-2"></i>${item.text}`;
+          li.appendChild(a);
 
-    scienceDropdownButton.addEventListener('click', () => {
-      scienceDropdown.classList.toggle('pure-menu-hidden');
-    });
+          const ul = document.createElement('ul');
+          ul.classList.add('pure-menu-children', 'pure-menu-hidden');
+          createMenuItems(item.children, ul);
 
-    mobileCodingDropdownButton.addEventListener('click', () => {
-      mobileCodingDropdown.classList.toggle('pure-menu-hidden');
-    });
+          li.appendChild(ul);
+          a.addEventListener('click', () => {
+            ul.classList.toggle('pure-menu-hidden');
+          });
+        } else {
+          li.innerHTML = `<a href="${item.href}" class="pure-menu-link"><i class="fas ${item.icon} mr-2"></i>${item.text}</a>`;
+        }
 
-    mobileScienceDropdownButton.addEventListener('click', () => {
-      mobileScienceDropdown.classList.toggle('pure-menu-hidden');
+        parentElement.appendChild(li);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const mainMenu = document.getElementById('main-menu');
+      const mobileMenuList = document.getElementById('mobile-menu-list');
+      createMenuItems(menuData, mainMenu);
+      createMenuItems(menuData, mobileMenuList);
+
+      document.getElementById('hamburger').addEventListener('click', () => {
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('pure-menu-hidden');
+      });
     });
   </script>
-
 </body>
 </html>
-
 
