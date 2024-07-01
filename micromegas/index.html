@@ -1,97 +1,119 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-    <meta charset="UTF-8"> <!-- Defineix el conjunt de caràcters utilitzat -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Permet la visualització correcta en dispositius mòbils -->
-    <title>Test de Micromegas</title> <!-- Títol de la pàgina -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Micromegas</title>
     <style>
         .correct {
-            color: green; <!-- Estil per a les respostes correctes -->
+            color: green;
         }
         .incorrect {
-            color: red; <!-- Estil per a les respostes incorrectes -->
+            color: red;
+        }
+        #timer {
+            font-weight: bold;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Test de Micromegas</h1> <!-- Títol principal de la pàgina -->
-    <form id="quiz"> <!-- Formulari del qüestionari -->
+    <h1>Test de Micromegas</h1>
+    <form id="quiz">
         <div>
-            <p>1. Què representa la percepció tecnològica del univers en "Micromegas"?</p> <!-- Pregunta 1 -->
-            <label><input type="radio" name="q1" value="a"> Una representació estàtica del univers.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q1" value="b"> La immensitat i complexitat del univers.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q1" value="c"> Una crítica a les innovacions tecnològiques.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q1" value="d"> Una descripció del sistema solar.</label> <!-- Opció d -->
+            <p>1. Què representa la percepció tecnològica del univers en "Micromegas"?</p>
+            <label><input type="radio" name="q1" value="a"> Una representació estàtica del univers.</label><br>
+            <label><input type="radio" name="q1" value="b"> La immensitat i complexitat del univers.</label><br>
+            <label><input type="radio" name="q1" value="c"> Una crítica a les innovacions tecnològiques.</label><br>
+            <label><input type="radio" name="q1" value="d"> Una descripció del sistema solar.</label>
         </div>
         <div>
-            <p>2. Quines innovacions científiques es mencionen al relat?</p> <!-- Pregunta 2 -->
-            <label><input type="radio" name="q2" value="a"> Microscopis avançats.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q2" value="b"> Telescopis avançats.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q2" value="c"> Robots intel·ligents.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q2" value="d"> Viatges en el temps.</label> <!-- Opció d -->
+            <p>2. Quines innovacions científiques es mencionen al relat?</p>
+            <label><input type="radio" name="q2" value="a"> Microscopis avançats.</label><br>
+            <label><input type="radio" name="q2" value="b"> Telescopis avançats.</label><br>
+            <label><input type="radio" name="q2" value="c"> Robots intel·ligents.</label><br>
+            <label><input type="radio" name="q2" value="d"> Viatges en el temps.</label>
         </div>
         <div>
-            <p>3. Com es relacionen les diferències de mida entre els personatges amb la tecnologia?</p> <!-- Pregunta 3 -->
-            <label><input type="radio" name="q3" value="a"> Refleixen la diversitat cultural.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q3" value="b"> Mostren les limitacions humanes.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q3" value="c"> Exemplifiquen la perspectiva tecnològica.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q3" value="d"> Representen la guerra entre planetes.</label> <!-- Opció d -->
+            <p>3. Com es relacionen les diferències de mida entre els personatges amb la tecnologia?</p>
+            <label><input type="radio" name="q3" value="a"> Refleixen la diversitat cultural.</label><br>
+            <label><input type="radio" name="q3" value="b"> Mostren les limitacions humanes.</label><br>
+            <label><input type="radio" name="q3" value="c"> Exemplifiquen la perspectiva tecnològica.</label><br>
+            <label><input type="radio" name="q3" value="d"> Representen la guerra entre planetes.</label>
         </div>
         <div>
-            <p>4. Quina crítica fa Voltaire a la ciència de la seva època?</p> <!-- Pregunta 4 -->
-            <label><input type="radio" name="q4" value="a"> Critica la manca d'ètica.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q4" value="b"> Critica la dependència de la tecnologia.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q4" value="c"> Critica la arrogància i limitació del coneixement humà.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q4" value="d"> Critica l'excés de curiositat.</label> <!-- Opció d -->
+            <p>4. Quina crítica fa Voltaire a la ciència de la seva època?</p>
+            <label><input type="radio" name="q4" value="a"> Critica la manca d'ètica.</label><br>
+            <label><input type="radio" name="q4" value="b"> Critica la dependència de la tecnologia.</label><br>
+            <label><input type="radio" name="q4" value="c"> Critica la arrogància i limitació del coneixement humà.</label><br>
+            <label><input type="radio" name="q4" value="d"> Critica l'excés de curiositat.</label>
         </div>
         <div>
-            <p>5. Què simbolitza la comunicació entre espècies en el context actual?</p> <!-- Pregunta 5 -->
-            <label><input type="radio" name="q5" value="a"> La incomprensió cultural.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q5" value="b"> La importància de la tecnologia de comunicació.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q5" value="c"> Les barreres lingüístiques.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q5" value="d"> La facilitat de la traducció automàtica.</label> <!-- Opció d -->
+            <p>5. Què simbolitza la comunicació entre espècies en el context actual?</p>
+            <label><input type="radio" name="q5" value="a"> La incomprensió cultural.</label><br>
+            <label><input type="radio" name="q5" value="b"> La importància de la tecnologia de comunicació.</label><br>
+            <label><input type="radio" name="q5" value="c"> Les barreres lingüístiques.</label><br>
+            <label><input type="radio" name="q5" value="d"> La facilitat de la traducció automàtica.</label>
         </div>
         <div>
-            <p>6. Quin paper juga la ironia en "Micromegas"?</p> <!-- Pregunta 6 -->
-            <label><input type="radio" name="q6" value="a"> Serveix per destacar l'absurd de la guerra.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q6" value="b"> Serveix per il·luminar les falles humanes.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q6" value="c"> Serveix per elogiar la ciència.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q6" value="d"> Serveix per demostrar la bellesa de l'univers.</label> <!-- Opció d -->
+            <p>6. Quin paper juga la ironia en "Micromegas"?</p>
+            <label><input type="radio" name="q6" value="a"> Serveix per destacar l'absurd de la guerra.</label><br>
+            <label><input type="radio" name="q6" value="b"> Serveix per il·luminar les falles humanes.</label><br>
+            <label><input type="radio" name="q6" value="c"> Serveix per elogiar la ciència.</label><br>
+            <label><input type="radio" name="q6" value="d"> Serveix per demostrar la bellesa de l'univers.</label>
         </div>
         <div>
-            <p>7. Com es percep la relativitat del coneixement en el relat?</p> <!-- Pregunta 7 -->
-            <label><input type="radio" name="q7" value="a"> Com una constant universal.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q7" value="b"> Com una qüestió discutible.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q7" value="c"> Com una idea absolutament correcta.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q7" value="d"> Com una construcció social.</label> <!-- Opció d -->
+            <p>7. Com es percep la relativitat del coneixement en el relat?</p>
+            <label><input type="radio" name="q7" value="a"> Com una constant universal.</label><br>
+            <label><input type="radio" name="q7" value="b"> Com una qüestió discutible.</label><br>
+            <label><input type="radio" name="q7" value="c"> Com una idea absolutament correcta.</label><br>
+            <label><input type="radio" name="q7" value="d"> Com una construcció social.</label>
         </div>
         <div>
-            <p>8. Quina és la importància de la curiositat científica en "Micromegas"?</p> <!-- Pregunta 8 -->
-            <label><input type="radio" name="q8" value="a"> És vista com una amenaça.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q8" value="b"> És considerada inútil.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q8" value="c"> És considerada essencial per al progrés.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q8" value="d"> És vista com un passatemps.</label> <!-- Opció d -->
+            <p>8. Quina és la importància de la curiositat científica en "Micromegas"?</p>
+            <label><input type="radio" name="q8" value="a"> És vista com una amenaça.</label><br>
+            <label><input type="radio" name="q8" value="b"> És considerada inútil.</label><br>
+            <label><input type="radio" name="q8" value="c"> És considerada essencial per al progrés.</label><br>
+            <label><input type="radio" name="q8" value="d"> És vista com un passatemps.</label>
         </div>
         <div>
-            <p>9. Com es representen les limitacions humanes davant l'univers?</p> <!-- Pregunta 9 -->
-            <label><input type="radio" name="q9" value="a"> Com una victòria humana.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q9" value="b"> Com una insignificança.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q9" value="c"> Com una metàfora de la força humana.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q9" value="d"> Com una tragèdia.</label> <!-- Opció d -->
+            <p>9. Com es representen les limitacions humanes davant l'univers?</p>
+            <label><input type="radio" name="q9" value="a"> Com una victòria humana.</label><br>
+            <label><input type="radio" name="q9" value="b"> Com una insignificança.</label><br>
+            <label><input type="radio" name="q9" value="c"> Com una metàfora de la força humana.</label><br>
+            <label><input type="radio" name="q9" value="d"> Com una tragèdia.</label>
         </div>
         <div>
-            <p>10. Què ens ensenya "Micromegas" sobre la tolerància i la comprensió intercultural?</p> <!-- Pregunta 10 -->
-            <label><input type="radio" name="q10" value="a"> Que la comprensió és impossible.</label><br> <!-- Opció a -->
-            <label><input type="radio" name="q10" value="b"> Que la tolerància és fonamental.</label><br> <!-- Opció b -->
-            <label><input type="radio" name="q10" value="c"> Que les cultures són superiors les unes a les altres.</label><br> <!-- Opció c -->
-            <label><input type="radio" name="q10" value="d"> Que la comunicació és innecessària.</label> <!-- Opció d -->
+            <p>10. Què ens ensenya "Micromegas" sobre la tolerància i la comprensió intercultural?</p>
+            <label><input type="radio" name="q10" value="a"> Que la comprensió és impossible.</label><br>
+            <label><input type="radio" name="q10" value="b"> Que la tolerància és fonamental.</label><br>
+            <label><input type="radio" name="q10" value="c"> Que les cultures són superiors les unes a les altres.</label><br>
+            <label><input type="radio" name="q10" value="d"> Que la comunicació és innecessària.</label>
         </div>
-        <button type="button" onclick="checkAnswers()">Comprova respostes</button> <!-- Botó per comprovar respostes -->
+        <button type="button" onclick="checkAnswers()">Comprova respostes</button>
     </form>
-    <p id="resultat"></p> <!-- Mostra el resultat final -->
+    <p id="timer">Temps de resposta: 0m 0s</p>
+    <p id="resultat"></p>
 
     <script>
+        let startTime;
+        let timerInterval;
+
+        function updateTimer() {
+            const currentTime = new Date();
+            const timeElapsed = new Date(currentTime - startTime);
+            const minutes = timeElapsed.getUTCMinutes();
+            const seconds = timeElapsed.getUTCSeconds();
+            document.getElementById('timer').textContent = `Temps de resposta: ${minutes}m ${seconds}s`;
+        }
+
+        function startTimer() {
+            startTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
         function checkAnswers() {
+            clearInterval(timerInterval); // Atura el cronòmetre
             let score = 0; // Inicialitza la puntuació a zero
             const answers = { // Respostes correctes
                 q1: 'b',
@@ -105,40 +127,43 @@
                 q9: 'b',
                 q10: 'b'
             };
-            const form = document.getElementById('quiz'); // Obté el formulari
+                        const form = document.getElementById('quiz'); // Obté el formulari
             const resultat = document.getElementById('resultat'); // Obté l'element de resultat
 
             for (const [key, value] of Object.entries(answers)) { // Recorre cada resposta correcta
-                const userAnswer = form.elements[key].value; // Resposta de l'usuari
-                const questionElements = form.elements[key]; // Elements de la pregunta
+                const userAnswer = form.elements[key].value; // Obté la resposta de l'usuari
+                const questionElements = form.elements[key]; // Obté els elements de la pregunta
 
                 for (const element of questionElements) { // Recorre les opcions de cada pregunta
                     if (element.value === value) {
-                        element.parentElement.classList.add('correct'); // Afegeix la classe 'correcta' si coincideix
+                        element.parentElement.classList.add('correct'); // Marca la resposta com correcta
                     } else {
-                        element.parentElement.classList.remove('correct'); // Treu la classe 'correcta' si no coincideix
+                        element.parentElement.classList.remove('correct'); // Treu la marca de correcta si no ho és
                     }
 
                     if (element.checked) { // Si l'opció està seleccionada
                         if (element.value === value) { // Si la resposta és correcta
                             score++; // Incrementa la puntuació
-                            element.parentElement.classList.add('correct'); // Afegeix la classe 'correcta'
-                            element.parentElement.classList.remove('incorrect'); // Treu la classe 'incorrecta'
+                            element.parentElement.classList.add('correct'); // Marca la resposta com correcta
+                            element.parentElement.classList.remove('incorrect'); // Treu la marca d'incorrecta
                         } else {
-                            element.parentElement.classList.add('incorrect'); // Afegeix la classe 'incorrecta'
-                            element.parentElement.classList.remove('correct'); // Treu la classe 'correcta'
+                            element.parentElement.classList.add('incorrect'); // Marca la resposta com incorrecta
+                            element.parentElement.classList.remove('correct'); // Treu la marca de correcta
                         }
                     } else {
-                        element.parentElement.classList.remove('incorrect'); // Treu la classe 'incorrecta' si no està seleccionada
+                        element.parentElement.classList.remove('incorrect'); // Treu la marca d'incorrecta si no està seleccionada
                     }
                 }
             }
 
-            resultat.textContent = `Has obtingut ${score} de 10 punts.`; // Mostra la puntuació final
+            resultat.textContent = `Has encertat ${score} de 10 preguntes.`;
+        }
+
+        window.onload = function() {
+            startTimer(); // Inicia el cronòmetre quan es carrega la pàgina
         }
     </script>
 </body>
 </html>
 
-       
 
