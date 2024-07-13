@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<title>Completa el codi C++</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+.correct {
+  border-color: green;
+}
+.incorrect {
+  border-color: red;
+}
+.custom-box {
+  margin: 20px;
+  padding: 20px;
+  border: 2px solid #000;
+  text-align: justify;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+.btn-group {
+  margin-top: 20px;
+  text-align: center;
+}
+.btn {
+  margin: 5px;
+}
+input[type="text"] {
+  width: 120px;
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+input[type="text"].correct {
+  border-color: green;
+}
+input[type="text"].incorrect {
+  border-color: red;
+}
+#results {
+  margin-top: 20px;
+}
+#timer {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
+}
+.comment-icon {
+  cursor: pointer;
+  margin-left: 5px;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>  
+
+<div class="custom-box">
+<h2>Completa el codi següent amb sintaxi de C++</h2>
+<p>Per declarar una variable de tipus enter utilitzem
+  <input type="text" id="answer1" maxlength="10" required>
+  <i class="fas fa-comment-dots comment-icon" id="comment1" data-bs-toggle="tooltip" title="Aquí escriure una pista per aquest tipus de variable"></i>
+  , mentre que per declarar un nombre decimal fem servir 
+  <input type="text" id="answer2">
+  <i class="fas fa-comment-dots comment-icon" id="comment2" data-bs-toggle="tooltip" title="Exemple: float"></i>
+  . Les funcions en C++ es defineixen amb la paraula clau 
+  <input type="text" id="answer3">
+  <i class="fas fa-comment-dots comment-icon" id="comment3" data-bs-toggle="tooltip" title="Exemple: void"></i>
+  seguit del tipus de retorn. Per llegir dades de l'usuari s'utilitza 
+  <input type="text" id="answer4">
+  <i class="fas fa-comment-dots comment-icon" id="comment4" data-bs-toggle="tooltip" title="Exemple: cin"></i>
+  , i per mostrar dades s'utilitza 
+  <input type="text" id="answer5">
+  <i class="fas fa-comment-dots comment-icon" id="comment5" data-bs-toggle="tooltip" title="Exemple: cout"></i>
+  . Els bucles en C++ inclouen 
+  <input type="text" id="answer6">
+  <i class="fas fa-comment-dots comment-icon" id="comment6" data-bs-toggle="tooltip" title="Exemple: while"></i>
+  per repetir un bloc de codi fins que una condició sigui falsa, i 
+  <input type="text" id="answer7">
+  <i class="fas fa-comment-dots comment-icon" id="comment7" data-bs-toggle="tooltip" title="Exemple: do-while"></i>
+  que s'executa almenys una vegada.
+  Per definir una classe fem servir la paraula clau 
+  <input type="text" id="answer8">
+  <i class="fas fa-comment-dots comment-icon" id="comment8" data-bs-toggle="tooltip" title="Exemple: class"></i>
+  . Per crear un objecte d'una classe utilitzem 
+  <input type="text" id="answer9">
+  <i class="fas fa-comment-dots comment-icon" id="comment9" data-bs-toggle="tooltip" title="Exemple: new"></i>
+  seguit del nom de la classe.
+  Per sobrecarregar una funció, simplement definim diverses versions de la mateixa funció amb diferent 
+  <input type="text" id="answer10">
+  <i class="fas fa-comment-dots comment-icon" id="comment10" data-bs-toggle="tooltip" title="Exemple: parameters"></i>
+  o diferent 
+  <input type="text" id="answer11">
+  <i class="fas fa-comment-dots comment-icon" id="comment11" data-bs-toggle="tooltip" title="Exemple: return type"></i>
+  .
+  Per gestionar memòria dinàmica utilitzem 
+  <input type="text" id="answer12">
+  <i class="fas fa-comment-dots comment-icon" id="comment12" data-bs-toggle="tooltip" title="Exemple: new"></i>
+  per reservar memòria i 
+  <input type="text" id="answer13">
+  <i class="fas fa-comment-dots comment-icon" id="comment13" data-bs-toggle="tooltip" title="Exemple: delete"></i>
+  per alliberar-la.
+  Les biblioteques estàndard es poden incloure amb la directiva 
+  <input type="text" id="answer14">
+  <i class="fas fa-comment-dots comment-icon" id="comment14" data-bs-toggle="tooltip" title="Exemple: #include"></i>
+  . Els comentaris d'una sola línia s'escriuen amb 
+  <input type="text" id="answer15">
+  <i class="fas fa-comment-dots comment-icon" id="comment15" data-bs-toggle="tooltip" title="Exemple: //"></i>
+  i els comentaris de múltiples línies es delimiten amb 
+  <input type="text" id="answer16">
+  <i class="fas fa-comment-dots comment-icon" id="comment16" data-bs-toggle="tooltip" title="Exemple: /* */"></i>
+  .
+  Per utilitzar l'espai de noms estàndard, emprem 
+  <input type="text" id="answer17">
+  <i class="fas fa-comment-dots comment-icon" id="comment17" data-bs-toggle="tooltip" title="Exemple: using namespace std"></i>
+  .
+
+  Per controlar les estructures de decisió, utilitzem 
+  <input type="text" id="answer18">
+  <i class="fas fa-comment-dots comment-icon" id="comment18" data-bs-toggle="tooltip" title="Exemple: if"></i>
+  , 
+  <input type="text" id="answer19">
+  <i class="fas fa-comment-dots comment-icon" id="comment19" data-bs-toggle="tooltip" title="Exemple: else"></i>
+  , i 
+  <input type="text" id="answer20">
+  <i class="fas fa-comment-dots comment-icon" id="comment20" data-bs-toggle="tooltip" title="Exemple: switch"></i>
+  .
+</p>
+<div class="btn-group">
+  <button class="btn btn-primary" onclick="checkAnswers()" title="Comprova">
+    <i class="fas fa-check"></i>
+  </button>
+  <button class="btn btn-secondary" onclick="resetAnswers()" title="Esborra">
+    <i class="fas fa-eraser"></i>
+  </button>
+  <button class="btn btn-info" onclick="showHints()" title="Pista">
+    <i class="fas fa-lightbulb"></i>
+  </button>
+  <button class="btn btn-success" onclick="showSolutions()" title="Soluciona">
+    <i class="fas fa-key"></i>
+  </button>
+</div>
+<div id="timer">00:00</div>
+</div>
+<div id="results"></div>
+<script>
+var answers = ["int", "float", "void", "cin", "cout", "while", "do-while", "class", "new", "parameters", "return type", "new", "delete", "#include", "//", "/* */", "using namespace std", "if", "else", "switch"];
+var startTime = new Date();
+var timerInterval;
+
+function startTimer() {
+  timerInterval = setInterval(function() {
+    var currentTime = new Date();
+    var timeDiff = currentTime - startTime;
+    var seconds = Math.floor(timeDiff / 1000);
+    var minutes = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+
+    document.getElementById("timer").innerHTML = 
+      (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+function checkAnswers() {
+  stopTimer();
+  var correct = 0;
+  var incorrect = 0;
+  
+  for (var i = 0; i < answers.length; i++) {
+    var answer = document.getElementById("answer" + (i + 1)).value;
+    if (answer == answers[i]) {
+      document.getElementById("answer" + (i + 1)).className = "correct";
+      correct++;
+    } else {
+      document.getElementById("answer" + (i + 1)).className = "incorrect";
+      incorrect++;
+    }
+  }
+  
+  var endTime = new Date();
+  var timeDiff = endTime - startTime;
+  var seconds = Math.floor(timeDiff / 1000);
+  var minutes = Math.floor(seconds / 60);
+  seconds = seconds % 60;
+
+  document.getElementById("results").innerHTML = 
+    `<div class="alert alert-info">
+      <strong>Resultats:</strong><br>
+      Correctes: ${correct}<br>
+      Incorrectes: ${incorrect}<br>
+      Temps de resposta: ${minutes} minuts ${seconds} segons
+    </div>`;
+}
+
+function resetAnswers() {
+  for (var i = 0; i < answers.length; i++) {
+    document.getElementById("answer" + (i + 1)).value = "";
+    document.getElementById("answer" + (i + 1)).className = "";
+  }
+  
+  document.getElementById("results").innerHTML = "";
+  startTime = new Date();
+  startTimer();
+}
+
+function showHints() {
+  for (var i = 0; i < answers.length; i++) {
+    if (document.getElementById("answer" + (i + 1)).value === "") {
+      // Mostra la primera lletra de la resposta com a pista
+      var firstLetter = answers[i][0];
+      document.getElementById("answer" + (i + 1)).value = firstLetter;
+
+      // Activa el tooltip de Bootstrap per mostrar la resposta completa com a hint
+      var tooltipTriggerEl = document.getElementById("answer" + (i + 1));
+      var tooltip = new bootstrap.Tooltip(tooltipTriggerEl, {
+        title: answers[i], // Text complet de la resposta
+        placement: 'top' // Posició del tooltip
+      });
+    }
+  }
+}
+
+function showSolutions() {
+  for (var i = 0; i < answers.length; i++) {
+    document.getElementById("answer" + (i + 1)).value = answers[i];
+    document.getElementById("answer" + (i + 1)).className = "correct";
+  }
+  stopTimer();
+  document.getElementById("results").innerHTML = `<div class="alert alert-success">Totes les respostes han estat mostrades.</div>`;
+}
+
+window.onload = function() {
+  startTimer();
+
+  // Gestionar els esdeveniments de clic per activar els tooltips
+  for (var i = 1; i <= answers.length; i++) {
+    let commentIcon = document.getElementById("comment" + i);
+    commentIcon.addEventListener("click", function() {
+      var tooltip = new bootstrap.Tooltip(commentIcon, {
+        title: commentIcon.getAttribute("title"), // Text complet de la resposta
+        trigger: 'manual',
+        placement: 'top' // Posició del tooltip
+      });
+      tooltip.show();
+      setTimeout(function() {
+        tooltip.hide();
+      }, 3000); // Oculta el tooltip després de 3 segons
+    });
+  }
+};
+</script>
+
+</body>
+</html>
