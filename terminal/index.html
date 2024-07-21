@@ -4,15 +4,31 @@
     <title>xterm.js Example</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
     <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
-    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
-      
+    <style>
+        #terminal {
+            width: 80%;
+            height: 400px;
+            margin: 20px auto;
+            border: 1px solid #000;
+        }
+        #controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #explanation {
+            width: 80%;
+            margin: 20px auto;
+        }
+    </style>
 </head>
 <body>  
 
     <div id="terminal"></div>
-    <input type="text" id="codeInput" />
-    <button id="executeButton">Execute Code</button>
+    
+    <div id="controls">
+        <input type="text" id="codeInput" placeholder="Enter command" />
+        <button id="executeButton">Execute Code</button>
+    </div>
 
     <div id="explanation">
         <h2>Terminal Instructions</h2>
@@ -28,25 +44,97 @@
             <li><strong>echo &lt;text&gt;</strong> - Display the specified text</li>
             <li><strong>date</strong> - Show the current date and time</li>
             <li><strong>clear</strong> - Clear the terminal</li>
-            <li><strong>help</strong> - Show available commands</li>
+            <li><strong>history</strong> - Show command history</li>
+            <li><strong>save</strong> - Save the current terminal state</li>
+            <li><strong>load</strong> - Load the saved terminal state</li>
+            <li><strong>help</strong> - Show available commands or get help for a specific command</li>
         </ul>
     </div>
 
     <script>
         // Create an xterm.js Terminal instance
         const term = new Terminal();
-
-        // Attach the terminal to the DOM element
         term.open(document.getElementById('terminal'));
+        
+        // Load the terminal state from localStorage if available
+        function loadTerminalState() {
+            const savedState = localStorage.getItem('terminalState');
+            if (savedState) {
+                term.write(savedState);
+            } else {
+                term.writeln('Welcome to xterm.js! Type "help" to see available commands.');
+            }
+        }
 
-        // Example: Writing text to the terminal
-        term.writeln('Hello, xterm.js!');
+        // Save the terminal state to localStorage
+        function saveTerminalState() {
+            localStorage.setItem('terminalState', term._core.buffer.active.getLines().map(line => line.translateToString(true)).join('\n'));
+            term.writeln('Terminal state saved.');
+        }
 
-        // Example: Listening for keystrokes
-        term.onKey(e => {
-            // Do something with the keystroke event
-            console.log('Key pressed:', e.key);
-        });
+        // Command help information object
+        const commandHelpInfo = {
+            ls: {
+                description: 'List files in the current directory',
+                usage: 'ls'
+            },
+            pwd: {
+                description: 'Show the current directory',
+                usage: 'pwd'
+            },
+            cd: {
+                description: 'Change directory',
+                usage: 'cd <directory>'
+            },
+            mkdir: {
+                description: 'Create a new directory',
+                usage: 'mkdir <directory>'
+            },
+            rm: {
+                description: 'Remove a file',
+                usage: 'rm <file>'
+            },
+            cp: {
+                description: 'Copy a file',
+                usage: 'cp <source> <destination>'
+            },
+            mv: {
+                description: 'Move or rename a file',
+                usage: 'mv <source> <destination>'
+            },
+            cat: {
+                description: 'Display the contents of a file',
+                usage: 'cat <file>'
+            },
+            echo: {
+                description: 'Display the specified text',
+                usage: 'echo <text>'
+            },
+            date: {
+                description: 'Show the current date and time',
+                usage: 'date'
+            },
+            clear: {
+                description: 'Clear the terminal',
+                usage: 'clear'
+            },
+            history: {
+                description: 'Show command history',
+                usage: 'history'
+            },
+            save: {
+                description: 'Save the current terminal state',
+                usage: 'save'
+            },
+            load: {
+                description: 'Load the saved terminal state',
+                usage: 'load'
+            },
+            help: {
+                description: 'Show available commands or get help for a specific command',
+                usage: 'help [<command>]'
+            }
+        };
 
         // Command object mapping
         const commands = {
@@ -103,104 +191,52 @@
             },
             date: () => term.writeln(new Date().toString()),
             clear: () => term.clear(),
-            help: () => {
-                term.writeln('Available commands:');
-                term.writeln('ls - List files in the current directory');
-                term.writeln('pwd - Show the current directory');
-                term.writeln('cd <directory> - Change directory');
-                term.writeln('mkdir <directory> - Create a new directory');
-                term.writeln('rm <file> - Remove a file');
-                term.writeln('cp <source> <destination> - Copy a file');
-                term.writeln('mv <source> <destination> - Move or rename a file');
-                term.writeln('cat <file> - Display the contents of a file');
-                term.writeln('echo <text> - Display the specified text');
-                term.writeln('date - Show the current date and time');
-                term.writeln('clear - Clear the terminal');
-                term.writeln('help - Show available commands or help <command> for an specific command');
+            history: () => {
+                // Retrieve and display command history from localStorage
+                const history = JSON.parse(localStorage.getItem('commandHistory')) || [];
+                if (history.length) {
+                    term.writeln('Command history:');
+                    history.forEach((entry, index) => term.writeln(`${index + 1}: ${entry}`));
+                } else {
+                    term.writeln('No command history available.');
+                }
             },
-           
-
-  
-  // ...existing commands...
-  help: args => {
-    if (args.length === 2) {
-      const command = args[1];
-      const commandHelp = commandHelpInfo[command];
-      if (commandHelp) {
-        term.writeln(`Help for command '${command}':`);
-        term.writeln(commandHelp.description);
-        term.writeln('Usage: ' + commandHelp.usage);
-      } else {
-        term.writeln(`Unknown command: ${command}`);
-      }
-    } else {
-      term.writeln('Usage: help <command>');
-    }
-  },
-  default: code => term.writeln(`Unknown command: ${code}`)
-};
-
-
-// Command help information object
-const commandHelpInfo = {
-  ls: {
-    description: 'List files in the current directory',
-    usage: 'ls'
-  },
-  pwd: {
-    description: 'Show the current directory',
-    usage: 'pwd'
-  },
-  cd: {
-    description: 'Change directory',
-    usage: 'cd <directory>'
-  },
-  mkdir: {
-    description: 'Create a new directory',
-    usage: 'mkdir <directory>'
-  },
-  rm: {
-    description: 'Remove a file',
-    usage: 'rm <file>'
-  },
-  cp: {
-    description: 'Copy a file',
-    usage: 'cp <source> <destination>'
-  },
-  mv: {
-    description: 'Move or rename a file',
-    usage: 'mv <source> <destination>'
-  },
-  cat: {
-    description: 'Display the contents of a file',
-    usage: 'cat <file>'
-  },
-  echo: {
-    description: 'Display the specified text',
-    usage: 'echo <text>'
-  },
-  date: {
-    description: 'Show the current date and time',
-    usage: 'date'
-  },
-  clear: {
-    description: 'Clear the terminal',
-    usage: 'clear'
-  },
-  help: {
-    description: 'Show available commands or get help for a specific command',
-    usage: 'help [<command>]'
-  }
-};
-
-
-           
-        
+            save: () => saveTerminalState(),
+            load: () => {
+                loadTerminalState();
+                term.writeln('Terminal state loaded.');
+            },
+            help: args => {
+                if (args.length === 2) {
+                    const command = args[1];
+                    const commandHelp = commandHelpInfo[command];
+                    if (commandHelp) {
+                        term.writeln(`Help for command '${command}':`);
+                        term.writeln(commandHelp.description);
+                        term.writeln('Usage: ' + commandHelp.usage);
+                    } else {
+                        term.writeln(`Unknown command: ${command}`);
+                    }
+                } else {
+                    term.writeln('Available commands:');
+                    for (const cmd in commandHelpInfo) {
+                        term.writeln(`${cmd} - ${commandHelpInfo[cmd].description}`);
+                    }
+                    term.writeln('Type "help <command>" for detailed information on a specific command.');
+                }
+            },
+            default: code => term.writeln(`Unknown command: ${code}`)
+        };
 
         // Function to execute code in the terminal
         function executeCode() {
             const code = document.getElementById('codeInput').value;
-            term.writeln(`\r\nExecuting code: ${code}`);
+            term.writeln(`\r\n$ ${code}`);
+
+            // Save command to history
+            let history = JSON.parse(localStorage.getItem('commandHistory')) || [];
+            history.push(code);
+            localStorage.setItem('commandHistory', JSON.stringify(history));
 
             const args = code.trim().split(' ');
             const command = args[0];
@@ -210,8 +246,17 @@ const commandHelpInfo = {
 
         // Bind click event to execute button
         document.getElementById('executeButton').addEventListener('click', executeCode);
+
+               // Optionally, handle the Enter key to execute commands
+        document.getElementById('codeInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();  // Evita l'entrada de nova línia en el camp de text
+                executeCode();
+            }
+        });
+
+        // Initialize the terminal state on page load
+        loadTerminalState();
     </script>
 </body>
 </html>
-
-
