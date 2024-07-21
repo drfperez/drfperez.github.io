@@ -29,6 +29,14 @@
             display: block;
         }   
     </style>
+    <script>
+        function downloadBMP(filename) {
+            const link = document.createElement('a');
+            link.href = `https://yourusername.github.io/yourrepo/${filename}`;
+            link.download = filename;
+            link.click();
+        }
+    </script>
 </head>
 <body>
 
