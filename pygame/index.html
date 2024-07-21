@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicació del Codi: Alien Invasion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #3c3c3c;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-left: 3px solid #ccc;
+        }
+        code {
+            font-family: monospace;
+            color: #d14;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Explicació del Codi: Alien Invasion</h1>
+
+<h2>1. Instal·lar Pygame</h2>
+<p>Abans de començar a codificar, necessitem instal·lar Pygame. Això es pot fer amb la següent comanda al terminal:</p>
+<pre><code>$ python -m pip install --user pygame</code></pre>
+
+<h2>2. Configuració Inicial del Projecte</h2>
+<p>Crea un fitxer anomenat <code>alien_invasion.py</code> que contindrà la classe principal del joc.</p>
+<pre><code>import sys
+import pygame
+
+class AlienInvasion:
+    """Classe general per gestionar recursos i comportament del joc."""
+    
+    def __init__(self):
+        """Inicialitza el joc i crea recursos del joc."""
+        pygame.init()
+        self.screen = pygame.display.set_mode((1200, 800))
+        pygame.display.set_caption("Alien Invasion")
+
+    def run_game(self):
+        """Inicia el bucle principal del joc."""
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+            pygame.display.flip()
+
+if __name__ == '__main__':
+    ai = AlienInvasion()
+    ai.run_game()
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li>S'importen els mòduls necessaris (<code>sys</code> i <code>pygame</code>).</li>
+    <li>Es defineix la classe <code>AlienInvasion</code>, que inicialitza la finestra del joc.</li>
+    <li><code>run_game()</code> és el bucle principal que gestiona els esdeveniments i actualitza la pantalla.</li>
+</ul>
+
+<h2>3. Control de la Taxa de Fotogrames</h2>
+<p>Afegim un control per la taxa de fotogrames per assegurar que el joc corre a una velocitat constant.</p>
+<pre><code>self.clock = pygame.time.Clock()
+</code></pre>
+A la funció <code>run_game()</code>, afegim:
+<pre><code>self.clock.tick(60)
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li>Es crea un <code>Clock</code> per gestionar la taxa de fotogrames.</li>
+    <li>La taxa es fixa a 60 fotogrames per segon.</li>
+</ul>
+
+<h2>4. Color de Fons</h2>
+<p>Podem establir un color de fons diferent per al joc.</p>
+<pre><code>self.bg_color = (230, 230, 230)
+self.screen.fill(self.bg_color)
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li>Es defineix un color de fons (gris clar) i s'aplica a la pantalla.</li>
+</ul>
+
+<h2>5. Classe de Configuració</h2>
+<p>Creem una classe <code>Settings</code> per gestionar totes les configuracions del joc.</p>
+<pre><code>class Settings:
+    """Classe per emmagatzemar totes les configuracions per a Alien Invasion."""
+    
+    def __init__(self):
+        """Inicialitza les configuracions del joc."""
+        self.screen_width = 1200
+        self.screen_height = 800
+        self.bg_color = (230, 230, 230)
+        self.ship_speed = 1.5
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li>Aquí s'emmagatzemen les configuracions com l'amplada de la pantalla, l'alçada i la velocitat de la nau.</li>
+</ul>
+
+<h2>6. Afegint la Nau</h2>
+<p>Creem una classe <code>Ship</code> per gestionar el comportament de la nau del jugador.</p>
+<pre><code>class Ship:
+    """Classe per gestionar la nau."""
+    
+    def __init__(self, ai_game):
+        """Inicialitza la nau i estableix la seva posició inicial."""
+        self.screen = ai_game.screen
+        self.image = pygame.image.load('images/ship.bmp')
+        self.rect = self.image.get_rect()
+        self.rect.midbottom = self.screen_rect.midbottom
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li>La nau es carrega com una imatge i es posiciona a la part inferior central de la pantalla.</li>
+</ul>
+
+<h2>7. Moviment de la Nau</h2>
+<p>Afegim funcionalitat per controlar el moviment de la nau amb les tecles de fletxa.</p>
+<pre><code>def _check_events(self):
+    """Respon a les pulsacions de teclat i esdeveniments del ratolí."""
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                self.ship.moving_right = True
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li>S'escolten les pulsacions de teclat i es modifica una bandera de moviment per a la nau.</li>
+</ul>
+
+<h2>8. Disparar Projectils</h2>
+<p>Afegim funcionalitat per disparar projectils quan el jugador prem la barra espaiadora.</p>
+<pre><code>def _fire_bullet(self):
+    """Crea un nou projectil i l'afegeix al grup de projectils."""
+    new_bullet = Bullet(self)
+    self.bullets.add(new_bullet)
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li>Es crea una classe <code>Bullet</code> que gestiona la imatge i el moviment dels projectils.</li>
+</ul>
+
+<h2>9. Gestió de Col·lisions</h2>
+<p>Implementem la detecció de col·lisions entre projectils i aliens.</p>
+<pre><code>collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li><code>groupcollide()</code> comprova si hi ha col·lisions entre dos grups de sprites i elimina els que han col·lisionat.</li>
+</ul>
+
+<h2>10. Final del Joc</h2>
+<p>Afegim condicions per acabar el joc quan el jugador perd totes les naus.</p>
+<pre><code>if self.stats.ships_left <= 0:
+    self.game_active = False
+</code></pre>
+
+<h3>Explicació:</h3>
+<ul>
+    <li>Si no queda cap nau, el joc s'atura i es mostra el botó de jugar de nou.</li>
+</ul>
+
+<h2>Conclusió</h2>
+<p>Aquesta documentació ha cobert els aspectes fonamentals del codi del joc "Alien Invasion", incloent la instal·lació, configuració, moviment, i gestió de col·lisions. Amb aquest coneixement, podràs continuar desenvolupant i refinant el teu joc.</p>
+
+</body>
+</html>
