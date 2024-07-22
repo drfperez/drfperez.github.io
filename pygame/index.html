@@ -169,26 +169,45 @@ self.screen.fill(self.bg_color)
     <li>Es crea una classe <code>Bullet</code> que gestiona la imatge i el moviment dels projectils.</li>
 </ul>
 
-<h2>9. Gestió de Col·lisions</h2>
-<p>Implementem la detecció de col·lisions entre projectils i aliens.</p>
+<h2>9. Gestió de Col·lisions, Puntuació i Nivells</h2>
+<p>Implementem la detecció de col·lisions entre projectils i aliens i actualitzem la puntuació i el nivell.</p>
 <pre><code>collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+if collisions:
+    for aliens in collisions.values():
+        self.stats.score += self.settings.alien_points * len(aliens)
+    self.sb.prep_score()
+    check_high_score(self)
+
+if not self.aliens:
+    self.bullets.empty()
+    self._create_fleet()
+    self.settings.increase_speed()
+
+    # Augmenta el nivell
+    self.stats.level += 1
+    self.sb.prep_level()
 </code></pre>
 
 <h3>Explicació:</h3>
 <ul>
     <li><code>groupcollide()</code> comprova si hi ha col·lisions entre dos grups de sprites i elimina els que han col·lisionat.</li>
+    <li>Si hi ha col·lisions, s'actualitza la puntuació segons el nombre d'aliens destruïts.</li>
+    <li>Si tots els aliens han estat destruïts, es buiden els projectils i es crea una nova flota d'aliens. També s'augmenta la velocitat del joc.</li>
+    <li>El nivell del jugador augmenta en destruir tots els aliens.</li>
 </ul>
 
 <h2>10. Final del Joc</h2>
-<p>Afegim condicions per acabar el joc quan el jugador perd totes les naus.</p>
+<p>Afegim condicions per acabar el joc quan el jugador perd totes les naus i mostrem la puntuació final.</p>
 <pre><code>if self.stats.ships_left <= 0:
     self.game_active = False
+    pygame.mouse.set_visible(True)
 </code></pre>
 
 <h3>Explicació:</h3>
 <ul>
-    <li>Si no queda cap nau, el joc s'atura i es mostra el botó de jugar de nou.</li>
+    <li>Si no queda cap nau, el joc s'atura, es fa visible el cursor del ratolí i es mostra la puntuació final.</li>
 </ul>
+
 
 <h2>Conclusió</h2>
 <p>Aquesta documentació ha cobert els aspectes fonamentals del codi del joc "Alien Invasion", incloent la instal·lació, configuració, moviment, i gestió de col·lisions. Amb aquest coneixement, podràs continuar desenvolupant i refinant el teu joc.</p>
