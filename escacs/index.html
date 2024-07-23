@@ -1,1 +1,203 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicació de codi d'escacs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        code {
+            background-color: #f9f2f4;
+            color: #c7254e;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Explicació de codi d'escacs</h1>
+    
+    <h2>Pas 1: Estructura bàsica del document</h2>
+    <code>
+        &lt;!DOCTYPE html&gt;<br>
+        &lt;html lang="ca"&gt;<br>
+        &lt;head&gt;<br>
+        &lt;meta charset="UTF-8"&gt;<br>
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;<br>
+        &lt;title&gt;Play Chess&lt;/title&gt;<br>
+        &lt;/head&gt;
+    </code>
+    <p>Aquesta secció defineix el tipus de document com HTML5, l'idioma, el joc de caràcters, i ajusta el disseny per a diferents dispositius.</p>
+
+    <h2>Pas 2: Incloure llibreries CSS i JavaScript</h2>
+    <code>
+        &lt;link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"&gt;<br>
+        &lt;script src="https://unpkg.com/jquery@3.6.0/dist/jquery.min.js"&gt;&lt;/script&gt;<br>
+        &lt;script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"&gt;&lt;/script&gt;<br>
+        &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.12.1/chess.min.js"&gt;&lt;/script&gt;
+    </code>
+    <p>Aquestes línies inclouen les llibreries necessàries per crear i gestionar un tauler d'escacs (CSS de chessboard.js, jQuery, chessboard.js i chess.js).</p>
+
+    <h2>Pas 3: Estils CSS per al tauler i missatges</h2>
+    <code>
+        &lt;style&gt;<br>
+        #board {<br>
+            width: 400px;<br>
+            margin: 20px auto;<br>
+        }<br>
+        .messages {<br>
+            text-align: center;<br>
+            margin-top: 20px;<br>
+        }<br>
+        #game-status {<br>
+            color: green;<br>
+        }<br>
+        #error-message {<br>
+            color: red;<br>
+        }<br>
+        #moves {<br>
+            color: blue;<br>
+        }<br>
+        &lt;/style&gt;
+    </code>
+    <p>Aquests estils defineixen l'aparença del tauler d'escacs i dels missatges del joc.</p>
+
+    <h2>Pas 4: Estructura del cos del document</h2>
+    <code>
+        &lt;body&gt;<br>
+        &lt;h1&gt;Play Chess&lt;/h1&gt;<br>
+        &lt;div id="board"&gt;&lt;/div&gt;<br>
+        &lt;div class="messages"&gt;<br>
+            &lt;div id="game-status"&gt;&lt;/div&gt;<br>
+            &lt;div id="error-message"&gt;&lt;/div&gt;<br>
+            &lt;div id="moves"&gt;&lt;/div&gt;<br>
+        &lt;/div&gt;<br>
+        &lt;/body&gt;<br>
+        &lt;/html&gt;
+    </code>
+    <p>Aquesta part defineix l'estructura del cos del document, incloent el títol de la pàgina, el div pel tauler d'escacs i els divs per mostrar missatges.</p>
+
+    <h2>Pas 5: Inicialitzar el tauler d'escacs</h2>
+    <code>
+        &lt;script&gt;<br>
+        document.addEventListener("DOMContentLoaded", function() {<br>
+            let board, game;<br>
+            function initChessboard() {<br>
+                board = Chessboard('board', {<br>
+                    draggable: true,<br>
+                    position: 'start',<br>
+                    pieceTheme: 'img/chesspieces/wikipedia/{piece}.png',<br>
+                    onDrop: handleMove,<br>
+                });<br>
+                game = new Chess();<br>
+                updateMoves();<br>
+            }<br>
+            initChessboard();<br>
+        });<br>
+        &lt;/script&gt;
+    </code>
+    <p>Aquesta secció inicialitza el tauler d'escacs i configura les peces perquè es puguin arrossegar. També s'inicialitza el joc d'escacs utilitzant la llibreria chess.js.</p>
+
+    <h2>Pas 6: Gestionar els moviments de les peces</h2>
+    <code>
+        function handleMove(source, target) {<br>
+            clearMessages();<br>
+            const move = game.move({<br>
+                from: source,<br>
+                to: target,<br>
+                promotion: 'q'<br>
+            });<br>
+            if (move === null) {<br>
+                displayErrorMessage('Invalid move!');<br>
+                return 'snapback';<br>
+            }<br>
+            board.position(game.fen());<br>
+            if (game.game_over()) {<br>
+                displayGameStatus('Game over');<br>
+                return;<br>
+            }<br>
+            if (game.turn() === 'b') {<br>
+                const blackMoves = game.moves({ verbose: true });<br>
+                const randomIndex = Math.floor(Math.random() * blackMoves.length);<br>
+                const randomBlackMove = blackMoves[randomIndex];<br>
+                game.move(randomBlackMove);<br>
+                board.position(game.fen());<br>
+                if (game.game_over()) {<br>
+                    displayGameStatus('Game over');<br>
+                    return;<br>
+                }<br>
+                updateMoves();<br>
+            } else {<br>
+                updateMoves();<br>
+            }<br>
+        }<br>
+    </code>
+    <p>Aquesta funció gestiona els moviments de les peces, comprovant si són vàlids, actualitzant el tauler i fent que l'ordinador jugui amb les peces negres.</p>
+
+    <h2>Pas 7: Actualitzar moviments i mostrar missatges</h2>
+    <code>
+        function updateMoves() {<br>
+            const moves = game.moves({ verbose: true });<br>
+            const legalMoves = moves<br>
+                .filter(move => {<br>
+                    game.move(move);<br>
+                    const isLegal = !game.in_check();<br>
+                    game.undo();<br>
+                    return isLegal;<br>
+                })<br>
+                .map(move => move.san);<br>
+            document.getElementById('moves').innerText = 'Legal moves: ' + legalMoves.join(', ');<br>
+        }<br>
+        function displayGameStatus(message) {<br>
+            document.getElementById('game-status').innerText = message;<br>
+        }<br>
+        function displayErrorMessage(message) {<br>
+            document.getElementById('error-message').innerText = message;<br>
+        }<br>
+        function clearMessages() {<br>
+            document.getElementById('game-status').innerText = '';<br>
+            document.getElementById('error-message').innerText = '';<br>
+            document.getElementById('moves').innerText = '';<br>
+        }<br>
+        function handleError(error) {<br>
+            displayErrorMessage('Error: ' + error.message);<br>
+            console.error(error);<br>
+        }<br>
+    </code>
+    <p>Aquestes funcions s'utilitzen per actualitzar la llista de moviments legals, mostrar missatges d'estat i d'error, i esborrar missatges anteriors.</p>
+
+        <h2>Pas 8: Gestionar errors globals</h2>
+    <code>
+        window.onerror = function (message, source, lineno, colno, error) {<br>
+            handleError(error || new Error(message + ' at ' + source + ':' + lineno + ':' + colno));<br>
+        };<br>
+    </code>
+    <p>Aquesta funció captura errors globals que poden ocórrer en el codi i els gestiona utilitzant la funció <code>handleError</code>, mostrant un missatge d'error detallat.</p>
+
+    <h2>Pas 9: Tancar el document HTML</h2>
+    <code>
+        &lt;/script&gt;<br>
+        &lt;/body&gt;<br>
+        &lt;/html&gt;
+    </code>
+    <p>Aquesta part finalitza el document HTML tancant les etiquetes <code>&lt;script&gt;</code>, <code>&lt;body&gt;</code> i <code>&lt;html&gt;</code>.</p>
+<img src="escacs.jpg">
+    <h2>Millora el codi</h2>
+    <p>Aquesta pàgina web explica com crear un joc d'escacs senzill utilitzant les llibreries <code>chessboard.js</code> i <code>chess.js</code>. Hem dividit el codi en diversos passos per facilitar la comprensió, incloent la configuració del document, la inclusió de llibreries necessàries, els estils CSS, la inicialització del tauler d'escacs, la gestió de moviments i errors, i la visualització d'informació al jugador. Ara la teva feina és millorar el codi.</p>
+</body>
+</html>
+
 
