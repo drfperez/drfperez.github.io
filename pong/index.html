@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resum del Codi Pong en C++</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        code {
+            background-color: #f9f2f4;
+            color: #c7254e;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Resum del Codi Pong en C++</h1>
+
+<h2>Introducció a la Programació Orientada a Objectes (OOP)</h2>
+<p>La programació orientada a objectes (OOP) ens ajuda a organitzar el codi en estructures que són més fàcils de gestionar i entendre. En aquest projecte, crearem un joc de Pong utilitzant OOP, on definirem classes per representar objectes com el "Bat" (pala) i la "Ball" (pilota).</p>
+
+<h2>Què és una Classe?</h2>
+<p>Una classe és una plantilla que defineix un tipus d'objecte, incloent les seves propietats (variables) i comportaments (funcions o mètodes).</p>
+<pre><code>class NomClasse {
+    // Variables i funcions aquí
+};</code></pre>
+
+<h3>Exemple de la Classe Bat</h3>
+<p>A continuació es mostra com es declara la classe "Bat" per controlar la pala:</p>
+<pre><code>class Bat {
+    private:
+        int m_Length = 100;  // Longitud de la pala
+        int m_Height = 10;    // Altura de la pala
+        int m_XPosition;      // Posició en l'eix X
+        int m_YPosition;      // Posició en l'eix Y
+    public:
+        void moveRight();     // Moure a la dreta
+        void moveLeft();      // Moure a l'esquerra
+};</code></pre>
+<p>En aquest exemple, <code>m_Length</code>, <code>m_Height</code>, <code>m_XPosition</code>, i <code>m_YPosition</code> són variables que emmagatzemen l'estat de la pala. Les funcions <code>moveRight</code> i <code>moveLeft</code> controlen el moviment de la pala.</p>
+
+<h3>Encapsulació</h3>
+<p>L'encapsulació es refereix a l'ús de modificadors d'accés (com <code>private</code> i <code>public</code>) per protegir les dades internes d'una classe. Això significa que només les funcions que hem definit (públiques) poden accedir a les variables privades.</p>
+
+<h3>Polimorfisme i Herència</h3>
+<p>El polimorfisme permet que diferents classes puguin ser tractades com si fossin la mateixa classe base. La herència permet que una classe nova adquireixi les propietats i mètodes d'una classe existent, facilitant la reutilització del codi.</p>
+
+<h2>Creació de la Classe Bat</h2>
+<p>Per crear la classe "Bat", comencem amb el fitxer d'encapçalament <code>Bat.h</code>:</p>
+<pre><code>#pragma once
+#include &lt;SFML/Graphics.hpp&gt;
+using namespace sf;
+
+class Bat {
+private:
+    Vector2f m_Position; // Posició de la pala
+    RectangleShape m_Shape; // Forma visual de la pala
+    float m_Speed = 1000.0f; // Velocitat de la pala
+    bool m_MovingRight = false; // Indicador de moviment a la dreta
+    bool m_MovingLeft = false; // Indicador de moviment a l'esquerra
+public:
+    Bat(float startX, float startY);
+    FloatRect getPosition();
+    RectangleShape getShape();
+    void moveLeft();
+    void moveRight();
+    void stopLeft();
+    void stopRight();
+    void update(Time dt);
+};</code></pre>
+
+<h3>Constructor de la Classe Bat</h3>
+<p>El constructor inicialitza la pala amb una posició determinada:</p>
+<pre><code>Bat::Bat(float startX, float startY) : m_Position(startX, startY) {
+    m_Shape.setSize(sf::Vector2f(50, 5)); // Configura la mida de la pala
+    m_Shape.setPosition(m_Position);       // Col·loca la pala a la pantalla
+}</code></pre>
+
+<h3>Funcions de la Classe Bat</h3>
+<p>Aquí es defineixen les funcions que controlen el moviment de la pala:</p>
+<pre><code>void Bat::moveLeft() {
+    m_MovingLeft = true; // Activa el moviment a l'esquerra
+}
+void Bat::moveRight() {
+    m_MovingRight = true; // Activa el moviment a la dreta
+}
+void Bat::update(Time dt) {
+    if (m_MovingLeft) {
+        m_Position.x -= m_Speed * dt.asSeconds(); // Mou la pala a l'esquerra
+    }
+    if (m_MovingRight) {
+        m_Position.x += m_Speed * dt.asSeconds(); // Mou la pala a la dreta
+    }
+    m_Shape.setPosition(m_Position); // Actualitza la posició de la pala a la pantalla
+}</code></pre>
+
+<h2>Funció Principal del Joc</h2>
+<p>La funció principal del joc gestiona el bucle de joc i les entrades de l'usuari:</p>
+<pre><code>int main() {
+    RenderWindow window(VideoMode(1920, 1080), "Pong", Style::Fullscreen);
+    Bat bat(1920 / 2, 1080 - 20); // Crea la pala al centre de la pantalla
+    Ball ball(1920 / 2, 0); // Crea la pilota a la part superior
+    while (window.isOpen()) {
+        // Gestionar els esdeveniments
+        // Actualitzar la pala i la pilota
+        // Dibuixar la pala i la pilota
+    }
+    return 0;
+}</code></pre>
+
+<h3>Gestió dels Esdeveniments</h3>
+<p>El codi següent gestiona les entrades de l'usuari per controlar la pala:</p>
+<pre><code>Event event;
+while (window.pollEvent(event)) {
+    if (event.type == Event::Closed)
+        window.close();
+}
+// Controlar el moviment de la pala
+if (Keyboard::isKeyPressed(Keyboard::Left)) {
+    bat.moveLeft();
+} else {
+    bat.stopLeft();
+}
+if (Keyboard::isKeyPressed(Keyboard::Right)) {
+    bat.moveRight();
+} else {
+    bat.stopRight();
+}</code></pre>
+
+<h3>Actualització i Dibuix de la Pantalla</h3>
+<p>El bucle de joc actualitza i dibuixa els elements del joc:</p>
+<pre><code>Time dt = clock.restart(); // Actualitza el temps
+bat.update(dt); // Actualitza la pala
+window.clear(); // Neteja la pantalla
+window.draw(bat.getShape()); // Dibuixa la pala
+window.display(); // Mostra el contingut actualitzat</code></pre>
+
+
+<p>En aquesta part, hem cobert les bases de la programació orientada a objectes amb C++ a través del joc de Pong. Hem après a crear classes, controlar els seus atributs i comportaments, i gestionar la lògica del joc a la funció principal. La programació orientada a objectes facilita la creació de jocs més complexos i organitzats.</p>
+
+
+        
+<h2>Implementació de la Classe Ball</h2>
+<p>En aquest pas, implementarem la classe <code>Ball</code> i afegirem la detecció de collisions i puntuació per completar el joc de Pong. La classe <code>Ball</code> serà responsable de la lògica de moviment de la pilota, així com de la seva interacció amb els límits de la pantalla i la pala del jugador.</p>
+
+<h3>Objectius de la classe Ball</h3>
+<ul>
+    <li>Codificar la classe <code>Ball</code>: Crearem una nova classe per representar la pilota.</li>
+    <li>Usant la classe <code>Ball</code>: Aprendrem a instanciar la classe i a utilitzar les seves funcions.</li>
+    <li>Detectant col.lisions i puntuantant: Implementarem la detecció de col.lisions entre la pilota i la pala, així com la puntuació del jugador.</li>
+    <li>Juguem el joc: Executarem el joc amb la nova funcionalitat implementada.</li>
+</ul>
+
+<h2>Detalls sobre la Classe Ball</h2>
+<p>La classe <code>Ball</code> tindrà atributs similars als de la classe <code>Bat</code>, incloent la posició, la forma i la velocitat. A més, gestionarà la seva direcció de moviment amb dues variables: <code>m_DirectionX</code> i <code>m_DirectionY</code>.</p>
+
+<h3>Funcions de la Classe Ball</h3>
+<p>Algunes de les funcions que implementarem inclouen:</p>
+<ul>
+    <li><code>Ball(float startX, float startY)</code>: Constructor per inicialitzar la pilota a una posició específica.</li>
+    <li><code>void update(Time dt)</code>: Actualitza la posició de la pilota en funció del temps transcorregut.</li>
+    <li><code>void reboundSides()</code>: Inverteix la direcció horitzontal de la pilota quan col·lisiona amb un costat de la pantalla.</li>
+    <li><code>void reboundBatOrTop()</code>: Inverteix la direcció vertical de la pilota quan col·lisiona amb la pala o la part superior de la pantalla.</li>
+    <li><code>void reboundBottom()</code>: Restaura la pilota a la part superior de la pantalla quan toca el fons.</li>
+</ul>
+
+<h2>Detecció de Colisions</h2>
+<p>La detecció de colisions es realitzarà mitjançant la funció <code>intersects</code> de SFML, que ens permetrà comprovar si la pilota ha col·lisionat amb la pala o amb els límits de la finestra del joc.</p>
+
+<h3>Actualització del Joc</h3>
+<p>El bucle principal del joc s'actualitzarà per manejar les col·lisions i la puntuació:</p>
+<pre><code>
+// Actualitzar la pilota i la pala
+bat.update(dt);
+ball.update(dt);
+
+// Comprovar col·lisions
+if (ball.getPosition().intersects(bat.getPosition())) {
+    ball.reboundBatOrTop(); // Col·lisió amb la pala
+    score++; // Incrementar puntuació
+}
+</code></pre>
+
+<h2>Objectius aconseguits</h2>
+<p>Amb la implementació de la classe <code>Ball</code> i la detecció de colisions, el joc de Pong estarà a punt. Els jugadors podran jugar, colpejar la pilota amb la pala, marcar punts i experimentar la dinàmica del joc. En el següent capítol, continuarem amb més funcionalitats i optimitzacions per millorar l'experiència del jugador.</p>
+
+</body>
+</html>
+
