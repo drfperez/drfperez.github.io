@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicació de HTML en 10 passos</title>
+    <style>
+    /* Estilos Generales */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    color: #333;
+    background-color: #f4f4f4;
+}
+
+/* Estilos para la lista ordenada */
+ol {
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilos para cada ítem de la lista */
+li {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+/* Títulos dentro de los ítems de la lista */
+h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+/* Estilo para el código */
+code {
+    display: block;
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    font-family: monospace;
+    overflow-x: auto;
+}
+
+/* Estilos para los párrafos de explicación */
+p {
+    margin: 10px 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Estilos para los encabezados principales */
+h1 {
+    color: #2c3e50;
+}
+
+/* Estilos para los encabezados secundarios */
+h2 {
+    border-bottom: 2px solid #2c3e50;
+    padding-bottom: 5px;
+    color: #2c3e50;
+}
+
+/* Estilos para los encabezados terciarios */
+h3 {
+    color: #34495e;
+}
+
+/* Estilo para los enlaces */
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+    
+    </style>
+</head>
+<body>
+<h1>Aprenent HTML, CSS i Javascript creant el joc Go</h1>
+<p>Els objectius d'aquest document són proporcionar una comprensió clara del codi HTML i JavaScript utilitzat per crear un joc bàsic de Go. Aprendràs com inicialitzar i configurar un document HTML, aplicar estils CSS per millorar l'aparença, i implementar la lògica de joc amb JavaScript. Els conceptes clau inclouen la creació i manipulació del DOM, gestió d'esdeveniments, i actualització dinàmica del contingut de la pàgina, tots essencials per desenvolupar aplicacions web interactives.</p>
+
+    <ol>
+        <li>
+            <h2>Inicialització del Document HTML</h2>
+            <code>
+                &lt;!DOCTYPE html&gt;<br>
+                &lt;html lang="en"&gt;
+            </code>
+            <p>Aquesta part inicialitza el document com un document HTML5 i estableix l'idioma a anglès.</p>
+        </li>
+        <li>
+            <h2>Secció de Capçalera</h2>
+            <code>
+                &lt;head&gt;
+            </code>
+            <p>La secció de capçalera inclou metadades sobre el document HTML.</p>
+        </li>
+        <li>
+            <h2>Metadades del Document</h2>
+            <code>
+                &lt;meta charset="UTF-8"&gt;<br>
+                &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;<br>
+                &lt;title&gt;Go Game&lt;/title&gt;
+            </code>
+            <p>Aquests elements estableixen la codificació de caràcters, la configuració de la finestra gràfica per al disseny responsiu, i el títol del document com "Go Game".</p>
+        </li>
+        <li>
+            <h2>Estils CSS</h2>
+            <code>
+                &lt;style&gt;<br>
+                #go-board {<br>
+                    display: grid;<br>
+                    grid-template-columns: repeat(9, 1fr);<br>
+                    grid-gap: 1px;<br>
+                    background-color: #000;<br>
+                }<br>
+                .stone {<br>
+                    background-color: #f0f0f0;<br>
+                    border: 1px solid #ccc;<br>
+                    padding: 0;<br>
+                    margin: 0;<br>
+                    text-align: center;<br>
+                    font-size: 24px;<br>
+                    cursor: pointer;<br>
+                    box-sizing: border-box;<br>
+                }<br>
+                .black {<br>
+                    background-color: #000;<br>
+                    color: #fff;<br>
+                }<br>
+                .white {<br>
+                    background-color: #fff;<br>
+                    color: #000;<br>
+                }<br>
+                .captured {<br>
+                    background-color: #d3d3d3;<br>
+                    color: #000;<br>
+                }<br>
+                #captured-counts {<br>
+                    margin-top: 20px;<br>
+                }<br>
+                #captured-counts span {<br>
+                    display: inline-block;<br>
+                    margin-right: 20px;<br>
+                    font-size: 18px;<br>
+                }<br>
+                &lt;/style&gt;
+            </code>
+            <p>Aquesta secció inclou estils CSS per al tauler del joc de Go, les pedres, i el recompte de pedres capturades, definint el seu aspecte i disposició.</p>
+        </li>
+        <li>
+            <h2>Fi de la Secció de Capçalera i Inici del Cos del Document</h2>
+            <code>
+                &lt;/head&gt;<br>
+                &lt;body&gt;
+            </code>
+            <p>La secció de cos conté el contingut visible del document HTML.</p>
+        </li>
+        <li>
+            <h2>Contenidor del Tauler del Joc</h2>
+            <code>
+                &lt;div id="go-board"&gt;&lt;/div&gt;
+            </code>
+            <p>Aquest element div és el contenidor per al tauler del joc de Go.</p>
+        </li>
+        <li>
+            <h2>Recompte de Pedres Capturades</h2>
+            <code>
+                &lt;div id="captured-counts"&gt;<br>
+                &lt;span id="black-captured"&gt;Pedres negres capturades: 0&lt;/span&gt;<br>
+                &lt;span id="white-captured"&gt;Pedres blanques capturades: 0&lt;/span&gt;<br>
+                &lt;/div&gt;
+            </code>
+            <p>Aquest element div i els seus elements fill span mostren el recompte de pedres negres i blanques capturades.</p>
+        </li>
+        <li>
+            <h2>Inicialització de Variables</h2>
+            <code>
+                &lt;script&gt;<br>
+                const boardContainer = document.getElementById('go-board');<br>
+                const boardSize = 9;<br>
+                const stoneSize = 50;<br>
+                let currentPlayer = 'black';<br>
+                let gameBoard = [];<br>
+                let capturedStones = { black: 0, white: 0 };<br>
+                &lt;/script&gt;
+            </code>
+            <p>Aquest script inicialitza variables per al joc de Go, incloent el contenidor del tauler, la mida, la mida de les pedres, el jugador actual, la matriu del tauler de joc i el recompte de pedres capturades.</p>
+        </li>
+        <li>
+            <h2>Creació del Tauler i Gestor d'Esdeveniments</h2>
+            <code>
+                &lt;script&gt;<br>
+                for (let i = 0; i < boardSize; i++) {<br>
+                    gameBoard.push([]);<br>
+                    for (let j = 0; j < boardSize; j++) {<br>
+                        const stone = document.createElement('div');<br>
+                        stone.className = 'stone';<br>
+                        stone.style.width = `${stoneSize}px`;<br>
+                        stone.style.height = `${stoneSize}px`;<br>
+                        stone.dataset.row = i;<br>
+                        stone.dataset.col = j;<br>
+                        boardContainer.appendChild(stone);<br>
+                        gameBoard[i].push(stone);<br>
+                    }<br>
+                }<br>
+                boardContainer.addEventListener('click', handleStoneClick);<br>
+                &lt;/script&gt;
+            </code>
+            <p>Aquest script crea les pedres (elements div) per al tauler de joc i afegeix un gestor d'esdeveniments de clic per gestionar la col·locació de les pedres.</p>
+        </li>
+        <li>
+                            <h2>Funcions de Gestió de Pedres</h2>
+            <ul>
+                <li>
+                    <h3>Funció `handleStoneClick`</h3>
+                    <code>
+                        function handleStoneClick(event) {<br>
+                            const stone = event.target;<br>
+                            if (stone.classList.contains('stone') && !stone.classList.contains('black') && !stone.classList.contains('white')) {<br>
+                                placeStone(stone);<br>
+                            }<br>
+                        }
+                    </code>
+                    <p>Aquesta funció gestiona el clic en les pedres. Si l'element clicat és una pedra que no té cap color assignat (negra o blanca), s'anomena la funció `placeStone` per col·locar-hi la pedra del jugador actual.</p>
+                </li>
+                <li>
+                    <h3>Funció `placeStone`</h3>
+                    <code>
+                        function placeStone(stone) {<br>
+                            stone.classList.add(currentPlayer);<br>
+                            const row = parseInt(stone.dataset.row);<br>
+                            const col = parseInt(stone.dataset.col);<br>
+                            const captured = captureStones(row, col);<br>
+                            if (captured) {<br>
+                                updateBoard();<br>
+                            }<br>
+                            currentPlayer = currentPlayer === 'black' ? 'white' : 'black';<br>
+                            updateCapturedCounts();<br>
+                        }
+                    </code>
+                    <p>Aquesta funció col·loca una pedra al tauler. Afegeix la classe del jugador actual a la pedra, comprova si es capturen pedres adversàries i actualitza el tauler i el recompte de pedres capturades després de cada jugada.</p>
+                </li>
+                <li>
+                    <h3>Funció `captureStones`</h3>
+                    <code>
+                        function captureStones(row, col) {<br>
+                            const color = currentPlayer;<br>
+                            const opponentColor = color === 'black' ? 'white' : 'black';<br>
+                            let captured = false;<br>
+                            <br>
+                            function getNeighbors(r, c) {<br>
+                                return [<br>
+                                    [r - 1, c],<br>
+                                    [r + 1, c],<br>
+                                    [r, c - 1],<br>
+                                    [r, c + 1]<br>
+                                ].filter(([nr, nc]) => nr >= 0 && nr < boardSize && nc >= 0 && nc < boardSize);<br>
+                            }<br>
+                            <br>
+                            function hasLiberties(r, c, colorToCheck) {<br>
+                                const visited = new Set();<br>
+                                const stack = r, c;<br>
+                                let hasLiberty = false;<br>
+                                <br>
+                                while (stack.length > 0) {<br>
+                                    const [cr, cc] = stack.pop();<br>
+                                    getNeighbors(cr, cc).forEach(([nr, nc]) => {<br>
+                                        const neighborStone = gameBoard[nr][nc];<br>
+                                        if (!visited.has(neighborStone)) {<br>
+                                            visited.add(neighborStone);<br>
+                                            if (!neighborStone.classList.contains('black') && !neighborStone.classList.contains('white')) {<br>
+                                                hasLiberty = true;<br>
+                                            } else if (neighborStone.classList.contains(colorToCheck)) {<br>
+                                                stack.push([nr, nc]);<br>
+                                            }<br>
+                                        }<br>
+                                    });<br>
+                                }<br>
+                                return hasLiberty;<br>
+                            }<br>
+                            <br>
+                            function removeCapturedStones(r, c, colorToRemove) {<br>
+                                const visited = new Set();<br>
+                                const stack = r, c;<br>
+                                <br>
+                                while (stack.length > 0) {<br>
+                                    const [cr, cc] = stack.pop();<br>
+                                    const stone = gameBoard[cr][cc];<br>
+                                    if (stone.classList.contains(colorToRemove)) {<br>
+                                        stone.classList.remove('black', 'white');<br>
+                                        stone.classList.add('captured');<br>
+                                        capturedStones[colorToRemove]++;<br>
+                                        visited.add(stone);<br>
+                                        getNeighbors(cr, cc).forEach(([nr, nc]) => {<br>
+                                            const neighborStone = gameBoard[nr][nc];<br>
+                                            if (!visited.has(neighborStone)) {<br>
+                                                stack.push([nr, nc]);<br>
+                                            }<br>
+                                        });<br>
+                                    }<br>
+                                }<br>
+                            }<br>
+                            <br>
+                            getNeighbors(row, col).forEach(([nr, nc]) => {<br>
+                                const neighborStone = gameBoard[nr][nc];<br>
+                                if (neighborStone.classList.contains(opponentColor) && !hasLiberties(nr, nc, opponentColor)) {<br>
+                                    captured = true;<br>
+                                    removeCapturedStones(nr, nc, opponentColor);<br>
+                                }<br>
+                            });<br>
+                            <br>
+                            return captured;<br>
+                        }
+                    </code>
+                    <p>Aquesta funció comprova les pedres que es poden capturar al voltant de la pedra col·locada. Utilitza les funcions `getNeighbors`, `hasLiberties`, i `removeCapturedStones` per identificar i eliminar pedres capturades, actualitzant el recompte de pedres capturades.</p>
+                </li>
+                <li>
+                    <h3>Funció `updateBoard`</h3>
+                    <code>
+                        function updateBoard() {<br>
+                            gameBoard.forEach(row => {<br>
+                                row.forEach(stone => {<br>
+                                    if (stone.classList.contains('captured')) {<br>
+                                        stone.classList.remove('captured');<br>
+                                        stone.className = 'stone';<br>
+                                    }<br>
+                                });<br>
+                            });<br>
+                        }
+                    </code>
+                    <p>Aquesta funció actualitza el tauler eliminant l'estil de capturat de les pedres. Reestableix les pedres capturades a l'estat original per a les properes jugades.</p>
+                </li>
+                <li>
+                    <h3>Funció `updateCapturedCounts`</h3>
+                    <code>
+                        function updateCapturedCounts() {<br>
+                            document.getElementById('black-captured').textContent = `Pedres negres capturades: ${capturedStones.black}`;<br>
+                            document.getElementById('white-captured').textContent = `Pedres blanques capturades: ${capturedStones.white}`;<br>
+                        }
+                    </code>
+                    <p>Aquesta funció actualitza el recompte de pedres capturades mostrades a la interfície d'usuari, canviant els textos dels elements corresponents.</p>
+                </li>
+                <li>
+                    <h3>Funció `initGame`</h3>
+                    <code>
+                        function initGame() {<br>
+                            gameBoard.forEach(row => {<br>
+                                row.forEach(stone => {<br>
+                                    stone.className = 'stone';<br>
+                                });<br>
+                            });<br>
+                            currentPlayer = 'black';<br>
+                            capturedStones = { black: 0, white: 0 };<br>
+                            updateCapturedCounts();<br>
+                        }
+                    </code>
+                    <p>Aquesta funció inicialitza el joc, configurant el tauler de pedres, establint el jugador actual com a "black" i posant a zero el recompte de pedres capturades.</p>
+                </li>
+            </ul>
+        </li>
+    </ol>
+</body>
+</html>
+
