@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Farmacodinàmic</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .slider {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Simulador Farmacodinàmic</h2>
+    
+    <label for="dosi">Dosi (mg):</label>
+    <input type="range" id="dosi" name="dosi" min="0" max="100" value="10" class="slider" oninput="updateValues()">
+    <span id="dosi_val">10</span> mg
+
+    <br>
+
+    <label for="de50">DE50 (mg):</label>
+    <input type="range" id="de50" name="de50" min="0" max="100" value="50" class="slider" oninput="updateValues()">
+    <span id="de50_val">50</span> mg
+
+    <br>
+
+    <label for="dl50">DL50 (mg):</label>
+    <input type="range" id="dl50" name="dl50" min="0" max="100" value="80" class="slider" oninput="updateValues()">
+    <span id="dl50_val">80</span> mg
+
+    <br>
+
+    <label for="tipus_farmac">Tipus de fàrmac:</label>
+    <select id="tipus_farmac" onchange="updateValues()">
+        <option value="agonista_complet">Agonista Complet</option>
+        <option value="agonista_parcial">Agonista Parcial</option>
+        <option value="antagonista_competitiu">Antagonista Competitiu</option>
+        <option value="antagonista_no_competitiu">Antagonista No Competitiu</option>
+    </select>
+
+    <br><br>
+
+    <button onclick="simular()">Simular</button>
+
+    <div id="resultats">
+        <p>Resposta: <span id="resposta"></span></p>
+        <p>Índex Terapèutic: <span id="index_terapeutic"></span></p>
+    </div>
+    
+    <div id="grafica"></div>
+
+    <script>
+        function updateValues() {
+            document.getElementById("dosi_val").innerText = document.getElementById("dosi").value;
+            document.getElementById("de50_val").innerText = document.getElementById("de50").value;
+            document.getElementById("dl50_val").innerText = document.getElementById("dl50").value;
+        }
+
+        function simular() {
+            let dosi = parseFloat(document.getElementById("dosi").value);
+            let de50 = parseFloat(document.getElementById("de50").value);
+            let dl50 = parseFloat(document.getElementById("dl50").value);
+            let tipus_farmac = document.getElementById("tipus_farmac").value;
+            
+            // Modificador segons tipus de fàrmac
+            let resposta = 0;
+            if (tipus_farmac === "agonista_complet") {
+                resposta = calcularRespostaAgonista(dosi, de50, 1.0); // Agonista complet, màxim efecte
+            } else if (tipus_farmac === "agonista_parcial") {
+                resposta = calcularRespostaAgonista(dosi, de50, 0.6); // Agonista parcial, efecte màxim 60%
+            } else if (tipus_farmac === "antagonista_competitiu") {
+                resposta = calcularRespostaAntagonistaCompetitiu(dosi, de50, 0.5); // Reducció competitiu
+            } else if (tipus_farmac === "antagonista_no_competitiu") {
+                resposta = calcularRespostaAntagonistaNoCompetitiu(dosi, de50); // Inhibició no competitiu
+            }
+            
+            // Índex terapèutic
+            let index_terapeutic = dl50 / de50;
+            
+            // Mostrar resultats
+            document.getElementById("resposta").innerText = resposta.toFixed(2);
+            document.getElementById("index_terapeutic").innerText = index_terapeutic.toFixed(2);
+            
+            // Graficar la resposta
+            crearGrafica(de50, dl50, tipus_farmac);
+        }
+
+        function calcularRespostaAgonista(dosi, de50, eficacia_max) {
+            // Corba dosi-resposta per agonista (Hill equation)
+            return eficacia_max * (dosi ** 2) / (dosi ** 2 + de50 ** 2);
+        }
+
+        function calcularRespostaAntagonistaCompetitiu(dosi, de50, inhibicio) {
+            // Corba antagonista competitiu, redueix la resposta màxima
+            let resposta = (dosi ** 2) / (dosi ** 2 + de50 ** 2);
+            return resposta * (1 - inhibicio);
+        }
+
+        function calcularRespostaAntagonistaNoCompetitiu(dosi, de50) {
+            // Antagonista no competitiu: redueix resposta independentment de la dosi
+            return (dosi ** 2) / (dosi ** 2 + de50 ** 2) * 0.5;
+        }
+
+        function crearGrafica(de50, dl50, tipus_farmac) {
+            // Configuració de la gràfica amb p5.js
+            new p5((p) => {
+                p.setup = function() {
+                    p.createCanvas(400, 400);
+                    p.background(255);
+                    
+                    // Dibuixar la corba dosi-resposta
+                    p.stroke(0);
+                    p.noFill();
+                    p.beginShape();
+                    for (let x = 0; x <= 100; x++) {
+                        let resposta = 0;
+                        if (tipus_farmac === "agonista_complet") {
+                            resposta = calcularRespostaAgonista(x, de50, 1.0);
+                        } else if (tipus_farmac === "agonista_parcial") {
+                            resposta = calcularRespostaAgonista(x, de50, 0.6);
+                        } else if (tipus_farmac === "antagonista_competitiu") {
+                            resposta = calcularRespostaAntagonistaCompetitiu(x, de50, 0.5);
+                        } else if (tipus_farmac === "antagonista_no_competitiu") {
+                            resposta = calcularRespostaAntagonistaNoCompetitiu(x, de50);
+                        }
+                        p.vertex(x * 4, 400 - resposta * 400); // Escalar gràfica
+                    }
+                    p.endShape();
+                    
+                    // Dibuixar línies de DE50 i DL50
+                    p.stroke(255, 0, 0);
+                    p.line(de50 * 4, 0, de50 * 4, 400); // DE50
+                    p.line(dl50 * 4, 0, dl50 * 4, 400); // DL50
+                };
+            }, 'grafica');
+        }
+    </script>
+</body>
+</html>
