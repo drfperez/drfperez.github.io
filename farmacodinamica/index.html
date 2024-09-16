@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador de Farmacodinàmica</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,6 +55,11 @@
         <input type="range" id="hillCoefficient" class="slider" min="0.1" max="5" step="0.1" value="1">
     </div>
     
+    <div class="slider-container">
+        <label for="ke0">Constant de velocitat d'equilibri (ke0): <span id="ke0Valor"></span></label>
+        <input type="range" id="ke0" class="slider" min="0.01" max="1" step="0.01" value="0.1">
+    </div>
+    
     <button onclick="calcular()">Calcular</button>
     
     <div id="resultats"></div>
@@ -67,6 +74,7 @@
             document.getElementById('emaxValor').textContent = document.getElementById('emax').value;
             document.getElementById('ec50Valor').textContent = document.getElementById('ec50').value;
             document.getElementById('hillCoefficientValor').textContent = document.getElementById('hillCoefficient').value;
+            document.getElementById('ke0Valor').textContent = document.getElementById('ke0').value;
         }
         
         document.querySelectorAll('.slider').forEach(slider => {
@@ -80,33 +88,60 @@
             const emax = parseFloat(document.getElementById('emax').value);
             const ec50 = parseFloat(document.getElementById('ec50').value);
             const hillCoefficient = parseFloat(document.getElementById('hillCoefficient').value);
+            const ke0 = parseFloat(document.getElementById('ke0').value);
             
             const efecte = calcularEfecte(concentracio, emax, ec50, hillCoefficient);
+            const efecteEquilibri = calcularEfecteEquilibri(concentracio, emax, ec50, hillCoefficient, ke0);
             
             const resultatsDiv = document.getElementById('resultats');
             resultatsDiv.innerHTML = `
                 <h2>Resultats:</h2>
                 <p><strong>Pas 1:</strong> Càlcul de l'efecte utilitzant l'equació de Hill</p>
-                <p><strong>Fórmula:</strong> E = (Emax * C^n) / (EC50^n + C^n)</p>
+                <p><strong>Fórmula:</strong> \(E = \\frac{E_{max} \\cdot C^n}{EC_{50}^n + C^n}\)</p>
                 <p>On:</p>
                 <ul>
                     <li>E = Efecte</li>
-                    <li>Emax = Efecte màxim (${emax})</li>
+                    <li>E<sub>max</sub> = Efecte màxim (${emax})</li>
                     <li>C = Concentració del fàrmac (${concentracio} mg/L)</li>
-                    <li>EC50 = Concentració que produeix el 50% de l'efecte màxim (${ec50} mg/L)</li>
+                    <li>EC<sub>50</sub> = Concentració que produeix el 50% de l'efecte màxim (${ec50} mg/L)</li>
                     <li>n = Coeficient de Hill (${hillCoefficient})</li>
                 </ul>
                 <p><strong>Pas 2:</strong> Substituïm els valors a l'equació</p>
-                <p>E = (${emax} * ${concentracio}^${hillCoefficient}) / (${ec50}^${hillCoefficient} + ${concentracio}^${hillCoefficient})</p>
+                <p>\(E = \\frac{${emax} \\cdot ${concentracio}^{${hillCoefficient}}}{${ec50}^{${hillCoefficient}} + ${concentracio}^{${hillCoefficient}}}\)</p>
                 <p><strong>Pas 3:</strong> Calculem el resultat</p>
                 <p><strong>Efecte calculat:</strong> ${efecte.toFixed(2)}</p>
+                
+                <h3>Efecte d'equilibri:</h3>
+                <p><strong>Fórmula:</strong> \(E_{eq} = E_{max} \\cdot (1 - e^{-k_{e0} \\cdot t})\)</p>
+                <p>On:</p>
+                <ul>
+                    <li>E<sub>eq</sub> = Efecte d'equilibri</li>
+                    <li>k<sub>e0</sub> = Constant de velocitat d'equilibri (${ke0})</li>
+                    <li>t = Temps (assumim t = 1 per a aquest càlcul)</li>
+                </ul>
+                <p><strong>Efecte d'equilibri calculat:</strong> ${efecteEquilibri.toFixed(2)}</p>
+                
+                <h3>Altres conceptes farmacodinàmics:</h3>
+                <p><strong>Índex terapèutic:</strong> \(IT = \\frac{TD_{50}}{ED_{50}}\)</p>
+                <p>On TD<sub>50</sub> és la dosi tòxica mitjana i ED<sub>50</sub> és la dosi efectiva mitjana.</p>
+                
+                <p><strong>Potència relativa:</strong> \(PR = \\frac{EC_{50(fàrmac A)}}{EC_{50(fàrmac B)}}\)</p>
+                
+                <p><strong>Eficàcia intrínseca:</strong> \(\\alpha = \\frac{E_{max(fàrmac)}}{E_{max(agonista complet)}}\)</p>
             `;
+            
+            MathJax.typeset();
             
             actualitzarGrafic(emax, ec50, hillCoefficient);
         }
         
         function calcularEfecte(concentracio, emax, ec50, hillCoefficient) {
             return (emax * Math.pow(concentracio, hillCoefficient)) / (Math.pow(ec50, hillCoefficient) + Math.pow(concentracio, hillCoefficient));
+        }
+        
+        function calcularEfecteEquilibri(concentracio, emax, ec50, hillCoefficient, ke0) {
+            const efecteMaxim = calcularEfecte(concentracio, emax, ec50, hillCoefficient);
+            return efecteMaxim * (1 - Math.exp(-ke0 * 1)); // Assumim t = 1 per simplicitat
         }
         
         function actualitzarGrafic(emax, ec50, hillCoefficient) {
