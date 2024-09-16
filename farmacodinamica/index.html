@@ -97,7 +97,7 @@
             resultatsDiv.innerHTML = `
                 <h2>Resultats:</h2>
                 <p><strong>Pas 1:</strong> Càlcul de l'efecte utilitzant l'equació de Hill</p>
-                <p><strong>Fórmula:</strong> \(E = \\frac{E_{max} \\cdot C^n}{EC_{50}^n + C^n}\)</p>
+                <p><strong>Fórmula:</strong> \\[E = \\frac{E_{max} \\cdot C^n}{EC_{50}^n + C^n}\\]</p>
                 <p>On:</p>
                 <ul>
                     <li>E = Efecte</li>
@@ -107,12 +107,12 @@
                     <li>n = Coeficient de Hill (${hillCoefficient})</li>
                 </ul>
                 <p><strong>Pas 2:</strong> Substituïm els valors a l'equació</p>
-                <p>\(E = \\frac{${emax} \\cdot ${concentracio}^{${hillCoefficient}}}{${ec50}^{${hillCoefficient}} + ${concentracio}^{${hillCoefficient}}}\)</p>
+                <p>\\[E = \\frac{${emax} \\cdot ${concentracio}^{${hillCoefficient}}}{${ec50}^{${hillCoefficient}} + ${concentracio}^{${hillCoefficient}}}\\]</p>
                 <p><strong>Pas 3:</strong> Calculem el resultat</p>
                 <p><strong>Efecte calculat:</strong> ${efecte.toFixed(2)}</p>
                 
                 <h3>Efecte d'equilibri:</h3>
-                <p><strong>Fórmula:</strong> \(E_{eq} = E_{max} \\cdot (1 - e^{-k_{e0} \\cdot t})\)</p>
+                <p><strong>Fórmula:</strong> \\[E_{eq} = E_{max} \\cdot (1 - e^{-k_{e0} \\cdot t})\\]</p>
                 <p>On:</p>
                 <ul>
                     <li>E<sub>eq</sub> = Efecte d'equilibri</li>
@@ -122,15 +122,17 @@
                 <p><strong>Efecte d'equilibri calculat:</strong> ${efecteEquilibri.toFixed(2)}</p>
                 
                 <h3>Altres conceptes farmacodinàmics:</h3>
-                <p><strong>Índex terapèutic:</strong> \(IT = \\frac{TD_{50}}{ED_{50}}\)</p>
+                <p><strong>Índex terapèutic:</strong> \\[IT = \\frac{TD_{50}}{ED_{50}}\\]</p>
                 <p>On TD<sub>50</sub> és la dosi tòxica mitjana i ED<sub>50</sub> és la dosi efectiva mitjana.</p>
                 
-                <p><strong>Potència relativa:</strong> \(PR = \\frac{EC_{50(fàrmac A)}}{EC_{50(fàrmac B)}}\)</p>
+                <p><strong>Potència relativa:</strong> \\[PR = \\frac{EC_{50(fàrmac A)}}{EC_{50(fàrmac B)}}\\]</p>
                 
-                <p><strong>Eficàcia intrínseca:</strong> \(\\alpha = \\frac{E_{max(fàrmac)}}{E_{max(agonista complet)}}\)</p>
+                <p><strong>Eficàcia intrínseca:</strong> \\[\\alpha = \\frac{E_{max(fàrmac)}}{E_{max(agonista complet)}}\\]</p>
             `;
             
-            MathJax.typeset();
+            MathJax.typesetPromise().then(() => {
+                console.log('MathJax rendering complete');
+            }).catch((err) => console.log('MathJax rendering failed:', err));
             
             actualitzarGrafic(emax, ec50, hillCoefficient);
         }
