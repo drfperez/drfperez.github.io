@@ -1,184 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Farmacodinàmic amb Chart.js</title>
+    <title>Simulador de Farmacodinàmica</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .slider-container {
+            margin-bottom: 20px;
         }
         .slider {
-            margin-bottom: 20px;
+            width: 100%;
+        }
+        #resultats {
+            margin-top: 20px;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
 <body>
-    <h2>Simulador Farmacodinàmic</h2>
+    <h1>Simulador de Farmacodinàmica</h1>
     
-    <label for="dosi">Dosi (mg):</label>
-    <input type="range" id="dosi" name="dosi" min="0" max="100" value="10" class="slider" oninput="updateValues()">
-    <span id="dosi_val">10</span> mg
-
-    <br>
-
-    <label for="de50">DE50 (mg):</label>
-    <input type="range" id="de50" name="de50" min="0" max="100" value="50" class="slider" oninput="updateValues()">
-    <span id="de50_val">50</span> mg
-
-    <br>
-
-    <label for="dl50">DL50 (mg):</label>
-    <input type="range" id="dl50" name="dl50" min="0" max="100" value="80" class="slider" oninput="updateValues()">
-    <span id="dl50_val">80</span> mg
-
-    <br>
-
-    <label for="tipus_farmac">Tipus de fàrmac:</label>
-    <select id="tipus_farmac" onchange="updateValues()">
-        <option value="agonista_complet">Agonista Complet</option>
-        <option value="agonista_parcial">Agonista Parcial</option>
-        <option value="antagonista_competitiu">Antagonista Competitiu</option>
-        <option value="antagonista_no_competitiu">Antagonista No Competitiu</option>
-    </select>
-
-    <br><br>
-
-    <button onclick="simular()">Simular</button>
-
-    <div id="resultats">
-        <p>Resposta: <span id="resposta"></span></p>
-        <p>Índex Terapèutic: <span id="index_terapeutic"></span></p>
+    <div class="slider-container">
+        <label for="concentracio">Concentració del fàrmac (mg/L): <span id="concentracioValor"></span></label>
+        <input type="range" id="concentracio" class="slider" min="0" max="100" step="0.1" value="50">
     </div>
     
-    <canvas id="grafica" width="400" height="400"></canvas>
-
+    <div class="slider-container">
+        <label for="emax">Efecte màxim (Emax): <span id="emaxValor"></span></label>
+        <input type="range" id="emax" class="slider" min="0" max="100" step="1" value="100">
+    </div>
+    
+    <div class="slider-container">
+        <label for="ec50">Concentració que produeix el 50% de l'efecte màxim (EC50): <span id="ec50Valor"></span></label>
+        <input type="range" id="ec50" class="slider" min="0" max="100" step="0.1" value="25">
+    </div>
+    
+    <div class="slider-container">
+        <label for="hillCoefficient">Coeficient de Hill: <span id="hillCoefficientValor"></span></label>
+        <input type="range" id="hillCoefficient" class="slider" min="0.1" max="5" step="0.1" value="1">
+    </div>
+    
+    <button onclick="calcular()">Calcular</button>
+    
+    <div id="resultats"></div>
+    
+    <canvas id="graficEfecte"></canvas>
+    
     <script>
-        let chart;
-
-        function updateValues() {
-            document.getElementById("dosi_val").innerText = document.getElementById("dosi").value;
-            document.getElementById("de50_val").innerText = document.getElementById("de50").value;
-            document.getElementById("dl50_val").innerText = document.getElementById("dl50").value;
+        let graficEfecte;
+        
+        function actualitzarValorsSliders() {
+            document.getElementById('concentracioValor').textContent = document.getElementById('concentracio').value;
+            document.getElementById('emaxValor').textContent = document.getElementById('emax').value;
+            document.getElementById('ec50Valor').textContent = document.getElementById('ec50').value;
+            document.getElementById('hillCoefficientValor').textContent = document.getElementById('hillCoefficient').value;
         }
-
-        function simular() {
-            let dosi = parseFloat(document.getElementById("dosi").value);
-            let de50 = parseFloat(document.getElementById("de50").value);
-            let dl50 = parseFloat(document.getElementById("dl50").value);
-            let tipus_farmac = document.getElementById("tipus_farmac").value;
+        
+        document.querySelectorAll('.slider').forEach(slider => {
+            slider.addEventListener('input', actualitzarValorsSliders);
+        });
+        
+        actualitzarValorsSliders();
+        
+        function calcular() {
+            const concentracio = parseFloat(document.getElementById('concentracio').value);
+            const emax = parseFloat(document.getElementById('emax').value);
+            const ec50 = parseFloat(document.getElementById('ec50').value);
+            const hillCoefficient = parseFloat(document.getElementById('hillCoefficient').value);
             
-            // Modificador segons tipus de fàrmac
-            let resposta = 0;
-            if (tipus_farmac === "agonista_complet") {
-                resposta = calcularRespostaAgonista(dosi, de50, 1.0); // Agonista complet, màxim efecte
-            } else if (tipus_farmac === "agonista_parcial") {
-                resposta = calcularRespostaAgonista(dosi, de50, 0.6); // Agonista parcial, efecte màxim 60%
-            } else if (tipus_farmac === "antagonista_competitiu") {
-                resposta = calcularRespostaAntagonistaCompetitiu(dosi, de50, 0.5); // Reducció competitiu
-            } else if (tipus_farmac === "antagonista_no_competitiu") {
-                resposta = calcularRespostaAntagonistaNoCompetitiu(dosi, de50); // Inhibició no competitiu
+            const efecte = calcularEfecte(concentracio, emax, ec50, hillCoefficient);
+            
+            const resultatsDiv = document.getElementById('resultats');
+            resultatsDiv.innerHTML = `
+                <h2>Resultats:</h2>
+                <p><strong>Pas 1:</strong> Càlcul de l'efecte utilitzant l'equació de Hill</p>
+                <p><strong>Fórmula:</strong> E = (Emax * C^n) / (EC50^n + C^n)</p>
+                <p>On:</p>
+                <ul>
+                    <li>E = Efecte</li>
+                    <li>Emax = Efecte màxim (${emax})</li>
+                    <li>C = Concentració del fàrmac (${concentracio} mg/L)</li>
+                    <li>EC50 = Concentració que produeix el 50% de l'efecte màxim (${ec50} mg/L)</li>
+                    <li>n = Coeficient de Hill (${hillCoefficient})</li>
+                </ul>
+                <p><strong>Pas 2:</strong> Substituïm els valors a l'equació</p>
+                <p>E = (${emax} * ${concentracio}^${hillCoefficient}) / (${ec50}^${hillCoefficient} + ${concentracio}^${hillCoefficient})</p>
+                <p><strong>Pas 3:</strong> Calculem el resultat</p>
+                <p><strong>Efecte calculat:</strong> ${efecte.toFixed(2)}</p>
+            `;
+            
+            actualitzarGrafic(emax, ec50, hillCoefficient);
+        }
+        
+        function calcularEfecte(concentracio, emax, ec50, hillCoefficient) {
+            return (emax * Math.pow(concentracio, hillCoefficient)) / (Math.pow(ec50, hillCoefficient) + Math.pow(concentracio, hillCoefficient));
+        }
+        
+        function actualitzarGrafic(emax, ec50, hillCoefficient) {
+            const concentracions = [];
+            const efectes = [];
+            
+            for (let i = 0; i <= 100; i++) {
+                concentracions.push(i);
+                efectes.push(calcularEfecte(i, emax, ec50, hillCoefficient));
             }
             
-            // Índex terapèutic
-            let index_terapeutic = dl50 / de50;
-            
-            // Mostrar resultats
-            document.getElementById("resposta").innerText = resposta.toFixed(2);
-            document.getElementById("index_terapeutic").innerText = index_terapeutic.toFixed(2);
-            
-            // Graficar la resposta amb Chart.js
-            crearGrafica(de50, dl50, tipus_farmac);
-        }
-
-        function calcularRespostaAgonista(dosi, de50, eficacia_max) {
-            // Corba dosi-resposta per agonista (Hill equation)
-            return eficacia_max * (dosi ** 2) / (dosi ** 2 + de50 ** 2);
-        }
-
-        function calcularRespostaAntagonistaCompetitiu(dosi, de50, inhibicio) {
-            // Corba antagonista competitiu, redueix la resposta màxima
-            let resposta = (dosi ** 2) / (dosi ** 2 + de50 ** 2);
-            return resposta * (1 - inhibicio);
-        }
-
-        function calcularRespostaAntagonistaNoCompetitiu(dosi, de50) {
-            // Antagonista no competitiu: redueix resposta independentment de la dosi
-            return (dosi ** 2) / (dosi ** 2 + de50 ** 2) * 0.5;
-        }
-
-        function crearGrafica(de50, dl50, tipus_farmac) {
-            // Dades per al gràfic
-            let dades = [];
-            for (let x = 0; x <= 100; x++) {
-                let resposta = 0;
-                if (tipus_farmac === "agonista_complet") {
-                    resposta = calcularRespostaAgonista(x, de50, 1.0);
-                } else if (tipus_farmac === "agonista_parcial") {
-                    resposta = calcularRespostaAgonista(x, de50, 0.6);
-                } else if (tipus_farmac === "antagonista_competitiu") {
-                    resposta = calcularRespostaAntagonistaCompetitiu(x, de50, 0.5);
-                } else if (tipus_farmac === "antagonista_no_competitiu") {
-                    resposta = calcularRespostaAntagonistaNoCompetitiu(x, de50);
-                }
-                dades.push({x: x, y: resposta});
+            if (graficEfecte) {
+                graficEfecte.destroy();
             }
-
-            // Configuració del gràfic
-            const config = {
+            
+            const ctx = document.getElementById('graficEfecte').getContext('2d');
+            graficEfecte = new Chart(ctx, {
                 type: 'line',
                 data: {
+                    labels: concentracions,
                     datasets: [{
-                        label: 'Corba Dosi-Resposta',
-                        data: dades,
-                        borderColor: 'blue',
-                        fill: false,
-                    }, {
-                        label: 'DE50',
-                        data: [{x: de50, y: 0}, {x: de50, y: 1}],
-                        borderColor: 'red',
-                        borderDash: [5, 5],
-                        fill: false,
-                    }, {
-                        label: 'DL50',
-                        data: [{x: dl50, y: 0}, {x: dl50, y: 1}],
-                        borderColor: 'green',
-                        borderDash: [5, 5],
-                        fill: false,
+                        label: 'Efecte',
+                        data: efectes,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
                     }]
                 },
                 options: {
+                    responsive: true,
                     scales: {
                         x: {
-                            type: 'linear',
-                            position: 'bottom',
                             title: {
                                 display: true,
-                                text: 'Dosi (mg)'
+                                text: 'Concentració del fàrmac (mg/L)'
                             }
                         },
                         y: {
                             title: {
                                 display: true,
-                                text: 'Resposta'
+                                text: 'Efecte'
                             },
                             min: 0,
-                            max: 1
+                            max: Math.max(...efectes) * 1.1
                         }
                     }
                 }
-            };
-
-            // Destruir gràfic existent abans de crear-ne un de nou
-            if (chart) {
-                chart.destroy();
-            }
-
-            // Crear el gràfic
-            const ctx = document.getElementById('grafica').getContext('2d');
-            chart = new Chart(ctx, config);
+            });
         }
     </script>
 </body>
