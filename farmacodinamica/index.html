@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Farmacodinàmic</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <title>Simulador Farmacodinàmic amb Chart.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,9 +53,11 @@
         <p>Índex Terapèutic: <span id="index_terapeutic"></span></p>
     </div>
     
-    <div id="grafica"></div>
+    <canvas id="grafica" width="400" height="400"></canvas>
 
     <script>
+        let chart;
+
         function updateValues() {
             document.getElementById("dosi_val").innerText = document.getElementById("dosi").value;
             document.getElementById("de50_val").innerText = document.getElementById("de50").value;
@@ -87,7 +89,7 @@
             document.getElementById("resposta").innerText = resposta.toFixed(2);
             document.getElementById("index_terapeutic").innerText = index_terapeutic.toFixed(2);
             
-            // Graficar la resposta
+            // Graficar la resposta amb Chart.js
             crearGrafica(de50, dl50, tipus_farmac);
         }
 
@@ -108,37 +110,75 @@
         }
 
         function crearGrafica(de50, dl50, tipus_farmac) {
-            // Configuració de la gràfica amb p5.js
-            new p5((p) => {
-                p.setup = function() {
-                    p.createCanvas(400, 400);
-                    p.background(255);
-                    
-                    // Dibuixar la corba dosi-resposta
-                    p.stroke(0);
-                    p.noFill();
-                    p.beginShape();
-                    for (let x = 0; x <= 100; x++) {
-                        let resposta = 0;
-                        if (tipus_farmac === "agonista_complet") {
-                            resposta = calcularRespostaAgonista(x, de50, 1.0);
-                        } else if (tipus_farmac === "agonista_parcial") {
-                            resposta = calcularRespostaAgonista(x, de50, 0.6);
-                        } else if (tipus_farmac === "antagonista_competitiu") {
-                            resposta = calcularRespostaAntagonistaCompetitiu(x, de50, 0.5);
-                        } else if (tipus_farmac === "antagonista_no_competitiu") {
-                            resposta = calcularRespostaAntagonistaNoCompetitiu(x, de50);
+            // Dades per al gràfic
+            let dades = [];
+            for (let x = 0; x <= 100; x++) {
+                let resposta = 0;
+                if (tipus_farmac === "agonista_complet") {
+                    resposta = calcularRespostaAgonista(x, de50, 1.0);
+                } else if (tipus_farmac === "agonista_parcial") {
+                    resposta = calcularRespostaAgonista(x, de50, 0.6);
+                } else if (tipus_farmac === "antagonista_competitiu") {
+                    resposta = calcularRespostaAntagonistaCompetitiu(x, de50, 0.5);
+                } else if (tipus_farmac === "antagonista_no_competitiu") {
+                    resposta = calcularRespostaAntagonistaNoCompetitiu(x, de50);
+                }
+                dades.push({x: x, y: resposta});
+            }
+
+            // Configuració del gràfic
+            const config = {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Corba Dosi-Resposta',
+                        data: dades,
+                        borderColor: 'blue',
+                        fill: false,
+                    }, {
+                        label: 'DE50',
+                        data: [{x: de50, y: 0}, {x: de50, y: 1}],
+                        borderColor: 'red',
+                        borderDash: [5, 5],
+                        fill: false,
+                    }, {
+                        label: 'DL50',
+                        data: [{x: dl50, y: 0}, {x: dl50, y: 1}],
+                        borderColor: 'green',
+                        borderDash: [5, 5],
+                        fill: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'Dosi (mg)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Resposta'
+                            },
+                            min: 0,
+                            max: 1
                         }
-                        p.vertex(x * 4, 400 - resposta * 400); // Escalar gràfica
                     }
-                    p.endShape();
-                    
-                    // Dibuixar línies de DE50 i DL50
-                    p.stroke(255, 0, 0);
-                    p.line(de50 * 4, 0, de50 * 4, 400); // DE50
-                    p.line(dl50 * 4, 0, dl50 * 4, 400); // DL50
-                };
-            }, 'grafica');
+                }
+            };
+
+            // Destruir gràfic existent abans de crear-ne un de nou
+            if (chart) {
+                chart.destroy();
+            }
+
+            // Crear el gràfic
+            const ctx = document.getElementById('grafica').getContext('2d');
+            chart = new Chart(ctx, config);
         }
     </script>
 </body>
