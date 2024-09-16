@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Farmacocinètic en proves</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        /* Fes que el logo estigui a l'esquerra */
+header {
+    display: flex;
+    align-items: center; /* Centra verticalment */
+    padding: 10px;       /* Afegeix espai al voltant */
+}
+
+/* Ajusta la mida del logo */
+.logo {
+    max-width: 150px;  /* Ajusta la mida màxima segons preferències */
+    height: auto;      /* Manté la proporció de l'imatge */
+}
+
+
+
+        
+        
+        .chart-container {
+            width: 100%;
+            height: 500px;
+            margin: 20px 0;
+        }
+        .slider-container {
+            margin: 10px 0;
+        }
+        .slider-container label {
+            display: inline-block;
+            width: 200px;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+        }
+        details {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        footer {
+      background-color: #f8f8f8;
+      padding: 20px;
+      text-align: center;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+      left: 0;
+    }
+    footer p {
+      font-size: 12px;
+      color: #666;
+      margin: 0;
+    }
+    footer a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+        
+    </style>
+</head>
+<body>
+<!---header>
+        <img src="logoub.jpg" alt="Logo" class="logo">
+    </header--->
+
+    <h1>Simulador Farmacocinètic en proves</h1>
+
+    <div class="slider-container">
+        <label for="doseSlider">Dosi administrada (mg):</label>
+        <input type="range" id="doseSlider" min="10" max="500" value="100" step="10">
+        <span id="doseValue">100</span>
+    </div>
+    <div class="slider-container">
+        <label for="absorptionSlider">Absorció (%):</label>
+        <input type="range" id="absorptionSlider" min="10" max="100" value="80" step="5">
+        <span id="absorptionValue">80</span>
+    </div>
+    <div class="slider-container">
+        <label for="metabolismSlider">Metabolisme (k):</label>
+        <input type="range" id="metabolismSlider" min="0.1" max="1" value="0.5" step="0.1">
+        <span id="metabolismValue">0.5</span>
+    </div>
+    <div class="slider-container">
+        <label for="volumeSlider">Volum de distribució (V):</label>
+        <input type="range" id="volumeSlider" min="1" max="20" value="10" step="1">
+        <span id="volumeValue">10</span>
+    </div>
+    <div class="slider-container">
+        <label for="absorptionRateSlider">Constant d'absorció (ka):</label>
+        <input type="range" id="absorptionRateSlider" min="0.1" max="5" value="2" step="0.1">
+        <span id="absorptionRateValue">2</span>
+    </div>
+    <div class="slider-container">
+        <label for="routeSelect">Via d'administració:</label>
+        <select id="routeSelect">
+            <option value="oral">Oral</option>
+            <option value="iv">Intravenosa</option>
+            <option value="transdermal">Transdèrmica</option>
+            <option value="sublingual">Sublingual</option>
+            <option value="inhalation">Inhalatòria</option>
+        </select>
+    </div>
+    <div class="slider-container">
+        <label for="toxicLevelSlider">Nivell tòxic (mg/L):</label>
+        <input type="range" id="toxicLevelSlider" min="10" max="100" value="50" step="5">
+        <span id="toxicLevelValue">50</span>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="pharmacokineticChart"></canvas>
+    </div>
+
+    <div id="results">
+        <h2>Resultats farmacocinètics:</h2>
+        <p>Semivida: <span id="halfLifeValue"></span> hores</p>
+        <p>AUC: <span id="aucValue"></span> mg·h/L</p>
+        <p>Aclariment (Clearance): <span id="clearanceValue"></span> L/h</p>
+        <p>Concentració màxima (Cmax): <span id="cmaxValue"></span> mg/L</p>
+        <p>Temps per Cmax (Tmax): <span id="tmaxValue"></span> hores</p>
+    </div>
+
+    <div>
+        <button id="toggleScale">Alternar escala Y (Lineal/Log)</button>
+        <button id="toggleLines">Mostrar/Amagar línies auxiliars</button>
+        <button id="exportData">Exportar dades (CSV)</button>
+        <button id="exportGraph">Exportar gràfic (PNG)</button>
+    </div>
+
+    <details>
+        <summary>Documentació del Simulador Farmacocinètic Avançat</summary>
+        <h2>Funcionament del Simulador</h2>
+        <p>Aquest simulador farmacocinètic EN DESENVOLUPAMENT ACTIU EN PROVES permet visualitzar la concentració d'un fàrmac al llarg del temps per a diferents vies d'administració, basant-se en paràmetres ajustables:</p>
+        <ul>
+            <li>Dosi administrada (D)</li>
+            <li>Absorció (F)</li>
+            <li>Metabolisme (k)</li>
+            <li>Volum de distribució (V)</li>
+            <li>Constant d'absorció (ka)</li>
+            <li>Via d'administració</li>
+            <li>Nivell tòxic</li>
+        </ul>
+
+        <h2>Fórmules Utilitzades</h2>
+
+        <h3>Via Oral</h3>
+        <p>La concentració del fàrmac en funció del temps es calcula mitjançant:</p>
+        \[
+        C(t) = \frac{D \cdot F}{V} \cdot \left( \frac{k_a}{k_a - k} \right) \cdot \left( e^{-kt} - e^{-k_a t} \right)
+        \]
+
+        <h3>Via Intravenosa</h3>
+        <p>Per a la via intravenosa, la fórmula es simplifica a:</p>
+        \[
+        C(t) = \frac{D}{V} \cdot e^{-kt}
+        \]
+
+        <h3>Semivida</h3>
+        <p>La semivida del fàrmac es calcula com:</p>
+        \[
+        t_{1/2} = \frac{\ln(2)}{k}
+        \]
+
+        <h3>Àrea Sota la Corba (AUC)</h3>
+        <p>L'AUC per a una dosi única es calcula com:</p>
+        \[
+        AUC = \frac{D \cdot F}{CL}
+        \]
+
+        <h3>Aclariment (Clearance)</h3>
+        <p>El clearance (CL) es relaciona amb el volum de distribució i la constant d'eliminació:</p>
+        \[
+        CL = k \cdot V
+        \]
+
+        <h2>Elements Gràfics</h2>
+        <ol>
+            <li><strong>Corba de concentració</strong>: Mostra la concentració del fàrmac al llarg del temps.</li>
+            <li><strong>Línia de toxicitat</strong>: Indica el nivell tòxic del fàrmac.</li>
+            <li><strong>Línia de semivida</strong>: Indica el moment en què la concentració del fàrmac es redueix a la meitat.</li>
+        </ol>
+    </details>
+
+    <script>
+        const doseSlider = document.getElementById('doseSlider');
+        const absorptionSlider = document.getElementById('absorptionSlider');
+        const metabolismSlider = document.getElementById('metabolismSlider');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const absorptionRateSlider = document.getElementById('absorptionRateSlider');
+        const routeSelect = document.getElementById('routeSelect');
+        const toxicLevelSlider = document.getElementById('toxicLevelSlider');
+        const doseValue = document.getElementById('doseValue');
+        const absorptionValue = document.getElementById('absorptionValue');
+        const metabolismValue = document.getElementById('metabolismValue');
+        const volumeValue = document.getElementById('volumeValue');
+        const absorptionRateValue = document.getElementById('absorptionRateValue');
+        const toxicLevelValue = document.getElementById('toxicLevelValue');
+
+        let chart;
+        let isLogScale = false;
+        let showAuxLines = true;
+        let data = [];
+
+        function updateChart() {
+            const D = parseFloat(doseSlider.value);
+            const F = parseFloat(absorptionSlider.value) / 100;
+            const k = parseFloat(metabolismSlider.value);
+            const V = parseFloat(volumeSlider.value);
+            const ka = parseFloat(absorptionRateSlider.value);
+            const route = routeSelect.value;
+            const toxicLevel = parseFloat(toxicLevelSlider.value);
+
+            const halfLife = Math.log(2) / k;
+            const clearance = k * V;
+            const auc = (D * F) / clearance;
+
+            doseValue.textContent = D;
+            absorptionValue.textContent = (F * 100).toFixed(0);
+            metabolismValue.textContent = k.toFixed(1);
+            volumeValue.textContent = V.toFixed(1);
+            absorptionRateValue.textContent = ka.toFixed(1);
+            toxicLevelValue.textContent = toxicLevel;
+
+            data = [];
+            const oralConc = t => Math.max(0, (D * F / V) * (ka / (ka - k)) * (Math.exp(-k * t) - Math.exp(-ka * t)));
+            const ivConc = t => Math.max(0, (D / V) * Math.exp(-k * t));
+            const transdermalConc = t => Math.max(0, (D * 0.01 * 10 / (V * k)) * (1 - Math.exp(-k * t)));
+            const sublingualConc = t => Math.max(0, (D * F / V) * (1 - Math.exp(-ka * t)) * Math.exp(-k * t));
+            const inhalationConc = t => Math.max(0, (D * F * 0.7 / V) * (1 - Math.exp(-ka * t)) * Math.exp(-k * t));
+
+            let concFunction;
+            switch(route) {
+                case 'oral': concFunction = oralConc; break;
+                case 'iv': concFunction = ivConc; break;
+                case 'transdermal': concFunction = transdermalConc; break;
+                case 'sublingual': concFunction = sublingualConc; break;
+                case 'inhalation': concFunction = inhalationConc; break;
+            }
+
+            let maxConc = 0;
+            let tmaxValue = 0;
+            for (let t = 0; t <= 24; t += 0.05) {
+                const conc = concFunction(t);
+                data.push({x: t, y: conc});
+                if (conc > maxConc) {
+                    maxConc = conc;
+                    tmaxValue = t;
+                }
+            }
+
+            // Actualitzar els valors dels resultats
+            document.getElementById('halfLifeValue').textContent = halfLife.toFixed(2);
+            document.getElementById('aucValue').textContent = auc.toFixed(2);
+            document.getElementById('clearanceValue').textContent = clearance.toFixed(2);
+            document.getElementById('cmaxValue').textContent = maxConc.toFixed(2);
+            document.getElementById('tmaxValue').textContent = tmaxValue.toFixed(2);
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const ctx = document.getElementById('pharmacokineticChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Concentració',
+                        data: data,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }, {
+                        label: 'Nivell tòxic',
+                        data: [{x: 0, y: toxicLevel}, {x: 24, y: toxicLevel}],
+                        borderColor: 'rgb(255, 99, 132)',
+                        borderDash: [5, 5]
+                    }, {
+                        label: 'Semivida',
+                        data: [{x: halfLife, y: 0}, {x: halfLife, y: maxConc * 1.1}],
+                        borderColor: 'rgb(255, 159, 64)',
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'Temps (h)'
+                            },
+                            max: 24
+                        },
+                        y: {
+                            type: isLogScale ? 'logarithmic' : 'linear',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Concentració (mg/L)'
+                            },
+                            max: Math.max(maxConc * 1.1, toxicLevel * 1.1)
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Concentració: ${context.parsed.y.toFixed(2)} mg/L`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (!showAuxLines) {
+                chart.data.datasets = chart.data.datasets.filter(dataset => dataset.label === 'Concentració');
+            }
+
+            chart.update();
+        }
+
+        document.getElementById('toggleScale').addEventListener('click', function() {
+            isLogScale = !isLogScale;
+            updateChart();
+        });
+
+        document.getElementById('toggleLines').addEventListener('click', function() {
+            showAuxLines = !showAuxLines;
+            updateChart();
+        });
+
+        document.getElementById('exportData').addEventListener('click', function() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Temps,Concentració\n";
+            data.forEach(function(point) {
+                csvContent += `${point.x},${point.y}\n`;
+            });
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "dades_farmacocinetica.csv");
+            document.body.appendChild(link);
+            link.click();
+        });
+
+        document.getElementById('exportGraph').addEventListener('click', function() {
+            var link = document.createElement('a');
+            link.download = 'grafic_farmacocinetica.png';
+            link.href = document.getElementById('pharmacokineticChart').toDataURL();
+            link.click();
+        });
+
+        [doseSlider, absorptionSlider, metabolismSlider, volumeSlider, absorptionRateSlider, routeSelect, toxicLevelSlider].forEach(el => {
+            el.addEventListener('input', updateChart);
+        });
+
+        updateChart();
+    </script>
+
+
+  <script>
+    // Script per actualitzar l'any automàticament
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
+
+</body>
+</html>
