@@ -14,7 +14,7 @@
             margin: 0 auto;
             padding: 20px;
         }
-        h1, h2 {
+        h1, h2, h3 {
             color: #333;
         }
         .slider-container {
@@ -29,6 +29,19 @@
         canvas {
             max-width: 100%;
             height: auto;
+        }
+        .documentacio {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        .documentacio summary {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .documentacio details {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -66,6 +79,68 @@
     
     <canvas id="graficEfecte"></canvas>
     
+    <div class="documentacio">
+        <details>
+            <summary>Documentació del Simulador de Farmacodinàmica</summary>
+            <h3>Introducció</h3>
+            <p>Aquest simulador de farmacodinàmica permet explorar com diferents paràmetres afecten la relació entre la concentració d'un fàrmac i el seu efecte farmacològic.</p>
+            
+            <h3>Paràmetres del simulador</h3>
+            <ul>
+                <li><strong>Concentració del fàrmac (C):</strong> Representa la quantitat de fàrmac present en el lloc d'acció.</li>
+                <li><strong>Efecte màxim (Emax):</strong> L'efecte màxim que pot produir el fàrmac.</li>
+                <li><strong>EC50:</strong> La concentració de fàrmac que produeix el 50% de l'efecte màxim.</li>
+                <li><strong>Coeficient de Hill (n):</strong> Descriu la pendent de la corba dosi-resposta.</li>
+                <li><strong>Constant de velocitat d'equilibri (ke0):</strong> Representa la velocitat a la qual el fàrmac arriba a l'equilibri en el lloc d'acció.</li>
+            </ul>
+            
+            <h3>Conceptes clau</h3>
+            <details>
+                <summary>Equació de Hill</summary>
+                <p>L'equació de Hill és un model matemàtic que descriu la relació entre la concentració d'un fàrmac i el seu efecte:</p>
+                <p>\[E = \frac{E_{max} \cdot C^n}{EC_{50}^n + C^n}\]</p>
+                <p>On E és l'efecte del fàrmac, C és la concentració, Emax és l'efecte màxim, EC50 és la concentració que produeix el 50% de l'efecte màxim, i n és el coeficient de Hill.</p>
+            </details>
+            
+            <details>
+                <summary>Efecte d'equilibri</summary>
+                <p>L'efecte d'equilibri descriu com l'efecte del fàrmac canvia amb el temps fins arribar a un estat estable:</p>
+                <p>\[E_{eq} = E_{max} \cdot (1 - e^{-k_{e0} \cdot t})\]</p>
+                <p>On Eeq és l'efecte d'equilibri, ke0 és la constant de velocitat d'equilibri, i t és el temps.</p>
+            </details>
+            
+            <details>
+                <summary>Índex terapèutic</summary>
+                <p>L'índex terapèutic és una mesura de la seguretat d'un fàrmac:</p>
+                <p>\[IT = \frac{TD_{50}}{ED_{50}}\]</p>
+                <p>On TD50 és la dosi tòxica mitjana i ED50 és la dosi efectiva mitjana.</p>
+            </details>
+            
+            <details>
+                <summary>Potència relativa</summary>
+                <p>La potència relativa compara l'eficàcia de dos fàrmacs:</p>
+                <p>\[PR = \frac{EC_{50(fàrmac A)}}{EC_{50(fàrmac B)}}\]</p>
+            </details>
+            
+            <details>
+                <summary>Eficàcia intrínseca</summary>
+                <p>L'eficàcia intrínseca mesura la capacitat d'un fàrmac per produir una resposta màxima:</p>
+                <p>\[\alpha = \frac{E_{max(fàrmac)}}{E_{max(agonista complet)}}\]</p>
+            </details>
+            
+            <h3>Com utilitzar el simulador</h3>
+            <ol>
+                <li>Ajusteu els paràmetres utilitzant els sliders.</li>
+                <li>Feu clic al botó "Calcular" per veure els resultats.</li>
+                <li>Observeu com canvia la corba dosi-resposta al gràfic.</li>
+                <li>Analitzeu els càlculs detallats i les explicacions proporcionades.</li>
+            </ol>
+            
+            <h3>Interpretació dels resultats</h3>
+            <p>El simulador mostra com els diferents paràmetres afecten la relació entre la concentració del fàrmac i el seu efecte. Observeu com canvia la forma de la corba dosi-resposta i com això es relaciona amb l'eficàcia i la potència del fàrmac.</p>
+        </details>
+    </div>
+    
     <script>
         let graficEfecte;
         
@@ -97,7 +172,7 @@
             resultatsDiv.innerHTML = `
                 <h2>Resultats:</h2>
                 <p><strong>Pas 1:</strong> Càlcul de l'efecte utilitzant l'equació de Hill</p>
-                <p><strong>Fórmula:</strong> \\[E = \\frac{E_{max} \\cdot C^n}{EC_{50}^n + C^n}\\]</p>
+                <p><strong>Fórmula:</strong> \[E = \frac{E_{max} \cdot C^n}{EC_{50}^n + C^n}\]</p>
                 <p>On:</p>
                 <ul>
                     <li>E = Efecte</li>
@@ -107,12 +182,12 @@
                     <li>n = Coeficient de Hill (${hillCoefficient})</li>
                 </ul>
                 <p><strong>Pas 2:</strong> Substituïm els valors a l'equació</p>
-                <p>\\[E = \\frac{${emax} \\cdot ${concentracio}^{${hillCoefficient}}}{${ec50}^{${hillCoefficient}} + ${concentracio}^{${hillCoefficient}}}\\]</p>
+                <p>\[E = \frac{${emax} \cdot ${concentracio}^{${hillCoefficient}}}{${ec50}^{${hillCoefficient}} + ${concentracio}^{${hillCoefficient}}}\]</p>
                 <p><strong>Pas 3:</strong> Calculem el resultat</p>
                 <p><strong>Efecte calculat:</strong> ${efecte.toFixed(2)}</p>
                 
                 <h3>Efecte d'equilibri:</h3>
-                <p><strong>Fórmula:</strong> \\[E_{eq} = E_{max} \\cdot (1 - e^{-k_{e0} \\cdot t})\\]</p>
+                <p><strong>Fórmula:</strong> \[E_{eq} = E_{max} \cdot (1 - e^{-k_{e0} \cdot t})\]</p>
                 <p>On:</p>
                 <ul>
                     <li>E<sub>eq</sub> = Efecte d'equilibri</li>
@@ -120,8 +195,6 @@
                     <li>t = Temps (assumim t = 1 per a aquest càlcul)</li>
                 </ul>
                 <p><strong>Efecte d'equilibri calculat:</strong> ${efecteEquilibri.toFixed(2)}</p>
-                
-                
             `;
             
             MathJax.typesetPromise().then(() => {
