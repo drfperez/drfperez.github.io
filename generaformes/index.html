@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detecció de Contorns amb Punts Mòbils</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
+    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #canvas-container { position: relative; }
+        #controls { margin-top: 20px; }
+        select, button, input { margin-right: 10px; }
+        #generatedCode { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+<h2>Genera formes amb p5.js i detecció de contorns</h2>
+    <input type="file" id="imageUpload" accept="image/*">
+    <div id="canvas-container"></div>
+    <div id="controls">
+        <label for="sensitivitySlider">Sensibilitat de detecció (Llindar superior): </label>
+        <!-- Adjusted slider range -->
+        <input type="range" id="sensitivitySlider" min="150" max="600" value="150">
+        <span id="sensitivityValue">150</span>
+        <br>
+        <label for="pointSlider">Quantitat de punts vermells: </label>
+        <!-- Adjusted slider range -->
+        <input type="range" id="pointSlider" min="5" max="250" value="50">
+        <span id="pointValue">50</span>
+        <br>
+        <button id="generateCodeBtn">Genera Codi</button>
+    </div>
+    <pre id="generatedCode"></pre>
+
+    <script>
+    let img;
+    let canvas;
+    let contours = [];
+    let cannyThresholdUpper = 150; // Adjusted default value
+    let numRedPoints = 50; // Adjusted default value
+    let movablePoints = [];
+    let selectedPoint = null;
+
+    function setup() {
+        canvas = createCanvas(600, 400);
+        canvas.parent('canvas-container');
+        canvas.mousePressed(selectPoint);
+        canvas.mouseReleased(() => { selectedPoint = null; });
+    }
+
+    function draw() {
+        background(220);
+        if (img) {
+            image(img, 0, 0, width, height);
+        }
+        
+        stroke(0, 255, 0);
+        noFill();
+        
+        for (let i = 0; i < contours.length; i++) {
+            beginShape();
+            for (let j = 0; j < movablePoints[i].length; j++) {
+                vertex(movablePoints[i][j].x, movablePoints[i][j].y);
+            }
+            endShape(CLOSE);
+
+            for (let point of movablePoints[i]) {
+                fill(255, 0, 0);
+                noStroke();
+                ellipse(point.x, point.y, 8, 8);
+            }
+        }
+
+        if (selectedPoint) {
+            selectedPoint.x = mouseX;
+            selectedPoint.y = mouseY;
+        }
+    }
+
+    function selectPoint() {
+        for (let contourPoints of movablePoints) {
+            for (let point of contourPoints) {
+                if (dist(mouseX, mouseY, point.x, point.y) < 5) {
+                    selectedPoint = point;
+                    return;
+                }
+            }
+        }
+    }
+
+    document.getElementById('imageUpload').addEventListener('change', function(e) {
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.onload = function(event) {
+            loadImage(event.target.result, function(loadedImg) {
+                img = loadedImg;
+                resizeCanvas(img.width, img.height);
+                detectContours();
+            });
+        }
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('sensitivitySlider').addEventListener('input', function() {
+      cannyThresholdUpper = parseInt(this.value);
+      document.getElementById('sensitivityValue').textContent = cannyThresholdUpper;
+      detectContours();
+    });
+
+    document.getElementById('pointSlider').addEventListener('input', function() {
+      numRedPoints = parseInt(this.value);
+      document.getElementById('pointValue').textContent = numRedPoints;
+      updateMovablePoints();
+    });
+
+    document.getElementById('generateCodeBtn').addEventListener('click', generateCode);
+
+    function detectContours() {
+        if (!img) return;
+
+        let src = cv.imread(img.canvas);
+        let gray = new cv.Mat();
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+        let edges = new cv.Mat();
+        cv.Canny(gray, edges, 100, cannyThresholdUpper);
+        let contoursMat = new cv.MatVector();
+        let hierarchy = new cv.Mat();
+        cv.findContours(edges, contoursMat, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+contours = [];
+for (let i = 0; i < contoursMat.size(); ++i) {
+let contour = contoursMat.get(i);
+let contourArray = [];
+for (let j = 0; j < contour.data32S.length; j += 2) {
+contourArray.push({ x: contour.data32S[j], y: contour.data32S[j + 1] });
+}
+contours.push(contourArray);
+contour.delete();
+}
+
+src.delete(); gray.delete(); edges.delete(); contoursMat.delete(); hierarchy.delete();
+
+updateMovablePoints();
+}
+
+function updateMovablePoints() {
+movablePoints = contours.map(contour => {
+let points = [];
+for (let i = 0; i < numRedPoints; i++) {
+let index = Math.floor(i * contour.length / numRedPoints);
+points.push({ x: contour[index].x, y: contour[index].y });
+}
+return points;
+});
+}
+
+function generateCode() {
+let code = '';
+for (let i = 0; i < movablePoints.length; i++) {
+code += `// Àrea ${i + 1}\nbeginShape();\n`;
+for (let point of movablePoints[i]) {
+code += `vertex(${Math.round(point.x)}, ${Math.round(point.y)});\n`;
+}
+code += 'endShape(CLOSE);\n\n';
+}
+document.getElementById('generatedCode').textContent = code;
+}
+</script>
+</body>
+</html>
