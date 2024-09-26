@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8"> <!-- Defineix el conjunt de caràcters utilitzat, en aquest cas UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Assegura que la pàgina es mostri correctament en dispositius mòbils -->
+    <title>Marcar punts en imatge</title> <!-- Títol de la pàgina que es mostra a la pestanya del navegador -->
+    <style>
+        /* Estils per al canvas i la llista de punts */
+        canvas {
+            border: 1px solid black; /* Afegeix una vora negra al canvas */
+            max-width: 100%; /* Assegura que el canvas no sobrepassi l'ample del contenidor */
+            height: auto; /* Manté la proporció de l'alçada automàticament */
+        }
+        #pointList {
+            margin-top: 20px; /* Espai superior per separar la llista del contingut anterior */
+            list-style-type: none; /* Elimina els bullets de la llista */
+            padding: 0; /* Elimina el padding per defecte de la llista */
+        }
+        #pointList li {
+            margin: 5px 0; /* Espai entre elements de la llista */
+        }
+    </style>
+</head>
+<body>
+    <h1>Carrega una imatge i marca punts</h1> <!-- Títol principal de la pàgina -->
+    <input type="file" id="imageLoader" name="imageLoader" accept="image/*"> <!-- Botó per carregar imatges -->
+    <br><br> <!-- Salts de línia per separar els elements -->
+    <label for="actionSelect">Acció a realitzar:</label> <!-- Etiqueta per al menú desplegable -->
+    <select id="actionSelect"> <!-- Menú desplegable per seleccionar l'acció a realitzar -->
+        <option value="coordenades">Veure coordenades (X, Y)</option> <!-- Opció per veure coordenades -->
+        <option value="color">Veure color del punt</option> <!-- Opció per veure el color del punt -->
+    </select>
+    <br><br> <!-- Salts de línia per separar els elements -->
+    <button id="undoButton">Desfer últim punt</button> <!-- Botó per desfer l'últim punt -->
+    <button id="clearButton">Esborrar tots els punts</button> <!-- Botó per esborrar tots els punts -->
+    <br><br> <!-- Salts de línia per separar els elements -->
+    <canvas id="imageCanvas"></canvas> <!-- Àrea on es dibuixa la imatge i els punts -->
+    
+    <ul id="pointList"></ul> <!-- Llista on es mostraran les coordenades o els colors dels punts -->
+
+    <script>
+        // Variables per al canvas, el context de dibuix, el carregador d'imatges i la imatge
+        let canvas = document.getElementById('imageCanvas');
+        let ctx = canvas.getContext('2d');
+        let imageLoader = document.getElementById('imageLoader');
+        let img = new Image();
+        let scaleX, scaleY; // Variables per escalar la imatge al canvas
+        let points = []; // Array per emmagatzemar els punts marcats
+
+        // Funció per ajustar la mida del canvas a la mida de la imatge
+        function resizeCanvasToImage(img) {
+            let ratio = img.width / img.height; // Calcula la proporció de la imatge
+            if (img.width > window.innerWidth) {
+                canvas.width = window.innerWidth * 0.9;  // Evita que la imatge sobrepassi l'ample de la pantalla
+                canvas.height = canvas.width / ratio; // Ajusta l'altura mantenint la proporció
+            } else {
+                canvas.width = img.width; // Si la imatge és més petita que la pantalla, manté la mida original
+                canvas.height = img.height;
+            }
+            scaleX = canvas.width / img.width; // Calcula l'escala horitzontal
+            scaleY = canvas.height / img.height; // Calcula l'escala vertical
+        }
+
+        // Event listener per carregar la imatge seleccionada
+        imageLoader.addEventListener('change', function(e) {
+            let reader = new FileReader(); // Crea un lector de fitxers
+            reader.onload = function(event) {
+                img.src = event.target.result; // Assigna la imatge carregada a l'objecte img
+            };
+            reader.readAsDataURL(e.target.files[0]); // Llegeix la imatge com a URL de dades
+        });
+
+        // Quan la imatge està carregada, es dibuixa al canvas
+        img.onload = function() {
+            resizeCanvasToImage(img); // Ajusta el canvas a la mida de la imatge
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Dibuixa la imatge al canvas
+            redrawPoints(); // Redibuixa els punts si n'hi ha
+        };
+
+        // Funció per afegir punts al fer clic o tocar el canvas
+        function addPoint(event) {
+            let rect = canvas.getBoundingClientRect(); // Obté la posició del canvas
+            let x = event.clientX || event.touches[0].clientX; // Coordenada X del clic o touch
+            let y = event.clientY || event.touches[0].clientY; // Coordenada Y del clic o touch
+            x = (x - rect.left) / scaleX; // Ajusta la coordenada X segons l'escala
+            y = (y - rect.top) / scaleY; // Ajusta la coordenada Y segons l'escala
+
+            // Comprova l'opció seleccionada al menú desplegable
+            let action = document.getElementById('actionSelect').value;
+            if (action === 'coordenades') {
+                showCoordinates(x, y); // Mostra les coordenades si s'ha seleccionat aquesta opció
+            } else if (action === 'color') {
+                showColor(x, y); // Mostra el color si s'ha seleccionat aquesta opció
+            }
+            drawPoint(x, y, action);  // Dibuixa el punt al canvas
+            points.push({x, y}); // Afegeix el punt a l'array de punts
+            if (action === 'coordenades') {
+                drawLine(); // Dibuixa la línia entre els punts només si l'acció és veure coordenades
+            }
+        }
+
+        // Funció per mostrar les coordenades (X, Y) a la llista
+        function showCoordinates(x, y) {
+            let pointList = document.getElementById('pointList'); // Obté la llista de punts
+            let listItem = document.createElement('li'); // Crea un nou element de llista
+            listItem.textContent = `(${Math.round(x)}, ${Math.round(y)})`; // Afegeix el text amb les coordenades
+            pointList.appendChild(listItem); // Afegeix l'element a la llista
+        }
+
+        // Funció per mostrar el color del punt seleccionat a la llista
+        function showColor(x, y) {
+            let imageData = ctx.getImageData(x * scaleX, y * scaleY, 1, 1).data; // Obté les dades de color del punt
+            let r = imageData[0]; // Valor del color vermell
+            let g = imageData[1]; // Valor del color verd
+            let b = imageData[2]; // Valor del color blau
+            let pointList = document.getElementById('pointList'); // Obté la llista de punts
+            let listItem = document.createElement('li'); // Crea un nou element de llista
+            listItem.textContent = `(${r}, ${g}, ${b})`; // Afegeix el text amb els valors de color
+            pointList.appendChild(listItem); // Afegeix l'element a la llista
+        }
+
+        // Funció per dibuixar un punt vermell petit al canvas
+        function drawPoint(x, y, action) {
+            ctx.fillStyle = "red"; // Defineix el color de farciment com a vermell
+            ctx.beginPath(); // Comença un nou camí de dibuix
+            ctx.arc(x * scaleX, y * scaleY, 3, 0, 2 * Math.PI);  // Dibuixa un cercle petit
+            ctx.fill(); // Omple el cercle amb el color de farciment
+            if (action === 'color') {
+                ctx.fillStyle = "black"; // Defineix el color del text com a negre
+                ctx.fillText(points.length + 1, x * scaleX + 5, y * scaleY - 5); // Dibuixa el número al costat del punt
+            }
+        }
+
+        // Funció per redibuixar tots els punts i línies
+        function redrawPoints() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Esborra el canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Redibuixa la imatge
+            let action = document.getElementById('actionSelect').value; // Obté l'acció seleccionada
+            points.forEach((point, index) => drawPoint(point.x, point.y, action)); // Redibuixa cada punt
+            if (action === 'coordenades') {
+                drawLine(); // Redibuixa la línia entre els punts només si l'acció és veure coordenades
+            }
+        }
+
+        // Funció per dibuixar una línia entre tots els punts
+        function drawLine() {
+            if (points.length > 1) { // Si hi ha més d'un punt
+                ctx.strokeStyle = "blue"; // Defineix el color de la línia com a blau
+                ctx.beginPath(); // Comença un nou camí de dibuix
+                ctx.moveTo(points[0].x * scaleX, points[0].y * scaleY); // Mou el llapis al primer punt
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x * scaleX, points[i].y * scaleY); // Dibuixa una línia fins al següent punt
+                }
+                ctx.stroke(); // Dibuixa la línia
+            }
+        }
+
+        // Funció per desfer l'últim punt
+        function undoLastPoint() {
+            if (points.length > 0) {
+                points.pop(); // Elimina l'últim punt de l'array
+                let pointList = document.getElementById('pointList');
+                pointList.removeChild(pointList.lastChild); // Elimina l'últim element de la llista
+                redrawPoints(); // Redibuixa els punts restants
+            }
+        }
+
+        // Funció per esborrar tots els punts
+        function clearAllPoints() {
+            points = []; // Buida l'array de punts
+            let pointList = document.getElementById('pointList');
+            pointList.innerHTML = ''; // Buida la llista de punts
+            redrawPoints(); // Redibuixa el canvas sense punts
+        }
+
+        // Escolta esdeveniments de clic i touch al canvas
+        canvas.addEventListener('click', addPoint); // Afegeix un event listener per al clic
+        canvas.addEventListener('touchstart', function(event) {
+            event.preventDefault();  // Evita el desplaçament per defecte en dispositius mòbils
+            addPoint(event); // Afegeix el punt
+        });
+
+        // Escolta esdeveniments de clic als botons
+        document.getElementById('undoButton').addEventListener('click', undoLastPoint); // Afegeix un event listener per al botó de desfer
+        document.getElementById('clearButton').addEventListener('click', clearAllPoints); // Afegeix un event listener per al botó d'esborrar
+
+    </script>
+</body>
+</html>
