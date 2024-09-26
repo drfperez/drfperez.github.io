@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Shape Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #canvas-container { position: relative; }
+        #controls { margin-top: 20px; }
+        select, button, input { margin-right: 10px; }
+    </style>
+</head>
+<body>
+<h2>Genera formes amb p5.js</h2>
+    <input type="file" id="imageUpload" accept="image/*">
+    <div id="canvas-container"></div>
+    <div id="controls">
+        <select id="curveType">
+            <option value="vertex">Vertex</option>
+            <option value="curveVertex">Curve Vertex</option>
+            <option value="bezierVertex">Bezier Vertex</option>
+        </select>
+        <button id="generateCode">Generate Code</button>
+        <button id="clearPoints">Clear Points</button>
+        <button id="undoPoint">Undo Last Point</button>
+        <input type="color" id="pointColor" value="#ff0000">
+        <input type="range" id="pointSize" min="2" max="20" value="8">
+    </div>
+    <pre id="generatedCode"></pre>
+
+    <script>
+    let img;
+    let points = [];
+    let canvas;
+    let curveType = 'vertex';
+    let pointColor = '#ff0000';
+    let pointSize = 8;
+
+    function setup() {
+        canvas = createCanvas(600, 400);
+        canvas.parent('canvas-container');
+        canvas.mousePressed(addPoint);
+    }
+
+    function draw() {
+        background(220);
+        if (img) {
+            image(img, 0, 0, width, height);
+        }
+        
+        noFill();
+        stroke(pointColor);
+
+        if (points.length > 1) {
+            beginShape();
+            for (let point of points) {
+                vertex(point.x, point.y);
+            }
+            endShape();
+        }
+
+        for (let point of points) {
+            fill(pointColor);
+            ellipse(point.x, point.y, pointSize, pointSize);
+        }
+    }
+
+    function addPoint() {
+        if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+            let x = mouseX;
+            let y = mouseY;
+            points.push(createVector(x, y));
+        }
+    }
+
+    document.getElementById('imageUpload').addEventListener('change', function(e) {
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.onload = function(event) {
+            loadImage(event.target.result, function(loadedImg) {
+                img = loadedImg;
+                resizeCanvas(img.width, img.height);
+            });
+        }
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('curveType').addEventListener('change', function(e) {
+        curveType = e.target.value;
+    });
+
+    document.getElementById('generateCode').addEventListener('click', function() {
+        let code = 'beginShape();\n';
+        for (let i = 0; i < points.length; i++) {
+            let point = points[i];
+            switch (curveType) {
+                case 'vertex':
+                    code += `vertex(${point.x}, ${point.y});\n`;
+                    break;
+                case 'curveVertex':
+                    code += `curveVertex(${point.x}, ${point.y});\n`;
+                    break;
+                case 'bezierVertex':
+                    if (i === 0) {
+                        code += `vertex(${point.x}, ${point.y});\n`;
+                    } else if (i < points.length - 2) {
+                        let control1 = points[i];
+                        let control2 = points[i+1];
+                        let anchor = points[i+2];
+                        code += `bezierVertex(${control1.x}, ${control1.y}, ${control2.x}, ${control2.y}, ${anchor.x}, ${anchor.y});\n`;
+                        i += 2;
+                    }
+                    break;
+            }
+        }
+        code += 'endShape();';
+        document.getElementById('generatedCode').textContent = code;
+    });
+
+    document.getElementById('clearPoints').addEventListener('click', function() {
+        points = [];
+    });
+
+    document.getElementById('undoPoint').addEventListener('click', function() {
+        points.pop();
+    });
+
+    document.getElementById('pointColor').addEventListener('input', function(e) {
+        pointColor = e.target.value;
+    });
+
+    document.getElementById('pointSize').addEventListener('input', function(e) {
+        pointSize = parseInt(e.target.value);
+    });
+    </script>
+</body>
+</html>
