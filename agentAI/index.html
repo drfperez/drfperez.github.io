@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creació d'un Agent IA amb Drogues Vegetals</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: "Courier New", monospace;
+            color: #d63384;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📌 Guia PAS A PAS per crear un Agent IA GRATUÏT</h1>
+    <p>
+        ✅ <strong>Objectiu:</strong> Crear un <strong>chatbot AI 100% gratuït</strong> per respondre preguntes sobre drogues vegetals segons la <strong>EMA</strong> i sobre medicaments a base de plantes registrats a <strong>Espanya</strong>.
+    </p>
+    <p>
+        ✅ <strong>Tecnologies:</strong> <code>Ollama</code> (LLaMA 3 o Mistral) + <code>LangChain</code> + <code>ChromaDB</code>.
+    </p>
+    <p>
+        ✅ <strong>Interfície:</strong> Una <strong>pàgina HTML única</strong> que permet fer preguntes a la IA.
+    </p>
+    <p>
+        ✅ <strong>On es pot executar:</strong>
+        <ul>
+            <li><strong>Localment</strong> (Windows/Linux/Mac) → Sense Internet.</li>
+            <li><strong>Online</strong> (Streamlit Cloud o Hugging Face Spaces).</li>
+        </ul>
+    </p>
+
+    <h2>🔹 Estructura del projecte</h2>
+    <pre>
+📂 chatbot_herbes/
+ ├── pdfs_ema/        → 📄 150 PDFs de drogues vegetals (EMA)
+ ├── pdfs_espanya/    → 📄 150 PDFs de medicaments a base de plantes (Espanya)
+ ├── app.py           → ⚙️ Codi Python del chatbot
+ ├── index.html       → 🌍 Interfície web
+ ├── requirements.txt → 📦 Dependències
+    </pre>
+
+    <h2>📌 PAS 1: Instal·lar les eines</h2>
+    <p>Primer, cal instal·lar les eines necessàries al teu ordinador.</p>
+
+    <h3>1️⃣ Instal·lar Ollama (per executar models AI en local)</h3>
+    <p>🔹 <strong>Windows/Mac/Linux</strong></p>
+    <p>👉 <a href="https://ollama.com/download" target="_blank">Descarrega Ollama</a> o instal·la via terminal:</p>
+    <pre><code>curl -fsSL https://ollama.com/install.sh | sh</code></pre>
+
+    <p>🔹 <strong>Descarrega un model IA eficient (Mistral o LLaMA 3)</strong></p>
+    <pre><code>ollama pull mistral</code></pre>
+    <p>(Per més qualitat, pots fer <code>ollama pull llama3:8b</code>, però ocuparà més RAM.)</p>
+
+    <h2>📌 PAS 2: Instal·lar dependències Python</h2>
+    <p>Crea un fitxer <code>requirements.txt</code> i afegeix les següents llibreries:</p>
+    <pre><code>
+langchain
+ollama
+chromadb
+pypdf
+flask
+    </code></pre>
+    <p>Després, instal·la-les amb:</p>
+    <pre><code>pip install -r requirements.txt</code></pre>
+
+    <h2>📌 PAS 3: Codi Python per carregar i indexar els PDFs</h2>
+    <p>Desa aquest codi com a <code>app.py</code>. Aquest programa:</p>
+    <ul>
+        <li>Carrega els PDFs i els indexa amb <code>ChromaDB</code>.</li>
+        <li>Executa <code>LLaMA 3</code> o <code>Mistral</code> en local.</li>
+        <li>Respon preguntes basades en els documents.</li>
+    </ul>
+
+    <pre><code>
+from flask import Flask, request, jsonify
+from langchain.document_loaders import PyPDFLoader
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.llms import Ollama
+import os
+
+app = Flask(__name__)
+
+# Carregar els PDFs
+documents = []
+carpeta_pdfs = "pdfs_ema"
+
+for arxiu in os.listdir(carpeta_pdfs):
+    if arxiu.endswith(".pdf"):
+        loader = PyPDFLoader(os.path.join(carpeta_pdfs, arxiu))
+        documents.extend(loader.load())
+
+vectorstore = Chroma.from_documents(documents, embedding=OpenAIEmbeddings())
+llama = Ollama(model="mistral")
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.json
+    pregunta = data.get("pregunta", "")
+    resposta = vectorstore.similarity_search(pregunta, k=1)
+    return jsonify({"resposta": resposta[0].page_content})
+
+if __name__ == "__main__":
+    app.run(debug=True)
+    </code></pre>
+
+    <h2>📌 PAS 4: Interfície web amb HTML + JavaScript</h2>
+    <p>Crea un fitxer <code>index.html</code> amb el següent codi:</p>
+
+    <pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="ca"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Chatbot de Drogues Vegetals&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Chatbot de Drogues Vegetals&lt;/h1&gt;
+    &lt;div id="chatbox"&gt;&lt;/div&gt;
+    &lt;input type="text" id="userInput" placeholder="Fes una pregunta..."&gt;
+    &lt;button onclick="sendMessage()"&gt;Enviar&lt;/button&gt;
+
+    &lt;script&gt;
+        async function sendMessage() {
+            let input = document.getElementById("userInput");
+            let chatbox = document.getElementById("chatbox");
+
+            let userMessage = document.createElement("div");
+            userMessage.innerText = "Tu: " + input.value;
+            chatbox.appendChild(userMessage);
+
+            let response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pregunta: input.value })
+            });
+
+            let data = await response.json();
+            let botMessage = document.createElement("div");
+            botMessage.innerText = "IA: " + data.resposta;
+            chatbox.appendChild(botMessage);
+
+            input.value = "";
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+    </code></pre>
+
+    <h2>📌 PAS 5: Executar l'Agent IA</h2>
+    <pre><code>python app.py</code></pre>
+
+</body>
+</html>
