@@ -14,28 +14,28 @@
 <body>
 
     <h1>📌 Guia de Fine-Tuning amb Google Colab</h1>
-    <p>En aquesta guia aprendràs a utilitzar **Google Colab** per fer **fine-tuning d'un model preentrenat** com **GPT-2** o **Mistral** amb els teus propis documents (com PDFs de drogues vegetals i medicaments a base de plantes).</p>
+    <p>En aquesta guia aprendràs a utilitzar <strong>Google Colab</strong> per fer <strong>fine-tuning d'un model preentrenat</strong> com <strong>GPT-2</strong> o <strong>Mistral</strong> amb els teus propis documents (com PDFs de drogues vegetals i medicaments a base de plantes).</p>
 
     <h2>🔹 Per què Google Colab?</h2>
-    <p>Google Colab et permet utilitzar **GPU gratuïtes** per realitzar tasques d'IA com el **fine-tuning** de models sense necessitat d'un ordinador potent. Amb **4 GB de RAM** al teu PC local, Colab serà una bona opció.</p>
+    <p>Google Colab et permet utilitzar <strong>GPU gratuïtes</strong> per realitzar tasques d'IA com el <strong>fine-tuning</strong> de models sense necessitat d'un ordinador potent. Amb <strong>4 GB de RAM</strong> al teu PC local, Colab serà una bona opció.</p>
 
     <h2>📌 PAS 1: Crear un Notebook de Google Colab</h2>
     <p>1. Ves a [Google Colab](https://colab.research.google.com/).</p>
-    <p>2. Crea un nou notebook seleccionant **"New Notebook"**.</p>
-    <p>3. Connecta't a un **GPU** fent clic a **"Runtime" > "Change runtime type"** i seleccionant **GPU** com a dispositiu de hardware.</p>
+    <p>2. Crea un nou notebook seleccionant <strong>"New Notebook"</strong>.</p>
+    <p>3. Connecta't a un <strong>GPU</strong> fent clic a <strong>"Runtime" > "Change runtime type"</strong> i seleccionant <strong>GPU</strong> com a dispositiu de hardware.</p>
 
     <h2>📌 PAS 2: Instal·lar les llibreries necessàries</h2>
-    En el teu notebook de Colab, primer has d'instal·lar les llibreries necessàries per fer **fine-tuning**. Afegeix el següent codi a la primera cel·la del notebook:
+    En el teu notebook de Colab, primer has d'instal·lar les llibreries necessàries per fer <strong>fine-tuning</strong>. Afegeix el següent codi a la primera cel·la del notebook:
 
     <pre><code>
     !pip install transformers datasets accelerate bitsandbytes
     </code></pre>
-    
+
     Això instal·larà:
-    - **transformers** per carregar i treballar amb models de Hugging Face.
-    - **datasets** per carregar els teus conjunts de dades.
-    - **accelerate** per optimitzar l'entrenament.
-    - **bitsandbytes** per carregar models de gran mida amb menys memòria.
+    - <strong>transformers</strong> per carregar i treballar amb models de Hugging Face.
+    - <strong>datasets</strong> per carregar els teus conjunts de dades.
+    - <strong>accelerate</strong> per optimitzar l'entrenament.
+    - <strong>bitsandbytes</strong> per carregar models de gran mida amb menys memòria.
 
     <h2>📌 PAS 3: Preparar el conjunt de dades</h2>
     Abans de fer el fine-tuning, necessites convertir els teus PDFs a text. Per això, utilitza el següent codi per extreure el text dels teus PDFs i convertir-los en un conjunt de dades utilitzable.
@@ -58,7 +58,7 @@
     Això extraurà tot el text dels PDFs i el guardarà en el fitxer `dataset.txt`.
 
     <h2>📌 PAS 4: Cargar i preparar el model</h2>
-    Carrega un model petit per fer el fine-tuning. Pots utilitzar **GPT-2** per començar:
+    Carrega un model petit per fer el fine-tuning. Pots utilitzar <strong>GPT-2</strong> per començar:
 
     <pre><code>
     from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer
@@ -71,7 +71,7 @@
     model = AutoModelForCausalLM.from_pretrained(model_id, load_in_8bit=True)  # Usar 8 bits per reduir la memòria
     </code></pre>
 
-    Això carregarà el model **GPT-2** i la tokenització de les dades.
+    Això carregarà el model <strong>GPT-2</strong> i la tokenització de les dades.
 
     <h2>📌 PAS 5: Tokenitzar les dades</h2>
     Abans de poder entrenar el model, cal tokenitzar les dades (convertir el text a una forma comprensible per al model). Utilitza aquest codi:
@@ -108,7 +108,7 @@
     trainer.train()
     </code></pre>
 
-    Això entrena el model durant **3 epochs** i guarda el model entrenat a la carpeta `gpt2_finetuned`.
+    Això entrena el model durant <strong>3 epochs</strong> i guarda el model entrenat a la carpeta `gpt2_finetuned`.
 
     <h2>📌 PAS 7: Desar el model entrenat</h2>
     Un cop completat l'entrenament, pots desar el model i carregar-lo més tard:
@@ -148,7 +148,7 @@
     </code></pre>
 
     <h2>📌 Conclusió</h2>
-    Amb **Google Colab**, pots fer **fine-tuning de models d'IA** de manera senzilla i amb **poques despeses** de recursos locals. Utilitzant models petits com **GPT-2** o fins i tot **DistilGPT-2**, pots entrenar un model per a la teva tasca (com respondre preguntes sobre drogues vegetals o medicaments). També pots carregar models més grans al núvol per fer **fine-tuning** sense necessitat d'una GPU potent localment.
+    Amb <strong>Google Colab</strong>, pots fer <strong>fine-tuning de models d'IA</strong> de manera senzilla i amb <strong>poques despeses</strong> de recursos locals. Utilitzant models petits com <strong>GPT-2</strong> o fins i tot <strong>DistilGPT-2</strong>, pots entrenar un model per a la teva tasca (com respondre preguntes sobre drogues vegetals o medicaments). També pots carregar models més grans al núvol per fer <strong>fine-tuning</strong> sense necessitat d'una GPU potent localment.
 
 </body>
 </html>
