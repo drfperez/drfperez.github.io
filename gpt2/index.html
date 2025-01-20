@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fine-Tuning amb Google Colab</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #2c3e50; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        code { font-family: "Courier New", monospace; color: #d63384; }
+    </style>
+</head>
+<body>
+
+    <h1>📌 Guia de Fine-Tuning amb Google Colab</h1>
+    <p>En aquesta guia aprendràs a utilitzar **Google Colab** per fer **fine-tuning d'un model preentrenat** com **GPT-2** o **Mistral** amb els teus propis documents (com PDFs de drogues vegetals i medicaments a base de plantes).</p>
+
+    <h2>🔹 Per què Google Colab?</h2>
+    <p>Google Colab et permet utilitzar **GPU gratuïtes** per realitzar tasques d'IA com el **fine-tuning** de models sense necessitat d'un ordinador potent. Amb **4 GB de RAM** al teu PC local, Colab serà una bona opció.</p>
+
+    <h2>📌 PAS 1: Crear un Notebook de Google Colab</h2>
+    <p>1. Ves a [Google Colab](https://colab.research.google.com/).</p>
+    <p>2. Crea un nou notebook seleccionant **"New Notebook"**.</p>
+    <p>3. Connecta't a un **GPU** fent clic a **"Runtime" > "Change runtime type"** i seleccionant **GPU** com a dispositiu de hardware.</p>
+
+    <h2>📌 PAS 2: Instal·lar les llibreries necessàries</h2>
+    En el teu notebook de Colab, primer has d'instal·lar les llibreries necessàries per fer **fine-tuning**. Afegeix el següent codi a la primera cel·la del notebook:
+
+    <pre><code>
+    !pip install transformers datasets accelerate bitsandbytes
+    </code></pre>
+    
+    Això instal·larà:
+    - **transformers** per carregar i treballar amb models de Hugging Face.
+    - **datasets** per carregar els teus conjunts de dades.
+    - **accelerate** per optimitzar l'entrenament.
+    - **bitsandbytes** per carregar models de gran mida amb menys memòria.
+
+    <h2>📌 PAS 3: Preparar el conjunt de dades</h2>
+    Abans de fer el fine-tuning, necessites convertir els teus PDFs a text. Per això, utilitza el següent codi per extreure el text dels teus PDFs i convertir-los en un conjunt de dades utilitzable.
+
+    <pre><code>
+    from pypdf import PdfReader
+    import os
+
+    carpeta_pdfs = "pdfs_ema"  # O la carpeta on tinguis els PDFs
+    sortida_txt = "dataset.txt"
+
+    with open(sortida_txt, "w", encoding="utf-8") as fitxer:
+        for arxiu in os.listdir(carpeta_pdfs):
+            if arxiu.endswith(".pdf"):
+                lector = PdfReader(os.path.join(carpeta_pdfs, arxiu))
+                for pàgina in lector.pages:
+                    fitxer.write(pàgina.extract_text() + "\n")
+    </code></pre>
+
+    Això extraurà tot el text dels PDFs i el guardarà en el fitxer `dataset.txt`.
+
+    <h2>📌 PAS 4: Cargar i preparar el model</h2>
+    Carrega un model petit per fer el fine-tuning. Pots utilitzar **GPT-2** per començar:
+
+    <pre><code>
+    from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer
+    from datasets import load_dataset
+
+    model_id = "gpt2"  # Model petit per a fine-tuning
+    dataset = load_dataset("text", data_files="dataset.txt")
+
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id, load_in_8bit=True)  # Usar 8 bits per reduir la memòria
+    </code></pre>
+
+    Això carregarà el model **GPT-2** i la tokenització de les dades.
+
+    <h2>📌 PAS 5: Tokenitzar les dades</h2>
+    Abans de poder entrenar el model, cal tokenitzar les dades (convertir el text a una forma comprensible per al model). Utilitza aquest codi:
+
+    <pre><code>
+    def tokenize_function(examples):
+        return tokenizer(examples["text"], truncation=True, padding="max_length", max_length=512)
+
+    tokenized_datasets = dataset.map(tokenize_function, batched=True)
+    </code></pre>
+
+    Això convertirà el text del teu dataset en el format adequat per al model.
+
+    <h2>📌 PAS 6: Configurar l'entrenament</h2>
+    Ara configura l'entrenament, especificant el nombre d'epochs, la mida del lot i altres paràmetres:
+
+    <pre><code>
+    training_args = TrainingArguments(
+        output_dir="./gpt2_finetuned",
+        per_device_train_batch_size=1,  # Menor batch size per reduir la memòria
+        gradient_accumulation_steps=8,  # Acumula gradients per simular un batch més gran
+        evaluation_strategy="epoch",
+        save_strategy="epoch",
+        num_train_epochs=3,
+        learning_rate=2e-5
+    )
+
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized_datasets["train"]
+    )
+
+    trainer.train()
+    </code></pre>
+
+    Això entrena el model durant **3 epochs** i guarda el model entrenat a la carpeta `gpt2_finetuned`.
+
+    <h2>📌 PAS 7: Desar el model entrenat</h2>
+    Un cop completat l'entrenament, pots desar el model i carregar-lo més tard:
+
+    <pre><code>
+    trainer.save_model("gpt2_finetuned")
+    model = AutoModelForCausalLM.from_pretrained("gpt2_finetuned")
+    </code></pre>
+
+    <h2>📌 PAS 8: Provar el model entrenat</h2>
+    Ara pots provar el model generat per veure com respon a les teves preguntes:
+
+    <pre><code>
+    entrada = tokenizer("Quina és la planta medicinal més usada?", return_tensors="pt")
+    sortida = model.generate(**entrada)
+    print(tokenizer.decode(sortida[0], skip_special_tokens=True))
+    </code></pre>
+
+    Això generarà una resposta a la pregunta.
+
+    <h2>📌 PAS 9: Crear un chatbot amb el model entrenat</h2>
+    Utilitza el model entrenat per construir un chatbot senzill amb el codi següent:
+
+    <pre><code>
+    import torch
+
+    def chatbot(input_text):
+        entrada = tokenizer(input_text, return_tensors="pt")
+        sortida = model.generate(**entrada)
+        return tokenizer.decode(sortida[0], skip_special_tokens=True)
+
+    while True:
+        user_input = input("Preguntar sobre drogues vegetals o medicaments: ")
+        if user_input.lower() == "sortir":
+            break
+        print("Resposta: ", chatbot(user_input))
+    </code></pre>
+
+    <h2>📌 Conclusió</h2>
+    Amb **Google Colab**, pots fer **fine-tuning de models d'IA** de manera senzilla i amb **poques despeses** de recursos locals. Utilitzant models petits com **GPT-2** o fins i tot **DistilGPT-2**, pots entrenar un model per a la teva tasca (com respondre preguntes sobre drogues vegetals o medicaments). També pots carregar models més grans al núvol per fer **fine-tuning** sense necessitat d'una GPU potent localment.
+
+</body>
+</html>
