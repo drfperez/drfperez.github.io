@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador d'Energia Fosca i Matèria Fosca</title>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,6 +29,11 @@
         .output {
             margin-top: 10px;
         }
+        .info {
+            margin-top: 20px;
+            max-width: 800px;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -43,6 +47,10 @@
         <label for="darkMatterSlider">Densitat de la Matèria Fosca:</label>
         <input type="range" id="darkMatterSlider" class="slider" min="0" max="100" value="27">
         <span id="darkMatterValue">27</span>
+        <br>
+        <label for="numGalaxiesSlider">Nombre de Galàxies:</label>
+        <input type="range" id="numGalaxiesSlider" class="slider" min="50" max="500" value="200">
+        <span id="numGalaxiesValue">200</span>
     </div>
     <div class="output">
         <p><strong>Càlculs en Temps Real:</strong></p>
@@ -52,6 +60,11 @@
         <p>Edat de l'Univers Simulat: <span id="universeAge">13700.0</span> milions d'anys</p>
         <p>Galàxies Visibles: <span id="visibleGalaxies">100</span></p>
     </div>
+    <div class="info">
+        <h2>Informació Addicional</h2>
+        <p>L'energia fosca és una forma d'energia que es creu que omple tot l'espai i que és responsable de l'expansió accelerada de l'univers. La matèria fosca, per altra banda, és una forma de matèria que no emet llum però que exerceix una força gravitatòria.</p>
+        <p>En aquesta simulació, pots ajustar la força de l'energia fosca i la densitat de la matèria fosca per veure com afecten a l'expansió i rotació de les galàxies.</p>
+    </div>
 
     <script>
         // Obtenim els elements del DOM
@@ -60,9 +73,11 @@
 
         const darkEnergySlider = document.getElementById('darkEnergySlider');
         const darkMatterSlider = document.getElementById('darkMatterSlider');
+        const numGalaxiesSlider = document.getElementById('numGalaxiesSlider');
 
         const darkEnergyValue = document.getElementById('darkEnergyValue');
         const darkMatterValue = document.getElementById('darkMatterValue');
+        const numGalaxiesValue = document.getElementById('numGalaxiesValue');
 
         const H0Output = document.getElementById('H0Output');
         const expansionRateOutput = document.getElementById('expansionRate');
@@ -85,9 +100,9 @@
         }
 
         // Inicialitzem les galàxies
-        function initGalaxies() {
+        function initGalaxies(numGalaxies) {
             galaxies = [];
-            for (let i = 0; i < 200; i++) { // Creem fins a 200 galàxies
+            for (let i = 0; i < numGalaxies; i++) {
                 galaxies.push(new Galaxy(
                     canvas.width / 2,
                     canvas.height / 2,
@@ -174,8 +189,13 @@
             darkMatterValue.textContent = darkMatterSlider.value;
         });
 
+        numGalaxiesSlider.addEventListener('input', () => {
+            numGalaxiesValue.textContent = numGalaxiesSlider.value;
+            initGalaxies(parseInt(numGalaxiesSlider.value));
+        });
+
         // Inicialitzem les galàxies i comencem l'animació
-        initGalaxies();
+        initGalaxies(parseInt(numGalaxiesSlider.value));
         animate();
     </script>
 </body>
