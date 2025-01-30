@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seagrass Around the World</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Fullscreen CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/2.4.0/Control.FullScreen.min.css" />
+  <!-- Animate.css for animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  
+<link href="
+https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css
+" rel="stylesheet">
+
+  
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #e0f7fa;
+      color: #004d40;
+    }
+    header {
+      background: linear-gradient(to bottom, #00796b, #004d40);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 3rem;
+      margin: 0;
+    }
+    header p {
+      font-size: 1.2rem;
+      margin: 10px 0 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+    }
+    .map-section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      flex: 3;
+    }
+    .map-section h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    #map {
+      width: 100%;
+      height: 500px;
+      border-radius: 10px;
+    }
+    .info-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 40px 0;
+    }
+    .info-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      flex: 1 1 calc(33.333% - 40px);
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .info-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    .info-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    .info-card p {
+      font-size: 1rem;
+      color: #555;
+    }
+    footer {
+      background: #004d40;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      margin-top: 40px;
+    }
+    footer a {
+      color: #80cbc4;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    .legend {
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    .legend h4 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+    .sidebar {
+      flex: 1;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar h3 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Seagrass Around the World</h1>
+    <p>Discover the global importance of seagrass ecosystems and their role in sustaining marine life.</p>
+  </header>
+
+  <div class="container">
+    <!-- Sidebar for Category List -->
+    <div class="sidebar">
+      <h3>Categories</h3>
+      <div id="category-list"></div>
+    </div>
+
+    <!-- Interactive Map Section -->
+    <section class="map-section">
+      <h2>Explore Seagrass Meadows Globally</h2>
+      <div id="map"></div>
+    </section>
+  </div>
+
+  <!-- Info Cards Section -->
+  <section class="info-section">
+    <div class="info-card animate__animated animate__fadeInUp">
+      <h3>Australia</h3>
+      <p>Home to the largest seagrass meadow in the world, supporting dugongs and sea turtles.</p>
+    </div>
+    <div class="info-card animate__animated animate__fadeInUp animate__delay-1s">
+      <h3>Mediterranean</h3>
+      <p>Seagrass meadows here act as carbon sinks and protect coastal communities.</p>
+    </div>
+    <div class="info-card animate__animated animate__fadeInUp animate__delay-2s">
+      <h3>Caribbean</h3>
+      <p>Vibrant seagrass beds provide habitat for juvenile fish and lobsters.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Seagrass Guardians. Learn more at <a href="#">https://drfperez.github.io</a></p>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Fullscreen Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/2.4.0/Control.FullScreen.min.js"></script>
+  <script>
+    // Initialize the map
+    const map = L.map('map').setView([20, 0], 2);
+
+    // Add a tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add satellite imagery layer (NASA GIBS)
+    const satelliteLayer = L.tileLayer('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.jpg', {
+      attribution: 'NASA Global Imagery Browse Services (GIBS)',
+      maxZoom: 8,
+      time: '2023-01-01',
+      tilematrixset: 'GoogleMapsCompatible_Level'
+    }).addTo(map);
+
+    // Add fullscreen control
+    map.addControl(new L.Control.FullScreen());
+
+    // Add markers for seagrass locations
+    const seagrassLocations = [
+      {
+        name: "Australia",
+        coords: [-18.5, 146.5],
+        description: "Home to the largest seagrass meadow in the world, supporting dugongs and sea turtles.",
+        category: "Biodiversity Support"
+      },
+      {
+        name: "Mediterranean",
+        coords: [37.0, 15.0],
+        description: "Seagrass meadows here act as carbon sinks and protect coastal communities.",
+        category: "Carbon Sequestration"
+      },
+      {
+        name: "Caribbean",
+        coords: [18.0, -77.0],
+        description: "Vibrant seagrass beds provide habitat for juvenile fish and lobsters.",
+        category: "Nursery Habitats"
+      },
+      {
+        name: "Florida",
+        coords: [27.5, -82.5],
+        description: "Seagrass meadows in Florida Bay are critical for manatees and fisheries.",
+        category: "Endangered Species Protection"
+      },
+      {
+        name: "Southeast Asia",
+        coords: [5.0, 110.0],
+        description: "Rich seagrass ecosystems support diverse marine life and local livelihoods.",
+        category: "Fisheries Support"
+      },
+      {
+        name: "Red Sea",
+        coords: [22.0, 38.0],
+        description: "Seagrass meadows here are among the most resilient to climate change.",
+        category: "Coastal Protection"
+      },
+      {
+        name: "Indian Ocean",
+        coords: [-10.0, 60.0],
+        description: "Seagrass beds support coral reef ecosystems and coastal fisheries.",
+        category: "Biodiversity Support"
+      },
+      {
+        name: "Great Barrier Reef",
+        coords: [-18.2871, 147.6992],
+        description: "Supports 80,000 fish and 100 million invertebrates per hectare. Critical habitat for dugongs and sea turtles.",
+        category: "Biodiversity Support"
+      },
+      {
+        name: "Chesapeake Bay",
+        coords: [37.8847, -76.2728],
+        description: "Important nursery habitat for blue crabs and various fish species.",
+        category: "Nursery Habitats"
+      },
+      {
+        name: "Shark Bay, Australia",
+        coords: [-25.7969, 113.7666],
+        description: "Home to endangered dugongs and critical for carbon sequestration.",
+        category: "Endangered Species Protection"
+      },
+      {
+        name: "Posidonia oceanica meadows, Mediterranean",
+        coords: [39.0742, 8.3235],
+        description: "Stores carbon 35 times more efficiently than tropical rainforests.",
+        category: "Carbon Sequestration"
+      },
+      {
+        name: "Florida Keys",
+        coords: [24.5551, -81.7800],
+        description: "Seagrass beds protect coastlines from erosion and storm surges.",
+        category: "Coastal Protection"
+      },
+      {
+        name: "Chesapeake Bay",
+        coords: [37.8847, -76.2728],
+        description: "Seagrass improves water quality by filtering excess nutrients.",
+        category: "Water Quality Improvement"
+      },
+      {
+        name: "Global Seagrass Distribution",
+        coords: [0, 0],
+        description: "Seagrass covers 0.2% of the seabed but stores 10% of the ocean's carbon.",
+        category: "Coverage"
+      },
+      {
+        name: "Southeast Asia",
+        coords: [1.3521, 103.8198],
+        description: "Region experiencing rapid seagrass decline, up to 7% annually.",
+        category: "Decline Rates"
+      },
+      {
+        name: "Zanzibar, Tanzania",
+        coords: [-6.1659, 39.2026],
+        description: "Seagrass supports local fisheries and provides income for communities.",
+        category: "Fisheries Support"
+      },
+      {
+        name: "Wakatobi, Indonesia",
+        coords: [-5.5000, 123.7833],
+        description: "Community-based seagrass conservation supports eco-tourism.",
+        category: "Community Benefits"
+      },
+      {
+        name: "Virginia Coast Reserve, USA",
+        coords: [37.4316, -75.8853],
+        description: "Large-scale seagrass restoration project ongoing since 1999.",
+        category: "Restoration Projects"
+      },
+      {
+        name: "Moreton Bay Marine Park, Australia",
+        coords: [-27.2744, 153.2665],
+        description: "Protected area with significant seagrass conservation efforts.",
+        category: "Protected Areas"
+      }
+    ];
+
+    function getCategoryIcon(category) {
+      const iconSize = [25, 41];
+      const iconAnchor = [12, 41];
+      const popupAnchor = [1, -34];
+      const shadowSize = [41, 41];
+
+      const iconUrl = {
+        "Biodiversity Support": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+        "Nursery Habitats": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png",
+        "Endangered Species Protection": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+        "Carbon Sequestration": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+        "Coastal Protection": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+        "Water Quality Improvement": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png",
+        "Coverage": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png",
+        "Decline Rates": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png",
+        "Fisheries Support": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+        "Community Benefits": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+        "Restoration Projects": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+        "Protected Areas": "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png"
+      };
+
+      return L.icon({
+        iconUrl: iconUrl[category] || "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+        iconSize: iconSize,
+        iconAnchor: iconAnchor,
+        popupAnchor: popupAnchor,
+        shadowSize: shadowSize
+      });
+    }
+
+    // Add markers to the map
+    seagrassLocations.forEach(location => {
+      L.marker(location.coords, {icon: getCategoryIcon(location.category)})
+        .addTo(map)
+        .bindPopup(`<strong>${location.name}</strong><br>${location.description}<br><em>Category: ${location.category}</em>`);
+    });
+
+    // Add category list to the sidebar
+    const categories = [...new Set(seagrassLocations.map(loc => loc.category))];
+    const categoryList = document.getElementById('category-list');
+    categories.forEach(category => {
+      const categoryItem = document.createElement('div');
+      categoryItem.innerHTML = `<i style="background-image: url('${getCategoryIcon(category).options.iconUrl}'); background-size: contain; width: 16px; height: 16px; display: inline-block;"></i> ${category}`;
+      categoryList.appendChild(categoryItem);
+    });
+  </script>
+</body>
+</html>
