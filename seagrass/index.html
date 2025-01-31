@@ -10,14 +10,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/2.4.0/Control.FullScreen.min.css" />
   <!-- Animate.css for animations -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-  
-<link href="
-https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css
-" rel="stylesheet">
-
-  
-  
+  <link href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css" rel="stylesheet">
   <style>
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -124,6 +119,7 @@ https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css
     .sidebar h3 {
       margin-top: 0;
     }
+ 
   </style>
 </head>
 <body>
@@ -163,7 +159,7 @@ https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css
   </section>
 
   <footer>
-    <p>By: Francisco Pérez García</p>
+    <p>Seagrass Guardians. Learn more at <a href="#">https://drfperez.github.io</a></p>
   </footer>
 
   <!-- Leaflet JS -->
@@ -189,6 +185,26 @@ https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css
 
     // Add fullscreen control
     map.addControl(new L.Control.FullScreen());
+
+    // Seagrass species information
+    const seagrassSpecies = {
+      "Australia": ["Zostera marina", "Halophila ovalis", "Amphibolis antarctica"],
+      "Mediterranean": ["Posidonia oceanica", "Cymodocea nodosa"],
+      "Caribbean": ["Thalassia testudinum", "Syringodium filiforme", "Halodule wrightii"],
+      "Florida": ["Thalassia testudinum", "Halodule wrightii", "Syringodium filiforme"],
+      "Southeast Asia": ["Enhalus acoroides", "Halophila ovalis", "Thalassia hemprichii"],
+      "Red Sea": ["Halophila stipulacea", "Halodule uninervis"],
+      "Indian Ocean": ["Thalassia hemprichii", "Cymodocea serrulata"],
+      "Great Barrier Reef": ["Halophila ovalis", "Zostera muelleri"],
+      "Chesapeake Bay": ["Zostera marina", "Ruppia maritima"],
+      "Shark Bay, Australia": ["Amphibolis antarctica", "Posidonia australis"],
+      "Posidonia oceanica meadows, Mediterranean": ["Posidonia oceanica"],
+      "Florida Keys": ["Thalassia testudinum", "Halodule wrightii"],
+      "Zanzibar, Tanzania": ["Thalassia hemprichii", "Cymodocea serrulata"],
+      "Wakatobi, Indonesia": ["Enhalus acoroides", "Halophila ovalis"],
+      "Virginia Coast Reserve, USA": ["Zostera marina"],
+      "Moreton Bay Marine Park, Australia": ["Zostera muelleri", "Halophila ovalis"]
+    };
 
     // Add markers for seagrass locations
     const seagrassLocations = [
@@ -265,24 +281,6 @@ https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css
         category: "Coastal Protection"
       },
       {
-        name: "Chesapeake Bay",
-        coords: [37.8847, -76.2728],
-        description: "Seagrass improves water quality by filtering excess nutrients.",
-        category: "Water Quality Improvement"
-      },
-      {
-        name: "Global Seagrass Distribution",
-        coords: [0, 0],
-        description: "Seagrass covers 0.2% of the seabed but stores 10% of the ocean's carbon.",
-        category: "Coverage"
-      },
-      {
-        name: "Southeast Asia",
-        coords: [1.3521, 103.8198],
-        description: "Region experiencing rapid seagrass decline, up to 7% annually.",
-        category: "Decline Rates"
-      },
-      {
         name: "Zanzibar, Tanzania",
         coords: [-6.1659, 39.2026],
         description: "Seagrass supports local fisheries and provides income for communities.",
@@ -341,9 +339,17 @@ https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css
 
     // Add markers to the map
     seagrassLocations.forEach(location => {
-      L.marker(location.coords, {icon: getCategoryIcon(location.category)})
+      const speciesList = seagrassSpecies[location.name] || ["No species data available"];
+      const popupContent = `
+        <strong>${location.name}</strong><br>
+        ${location.description}<br>
+        <em>Category: ${location.category}</em><br>
+        <strong>Common Seagrass Species:</strong><br>
+        ${speciesList.join(", ")}
+      `;
+      L.marker(location.coords, { icon: getCategoryIcon(location.category) })
         .addTo(map)
-        .bindPopup(`<strong>${location.name}</strong><br>${location.description}<br><em>Category: ${location.category}</em>`);
+        .bindPopup(popupContent);
     });
 
     // Add category list to the sidebar
