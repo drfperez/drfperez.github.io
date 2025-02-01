@@ -206,66 +206,132 @@
     map.addControl(new L.Control.FullScreen());
 
     // Seagrass species information
-    const seagrassSpecies = {
-  "Australia": ["Zostera marina", "Halophila ovalis", "Amphibolis antarctica"],
-  "Mediterranean": ["Posidonia oceanica", "Cymodocea nodosa"],
-  "Caribbean": ["Thalassia testudinum", "Syringodium filiforme", "Halodule wrightii"],
-  "Florida": ["Thalassia testudinum", "Halodule wrightii", "Syringodium filiforme"],
-  "Southeast Asia": ["Enhalus acoroides", "Halophila ovalis", "Thalassia hemprichii"],
-  "Red Sea": ["Halophila stipulacea", "Halodule uninervis"],
-  "Indian Ocean": ["Thalassia hemprichii", "Cymodocea serrulata"],
-  "Great Barrier Reef": ["Halophila ovalis", "Zostera muelleri"],
-  "Chesapeake Bay": ["Zostera marina", "Ruppia maritima"],
-  "Shark Bay, Australia": ["Amphibolis antarctica", "Posidonia australis"],
-  "Posidonia oceanica meadows, Mediterranean": ["Posidonia oceanica"],
-  "Florida Keys": ["Thalassia testudinum", "Halodule wrightii"],
-  "Zanzibar, Tanzania": ["Thalassia hemprichii", "Cymodocea serrulata"],
-  "Wakatobi, Indonesia": ["Enhalus acoroides", "Halophila ovalis"],
-  "Virginia Coast Reserve, USA": ["Zostera marina"],
-  "Moreton Bay Marine Park, Australia": ["Zostera muelleri", "Halophila ovalis"],
-  "Banc d'Arguin, Mauritania": ["Zostera noltii", "Cymodocea nodosa"],
-  "Everglades National Park, USA": ["Thalassia testudinum", "Halodule wrightii"],
-  "Gulf of California, Mexico": ["Zostera marina", "Ruppia maritima"],
-  "Bay of Bengal, India": ["Halophila ovalis", "Halodule uninervis"],
-  "Palawan, Philippines": ["Enhalus acoroides", "Thalassia hemprichii"],
-  "Norfolk Broads, UK": ["Zostera marina", "Zostera noltii"],
-  "San Juan Islands, USA": ["Zostera marina", "Phyllospadix scouleri"],
-  "Gulf of Mannar, India": ["Cymodocea serrulata", "Syringodium isoetifolium"],
-  "Bay of Islands, New Zealand": ["Zostera muelleri", "Halophila ovalis"],
-  "Bazaruto Archipelago, Mozambique": ["Thalassodendron ciliatum", "Halodule uninervis"],
-  "Maldives": ["Thalassia hemprichii", "Syringodium isoetifolium"],
-  "Helgoland, Germany": ["Zostera marina", "Zostera noltii"],
-  "Caspian Sea, Azerbaijan": ["Zostera noltii", "Ruppia maritima"],
-  "Galápagos Islands, Ecuador": ["Thalassia testudinum", "Halophila decipiens"],
-  "Bay of Fundy, Canada": ["Zostera marina"],
-  "Bali, Indonesia": ["Enhalus acoroides", "Thalassia hemprichii"],
-  "Southern California Bight, USA": ["Zostera marina", "Phyllospadix torreyi"],
-  "Patagonia, Argentina": ["Ruppia maritima", "Zostera chilensis"],
-  "Persian Gulf, UAE": ["Halodule uninervis", "Halophila ovalis"],
-  "Tokyo Bay, Japan": ["Zostera marina", "Zostera japonica"],
-  "Kaneohe Bay, Hawaii, USA": ["Halophila hawaiiana", "Halophila decipiens"],
-  "Samaná Bay, Dominican Republic": ["Thalassia testudinum", "Syringodium filiforme"],
-  "Saint Martin, Caribbean": ["Thalassia testudinum", "Halodule wrightii"],
-  "Lagoa dos Patos, Brazil": ["Ruppia maritima", "Zannichellia palustris"],
-  "Houtman Abrolhos Islands, Australia": ["Amphibolis antarctica", "Posidonia australis"],
+const seagrassSpecies = {
+  "Australia": ["Amphibolis antarctica", // Wireweed
+                "Halophila ovalis",       // Paddle grass
+                "Zostera muelleri"],      // Eelgrass
+
+  "Bali, Indonesia": ["Enhalus acoroides", // Tape grass
+                      "Thalassia hemprichii"], // Turtlegrass
+
+  "Banc d'Arguin, Mauritania": ["Cymodocea nodosa", // Nodding seagrass
+                                "Zostera noltii"],  // Dwarf eelgrass
+
+  "Bay of Bengal, India": ["Halodule uninervis", // Narrow-leaf seagrass
+                           "Halophila ovalis"],   // Paddle grass
 
   "Bay of Fundy, Canada": ["Zostera marina"], // Eelgrass
-  "Galápagos Islands, Ecuador": ["Thalassia testudinum", "Halophila decipiens"], // Turtle grass, Paddle grass
-  "Caspian Sea, Azerbaijan": ["Zostera noltei", "Ruppia maritima"], // Dwarf eelgrass, Widgeon grass
-  "Helgoland, Germany": ["Zostera marina", "Zostera noltei"], // Eelgrass, Dwarf eelgrass
-  "Maldives": ["Thalassia hemprichii", "Syringodium isoetifolium"], // Turtlegrass, Syringodium
-  "Bazaruto Archipelago, Mozambique": ["Thalassodendron ciliatum", "Halodule wrightii"], // Thalassodendron, Shoal grass
-  "Bay of Islands, New Zealand": ["Zostera muelleri", "Halophila decipiens"], // Eelgrass, Paddle grass
-  "Gulf of Mannar, India": ["Cymodocea serrulata", "Syringodium isoetifolium"], // Cymodocea, Syringodium
-  "San Juan Islands, USA": ["Zostera marina", "Phyllospadix scouleri"], // Eelgrass, Surfgrass
-  "Norfolk Broads, UK": ["Zostera marina", "Zostera noltei"], // Eelgrass, Dwarf eelgrass
-  "Palawan, Philippines": ["Enhalus acoroides", "Thalassia hemprichii"], // Tape grass, Turtlegrass
-  "Bay of Bengal, India": ["Halophila decipiens", "Halodule wrightii"], // Paddle grass, Shoal grass
-  "Gulf of California, Mexico": ["Zostera marina", "Ruppia maritima"], // Eelgrass, Widgeon grass
-  "Everglades National Park, USA": ["Thalassia testudinum", "Halodule wrightii"] // Turtle grass, Shoal grass
 
+  "Bay of Islands, New Zealand": ["Halophila ovalis", // Paddle grass
+                                  "Zostera muelleri"], // Eelgrass
 
+  "Bazaruto Archipelago, Mozambique": ["Halodule uninervis", // Narrow-leaf seagrass
+                                       "Thalassodendron ciliatum"], // Ribbon seagrass
+
+  "Caribbean": ["Halodule wrightii", // Shoal grass
+                "Syringodium filiforme", // Manatee grass
+                "Thalassia testudinum"], // Turtle grass
+
+  "Caspian Sea, Azerbaijan": ["Ruppia maritima", // Widgeon grass
+                              "Zostera noltii"],  // Dwarf eelgrass
+
+  "Chesapeake Bay": ["Ruppia maritima", // Widgeon grass
+                     "Zostera marina"],  // Eelgrass
+
+  "Everglades National Park, USA": ["Halodule wrightii", // Shoal grass
+                                    "Thalassia testudinum"], // Turtle grass
+
+  "Florida": ["Halodule wrightii", // Shoal grass
+             "Syringodium filiforme", // Manatee grass
+             "Thalassia testudinum"], // Turtle grass
+
+  "Florida Keys": ["Halodule wrightii", // Shoal grass
+                   "Thalassia testudinum"], // Turtle grass
+
+  "Galápagos Islands, Ecuador": ["Halophila decipiens", // Paddle grass
+                                 "Thalassia testudinum"], // Turtle grass
+
+  "Great Barrier Reef": ["Halophila ovalis", // Paddle grass
+                         "Zostera muelleri"], // Eelgrass
+
+  "Gulf of California, Mexico": ["Ruppia maritima", // Widgeon grass
+                                 "Zostera marina"],  // Eelgrass
+
+  "Gulf of Mannar, India": ["Cymodocea serrulata", // Serrated seagrass
+                            "Syringodium isoetifolium"], // Needle seagrass
+
+  "Helgoland, Germany": ["Zostera marina", // Eelgrass
+                         "Zostera noltii"],  // Dwarf eelgrass
+
+  "Houtman Abrolhos Islands, Australia": ["Amphibolis antarctica", // Wireweed
+                                          "Posidonia australis"],  // Southern strapweed
+
+  "Indian Ocean": ["Cymodocea serrulata", // Serrated seagrass
+                   "Thalassia hemprichii"], // Turtlegrass
+
+  "Kaneohe Bay, Hawaii, USA": ["Halophila decipiens", // Paddle grass
+                               "Halophila hawaiiana"], // Hawaiian seagrass
+
+  "Lagoa dos Patos, Brazil": ["Ruppia maritima", // Widgeon grass
+                              "Zannichellia palustris"], // Horned pondweed
+
+  "Maldives": ["Syringodium isoetifolium", // Needle seagrass
+              "Thalassia hemprichii"],       // Turtlegrass
+
+  "Mediterranean": ["Cymodocea nodosa", // Nodding seagrass
+                    "Posidonia oceanica"], // Neptune grass
+
+  "Moreton Bay Marine Park, Australia": ["Halophila ovalis", // Paddle grass
+                                         "Zostera muelleri"], // Eelgrass
+
+  "Norfolk Broads, UK": ["Zostera marina", // Eelgrass
+                         "Zostera noltii"],  // Dwarf eelgrass
+
+  "Palawan, Philippines": ["Enhalus acoroides", // Tape grass
+                           "Thalassia hemprichii"], // Turtlegrass
+
+  "Patagonia, Argentina": ["Ruppia maritima", // Widgeon grass
+                           "Zostera chilensis"], // Chilean eelgrass
+
+  "Persian Gulf, UAE": ["Halodule uninervis", // Narrow-leaf seagrass
+                        "Halophila ovalis"],   // Paddle grass
+
+  "Posidonia oceanica meadows, Mediterranean": ["Posidonia oceanica"], // Neptune grass
+
+  "Red Sea": ["Halodule uninervis", // Narrow-leaf seagrass
+             "Halophila stipulacea"], // Broad-leaf seagrass
+
+  "Saint Martin, Caribbean": ["Halodule wrightii", // Shoal grass
+                              "Thalassia testudinum"], // Turtle grass
+
+  "Samaná Bay, Dominican Republic": ["Syringodium filiforme", // Manatee grass
+                                     "Thalassia testudinum"], // Turtle grass
+
+  "San Juan Islands, USA": ["Phyllospadix scouleri", // Surfgrass
+                            "Zostera marina"],        // Eelgrass
+
+  "Shark Bay, Australia": ["Amphibolis antarctica", // Wireweed
+                           "Posidonia australis"],    // Southern strapweed
+
+  "Southeast Asia": ["Enhalus acoroides", // Tape grass
+                     "Halophila ovalis",    // Paddle grass
+                     "Thalassia hemprichii"], // Turtlegrass
+
+  "Southern California Bight, USA": ["Phyllospadix torreyi", // Surfgrass
+                                     "Zostera marina"],        // Eelgrass
+
+  "Tokyo Bay, Japan": ["Zostera japonica", // Japanese eelgrass
+                       "Zostera marina"],   // Eelgrass
+
+  "Virginia Coast Reserve, USA": ["Zostera marina"], // Eelgrass
+
+  "Wakatobi, Indonesia": ["Enhalus acoroides", // Tape grass
+                          "Halophila ovalis"],   // Paddle grass
+
+  "Zanzibar, Tanzania": ["Cymodocea serrulata", // Serrated seagrass
+                         "Thalassia hemprichii"]  // Turtlegrass
 };
+
 
 
     // Add markers for seagrass locations
