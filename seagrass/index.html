@@ -12,7 +12,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.2/Control.FullScreen.min.css" rel="stylesheet">
   <style>
-
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -87,7 +86,7 @@
     }
     footer {
       background: #004d40;
-      color: white;
+      color: black;
       text-align: center;
       padding: 20px;
       margin-top: 40px;
@@ -119,22 +118,11 @@
     .sidebar h3 {
       margin-top: 0;
     }
- 
     .custom-footer {
-        text-align: center;
-        padding: 10px;
-        background-color: #f8f9fa;
+      text-align: center;
+      padding: 10px;
+      background-color: #f8f9fa;
     }
-
-<footer class="custom-footer">
-    <p>Created with <span style="color: red;">❤️</span> by <strong>Dr. Francisco Pérez</strong> for  
-        <a href="https://www.projectseagrass.org" target="_blank" style="text-decoration: none; font-weight: bold; color: #007bff;">
-            Project Seagrass
-        </a>
-    </p>
-    <img src="logo.png" alt="Project Seagrass" style="width: 100px; height: auto; margin-top: 5px;">
-</footer>
-
   </style>
 </head>
 <body>
@@ -173,13 +161,14 @@
     </div>
   </section>
 
- <footer class="custom-footer"><p style="color: black !important; font-size: 16px; margin: 5px;">
-        Created with <span style="color: red;">❤️</span> by <strong>Dr. Francisco Pérez</strong> for <strong><a href="https://www.projectseagrass.org" target="_blank" style="text-decoration: none; font-weight: bold; color: #007bff;">
-            Project Seagrass</strong>
+  <footer class="custom-footer">
+    <p>Created with <span style="color: red;">❤️</span> by <strong>Dr. Francisco Pérez</strong> for  
+        <a href="https://www.projectseagrass.org" target="_blank" style="text-decoration: none; font-weight: bold; color: #007bff;">
+            Project Seagrass
+        </a>
     </p>
-    <img src="sea.png" alt="Project Seagrass" style="width: 100px; height: auto; margin-top: 5px;">
+    <img src="logo.png" alt="Project Seagrass" style="width: 100px; height: auto; margin-top: 5px;">
 </footer>
-
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -205,471 +194,470 @@
     // Add fullscreen control
     map.addControl(new L.Control.FullScreen());
 
-    // Seagrass species information
-const seagrassSpecies = {
-  "Australia": ["Amphibolis antarctica", // Wireweed
-                "Halophila ovalis",       // Paddle grass
-                "Zostera muelleri"],      // Eelgrass
-
-  "Bali, Indonesia": ["Enhalus acoroides", // Tape grass
-                      "Thalassia hemprichii"], // Turtlegrass
-
-  "Banc d'Arguin, Mauritania": ["Cymodocea nodosa", // Nodding seagrass
-                                "Zostera noltii"],  // Dwarf eelgrass
-
-  "Bay of Bengal, India": ["Halodule uninervis", // Narrow-leaf seagrass
-                           "Halophila ovalis"],   // Paddle grass
-
-  "Bay of Fundy, Canada": ["Zostera marina"], // Eelgrass
-
-  "Bay of Islands, New Zealand": ["Halophila ovalis", // Paddle grass
-                                  "Zostera muelleri"], // Eelgrass
-
-  "Bazaruto Archipelago, Mozambique": ["Halodule uninervis", // Narrow-leaf seagrass
-                                       "Thalassodendron ciliatum"], // Ribbon seagrass
-
-  "Caribbean": ["Halodule wrightii", // Shoal grass
-                "Syringodium filiforme", // Manatee grass
-                "Thalassia testudinum"], // Turtle grass
-
-  "Caspian Sea, Azerbaijan": ["Ruppia maritima", // Widgeon grass
-                              "Zostera noltii"],  // Dwarf eelgrass
-
-  "Chesapeake Bay": ["Ruppia maritima", // Widgeon grass
-                     "Zostera marina"],  // Eelgrass
-
-  "Everglades National Park, USA": ["Halodule wrightii", // Shoal grass
-                                    "Thalassia testudinum"], // Turtle grass
-
-  "Florida": ["Halodule wrightii", // Shoal grass
-             "Syringodium filiforme", // Manatee grass
-             "Thalassia testudinum"], // Turtle grass
-
-  "Florida Keys": ["Halodule wrightii", // Shoal grass
-                   "Thalassia testudinum"], // Turtle grass
-
-  "Galápagos Islands, Ecuador": ["Halophila decipiens", // Paddle grass
-                                 "Thalassia testudinum"], // Turtle grass
-
-  "Great Barrier Reef": ["Halophila ovalis", // Paddle grass
-                         "Zostera muelleri"], // Eelgrass
-
-  "Gulf of California, Mexico": ["Ruppia maritima", // Widgeon grass
-                                 "Zostera marina"],  // Eelgrass
-
-  "Gulf of Mannar, India": ["Cymodocea serrulata", // Serrated seagrass
-                            "Syringodium isoetifolium"], // Needle seagrass
-
-  "Helgoland, Germany": ["Zostera marina", // Eelgrass
-                         "Zostera noltii"],  // Dwarf eelgrass
-
-  "Houtman Abrolhos Islands, Australia": ["Amphibolis antarctica", // Wireweed
-                                          "Posidonia australis"],  // Southern strapweed
-
-  "Indian Ocean": ["Cymodocea serrulata", // Serrated seagrass
-                   "Thalassia hemprichii"], // Turtlegrass
-
-  "Kaneohe Bay, Hawaii, USA": ["Halophila decipiens", // Paddle grass
-                               "Halophila hawaiiana"], // Hawaiian seagrass
-
-  "Lagoa dos Patos, Brazil": ["Ruppia maritima", // Widgeon grass
-                              "Zannichellia palustris"], // Horned pondweed
-
-  "Maldives": ["Syringodium isoetifolium", // Needle seagrass
-              "Thalassia hemprichii"],       // Turtlegrass
-
-  "Mediterranean": ["Cymodocea nodosa", // Nodding seagrass
-                    "Posidonia oceanica"], // Neptune grass
-
-  "Moreton Bay Marine Park, Australia": ["Halophila ovalis", // Paddle grass
-                                         "Zostera muelleri"], // Eelgrass
-
-  "Norfolk Broads, UK": ["Zostera marina", // Eelgrass
-                         "Zostera noltii"],  // Dwarf eelgrass
-
-  "Palawan, Philippines": ["Enhalus acoroides", // Tape grass
-                           "Thalassia hemprichii"], // Turtlegrass
-
-  "Patagonia, Argentina": ["Ruppia maritima", // Widgeon grass
-                           "Zostera chilensis"], // Chilean eelgrass
-
-  "Persian Gulf, UAE": ["Halodule uninervis", // Narrow-leaf seagrass
-                        "Halophila ovalis"],   // Paddle grass
-
-  "Posidonia oceanica meadows, Mediterranean": ["Posidonia oceanica"], // Neptune grass
-
-  "Red Sea": ["Halodule uninervis", // Narrow-leaf seagrass
-             "Halophila stipulacea"], // Broad-leaf seagrass
-
-  "Saint Martin, Caribbean": ["Halodule wrightii", // Shoal grass
-                              "Thalassia testudinum"], // Turtle grass
-
-  "Samaná Bay, Dominican Republic": ["Syringodium filiforme", // Manatee grass
-                                     "Thalassia testudinum"], // Turtle grass
-
-  "San Juan Islands, USA": ["Phyllospadix scouleri", // Surfgrass
-                            "Zostera marina"],        // Eelgrass
-
-  "Shark Bay, Australia": ["Amphibolis antarctica", // Wireweed
-                           "Posidonia australis"],    // Southern strapweed
-
-  "Southeast Asia": ["Enhalus acoroides", // Tape grass
-                     "Halophila ovalis",    // Paddle grass
-                     "Thalassia hemprichii"], // Turtlegrass
-
-  "Southern California Bight, USA": ["Phyllospadix torreyi", // Surfgrass
-                                     "Zostera marina"],        // Eelgrass
-
-  "Tokyo Bay, Japan": ["Zostera japonica", // Japanese eelgrass
-                       "Zostera marina"],   // Eelgrass
-
-  "Virginia Coast Reserve, USA": ["Zostera marina"], // Eelgrass
-
-  "Wakatobi, Indonesia": ["Enhalus acoroides", // Tape grass
-                          "Halophila ovalis"],   // Paddle grass
-
-  "Zanzibar, Tanzania": ["Cymodocea serrulata", // Serrated seagrass
-                         "Thalassia hemprichii"]  // Turtlegrass
-};
-
-
-
-    // Add markers for seagrass locations
+    // Combined seagrass data
     const seagrassLocations = [
       {
         name: "Australia",
         coords: [-18.5, 146.5],
         description: "Home to the largest seagrass meadow in the world, supporting dugongs and sea turtles.",
-        category: "Biodiversity Support"
-      },
-      {
-        name: "Mediterranean",
-        coords: [37.0, 15.0],
-        description: "Seagrass meadows here act as carbon sinks and protect coastal communities.",
-        category: "Carbon Sequestration"
-      },
-      {
-        name: "Caribbean",
-        coords: [18.0, -77.0],
-        description: "Vibrant seagrass beds provide habitat for juvenile fish and lobsters.",
-        category: "Nursery Habitats"
-      },
-      {
-        name: "Florida",
-        coords: [27.5, -82.5],
-        description: "Seagrass meadows in Florida Bay are critical for manatees and fisheries.",
-        category: "Endangered Species Protection"
-      },
-      {
-        name: "Southeast Asia",
-        coords: [5.0, 110.0],
-        description: "Rich seagrass ecosystems support diverse marine life and local livelihoods.",
-        category: "Fisheries Support"
-      },
-      {
-        name: "Red Sea",
-        coords: [22.0, 38.0],
-        description: "Seagrass meadows here are among the most resilient to climate change.",
-        category: "Coastal Protection"
-      },
-      {
-        name: "Indian Ocean",
-        coords: [-10.0, 60.0],
-        description: "Seagrass beds support coral reef ecosystems and coastal fisheries.",
-        category: "Biodiversity Support"
-      },
-      {
-        name: "Great Barrier Reef",
-        coords: [-18.2871, 147.6992],
-        description: "Supports 80,000 fish and 100 million invertebrates per hectare. Critical habitat for dugongs and sea turtles.",
-        category: "Biodiversity Support"
-      },
-      {
-        name: "Chesapeake Bay",
-        coords: [37.8847, -76.2728],
-        description: "Important nursery habitat for blue crabs and various fish species.",
-        category: "Nursery Habitats"
-      },
-      {
-        name: "Shark Bay, Australia",
-        coords: [-25.7969, 113.7666],
-        description: "Home to endangered dugongs and critical for carbon sequestration.",
-        category: "Endangered Species Protection"
-      },
-      {
-        name: "Posidonia oceanica meadows, Mediterranean",
-        coords: [39.0742, 8.3235],
-        description: "Stores carbon 35 times more efficiently than tropical rainforests.",
-        category: "Carbon Sequestration"
-      },
-      {
-        name: "Florida Keys",
-        coords: [24.5551, -81.7800],
-        description: "Seagrass beds protect coastlines from erosion and storm surges.",
-        category: "Coastal Protection"
-      },
-      {
-        name: "Zanzibar, Tanzania",
-        coords: [-6.1659, 39.2026],
-        description: "Seagrass supports local fisheries and provides income for communities.",
-        category: "Fisheries Support"
-      },
-      {
-        name: "Wakatobi, Indonesia",
-        coords: [-5.5000, 123.7833],
-        description: "Community-based seagrass conservation supports eco-tourism.",
-        category: "Community Benefits"
-      },
-      {
-        name: "Virginia Coast Reserve, USA",
-        coords: [37.4316, -75.8853],
-        description: "Large-scale seagrass restoration project ongoing since 1999.",
-        category: "Restoration Projects"
-      },
-      {
-        name: "Moreton Bay Marine Park, Australia",
-        coords: [-27.2744, 153.2665],
-        description: "Protected area with significant seagrass conservation efforts.",
-        category: "Protected Areas"
-      },
+        category: "Biodiversity Support",
+        species: ["Amphibolis antarctica", "Halophila ovalis", "Zostera muelleri"]
+      },{
+    name: "Bali, Indonesia",
+    coords: [-8.4095, 115.1889],
+    description: "Seagrass meadows support coral reefs and marine biodiversity.",
+    category: "Biodiversity Support",
+    species: ["Thalassia hemprichii", "Halodule uninervis", "Cymodocea rotundata"]
+  },
+  {
+    name: "Banc d’Arguin, Mauritania",
+    coords: [20.1436, -16.1055],
+    description: "Extensive seagrass beds provide critical habitat for migratory birds and fish.",
+    category: "Biodiversity Support",
+    species: ["Zostera noltei", "Halodule wrightii"]
+  },
+  {
+    name: "Baltic Sea, Sweden",
+    coords: [57.0000, 18.0000],
+    description: "Seagrass meadows are crucial for water purification and fish nursery habitats.",
+    category: "Coastal Protection",
+    species: ["Zostera marina"]
+  },
+  {
+    name: "Bay of Bengal, India",
+    coords: [15.0, 80.0],
+    description: "Seagrass meadows support fisheries and protect against coastal erosion.",
+    category: "Coastal Protection",
+    species: ["Halodule uninervis", "Cymodocea serrulata", "Thalassia hemprichii"]
+  },
+  {
+    name: "Bay of Fundy, Canada",
+    coords: [45.0822, -64.1635],
+    description: "Seagrass beds contribute to nutrient cycling and fish habitats.",
+    category: "Coastal Protection",
+    species: ["Zostera marina"]
+  },
+  {
+    name: "Bay of Islands, New Zealand",
+    coords: [-35.2167, 174.1667],
+    description: "Seagrass beds support the unique marine biodiversity of the region.",
+    category: "Biodiversity Support",
+    species: ["Zostera muelleri"]
+  },
+  {
+    name: "Bazaruto Archipelago, Mozambique",
+    coords: [-21.6278, 35.4408],
+    description: "Seagrass meadows provide a crucial habitat for dugongs.",
+    category: "Endangered Species Protection",
+    species: ["Thalassia hemprichii", "Halodule wrightii", "Syringodium isoetifolium"]
+  },
+  {
+    name: "Caribbean",
+    coords: [18.0, -77.0],
+    description: "Vibrant seagrass beds provide habitat for juvenile fish and lobsters.",
+    category: "Nursery Habitats",
+    species: ["Thalassia testudinum", "Syringodium filiforme", "Halodule wrightii"]
+  },
+  {
+    name: "Caspian Sea, Azerbaijan",
+    coords: [40.0, 50.0],
+    description: "Seagrass meadows help stabilize sediment and protect fish nurseries.",
+    category: "Nursery Habitats",
+    species: ["Ruppia maritima", "Potamogeton pectinatus"]
+  },
+  {
+    name: "Chesapeake Bay, USA",
+    coords: [37.8847, -76.2728],
+    description: "Important nursery habitat for blue crabs and various fish species.",
+    category: "Nursery Habitats",
+    species: ["Zostera marina", "Ruppia maritima"]
+  },
+  {
+    name: "Derawan Islands, Indonesia",
+    coords: [2.2900, 118.2480],
+    description: "Seagrass beds support marine turtles and dugongs.",
+    category: "Endangered Species Protection",
+    species: ["Thalassia hemprichii", "Cymodocea rotundata", "Halophila ovalis"]
+  },
+  {
+    name: "Djibouti Coast, Horn of Africa",
+    coords: [11.8251, 42.5903],
+    description: "Seagrass beds support sea turtles and small-scale fisheries.",
+    category: "Fisheries Support",
+    species: ["Halodule wrightii", "Thalassia hemprichii"]
+  },
+  {
+    name: "Everglades National Park, USA",
+    coords: [25.2866, -80.8987],
+    description: "Seagrass meadows help stabilize the coastline and support manatees.",
+    category: "Endangered Species Protection",
+    species: ["Thalassia testudinum", "Syringodium filiforme", "Halodule wrightii"]
+  },
+  {
+    name: "Florida",
+    coords: [27.5, -82.5],
+    description: "Seagrass meadows in Florida Bay are critical for manatees and fisheries.",
+    category: "Endangered Species Protection",
+    species: ["Thalassia testudinum", "Halodule wrightii", "Syringodium filiforme"]
+  },
+  {
+    name: "Florida Keys",
+    coords: [24.5551, -81.7800],
+    description: "Seagrass beds protect coastlines from erosion and storm surges.",
+    category: "Coastal Protection",
+    species: ["Thalassia testudinum", "Syringodium filiforme", "Halodule wrightii"]
+  },
+  {
+    name: "Galápagos Islands, Ecuador",
+    coords: [-0.8293, -90.9821],
+    description: "Unique seagrass habitats contribute to the marine food web.",
+    category: "Biodiversity Support",
+    species: ["Halophila decipiens"]
+  },
+  {
+    name: "Great Barrier Reef, Australia",
+    coords: [-18.2871, 147.6992],
+    description: "Supports 80,000 fish and 100 million invertebrates per hectare. Critical habitat for dugongs and sea turtles.",
+    category: "Biodiversity Support",
+    species: ["Zostera muelleri", "Halophila ovalis", "Halodule uninervis"]
+  },
+  {
+    name: "Gulf of California, Mexico",
+    coords: [26.0, -110.0],
+    description: "Seagrass supports a high diversity of marine species, including sea turtles.",
+    category: "Biodiversity Support",
+    species: ["Halodule wrightii", "Syringodium filiforme", "Halophila decipiens"]
+  },
+  {
+    name: "Gulf of Guinea, Nigeria",
+    coords: [4.2500, 7.0000],
+    description: "Seagrass supports local fisheries and acts as a buffer against coastal erosion.",
+    category: "Fisheries Support",
+    species: ["Halodule wrightii", "Thalassia hemprichii"]
+  },
+  {
+    name: "Gulf of Mannar, India",
+    coords: [9.1426, 79.4803],
+    description: "One of the richest seagrass ecosystems in South Asia, home to dugongs.",
+    category: "Endangered Species Protection",
+    species: ["Halophila ovalis", "Thalassia hemprichii", "Cymodocea serrulata"]
+  },
+  {
+    name: "Halong Bay, Vietnam",
+    coords: [20.9101, 107.1839],
+    description: "Seagrass meadows are critical for maintaining water clarity and ecosystem balance.",
+    category: "Coastal Protection",
+    species: ["Halophila ovalis", "Cymodocea rotundata"]
+  },
+  {
+    name: "Helgoland, Germany",
+    coords: [54.1811, 7.8853],
+    description: "Northernmost seagrass beds in the North Sea, supporting marine biodiversity.",
+    category: "Biodiversity Support",
+    species: ["Zostera marina"]
+  },
+  {
+    name: "Houtman Abrolhos Islands, Australia",
+    coords: [-28.5000, 113.7917],
+    description: "Seagrass ecosystems help sustain rock lobster and fish populations.",
+    category: "Biodiversity Support",
+    species: ["Posidonia australis", "Amphibolis antarctica"]
+  },
+  {
+    name: "Indian Ocean",
+    coords: [-10.0, 60.0],
+    description: "Seagrass beds support coral reef ecosystems and coastal fisheries.",
+    category: "Biodiversity Support",
+    species: ["Thalassia hemprichii", "Halodule uninervis", "Syringodium isoetifolium"]
+  },
+  {
+    name: "Isle of Man, UK",
+    coords: [54.2361, -4.5481],
+    description: "Seagrass meadows contribute to carbon sequestration and marine biodiversity.",
+    category: "Carbon Sequestration",
+    species: ["Zostera marina", "Zostera noltei"]
+  },
+  {
+    name: "Kaneohe Bay, Hawaii, USA",
+    coords: [21.4530, -157.7980],
+    description: "Seagrass beds help stabilize sediments and support reef fish populations.",
+    category: "Coastal Protection",
+    species: ["Halophila hawaiiana", "Halodule uninervis"]
+  },
+  
+  {
+    name: "Lagoon of Venice, Italy",
+    coords: [45.4372, 12.3346],
+    description: "Seagrass meadows help stabilize sediments and improve water quality.",
+    category: "Coastal Protection",
+    species: ["Zostera marina", "Zostera noltei"]
+  },
+  {
+    name: "Lamu Archipelago, Kenya",
+    coords: [-2.2783, 40.8580],
+    description: "Critical habitat for dugongs and supports local fisheries.",
+    category: "Endangered Species Protection",
+    species: ["Thalassia hemprichii", "Halodule wrightii", "Cymodocea rotundata"]
+  },
+  {
+    name: "Lesser Sunda Islands, Indonesia",
+    coords: [-8.6500, 122.0000],
+    description: "Seagrass beds support high marine biodiversity and artisanal fisheries.",
+    category: "Biodiversity Support",
+    species: ["Thalassia hemprichii", "Halophila ovalis", "Cymodocea serrulata"]
+  },
+  {
+    name: "Maldives",
+    coords: [3.2028, 73.2207],
+    description: "Seagrass meadows support coral reef health and provide coastal protection.",
+    category: "Coastal Protection",
+    species: ["Halodule uninervis", "Syringodium isoetifolium", "Thalassia hemprichii"]
+  },
+  {
+    name: "Marovo Lagoon, Solomon Islands",
+    coords: [-8.4833, 157.9833],
+    description: "One of the largest saltwater lagoons, with diverse seagrass ecosystems.",
+    category: "Biodiversity Support",
+    species: ["Halophila ovalis", "Thalassia hemprichii", "Cymodocea rotundata"]
+  },
+  {
+    name: "Masirah Island, Oman",
+    coords: [20.5333, 58.8833],
+    description: "Vital seagrass habitats for green turtles and local fisheries.",
+    category: "Endangered Species Protection",
+    species: ["Halodule uninervis", "Thalassia hemprichii", "Halophila stipulacea"]
+  },
+  {
+    name: "Mergui Archipelago, Myanmar",
+    coords: [11.6945, 98.6184],
+    description: "Seagrass beds support dugongs, sea turtles, and diverse fish populations.",
+    category: "Biodiversity Support",
+    species: ["Thalassia hemprichii", "Cymodocea serrulata", "Halophila ovalis"]
+  },
+  {
+    name: "Moreton Bay, Australia",
+    coords: [-27.3833, 153.2333],
+    description: "Seagrass meadows provide key habitats for dugongs and green turtles.",
+    category: "Endangered Species Protection",
+    species: ["Zostera muelleri", "Halophila ovalis", "Syringodium isoetifolium"]
+  },
+  {
+    name: "Mugla Coast, Turkey",
+    coords: [37.2153, 28.3636],
+    description: "Seagrass beds play a crucial role in water filtration and coastal protection.",
+    category: "Coastal Protection",
+    species: ["Posidonia oceanica", "Cymodocea nodosa"]
+  },
+  {
+    name: "Nantucket Sound, USA",
+    coords: [41.2835, -70.0928],
+    description: "Seagrass meadows support commercial fisheries and stabilize coastal areas.",
+    category: "Fisheries Support",
+    species: ["Zostera marina"]
+  },
+  {
+    name: "New Caledonia Lagoon",
+    coords: [-21.2990, 165.3030],
+    description: "Rich in seagrass biodiversity, supporting dugongs and marine life.",
+    category: "Biodiversity Support",
+    species: ["Halodule uninervis", "Syringodium isoetifolium", "Halophila ovalis"]
+  },
+  {
+    name: "Northumberland Coast, UK",
+    coords: [55.3500, -1.6167],
+    description: "Seagrass beds support carbon sequestration and biodiversity.",
+    category: "Carbon Sequestration",
+    species: ["Zostera marina", "Zostera noltei"]
+  },
+  {
+    name: "Nouadhibou Bay, Mauritania",
+    coords: [20.9333, -17.0333],
+    description: "Seagrass meadows provide essential feeding grounds for migratory birds and fish.",
+    category: "Biodiversity Support",
+    species: ["Zostera noltei", "Halodule wrightii"]
+  },
+  {
+    name: "Orinoco Delta, Venezuela",
+    coords: [8.9284, -61.9402],
+    description: "Seagrass meadows stabilize sediment and support fisheries.",
+    category: "Fisheries Support",
+    species: ["Halodule wrightii", "Syringodium filiforme"]
+  },
+  {
+    name: "Palawan, Philippines",
+    coords: [9.8349, 118.7384],
+    description: "Seagrass beds support rich marine biodiversity and protect coastlines.",
+    category: "Biodiversity Support",
+    species: ["Thalassia hemprichii", "Halophila ovalis", "Cymodocea rotundata"]
+  },
+  {
+    name: "Persian Gulf, UAE",
+    coords: [24.0000, 54.0000],
+    description: "Seagrass meadows provide critical habitats for dugongs and green turtles.",
+    category: "Endangered Species Protection",
+    species: ["Halodule uninervis", "Halophila stipulacea", "Cymodocea serrulata"]
+  },
+  {
+    name: "Phuket, Thailand",
+    coords: [7.8804, 98.3923],
+    description: "Seagrass beds support marine biodiversity and protect coastlines from erosion.",
+    category: "Coastal Protection",
+    species: ["Thalassia hemprichii", "Halodule uninervis", "Halophila ovalis"]
+  },
+  {
+    name: "Port Phillip Bay, Australia",
+    coords: [-38.0000, 144.9000],
+    description: "Seagrass meadows support fisheries and contribute to carbon storage.",
+    category: "Carbon Sequestration",
+    species: ["Zostera muelleri", "Amphibolis antarctica"]
+  },
+  {
+    name: "Puerto Rico",
+    coords: [18.2208, -66.5901],
+    description: "Seagrass beds provide nursery habitats for fish and stabilize sediments.",
+    category: "Nursery Habitats",
+    species: ["Thalassia testudinum", "Syringodium filiforme", "Halodule wrightii"]
+  },
+  {
+    name: "Red Sea, Egypt",
+    coords: [24.0000, 35.0000],
+    description: "Seagrass meadows support dugongs, sea turtles, and diverse marine life.",
+    category: "Endangered Species Protection",
+    species: ["Halodule uninervis", "Thalassia hemprichii", "Halophila stipulacea"]
+  },
+  {
+    name: "Rio de la Plata, Argentina",
+    coords: [-34.6037, -58.3816],
+    description: "Seagrass beds help reduce coastal erosion and support fisheries.",
+    category: "Fisheries Support",
+    species: ["Ruppia maritima", "Halophila decipiens"]
+  },
+  {
+    name: "Seychelles",
+    coords: [-4.6796, 55.4919],
+    description: "Seagrass meadows provide vital habitats for sea turtles and dugongs.",
+    category: "Endangered Species Protection",
+    species: ["Thalassia hemprichii", "Syringodium isoetifolium", "Halodule uninervis"]
+  },
+  {
+    name: "Shark Bay, Australia",
+    coords: [-25.5833, 113.5000],
+    description: "Home to the largest continuous seagrass beds globally, supporting dugongs.",
+    category: "Biodiversity Support",
+    species: ["Amphibolis antarctica", "Posidonia australis", "Halophila ovalis"]
+  },
+ 
+  {
+    name: "Zakynthos National Marine Park, Greece",
+    coords: [37.7167, 20.8667],
+    description: "A key Mediterranean protected area for seagrass meadows supporting loggerhead turtles.",
+    category: "Protected Areas",
+    species: ["Posidonia oceanica", "Cymodocea nodosa"]
+  },
+  {
+    name: "Calanques National Park, France",
+    coords: [43.2140, 5.4350],
+    description: "Protected Mediterranean marine park with extensive Posidonia meadows supporting biodiversity.",
+    category: "Protected Areas",
+    species: ["Posidonia oceanica", "Cymodocea nodosa"]
+  },
+  {
+    name: "San Francisco Bay, USA",
+    coords: [37.7749, -122.4194],
+    description: "Seagrass restoration projects improve habitat resilience and support fisheries.",
+    category: "Restoration Projects",
+    species: ["Zostera marina"]
+  },
+  {
+    name: "Dugong Sanctuary, Abu Dhabi, UAE",
+    coords: [24.4539, 54.3773],
+    description: "Protected area for dugongs with thriving seagrass meadows crucial for their survival.",
+    category: "Protected Areas",
+    species: ["Halodule uninervis", "Halophila stipulacea"]
+  },
+  {
+    name: "Tampa Bay, USA",
+    coords: [27.9506, -82.4572],
+    description: "Successful seagrass restoration projects enhancing water quality and marine biodiversity.",
+    category: "Restoration Projects",
+    species: ["Thalassia testudinum", "Halodule wrightii", "Syringodium filiforme"]
+  },
+  {
+    name: "Chilika Lake, India",
+    coords: [19.6893, 85.3144],
+    description: "Community-led conservation efforts protect seagrass meadows and support local fisheries.",
+    category: "Community Benefits",
+    species: ["Halophila ovalis", "Halodule uninervis"]
+  },
+  {
+    name: "Ban Don Bay, Thailand",
+    coords: [9.2500, 99.6167],
+    description: "Community-based seagrass restoration projects support dugong populations and fisheries.",
+    category: "Community Benefits",
+    species: ["Thalassia hemprichii", "Halophila ovalis", "Cymodocea rotundata"]
+  },
+  {
+    name: "Port Stephens–Great Lakes Marine Park, Australia",
+    coords: [-32.7000, 152.1833],
+    description: "Protected area supporting diverse seagrass habitats vital for fish and invertebrates.",
+    category: "Protected Areas",
+    species: ["Zostera muelleri", "Halophila ovalis"]
+  },
+  {
+    name: "Derwent Estuary, Tasmania, Australia",
+    coords: [-42.8821, 147.3272],
+    description: "Seagrass restoration projects aimed at improving water quality and biodiversity.",
+    category: "Restoration Projects",
+    species: ["Zostera muelleri", "Heterozostera tasmanica"]
+  },
+  {
+    name: "Gulf of Morrosquillo, Colombia",
+    coords: [9.3333, -75.5833],
+    description: "Community-led efforts enhance seagrass meadows, supporting fisheries and coastal protection.",
+    category: "Community Benefits",
+    species: ["Thalassia testudinum", "Halodule wrightii"]
+  },
+  {
+    name: "Cabo de Gata-Níjar Natural Park, Spain",
+    coords: [36.8333, -2.2500],
+    description: "Protected marine park in the Mediterranean with extensive Posidonia oceanica meadows.",
+    category: "Protected Areas",
+    species: ["Posidonia oceanica", "Cymodocea nodosa"]
+  },
+  {
+    name: "Mission Bay, San Diego, USA",
+    coords: [32.7609, -117.2359],
+    description: "Ongoing seagrass restoration projects enhancing carbon storage and marine biodiversity.",
+    category: "Restoration Projects",
+    species: ["Zostera marina"]
+  },
+  {
+    name: "Pulau Tinggi, Malaysia",
+    coords: [2.2847, 104.0875],
+    description: "Community-based seagrass conservation projects support fisheries and dugong habitats.",
+    category: "Community Benefits",
+    species: ["Thalassia hemprichii", "Halophila ovalis"]
+  },
+  {
+    name: "Bay of Biscay, France",
+    coords: [46.0000, -1.5000],
+    description: "Protected seagrass meadows contributing to carbon sequestration and biodiversity support.",
+    category: "Protected Areas",
+    species: ["Zostera marina", "Zostera noltei"]
+  },
+  {
+    name: "Baltic Sea, Sweden",
+    coords: [58.0000, 20.0000],
+    description: "Restoration projects focus on improving seagrass habitats affected by eutrophication.",
+    category: "Restoration Projects",
+    species: ["Zostera marina"]
+  }
 
 
-
-{
-  name: "Banc d’Arguin, Mauritania",
-  coords: [20.1436, -16.1055],
-  description: "Extensive seagrass beds provide critical habitat for migratory birds and fish.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Everglades National Park, USA",
-  coords: [25.2866, -80.8987],
-  description: "Seagrass meadows help stabilize the coastline and support manatees.",
-  category: "Endangered Species Protection"
-},
-{
-  name: "Gulf of California, Mexico",
-  coords: [26.0, -110.0],
-  description: "Seagrass supports a high diversity of marine species, including sea turtles.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Bay of Bengal, India",
-  coords: [15.0, 80.0],
-  description: "Seagrass meadows support fisheries and protect against coastal erosion.",
-  category: "Coastal Protection"
-},
-{
-  name: "Palawan, Philippines",
-  coords: [9.8346, 118.7384],
-  description: "Seagrass plays a crucial role in sustaining local fisheries and marine biodiversity.",
-  category: "Fisheries Support"
-},
-{
-  name: "Norfolk Broads, UK",
-  coords: [52.6319, 1.6302],
-  description: "Seagrass meadows provide refuge for rare fish and invertebrates.",
-  category: "Protected Areas"
-},
-{
-  name: "San Juan Islands, USA",
-  coords: [48.5346, -123.0171],
-  description: "Important seagrass beds for salmon and Dungeness crab nurseries.",
-  category: "Nursery Habitats"
-},
-{
-  name: "Gulf of Mannar, India",
-  coords: [9.1426, 79.4803],
-  description: "One of the richest seagrass ecosystems in South Asia, home to dugongs.",
-  category: "Endangered Species Protection"
-},
-{
-  name: "Bay of Islands, New Zealand",
-  coords: [-35.2167, 174.1667],
-  description: "Seagrass beds support the unique marine biodiversity of the region.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Bazaruto Archipelago, Mozambique",
-  coords: [-21.6278, 35.4408],
-  description: "Seagrass meadows provide a crucial habitat for dugongs.",
-  category: "Endangered Species Protection"
-},
-{
-  name: "Maldives",
-  coords: [3.2028, 73.2207],
-  description: "Seagrass ecosystems are vital for local fisheries and climate resilience.",
-  category: "Fisheries Support"
-},
-{
-  name: "Helgoland, Germany",
-  coords: [54.1811, 7.8853],
-  description: "Northernmost seagrass beds in the North Sea, supporting marine biodiversity.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Caspian Sea, Azerbaijan",
-  coords: [40.0, 50.0],
-  description: "Seagrass meadows help stabilize sediment and protect fish nurseries.",
-  category: "Nursery Habitats"
-},
-{
-  name: "Galápagos Islands, Ecuador",
-  coords: [-0.8293, -90.9821],
-  description: "Unique seagrass habitats contribute to the marine food web.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Bay of Fundy, Canada",
-  coords: [45.0822, -64.1635],
-  description: "Seagrass beds contribute to nutrient cycling and fish habitats.",
-  category: "Coastal Protection"
-},
-{
-  name: "Bali, Indonesia",
-  coords: [-8.4095, 115.1889],
-  description: "Seagrass meadows support coral reefs and marine biodiversity.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Southern California Bight, USA",
-  coords: [33.5000, -118.0000],
-  description: "Seagrass restoration efforts help protect coastal habitats.",
-  category: "Restoration Projects"
-},
-{
-  name: "Patagonia, Argentina",
-  coords: [-45.0000, -65.0000],
-  description: "Seagrass meadows provide refuge for marine mammals and seabirds.",
-  category: "Biodiversity Support"
-},
-
-{
-  name: "Persian Gulf, UAE",
-  coords: [24.4667, 54.3667],
-  description: "Resilient seagrass beds provide habitat for dugongs and green sea turtles.",
-  category: "Endangered Species Protection"
-},
-{
-  name: "Tokyo Bay, Japan",
-  coords: [35.5659, 139.7839],
-  description: "Seagrass meadows contribute to local fisheries and water quality improvement.",
-  category: "Fisheries Support"
-},
-{
-  name: "Kaneohe Bay, Hawaii, USA",
-  coords: [21.4530, -157.7980],
-  description: "Seagrass beds help stabilize sediments and support reef fish populations.",
-  category: "Coastal Protection"
-},
-{
-  name: "Samaná Bay, Dominican Republic",
-  coords: [19.2000, -69.3333],
-  description: "Seagrass meadows serve as key habitats for migrating humpback whales.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Saint Martin, Caribbean",
-  coords: [18.0708, -63.0501],
-  description: "Protects coastlines from erosion and provides a nursery for marine life.",
-  category: "Nursery Habitats"
-},
-{
-  name: "Lagoa dos Patos, Brazil",
-  coords: [-31.7776, -52.3033],
-  description: "Seagrass supports shrimp and fish populations crucial for local fisheries.",
-  category: "Fisheries Support"
-},
-{
-  name: "Houtman Abrolhos Islands, Australia",
-  coords: [-28.5000, 113.7917],
-  description: "Seagrass ecosystems help sustain rock lobster and fish populations.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Baltic Sea, Sweden",
-  coords: [57.0000, 18.0000],
-  description: "Seagrass meadows are crucial for water purification and fish nursery habitats.",
-  category: "Coastal Protection"
-},
-{
-  name: "Maputo Bay, Mozambique",
-  coords: [-25.9833, 32.5833],
-  description: "Seagrass plays a role in local fisheries and protects mangrove ecosystems.",
-  category: "Fisheries Support"
-},
-{
-  name: "Ross Sea, Antarctica",
-  coords: [-75.0000, 175.0000],
-  description: "Antarctic lacks true seagrass, as its frigid waters and ice conditions are too harsh for seagrass survival, with only macroalgae and kelp dominating the marine vegetation.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Derawan Islands, Indonesia",
-  coords: [2.2900, 118.2480],
-  description: "Seagrass beds support marine turtles and dugongs.",
-  category: "Endangered Species Protection"
-},
-{
-  name: "Isle of Man, UK",
-  coords: [54.2361, -4.5481],
-  description: "Seagrass meadows contribute to carbon sequestration and marine biodiversity.",
-  category: "Carbon Sequestration"
-},
-{
-  name: "Halong Bay, Vietnam",
-  coords: [20.9101, 107.1839],
-  description: "Seagrass meadows are critical for maintaining water clarity and ecosystem balance.",
-  category: "Coastal Protection"
-},
-{
-  name: "Gulf of Guinea, Nigeria",
-  coords: [4.2500, 7.0000],
-  description: "Seagrass supports local fisheries and acts as a buffer against coastal erosion.",
-  category: "Fisheries Support"
-},
-{
-  name: "Western Port Bay, Australia",
-  coords: [-38.2667, 145.2000],
-  description: "One of Australia's most significant seagrass habitats supporting migratory birds.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Djibouti Coast, Horn of Africa",
-  coords: [11.8251, 42.5903],
-  description: "Seagrass beds support sea turtles and small-scale fisheries.",
-  category: "Fisheries Support"
-},
-{
-  name: "Marquesas Islands, French Polynesia",
-  coords: [-9.0000, -139.5000],
-  description: "Seagrass helps maintain local marine biodiversity and supports reef species.",
-  category: "Biodiversity Support"
-},
-{
-  name: "Kamchatka Peninsula, Russia",
-  coords: [56.0000, 160.5000],
-  description: "Seagrass meadows support Pacific salmon and protect Arctic coastlines.",
-  category: "Nursery Habitats"
-},
-{
-  name: "Gulf of Thailand",
-  coords: [9.5000, 100.0000],
-  description: "Seagrass meadows support artisanal fisheries and dugong populations.",
-  category: "Endangered Species Protection"
-},
-{
-  name: "Tierra del Fuego, Argentina",
-  coords: [-54.8000, -68.3000],
-  description: "Seagrass beds provide vital habitat in one of the world’s southernmost marine ecosystems.",
-  category: "Biodiversity Support"
-}
-
-
-
-
+     // Add more locations with species data as needed
     ];
 
+    // Function to get category icon
     function getCategoryIcon(category) {
       const iconSize = [25, 41];
       const iconAnchor = [12, 41];
@@ -703,13 +691,12 @@ const seagrassSpecies = {
 
     // Add markers to the map
     seagrassLocations.forEach(location => {
-      const speciesList = seagrassSpecies[location.name] || ["No species data available"];
       const popupContent = `
         <strong>${location.name}</strong><br>
         ${location.description}<br>
         <em>Category: ${location.category}</em><br>
         <strong>Common Seagrass Species:</strong><br>
-        ${speciesList.join(", ")}
+        ${location.species.join(", ")}
       `;
       L.marker(location.coords, { icon: getCategoryIcon(location.category) })
         .addTo(map)
