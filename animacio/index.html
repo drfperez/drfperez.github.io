@@ -3,9 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animació: Cantant Ballant amb Coldplay</title>
+  <title>Tutorial: Ús avançat de GIMP i Pivot Animator</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    body {
+      background-color: #f9f9f9;
+      font-family: Arial, sans-serif;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1, h2, h3 {
+      color: #0056b3;
+      margin-top: 20px;
+    }
+    p, li {
+      line-height: 1.6;
+    }
+    .note {
+      background: #e2f0d9;
+      border-left: 4px solid #28a745;
+      padding: 10px;
+      margin: 20px 0;
+    }
+    code {
+      background-color: #f1f1f1;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    hr {
+      margin: 40px 0;
+    }
+
     body {
       background: #f4f4f9;
       font-family: Arial, sans-serif;
@@ -52,10 +88,9 @@
       height: 100%;
     }
   </style>
-</head>
-<body>
+
   <div class="container">
-    <h1>Animació: Cantant Ballant amb Coldplay</h1>
+    <h1>Animació: Cantant i Ballant amb Coldplay</h1>
     <p>
       L'objectiu d'aquest projecte és crear una animació on el teu cantant preferit balla amb un escenari d'estadi de fons, tot això acompanyat del grup Coldplay. 
       Recorda que has d'entregar al Classroom dos fitxers: l'arxiu <strong>STK</strong> (per a mòbil) i l'arxiu <strong>PIV</strong> amb l'animació.
@@ -120,6 +155,163 @@
     </p>
     <div class="video-container">
       <iframe src="https://www.youtube.com/embed/ttNdG46Tvwo" title="Build Multi-Sprite Figures in Pivot Animator 5" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+
+
+  <div class="container">
+    <h1>Tutorial: Ús avançat de GIMP i Pivot Animator</h1>
+    <p>
+      Aquest tutorial molt detallat t'explicarà com preparar i animar figures utilitzant GIMP i Pivot Animator. Aprendràs a:
+    </p>
+    <ul>
+      <li>Utilitzar les eines avançades de GIMP per retallar i corregir parts del cos.</li>
+      <li>Resoldre problemes de solapament entre parts, esborrant i completant àrees conflictives.</li>
+      <li>Configurar correctament els pivot points (punts grocs, vermells i blaus) a Pivot Animator per aconseguir un moviment natural i dinàmic.</li>
+      <li>Afegir un fons (per exemple, un estadi) que completi l'escenari de l'animació.</li>
+    </ul>
+    
+    <hr>
+    
+    <!-- PART 1: GIMP -->
+    <h2>Part 1: Ús avançat de GIMP</h2>
+    
+    <h3>1.1 Selecció i retallat de parts</h3>
+    <ol>
+      <li>
+        <strong>Obrir la imatge:</strong> Inicia GIMP i obre la imatge del teu cantant preferit amb <code>File &gt; Obre</code>.
+      </li>
+      <li>
+        <strong>Afegir canal alfa:</strong> Per garantir la transparència, ves a <code>Capes &gt; Transparència &gt; Afegeix canal alfa</code>.
+      </li>
+      <li>
+        <strong>Seleccionar les parts:</strong> Utilitza l'eina <em>Llaç</em> (o <em>Selecció lliure</em>) per marcar la part que vols retallar. Fes zoom per marcar amb precisió.
+      </li>
+      <li>
+        <strong>Crear la selecció:</strong> Un cop seleccionada la zona, ves a <code>Imatge &gt; Escapça a la selecció</code> per delimitar la part.
+      </li>
+      <li>
+        <strong>Esborrar l'excés:</strong> Si hi ha zones no desitjades o que solapen altres parts, utilitza l'eina <em>Borrador</em> per eliminar-les amb cura.
+      </li>
+    </ol>
+    
+    <h3>1.2 Correcció de solapaments</h3>
+    <p>
+      Quan dues parts es solapen, poden aparèixer problemes com transparències inesperades o contorns irregulars. Per solucionar-ho:
+    </p>
+    <ol>
+      <li>
+        <strong>Identificar la zona conflictiva:</strong> Amplia la imatge per observar on una part solapa l'altra.
+      </li>
+      <li>
+        <strong>Esborrar la zona problemàtica:</strong> Utilitza l'eina <em>Borrador</em> amb una mida i duresa adequada per eliminar només la part innecessària.
+      </li>
+      <li>
+        <strong>Omplir amb clonació o retocat:</strong> 
+        <ul>
+          <li>
+            Fes servir l'eina de <em>Clone Tool</em> per copiar textura o color d'una zona propera i omplir l'àrea esborrada.
+          </li>
+          <li>
+            També pots provar l'eina <em>Heal Tool</em> per suavitzar la transició i fer-la més natural.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong>Revisar el resultat:</strong> Fes un zoom per comprovar que la zona retocada es fusiona bé amb la resta de la imatge.
+      </li>
+    </ol>
+    
+    <h3>1.3 Exportació de les parts</h3>
+    <p>
+      Un cop preparades, desa cada part com a imatge PNG per conservar la transparència:
+    </p>
+    <ol>
+      <li>Ves a <code>File &gt; Exporta com...</code>.</li>
+      <li>Tria el format <code>.png</code> i guarda la imatge amb un nom descriptiu (per exemple, <em>braç.png</em>).</li>
+    </ol>
+    
+    <hr>
+    
+    <!-- PART 2: PIVOT ANIMATOR -->
+    <h2>Part 2: Configuració d'articulacions a Pivot Animator</h2>
+    
+    <h3>2.1 Importació de sprites</h3>
+    <ol>
+      <li>
+        Obre Pivot Animator i selecciona l'opció <code>Cargar Sprite</code> per importar cada imatge PNG.
+      </li>
+      <li>
+        Col·loca cada part en la posició correcta per formar la figura completa.
+      </li>
+    </ol>
+    
+    <h3>2.2 Entendre els pivot points</h3>
+    <p>
+      Pivot Animator fa servir tres tipus de punts d'articulació per connectar les parts de la figura:
+    </p>
+    <ul>
+      <li>
+        <strong>Punt Groc:</strong> És el pivot principal de cada sprite. Aquest punt és el que es mou primer i serveix de centre d'articulació. Normalment es col·loca en punts clau com l'espatlla o el coll.
+      </li>
+      <li>
+        <strong>Punt Vermell:</strong> S'utilitza per connectar parts de manera secundària. Aquests punts permeten duplicar o ajustar la connexió entre parts. Si necessites duplicar una part, mantingues premuda la tecla Majúscules mentre fas clic sobre el punt vermell.
+      </li>
+      <li>
+        <strong>Punt Blau:</strong> Indica la ubicació on la peça ha de connectar-se amb una altra. Aquest punt ha d'alinear-se amb el punt vermell o groc de la peça adjacent per garantir un moviment fluït.
+      </li>
+    </ul>
+    
+    <h3>2.3 Connexió i moviment dinàmic</h3>
+    <ol>
+      <li>
+        <strong>Col·loca correctament els pivot points:</strong> Arrossega el punt groc a la ubicació natural de l'articulació (per exemple, en el braç, el punt groc ha d'estar a l'espatlla). Així es garanteix que quan la peça es mou, el moviment sigui realista.
+      </li>
+      <li>
+        <strong>Connecta els punts entre parts:</strong> Ajusta els punts vermells i blaus perquè coincideixin entre elles. Això assegura que, en moure una part (com un braç), la connexió amb el tronc o l'espatlla sigui coherent.
+      </li>
+      <li>
+        <strong>Prova el moviment:</strong> Utilitza la funció de preview de Pivot Animator per moure la figura i verificar que no apareguin espais buits ni moviments erràtics.
+      </li>
+      <li>
+        <strong>Ajusta la dinàmica:</strong> Experimenta modificant lleugerament la posició dels punts fins aconseguir que la figura es mogui de manera natural.
+      </li>
+    </ol>
+    
+    <h3>2.4 Afegir el fons a l'animació</h3>
+    <p>
+      Per donar més realisme a la teva animació, pots afegir un fons (per exemple, un imatge d'un estadi). Segueix aquests passos:
+    </p>
+    <ol>
+      <li>
+        <strong>Seleccionar la imatge de fons:</strong> Tria una imatge d'un estadi o d'un escenari que s'adapti a la temàtica.
+      </li>
+      <li>
+        <strong>Importar el fons:</strong> A Pivot Animator hi ha una opció per carregar un fons (sovint anomenada <em>Load Background</em>). Selecciona la imatge i ajusta-la perquè cobreixi tota la zona de treball.
+      </li>
+      <li>
+        <strong>Ajustar el fons:</strong> Si cal, edita la imatge amb GIMP per millorar la seva resolució o il·luminació, assegurant que la figura animada destaqui.
+      </li>
+    </ol>
+    
+    <hr>
+    
+    <h2>Conclusió</h2>
+    <p>
+      Amb aquest tutorial has après a:
+    </p>
+    <ul>
+      <li>Utilitzar GIMP per retallar, corregir solapaments i exportar les parts del cos amb transparència.</li>
+      <li>Configurar els pivot points (grocs, vermells i blaus) a Pivot Animator per connectar les parts de manera dinàmica i natural.</li>
+      <li>Afegir un fons que complementi l'escenari de la teva animació, millorant-ne l'impacte visual.</li>
+    </ul>
+    <p>
+      La clau per a una animació exitosa és la precisió en el retallat i la correcta alineació dels pivots, així com la paciència per experimentar amb diferents configuracions fins a obtenir el resultat desitjat.
+    </p>
+    <div class="note">
+      <strong>Nota important:</strong> Si tens dubtes, prova el mode preview a Pivot Animator i revisa tutorials en vídeo addicionals sobre GIMP i Pivot Animator per aprofundir en cada eina.
     </div>
   </div>
   
