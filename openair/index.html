@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anàlisi de dades amb pandas de Python i openair a R</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; position: relative; }
+        code { font-family: monospace; }
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #007bff;
+        }
+    </style>
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling.innerText;
+            navigator.clipboard.writeText(codeBlock).then(() => {
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => { button.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Anàlisi de dades amb pandas de Python i openair a R</h1>
+    <p>Aquesta guia explica com analitzar dades de contaminació atmosfèrica i meteorològiques mitjançant la biblioteca <code> pandas</code> a Python i <code>openair</code> a R.</p>
+    <p><a href="https://openair-project.github.io/book/">Tutorial openair de R</a></p>
+
+    
+    <h2>1. Descarregar i convertir dades </h2><p>Les dades automàtiques horàries de contaminació atmosfèrica de diferents poblacions es descarreguen del <a href="https://mediambient.gencat.cat/ca/05_ambits_dactuacio/atmosfera/qualitat_de_laire/vols-saber-que-respires/descarrega-de-dades/descarrega-dades-automatiques/">servidor XVPCA  del Departament de Medi Ambient i Sostenibilitat </a> de la Generalitat de Catalunya i les converteixes en format compatible amb openair amb el codi Python següent dissenyat per fer-ho servir al teu Google colab.</p>
+    <p>Primer faràs un anàlisi anual de Martorell entre 1991 i 2024, posteriorment realitzaràs un altre estudi plurianual d'una localitat catalana.</p>
+    <p>Dades es poden combinar amb parametres 30 i 31, que corresponen a velocitat de vent (ws) i direcció del vent (wd) del <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Dades-meteorol-giques-de-la-XEMA/nzvn-apee/data_preview"> servidor XEMA amb dades semihoràries del Meteocat</a> triant <a href="https://pompeu.neocities.org/4b/distances">el codi de l'estació meteorològica més propera a la nostra estació mesuradora de contaminació</a> per poder combinar dades de contaminació i metereològiques segons codi compartit amb Github del professor.</p>
+    
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-python">    
+    
+import pandas as pd
+from google.colab import files
+
+# Pujar el fitxer CSV
+print("Carrega el teu fitxer CSV:")
+uploaded = files.upload()
+
+# Carregar el fitxer CSV
+file_name = list(uploaded.keys())[0]
+df = pd.read_csv(file_name)
+
+# Comprovar les columnes necessàries
+required_columns = ['data', 'contaminant', 'h01', 'h02', 'h03', 'h04', 'h05', 'h06', 'h07', 'h08',
+                    'h09', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19',
+                    'h20', 'h21', 'h22', 'h23', 'h24']
+if not all(col in df.columns for col in required_columns):
+    raise ValueError("El fitxer no conté les columnes requerides.")
+
+# Expandir les hores en files amb un format de temps
+df = df.melt(id_vars=['data', 'contaminant'],
+             value_vars=[f"h{i:02}" for i in range(1, 25)],
+             var_name='hora',
+             value_name='valor')
+
+# Convertir la columna 'hora' en un format d'hora real
+df['hora'] = df['hora'].str.extract('(\d+)').astype(int) - 1  # Convertir 'h01', 'h02', ... a 0-23
+df['data'] = pd.to_datetime(df['data'], errors='coerce') + pd.to_timedelta(df['hora'], unit='h')
+
+# Eliminar la columna 'hora' i reestructurar les dades
+df = df.drop(columns=['hora'])
+
+# Seleccionar només les columnes necessàries (data, contaminant i les hores expandides)
+df = df[['data', 'contaminant', 'valor']]
+
+# Pivotar el DataFrame per tenir una columna per cada contaminant
+pivot_df = df.pivot(index='data', columns='contaminant', values='valor').reset_index()
+
+# Ordenar per data
+pivot_df = pivot_df.sort_values(by='data')
+
+# Convertir les dates a format amb espai (en lloc de T) per ISO abans de guardar el CSV
+pivot_df['data'] = pivot_df['data'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
+# Renombrar la columna 'data' com 'date'
+pivot_df = pivot_df.rename(columns={'data': 'date'})
+
+# Convertir els noms dels contaminants a minúscules
+pivot_df.columns = [col.lower() if isinstance(col, str) and col != 'date' else col for col in pivot_df.columns]
+
+# Substituir els valors buits (NaN) per 'NA'
+pivot_df = pivot_df.fillna('NA')
+
+# Guardar el fitxer CSV processat
+output_file = 'processed_data.csv'
+pivot_df.to_csv(output_file, index=False)
+
+# Descarregar el fitxer processat
+files.download(output_file)
+print(f"El fitxer processat s'ha desat com: {output_file}")
+ </code></pre>   
+    
+    
+    
+    <h2>2. Carregar les dades en RStudio</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
+library(dplyr)
+library(readr)
+
+dades <- read_csv("processed_data.csv")
+
+dades <- dades %>%
+  mutate(date = as.POSIXct(date, format="%Y-%m-%d %H:%M:%S", tz="UTC"))</code></pre>
+    
+    <h2>3. Filtrar dades d'un any concret</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">dades_1991 <- dades %>%
+  filter(format(date, "%Y") == "1991")</code></pre>
+    
+    <h2>4. Analitzar variacions temporals amb <code>timeVariation()</code></h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timeVariation(dades_1991, pollutant = "co")</code></pre>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timeVariation(dades_1991, pollutant = c("co", "no2", "so2"))</code></pre>
+    
+    <h2>5. Visualitzar dades en un calendari amb <code>calendarPlot()</code></h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">calendarPlot(dades_1991, pollutant = "no2", year = 1991)</code></pre>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">for (pol in c("co", "no2", "so2")) {
+  calendarPlot(dades_1991, pollutant = pol, year = 1991)
+}</code></pre>
+    
+    <h2>6. Altres visualitzacions</h2>
+    <h3>TimePlot</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timePlot(dades_1991, pollutant = c("co", "no2", "so2"), group = TRUE)</code></pre>
+    
+    <h3>PolarPlot (si tens dades de vent)</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">polarPlot(dades_1991, pollutant = "co", wd = dades_1991$wd, ws = dades_1991$ws)</code></pre>
+    
+    <h3>SummaryPlot</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">summaryPlot(dades_1991)</code></pre>
+</body>
+</html>
