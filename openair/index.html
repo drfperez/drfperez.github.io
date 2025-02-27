@@ -353,6 +353,136 @@ percentile(dades, pollutant = "no2", avg.time = "month")
         </ul>
     </details>
 
+    <h2>16. Accedir a dades de TROPOMI Sentinel-5P per a Catalunya</h2>
+
+    <p>Aquesta secció demostra com accedir i processar dades de contaminants atmosfèrics proporcionades pel sensor TROPOMI a bord del satèl·lit Sentinel-5P, enfocant-nos en la regió de Catalunya.  Aquest codi assumeix que utilitzes Python amb biblioteques com `xarray`, `netCDF4`, `geopandas`, i `matplotlib`.</p>
+
+    <p><b>Important:</b>  Aquest és un exemple. L'accés directe a dades de satèl·lit pot requerir autenticació o l'ús d'APIs específiques (com SciHub de l'ESA o Google Earth Engine).  Consulta les polítiques d'ús de dades del proveïdor.</p>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-python">
+import xarray as xr
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import netCDF4
+import numpy as np
+
+# 1. Definir l'àrea d'interès (Catalunya)
+#    Això podria ser un fitxer shapefile o coordenades
+catalonia_shapefile = "catalunya.shp"  # Replace with your shapefile
+catalonia = gpd.read_file(catalonia_shapefile)
+bounds = catalonia.bounds.iloc[0]  #xmin, ymin, xmax, ymax
+
+# 2. Especificar el període de temps
+start_date = "2024-01-01"
+end_date = "2024-01-31"
+
+# 3. Funció per descarregar i processar dades TROPOMI (Aquest és un exemple genèric)
+def process_tropomi_data(date, pollutant="NO2", bounds=None):
+    """
+    Aquesta funció ha de descarregar dades TROPOMI per a una data donada,
+    retallar-les a l'àrea d'interès i retornar les dades processades.
+    Aquesta és una funció placeholder.
+    """
+    # **Important:** Aquesta part depèn de com accedeixes a les dades TROPOMI.
+    # Exemples:
+    #   - Descarregar fitxers NetCDF des d'un servidor (requereix saber l'estructura d'URL)
+    #   - Utilitzar una API (SciHub, Google Earth Engine)
+    #   - Llegir dades des d'un directori local
+
+    # **Placeholder:** Simulem la lectura d'un fitxer NetCDF local
+    # For example data you can check: https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-5p/products-algorithms/level-2
+
+    file_path = "S5P_OFFL_L2__NO2____20210101T120000_20210101T130000_00000_01_010302.nc" # Replace with your file
+    try:
+        ds = xr.open_dataset(file_path, engine="netcdf4")
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}")
+        return None
+
+    # Treure les dades a l'àrea geogràfica d'interès.
+
+    # Extract coordinates
+    lon = ds['longitude'].values
+    lat = ds['latitude'].values
+    no2 = ds['nitrogendioxide_tropospheric_column'].values[0,:,:]
+
+    # Filter data within Catalonia's boundaries
+    xmin, ymin, xmax, ymax = bounds
+    valid_indices = (lon >= xmin) & (lon <= xmax) & (lat >= ymin) & (lat <= ymax)
+
+    lon_filtered = lon[valid_indices]
+    lat_filtered = lat[valid_indices]
+    no2_filtered = no2[valid_indices]
+
+    # Convert to DataFrame for easier handling
+    import pandas as pd
+    df = pd.DataFrame({
+        'Longitude': lon_filtered,
+        'Latitude': lat_filtered,
+        'NO2': no2_filtered
+    })
+
+    # Print some basic statistics
+    print(df.describe())
+
+    # Basic Plotting
+    plt.figure(figsize=(10, 8))
+    plt.scatter(df['Longitude'], df['Latitude'], c=df['NO2'], cmap='viridis', s=10)
+    plt.colorbar(label='NO2 Concentration')
+    plt.title(f'NO2 Concentration over Catalonia on {date}')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.show()
+
+    return df
+
+# 4. Iterar sobre les dates i processar les dades
+import datetime
+current_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+
+while current_date <= end_date_dt:
+    date_str = current_date.strftime("%Y-%m-%d")
+    print(f"Processing data for {date_str}...")
+    data = process_tropomi_data(date_str, pollutant="NO2", bounds=bounds)
+
+    if data is not None:
+        print(f"Data processed successfully for {date_str}.")
+        # Aquí pots afegir codi per guardar les dades, fer anàlisis addicionals, etc.
+    else:
+        print(f"Failed to process data for {date_str}.")
+
+    current_date += datetime.timedelta(days=1) # Move to the next day
+
+print("Finished processing all dates.")
+
+</code></pre>
+
+    <p><b>Explicació del codi:</b></p>
+    <ol>
+        <li><b>Definir l'àrea d'interès:</b> Carrega les coordenades o un shapefile de Catalunya.</li>
+        <li><b>Especificar el període de temps:</b> Defineix les dates d'inici i final per a l'anàlisi.</li>
+        <li><b>Funció <code>process_tropomi_data</code>:</b>  Aquesta funció és clau.  S'ha d'adaptar per:
+            <ul>
+                <li>Descarregar les dades TROPOMI (ja sigui des d'un servidor, API, o fitxers locals).</li>
+                <li>Retallar les dades a l'àrea de Catalunya.</li>
+                <li>Processar les dades (corregir errors, convertir unitats, etc.).</li>
+                <li>Retornar les dades en un format usable (per exemple, un DataFrame de pandas).</li>
+            </ul>
+        </li>
+        <li><b>Iterar i processar:</b> El codi itera sobre cada data del període especificat i crida la funció <code>process_tropomi_data</code> per obtenir i processar les dades.</li>
+    </ol>
+
+    <p><b>Consideracions importants:</b></p>
+    <ul>
+        <li><b>Accés a les dades:</b>  Determina la millor manera d'accedir a les dades TROPOMI (API, descàrrega directa, etc.) i implementa-ho a la funció <code>process_tropomi_data</code>.</li>
+        <li><b>Format de les dades:</b>  Les dades TROPOMI solen estar en format NetCDF.  La biblioteca `xarray` és útil per treballar amb aquest format.</li>
+        <li><b>Projecció:</b>  Assegura't que les dades TROPOMI i el shapefile de Catalunya estiguin en el mateix sistema de coordenades.</li>
+        <li><b>Qualitat de les dades:</b>  Les dades de satèl·lit poden tenir errors o requerir correccions. Consulta la documentació de TROPOMI per obtenir informació sobre el control de qualitat.</li>
+    </ul>
+
+</body>
+</html>
 
 
 </body>
