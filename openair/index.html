@@ -107,7 +107,7 @@ print(f"El fitxer processat s'ha desat com: {output_file}")
 <h2>2. Codi per convertir les dades de meteocat a format compatible amb openair</h2>  
        <p>Dades es poden combinar amb parametres 30 i 31, que corresponen a velocitat de vent (ws) i direcció del vent (wd) del <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Dades-meteorol-giques-de-la-XEMA/nzvn-apee/data_preview"> servidor XEMA amb dades semihoràries del Meteocat</a> triant <a href="https://pompeu.neocities.org/4b/distances">el codi de l'estació meteorològica més propera a la nostra estació mesuradora de contaminació</a> per poder combinar dades de contaminació i metereològiques segons codi compartit amb Github del professor.</p>
     
- <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
+ <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-python">
    
 import pandas as pd  # Importem la llibreria pandas per treballar amb dades tabulars
 import numpy as np  # Importem numpy per gestionar valors numèrics i operacions matemàtiques
@@ -178,7 +178,7 @@ print("Procés completat! S'ha descarregat el fitxer filtered_data.csv")
  </code></pre>   
 
         <h2>3. Combinar les dades de XPVCA i meteocat en únic arxiu</h2>
-     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
+     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-python">library(openair)
 
 import pandas as pd
 from google.colab import files
