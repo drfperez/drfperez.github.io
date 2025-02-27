@@ -105,10 +105,94 @@ pivot_df.to_csv(output_file, index=False)
 files.download(output_file)
 print(f"El fitxer processat s'ha desat com: {output_file}")
  </code></pre>   
+<h2>2. Codi per convertir les dades de meteocat a format compatible amb openair</h2>    
+ <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
+   
+import pandas as pd
+import numpy as np
+from google.colab import files
+
+# Pujar el fitxer CSV
+uploaded = files.upload()
+
+# Obtenir el nom del fitxer pujat
+global filename
+filename = list(uploaded.keys())[0]
+
+# Llegir el CSV
+df = pd.read_csv(filename, encoding='latin1')
+
+# Convertir la columna de data a datetime
+df['DATA_LECTURA'] = pd.to_datetime(df['DATA_LECTURA'], format='%d/%m/%Y %I:%M:%S %p', errors='coerce')
+
+# Filtrar només les hores senceres
+df = df[df['DATA_LECTURA'].dt.minute == 0]
+
+# Ordenar per data
+antepenultima_columna = df.columns[-3]  # Agafem la columna antepenúltima
+tercera_columna = df.columns[-6]  # Agafem la columna tercera
+
+df['ws'] = np.where(df[tercera_columna]== 30, df[antepenultima_columna], np.nan)
+df['wd'] = np.where(df[tercera_columna]== 31, df[antepenultima_columna], np.nan)
+
+df = df[['DATA_LECTURA', 'ws', 'wd']]
+df.columns = ['date', 'ws', 'wd']
+
+df = df.groupby('date', as_index=False).first()
+
+# Guardar en CSV
+output_filename = "filtered_data.csv"
+df.to_csv(output_filename, index=False)
+
+# Descarregar el fitxer
+files.download(output_filename)
+
+print("Procés completat! S'ha descarregat el fitxer filtered_data.csv")
+ </code></pre>   
+
+        <h2>3. Combinar les dades de XPVCA i meteocat en únic arxiu</h2>
+     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
+
+    import pandas as pd
+from google.colab import files
+
+# 1️⃣ Pujar el primer arxiu CSV
+print("Puja el primer arxiu CSV:")
+uploaded_1 = files.upload()
+
+# Obtenir el nom de l'arxiu pujat
+file_name_1 = list(uploaded_1.keys())[0]
+
+# Llegir el primer arxiu CSV
+df1 = pd.read_csv(file_name_1)
+
+# 2️⃣ Pujar el segon arxiu CSV
+print("Puja el segon arxiu CSV:")
+uploaded_2 = files.upload()
+
+# Obtenir el nom de l'arxiu pujat
+file_name_2 = list(uploaded_2.keys())[0]
+
+# Llegir el segon arxiu CSV
+df2 = pd.read_csv(file_name_2)
+
+# 3️⃣ Combinar els arxius per la columna 'date' i assignar "NA" als valors que no tinguin dades
+df_merged = pd.merge(df1, df2, on="date", how="outer")
+
+# Assignar "NA" explícitament per qualsevol valor que no tinguin dades
+df_merged.fillna("NA", inplace=True)
+
+# 4️⃣ Guardar el nou arxiu combinat
+output_file = "arxiu_combined.csv"
+df_merged.to_csv(output_file, index=False)
+
+# 5️⃣ Descarregar l'arxiu automàticament
+files.download(output_file)
+
+print(f"✅ Arxiu combinat creat i descarregat: {output_file}")
+</code></pre>
     
-    
-    
-    <h2>2. Carregar les dades en RStudio</h2>
+    <h2>4. Carregar les dades en RStudio</h2>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
 library(dplyr)
 library(readr)
@@ -118,21 +202,21 @@ dades <- read_csv("processed_data.csv")
 dades <- dades %>%
   mutate(date = as.POSIXct(date, format="%Y-%m-%d %H:%M:%S", tz="UTC"))</code></pre>
     
-    <h2>3. Filtrar dades d'un any concret</h2>
+    <h2>5. Filtrar dades d'un any concret</h2>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">dades_1991 <- dades %>%
   filter(format(date, "%Y") == "1991")</code></pre>
     
-    <h2>4. Analitzar variacions temporals amb <code>timeVariation()</code></h2>
+    <h2>6. Analitzar variacions temporals amb <code>timeVariation()</code></h2>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timeVariation(dades_1991, pollutant = "co")</code></pre>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timeVariation(dades_1991, pollutant = c("co", "no2", "so2"))</code></pre>
     
-    <h2>5. Visualitzar dades en un calendari amb <code>calendarPlot()</code></h2>
+    <h2>7. Visualitzar dades en un calendari amb <code>calendarPlot()</code></h2>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">calendarPlot(dades_1991, pollutant = "no2", year = 1991)</code></pre>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">for (pol in c("co", "no2", "so2")) {
   calendarPlot(dades_1991, pollutant = pol, year = 1991)
 }</code></pre>
     
-    <h2>6. Altres visualitzacions</h2>
+    <h2>8. Altres visualitzacions</h2>
     <h3>TimePlot</h3>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timePlot(dades_1991, pollutant = c("co", "no2", "so2"), group = TRUE)</code></pre>
     
