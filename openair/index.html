@@ -234,8 +234,22 @@ dades <- dades %>%
   filter(format(date, "%Y") == "2024")</code></pre>
     
     <h2>6. Analitzar variacions temporals amb <code>timeVariation()</code></h2>
-    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timeVariation(dades_2024, pollutant = "co")</code></pre>
-    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timeVariation(dades_2024, pollutant = c("co", "no2", "so2"))</code></pre>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">
+library(openair)  # Carregar la llibreria per analitzar la qualitat de l'aire
+
+# Carregar les dades des d'un fitxer CSV
+# Assegura't que el fitxer CSV conté una columna 'date' en format YYYY-MM-DD HH:MM:SS
+# i columnes amb els noms dels contaminants (per exemple, "NO2", "PM10", "O3")
+dades <- read.csv("dades_martorell_2024.csv", stringsAsFactors = FALSE)
+
+# Convertir la columna 'date' a format de data i hora
+dades$date <- as.POSIXct(dades$date, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+
+# Generar la variació temporal dels contaminants seleccionats
+timeVariation(dades, pollutant = c("no2", "pm10", "o3"), main="Contaminació atmosfèrica a Martorell (2024)")
+
+        
+        </code></pre>
     
     <h2>7. Visualitzar dades en un calendari amb <code>calendarPlot()</code></h2>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">calendarPlot(dades_2024, pollutant = "no2", year = 2024)</code></pre>
