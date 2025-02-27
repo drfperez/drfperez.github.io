@@ -153,7 +153,7 @@ print("Procés completat! S'ha descarregat el fitxer filtered_data.csv")
         <h2>3. Combinar les dades de XPVCA i meteocat en únic arxiu</h2>
      <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
 
-    import pandas as pd
+import pandas as pd
 from google.colab import files
 
 # 1️⃣ Pujar el primer arxiu CSV
@@ -215,8 +215,21 @@ dades <- dades %>%
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">for (pol in c("co", "no2", "so2")) {
   calendarPlot(dades_1991, pollutant = pol, year = 1991)
 }</code></pre>
+    <h2>8. Veure d'on procedeix la contaminació amb <code>pollutionRose</code>
+         <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timePlot(dades_1991, pollutant = c("co", "no2", "so2"), group = TRUE)</code></pre>
     
-    <h2>8. Altres visualitzacions</h2>
+install.packages("openair")  # Instal·la el paquet si no el tens
+library(openair)
+
+# Exemple de dades de qualitat de l'aire (pots substituir-ho amb les teves dades)
+data(example_data)
+
+# Crear la gràfica pollution rose
+pollutionRose(example_data, pollutant = "nox", key.header = "Concentració de NOx")
+        </code></pre>
+    
+    
+    <h2>9. Altres visualitzacions</h2>
     <h3>TimePlot</h3>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timePlot(dades_1991, pollutant = c("co", "no2", "so2"), group = TRUE)</code></pre>
     
