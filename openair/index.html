@@ -281,5 +281,79 @@ pollutionRose(example_data, pollutant = "nox", key.header = "Concentració de NO
     
     <h3>SummaryPlot</h3>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">summaryPlot(dades_2024)</code></pre>
+
+    <h2>10. Anàlisi de tendències a llarg termini</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">
+# Tendències anuals
+trendLevel(dades, pollutant = "no2", ylab = "Concentració (µg/m³)",
+           main = "Tendència de NO2 a Martorell")
+    </code></pre>
+
+    <h2>11. Comparació de contaminants amb diagrames de dispersió</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">
+scatterPlot(dades, x = "no2", y = "pm10", method = "hexbin",
+            main = "Relació entre NO2 i PM10")
+    </code></pre>
+
+    <h2>12. Anàlisi de percentils amb windRose</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">
+percentileRose(dades, pollutant = "no2", type = "season",
+               percentile = c(50, 95, 99.9),
+               key.position = "right")
+    </code></pre>
+
+    <h2>13. Matriu de correlacions entre contaminants</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">
+corPlot(dades_2024, pollutants = c("no2", "pm10", "o3", "so2"),
+        dendrogram = TRUE, cluster = TRUE)
+    </code></pre>
+
+    <h2>14. Anàlisi de valors extrems</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">
+conditionalQuantile(dades, pollutant = "pm10",
+                    main = "Quantils condicionals per PM10")
+    </code></pre>
+
+    <h2>15. Estadístics descriptius bàsics</h2>
+    <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">
+# Resum estadístic
+summaryStats(dades, pollutant = c("no2", "pm10"), 
+             statistics = c("mean", "max", "percentile"))
+
+# Taula de percentils
+percentile(dades, pollutant = "no2", avg.time = "month")
+    </code></pre>
+
+    <h2>16. Referències i recursos addicionals</h2>
+    <ul>
+        <li><a href="https://davidcarslaw.github.io/openair/">Documentació oficial d'openair</a></li>
+        <li><a href="https://github.com/davidcarslaw/openair">Repositori GitHub d'openair</a></li>
+        <li><a href="https://bookdown.org/david_carslaw/openair/">Llibre de receptes d'openair</a></li>
+    </ul>
+
+    <h2>17. Consells avançats</h2>
+    <div style="background:#f8f9fa;padding:15px;border-radius:5px">
+        <p>🕒 <strong>Optimització del temps:</strong> Utilitza <code>selectByDate()</code> per filtrar períodes específics:</p>
+        <pre><code class="language-r">dades_hivern <- selectByDate(dades, month = c(12, 1, 2))</code></pre>
+        
+        <p>🌦️ <strong>Integració meteorològica:</strong> Combina dades de vent i contaminants:</p>
+        <pre><code class="language-r">polarAnnulus(dades, pollutant = "no2", resolution = "season")</code></pre>
+        
+        <p>📈 <strong>Anàlisi comparatiu:</strong> Compara múltiples estacions:</p>
+        <pre><code class="language-r">timePlot(dades, pollutant = "no2", group = "site")</code></pre>
+    </div>
+
+    <h2>18. Solució de problemes comuns</h2>
+    <details>
+        <summary>🔍 Veure solucions</summary>
+        <ul>
+            <li><strong>Error de format de dates:</strong> Verifica que les dates siguin POSIXct</li>
+            <li><strong>Valors perduts:</strong> Utilitza <code>timeAverage()</code> per suavitzar dades</li>
+            <li><strong>Llegenda tallada:</strong> Ajusta <code>key.position</code> i <code>key.header</code></li>
+        </ul>
+    </details>
+
+
+
 </body>
 </html>
