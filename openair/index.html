@@ -109,46 +109,72 @@ print(f"El fitxer processat s'ha desat com: {output_file}")
     
  <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
    
-import pandas as pd
-import numpy as np
-from google.colab import files
+import pandas as pd  # Importem la llibreria pandas per treballar amb dades tabulars
+import numpy as np  # Importem numpy per gestionar valors numèrics i operacions matemàtiques
+from google.colab import files  # Importem el mòdul files per pujar i descarregar fitxers a Google Colab
 
-# Pujar el fitxer CSV
-uploaded = files.upload()
+# Pujar un fitxer CSV des de l'ordinador
+uploaded = files.upload()  # Mostra una finestra per seleccionar i pujar un fitxer
 
-# Obtenir el nom del fitxer pujat
-global filename
-filename = list(uploaded.keys())[0]
+# Obtenir el nom del fitxer que s'ha pujat
+# uploaded és un diccionari on les claus són els noms dels fitxers pujats
+filename = list(uploaded.keys())[0]  # Agafem el primer (i únic) fitxer pujat
 
-# Llegir el CSV
+# Llegir el fitxer CSV i carregar-lo en un DataFrame de pandas
+# encoding='latin1' s'utilitza per evitar problemes amb caràcters especials
+# df serà la nostra taula de dades
+
+
 df = pd.read_csv(filename, encoding='latin1')
 
-# Convertir la columna de data a datetime
+# Convertim la columna 'DATA_LECTURA' a un format de data i hora
+# format='%d/%m/%Y %I:%M:%S %p' indica com està estructurada la data al fitxer original
+# errors='coerce' fa que els valors incorrectes es converteixin en NaT (valors buits de tipus data)
 df['DATA_LECTURA'] = pd.to_datetime(df['DATA_LECTURA'], format='%d/%m/%Y %I:%M:%S %p', errors='coerce')
 
-# Filtrar només les hores senceres
+# Filtrar només les files on els minuts de la columna DATA_LECTURA siguin 0
+# Això vol dir que ens quedem només amb les dades corresponents a hores senceres (per exemple, 10:00, 11:00, etc.)
 df = df[df['DATA_LECTURA'].dt.minute == 0]
 
-# Ordenar per data
-antepenultima_columna = df.columns[-3]  # Agafem la columna antepenúltima
-tercera_columna = df.columns[-6]  # Agafem la columna tercera
+# Ordenar les dades per data (no es fa explícitament, però es pressuposa que els passos següents ho gestionen)
 
-df['ws'] = np.where(df[tercera_columna]== 30, df[antepenultima_columna], np.nan)
-df['wd'] = np.where(df[tercera_columna]== 31, df[antepenultima_columna], np.nan)
+# Obtenim el nom de la antepenúltima columna (la tercera des del final)
+antepenultima_columna = df.columns[-3]  # Exemple: podria ser 'VALOR'
 
+# Obtenim el nom de la tercera columna des del final
+tercera_columna = df.columns[-6]  # Exemple: podria ser 'CATEGORIA'
+
+# Creem una nova columna 'ws'
+# Posem el valor de la antepenúltima columna només si la tercera columna val 30
+# np.where(condició, valor_si_cert, valor_si_fals) permet aplicar una condició fila per fila
+df['ws'] = np.where(df[tercera_columna] == 30, df[antepenultima_columna], np.nan)
+
+# Creem una altra nova columna 'wd'
+# Posem el valor de la antepenúltima columna només si la tercera columna val 31
+df['wd'] = np.where(df[tercera_columna] == 31, df[antepenultima_columna], np.nan)
+
+# Ens quedem només amb tres columnes: DATA_LECTURA, ws i wd
 df = df[['DATA_LECTURA', 'ws', 'wd']]
+
+# Canviem el nom de la columna 'DATA_LECTURA' a 'date' per facilitar la comprensió
 df.columns = ['date', 'ws', 'wd']
 
+# Agrupem les dades per data i agafem el primer valor de cada grup
+# Això assegura que només hi hagi una fila per cada data única
 df = df.groupby('date', as_index=False).first()
 
-# Guardar en CSV
+# Definim el nom del fitxer de sortida
 output_filename = "filtered_data.csv"
+
+# Guardem les dades processades en un nou fitxer CSV sense la columna d'índex
 df.to_csv(output_filename, index=False)
 
-# Descarregar el fitxer
+# Descarreguem el fitxer CSV generat
 files.download(output_filename)
 
+# Mostrem un missatge indicant que el procés ha finalitzat
 print("Procés completat! S'ha descarregat el fitxer filtered_data.csv")
+
  </code></pre>   
 
         <h2>3. Combinar les dades de XPVCA i meteocat en únic arxiu</h2>
