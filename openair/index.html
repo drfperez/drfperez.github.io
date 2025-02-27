@@ -40,9 +40,8 @@
 
     
     <h2>1. Descarregar i convertir dades </h2><p>Les dades automàtiques horàries de contaminació atmosfèrica de diferents poblacions es descarreguen del <a href="https://mediambient.gencat.cat/ca/05_ambits_dactuacio/atmosfera/qualitat_de_laire/vols-saber-que-respires/descarrega-de-dades/descarrega-dades-automatiques/">servidor XVPCA  del Departament de Medi Ambient i Sostenibilitat </a> de la Generalitat de Catalunya i les converteixes en format compatible amb openair amb el codi Python següent dissenyat per fer-ho servir al teu Google colab.</p>
-    <p>Primer faràs un anàlisi anual de Martorell entre 2024 i 2024, posteriorment realitzaràs un altre estudi plurianual d'una localitat catalana.</p>
-    <p>Dades es poden combinar amb parametres 30 i 31, que corresponen a velocitat de vent (ws) i direcció del vent (wd) del <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Dades-meteorol-giques-de-la-XEMA/nzvn-apee/data_preview"> servidor XEMA amb dades semihoràries del Meteocat</a> triant <a href="https://pompeu.neocities.org/4b/distances">el codi de l'estació meteorològica més propera a la nostra estació mesuradora de contaminació</a> per poder combinar dades de contaminació i metereològiques segons codi compartit amb Github del professor.</p>
-    
+    <p>Primer faràs un anàlisi anual de Martorell entre 1991 i 2024, posteriorment realitzaràs un altre estudi plurianual d'una localitat catalana.</p>
+ 
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-python">    
     
 import pandas as pd
@@ -105,7 +104,9 @@ pivot_df.to_csv(output_file, index=False)
 files.download(output_file)
 print(f"El fitxer processat s'ha desat com: {output_file}")
  </code></pre>   
-<h2>2. Codi per convertir les dades de meteocat a format compatible amb openair</h2>    
+<h2>2. Codi per convertir les dades de meteocat a format compatible amb openair</h2>  
+       <p>Dades es poden combinar amb parametres 30 i 31, que corresponen a velocitat de vent (ws) i direcció del vent (wd) del <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Dades-meteorol-giques-de-la-XEMA/nzvn-apee/data_preview"> servidor XEMA amb dades semihoràries del Meteocat</a> triant <a href="https://pompeu.neocities.org/4b/distances">el codi de l'estació meteorològica més propera a la nostra estació mesuradora de contaminació</a> per poder combinar dades de contaminació i metereològiques segons codi compartit amb Github del professor.</p>
+    
  <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
    
 import pandas as pd
@@ -215,7 +216,7 @@ dades <- dades %>%
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">for (pol in c("co", "no2", "so2")) {
   calendarPlot(dades_2024, pollutant = pol, year = 2024)
 }</code></pre>
-    <h2>8. Veure d'on procedeix la contaminació amb <code>pollutionRose</code>
+    <h2>8. Veure d'on procedeix la contaminació amb <code>pollutionRose</code></h2>
          <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">timePlot(dades_2024, pollutant = c("co", "no2", "so2"), group = TRUE)</code></pre>
     
 install.packages("openair")  # Instal·la el paquet si no el tens
