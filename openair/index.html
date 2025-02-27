@@ -107,7 +107,7 @@ pivot_df.to_csv(output_file, index=False)
 files.download(output_file)
 print(f"El fitxer processat s'ha desat com: {output_file}")
  </code></pre>   
-<h2>2. Descarregar i convertir les dades meteorològiques a format compatible amb openair</h2>  
+<h2>2. Descarregar dades meteorològiques semihoràries a format compatible amb openair</h2>  
        <p>Hem de descarregar dades meteorològiques del Meteocat, concretament els parametres 30 i 31, que corresponen a velocitat de vent (ws) i direcció del vent (wd) del <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Dades-meteorol-giques-de-la-XEMA/nzvn-apee/data_preview"> servidor XEMA amb dades semihoràries del Meteocat</a> triant <a href="https://pompeu.neocities.org/4b/distances">el codi de l'estació meteorològica més propera a la nostra estació mesuradora de contaminació</a> per poder combinar dades de contaminació i metereològiques segons codi compartit amb Github del professor.</p>
     
  <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-python">
@@ -180,7 +180,7 @@ print("Procés completat! S'ha descarregat el fitxer filtered_data.csv")
 
  </code></pre>   
 
-        <h2>3. Combinar les dades de XPVCA i meteocat en únic arxiu</h2>
+        <h2>3. Combinar les dades de contaminació de XPVCA i dades meteorològica de XEMA Meteocat en únic arxiu</h2>
      <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-python">library(openair)
 
 import pandas as pd
@@ -222,7 +222,7 @@ files.download(output_file)
 print(f"✅ Arxiu combinat creat i descarregat: {output_file}")
 </code></pre>
     
-    <h2>4. Carregar les dades en RStudio</h2>
+    <h2>4. Carregar les dades combinades i processades en RStudio</h2>
     <pre><button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button><code class="language-r">library(openair)
 library(dplyr)
 library(readr)
