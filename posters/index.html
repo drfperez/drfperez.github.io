@@ -1,190 +1,211 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualitzador de Pòsters</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualitzador de Pòsters Ultra-ràpid</title>
 
-    <!-- FontAwesome per icones -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer></script>
+  <!-- FontAwesome per les icones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- PDF.js per carregar els PDFs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.min.js"></script>
+  <!-- PDF.js per carregar els PDFs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.min.js"></script>
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-        #pdf-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 85vh;
-            position: relative;
-        }
-        canvas {
-            max-width: 90%;
-            max-height: 85vh;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-            transition: opacity 0.4s ease-in-out, transform 0.3s;
-        }
-        /* Controls */
-        #controls {
-            position: absolute;
-            top: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 10px;
-            backdrop-filter: blur(8px);
-        }
-        #poster-title {
-            font-size: 22px;
-            font-weight: bold;
-            flex-grow: 1;
-            text-align: center;
-        }
-        .nav-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            font-size: 26px;
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: background 0.3s ease-in-out, transform 0.2s;
-        }
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.5);
-            transform: scale(1.15);
-        }
-        .download-btn {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            font-size: 22px;
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: background 0.3s ease-in-out, transform 0.2s;
-        }
-        .download-btn:hover {
-            background: rgba(255, 255, 255, 0.5);
-            transform: scale(1.15);
-        }
-        /* Loader */
-        #loader {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-top: 5px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: none;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #pdf-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 85vh;
+      position: relative;
+    }
+    /* L'imatge comença oculta per evitar el símbol d'imatge mal carregada */
+    #pdf-img {
+      max-width: 90%;
+      max-height: 85vh;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+      transition: opacity 0.3s ease-in-out;
+      opacity: 0;
+      visibility: hidden;
+    }
+    #controls {
+      position: absolute;
+      top: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+    }
+    #poster-title {
+      font-size: 22px;
+      font-weight: bold;
+      flex-grow: 1;
+      text-align: center;
+    }
+    .nav-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 26px;
+      padding: 12px;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.2s ease-in-out, transform 0.1s;
+    }
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.5);
+      transform: scale(1.1);
+    }
+    .download-btn {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 22px;
+      padding: 12px;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.2s ease-in-out, transform 0.1s;
+    }
+    .download-btn:hover {
+      background: rgba(255,255,255,0.5);
+      transform: scale(1.1);
+    }
+    /* Estils del loader */
+    #loader {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      padding: 20px;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+      /* Centrat al contenidor */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+    #loader i {
+      font-size: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
 
-    <div id="controls">
-        <button class="nav-btn" onclick="changePDF(-1)"><i class="fas fa-angle-left"></i></button>
-        <span id="poster-title">Pòster 1</span>
-        <button class="nav-btn" onclick="changePDF(1)"><i class="fas fa-angle-right"></i></button>
+  <div id="controls">
+    <button class="nav-btn" onclick="changePDF(-1)"><i class="fas fa-chevron-left"></i></button>
+    <span id="poster-title">Pòster 1</span>
+    <button class="nav-btn" onclick="changePDF(1)"><i class="fas fa-chevron-right"></i></button>
+  </div>
+
+  <div id="pdf-container">
+    <div id="loader">
+      <i class="fas fa-spinner"></i>
+      <span>Carregant pòster...</span>
     </div>
+    <img id="pdf-img" src="" alt="Pòster">
+  </div>
 
-    <div id="pdf-container">
-        <div id="loader"></div>
-        <canvas id="pdf-canvas"></canvas>
-    </div>
+  <button class="download-btn" onclick="downloadPDF()"><i class="fas fa-download"></i></button>
 
-    <button class="download-btn" onclick="downloadPDF()"><i class="fas fa-download"></i></button>
+  <script>
+    const pdfFiles = ["icfo1.pdf", "icfo2.pdf", "icfo3.pdf", "icfo4.pdf"];
+    const titles = ["Pòster 1", "Pòster 2", "Pòster 3", "Pòster 4"];
+    let currentPDF = 0;
+    let pdfDocs = [];
+    let renderedImages = [];
+    const loader = document.getElementById("loader");
+    const img = document.getElementById("pdf-img");
 
-    <script>
-        const pdfFiles = ["icfo1.pdf", "icfo2.pdf", "icfo3.pdf", "icfo4.pdf"];
-        const titles = ["Pòster 1", "Pòster 2", "Pòster 3", "Pòster 4"];
-        let currentPDF = 0;
-        let pdfDoc = null;
-        const canvas = document.getElementById("pdf-canvas");
+    async function preloadPDFs() {
+      for (let i = 0; i < pdfFiles.length; i++) {
+        const pdfDoc = await pdfjsLib.getDocument(pdfFiles[i]).promise;
+        pdfDocs[i] = pdfDoc;
+        const page = await pdfDoc.getPage(1);
+        
+        let scale = window.innerWidth < 768 ? 1.5 : 2.0;
+        const viewport = page.getViewport({ scale });
+        
+        const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-        const loader = document.getElementById("loader");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        
+        renderedImages[i] = canvas.toDataURL("image/png");
+      }
+      showPDF(0);
+    }
 
-        async function renderPDF(pdfPath) {
-            loader.style.display = "block"; // Mostra el carregador
-            canvas.style.opacity = "0"; // Amaga el canvas mentre carrega
+    function showPDF(index) {
+      // Mostra el loader i amaga l'imatge
+      loader.style.display = "flex";
+      img.style.opacity = "0";
+      img.style.visibility = "hidden";
 
-            const loadingTask = pdfjsLib.getDocument(pdfPath);
-            pdfDoc = await loadingTask.promise;
-            const page = await pdfDoc.getPage(1);
-            const viewport = page.getViewport({ scale: 1.8 });
+      setTimeout(() => {
+        img.src = renderedImages[index];
+        document.getElementById("poster-title").innerText = titles[index];
 
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
+        img.onload = () => {
+          loader.style.display = "none";
+          img.style.opacity = "1";
+          img.style.visibility = "visible";
+        };
+      }, 200);
+    }
 
-            const renderContext = { canvasContext: ctx, viewport: viewport };
-            await page.render(renderContext).promise;
+    function changePDF(direction) {
+      currentPDF = (currentPDF + direction + pdfFiles.length) % pdfFiles.length;
+      showPDF(currentPDF);
+    }
 
-            document.getElementById("poster-title").innerText = titles[currentPDF];
+    function downloadPDF() {
+      const link = document.createElement("a");
+      link.href = pdfFiles[currentPDF];
+      link.download = pdfFiles[currentPDF];
+      link.click();
+    }
 
-            loader.style.display = "none";
-            canvas.style.opacity = "1";
-            canvas.style.transform = "scale(1)";
-        }
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") changePDF(-1);
+      if (event.key === "ArrowRight") changePDF(1);
+    });
 
-        function changePDF(direction) {
-            currentPDF += direction;
-            if (currentPDF < 0) currentPDF = pdfFiles.length - 1;
-            if (currentPDF >= pdfFiles.length) currentPDF = 0;
-            renderPDF(pdfFiles[currentPDF]);
-        }
-
-        function downloadPDF() {
-            const link = document.createElement("a");
-            link.href = pdfFiles[currentPDF];
-            link.download = pdfFiles[currentPDF];
-            link.click();
-        }
-
-        // Suport per teclat i gestos tàctils
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "ArrowLeft") changePDF(-1);
-            if (event.key === "ArrowRight") changePDF(1);
-        });
-
-        let touchStartX = 0;
-        document.addEventListener("touchstart", (event) => {
-            touchStartX = event.touches[0].clientX;
-        });
-        document.addEventListener("touchend", (event) => {
-            let touchEndX = event.changedTouches[0].clientX;
-            if (touchEndX < touchStartX - 50) changePDF(1);
-            if (touchEndX > touchStartX + 50) changePDF(-1);
-        });
-
-        renderPDF(pdfFiles[currentPDF]);
-    </script>
-
+    preloadPDFs();
+  </script>
 </body>
 </html>
 
