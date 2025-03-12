@@ -26,6 +26,33 @@
             color: #007bff;
         }
     </style>
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        caption {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .notes {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+    
     <script>
         function copyCode(button) {
             const codeBlock = button.nextElementSibling.innerText;
@@ -481,9 +508,110 @@ print("Finished processing all dates.")
         <li><b>Qualitat de les dades:</b>  Les dades de satèl·lit poden tenir errors o requerir correccions. Consulta la documentació de TROPOMI per obtenir informació sobre el control de qualitat.</li>
     </ul>
 
+
+    <table>
+        <caption>Límits de Contaminants Atmosfèrics per Diversos Organismes</caption>
+        <thead>
+            <tr>
+                <th>Contaminant</th>
+                <th>Període</th>
+                <th>Límit OMS (2021)</th>
+                <th>Límit UE (2025)</th>
+                <th>Límit UE (2030)</th>
+                <th>Límit Estats Units (EPA)</th>
+                <th>Límit Canadà</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>PM2.5</td>
+                <td>Anual</td>
+                <td>5 µg/m³</td>
+                <td>25 µg/m³</td>
+                <td>10 µg/m³</td>
+                <td>12 µg/m³</td>
+                <td>8.8 µg/m³</td>
+            </tr>
+            <tr>
+                <td>PM2.5</td>
+                <td>24 hores</td>
+                <td>15 µg/m³</td>
+                <td>No especificat</td>
+                <td>25 µg/m³</td>
+                <td>35 µg/m³</td>
+                <td>27 µg/m³</td>
+            </tr>
+            <tr>
+                <td>PM10</td>
+                <td>Anual</td>
+                <td>15 µg/m³</td>
+                <td>40 µg/m³</td>
+                <td>20 µg/m³</td>
+                <td>No especificat</td>
+                <td>20 µg/m³</td>
+            </tr>
+            <tr>
+                <td>PM10</td>
+                <td>24 hores</td>
+                <td>45 µg/m³</td>
+                <td>50 µg/m³ (≤35 dies/any)</td>
+                <td>45 µg/m³</td>
+                <td>150 µg/m³</td>
+                <td>50 µg/m³</td>
+            </tr>
+            <tr>
+                <td>NO₂</td>
+                <td>Anual</td>
+                <td>10 µg/m³</td>
+                <td>40 µg/m³</td>
+                <td>20 µg/m³</td>
+                <td>53 ppb (aprox. 100 µg/m³)</td>
+                <td>11 µg/m³</td>
+            </tr>
+            <tr>
+                <td>NO₂</td>
+                <td>1 hora</td>
+                <td>200 µg/m³</td>
+                <td>200 µg/m³ (≤18 hores/any)</td>
+                <td>Sense canvi</td>
+                <td>100 ppb (aprox. 188 µg/m³)</td>
+                <td>113 ppb (aprox. 226 µg/m³)</td>
+            </tr>
+            <tr>
+                <td>O₃</td>
+                <td>8 hores</td>
+                <td>100 µg/m³</td>
+                <td>120 µg/m³ (≤25 dies/any)</td>
+                <td>Sense canvi</td>
+                <td>70 ppb (aprox. 140 µg/m³)</td>
+                <td>63 ppb (aprox. 126 µg/m³)</td>
+            </tr>
+            <tr>
+                <td>SO₂</td>
+                <td>24 hores</td>
+                <td>40 µg/m³</td>
+                <td>No especificat</td>
+                <td>Sense canvi</td>
+                <td>75 ppb (aprox. 196 µg/m³)</td>
+                <td>5 ppb (aprox. 13 µg/m³)</td>
+            </tr>
+            <tr>
+                <td>CO</td>
+                <td>8 hores</td>
+                <td>4 mg/m³</td>
+                <td>No especificat</td>
+                <td>Sense canvi</td>
+                <td>9 ppm (aprox. 10 mg/m³)</td>
+                <td>10 ppm (aprox. 11 mg/m³)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="notes">
+        <p><strong>Notes:</strong></p>
+        <p>Límits de la Unió Europea, Organització Mundial de la Salut, Agència de Protecció Ambiental dels Estats Units (EPA) i Normes Nacionals de Qualitat de l'Aire Ambiental del Canadà.</p>
+    </div>
+
 </body>
 </html>
 
-
-</body>
-</html>
