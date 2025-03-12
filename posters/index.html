@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualitzador de Pòsters</title>
+
+    <!-- FontAwesome per icones atractives -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer></script>
+
+    <!-- PDF.js per carregar els PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #controls {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            position: absolute;
+            top: 0;
+        }
+        #poster-title {
+            font-size: 20px;
+            font-weight: bold;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+        .nav-btn:hover {
+            transform: scale(1.2);
+        }
+        #pdf-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+        }
+        canvas {
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        <button class="nav-btn" onclick="changePDF(-1)"><i class="fas fa-chevron-left"></i></button>
+        <span id="poster-title">Pòster 1</span>
+        <button class="nav-btn" onclick="changePDF(1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div id="pdf-container">
+        <canvas id="pdf-canvas"></canvas>
+    </div>
+
+    <script>
+        const pdfFiles = ["icfo1.pdf", "icfo2.pdf", "icfo3.pdf", "icfo4.pdf"];
+        const titles = ["Pòster 1", "Pòster 2", "Pòster 3", "Pòster 4"];
+        let currentPDF = 0;
+        let pdfDoc = null;
+        const canvas = document.getElementById("pdf-canvas");
+        const ctx = canvas.getContext("2d");
+
+        async function renderPDF(pdfPath) {
+            const loadingTask = pdfjsLib.getDocument(pdfPath);
+            pdfDoc = await loadingTask.promise;
+            const page = await pdfDoc.getPage(1);
+            const viewport = page.getViewport({ scale: 1.8 });
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            const renderContext = { canvasContext: ctx, viewport: viewport };
+            await page.render(renderContext).promise;
+
+            document.getElementById("poster-title").innerText = titles[currentPDF];
+        }
+
+        function changePDF(direction) {
+            currentPDF += direction;
+            if (currentPDF < 0) currentPDF = pdfFiles.length - 1;
+            if (currentPDF >= pdfFiles.length) currentPDF = 0;
+            renderPDF(pdfFiles[currentPDF]);
+        }
+
+        renderPDF(pdfFiles[currentPDF]);
+    </script>
+
+</body>
+</html>
