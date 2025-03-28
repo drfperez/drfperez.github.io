@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Dibuix de Cara amb Modal d'Instruccions</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+    .modal {
+      display: block;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover, .close:focus {
+      color: black;
+      text-decoration: none;
+    }
+    #zoomControls {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      z-index: 11;
+    }
+    #zoomControls button {
+      padding: 5px 10px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    #canvasContainer {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div id="instructionModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h3>Dibuix de la Cara amb p5.js</h3>
+      <p>Aquest exemple mostra com dibuixar una cara utilitzant formes geomètriques amb p5.js.</p>
+      <ul>
+        <li><strong>Graella:</strong> Visualitza el sistema de coordenades.</li>
+        <li><strong>Instruccions:</strong> Cada figura mostra el codi utilitzat per dibuixar-la.</li>
+        <li><strong>Interactivitat:</strong> Mou el ratolí per veure les coordenades en temps real.</li>
+      </ul>
+      <p>Fes clic a la "X" per tancar aquest modal i veure el dibuix.</p>
+    </div>
+  </div>
+
+  <div id="canvasContainer">
+    <div id="zoomControls">
+      <button id="zoomIn">Ampliar (+)</button>
+      <button id="zoomOut">Reduir (-)</button>
+      <button id="resetZoom">Restablir</button>
+    </div>
+  </div>
+  
+  <script>
+    let staticContent;
+    let mouseInfo = "";
+    let lastMoveTime = 0;
+    let isIndicatorVisible = false;
+    let zoomLevel = 1.0;
+    const ZOOM_SPEED = 0.1;
+    let canvas;
+    let canvasWidth = 600;
+    let canvasHeight = 600;
+
+    document.getElementById("closeModal").addEventListener("click", function() {
+      document.getElementById("instructionModal").style.display = "none";
+    });
+
+    document.getElementById("zoomIn").addEventListener("click", function() {
+      zoomLevel += ZOOM_SPEED;
+      resizeCanvas(canvasWidth * zoomLevel, canvasHeight * zoomLevel);
+    });
+
+    document.getElementById("zoomOut").addEventListener("click", function() {
+      zoomLevel -= ZOOM_SPEED;
+      zoomLevel = Math.max(zoomLevel, 0.1);
+      resizeCanvas(canvasWidth * zoomLevel, canvasHeight * zoomLevel);
+    });
+
+    document.getElementById("resetZoom").addEventListener("click", function() {
+      zoomLevel = 1.0;
+      resizeCanvas(canvasWidth, canvasHeight);
+    });
+
+    function setup() {
+      canvas = createCanvas(canvasWidth, canvasHeight);
+      canvas.parent('canvasContainer');
+      staticContent = createGraphics(canvasWidth, canvasHeight);
+      drawStaticContent();
+      textSize(12);
+      textAlign(LEFT, CENTER);
+    }
+
+    function draw() {
+      clear();
+      image(staticContent, 0, 0, canvasWidth * zoomLevel, canvasHeight * zoomLevel);
+      
+      if (isIndicatorVisible) {
+        drawMouseIndicator();
+      }
+      
+      if (millis() - lastMoveTime > 3000 && isIndicatorVisible) {
+        isIndicatorVisible = false;
+      }
+    }
+
+    function drawStaticContent() {
+      staticContent.background(240);
+      drawGrid(staticContent);
+      
+      // Cap
+      staticContent.fill(255, 220, 200);
+      staticContent.stroke(0);
+      staticContent.strokeWeight(2);
+      staticContent.ellipse(300, 300, 300, 400);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("ellipse(300,300,300,400) → Cap", 310, 320);
+      
+      // Somriure
+      staticContent.noFill();
+      staticContent.stroke(150, 0, 0);
+      staticContent.strokeWeight(4);
+      staticContent.arc(300, 360, 150, 100, 0, PI);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("arc(300,360,150,100,0,PI) → Somriure", 310, 360);
+      
+      // Barba
+      staticContent.fill(255, 200, 200);
+      staticContent.stroke(0);
+      staticContent.strokeWeight(2);
+      staticContent.rect(225, 400, 150, 50);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("rect(225,400,150,50) → Barba", 230, 425);
+      
+      // Orella esquerra
+      staticContent.fill(255, 220, 200);
+      staticContent.stroke(0);
+      staticContent.strokeWeight(2);
+      staticContent.triangle(150, 300, 100, 350, 150, 400);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("triangle(150,300,100,350,150,400) → Orella E", 60, 295);
+      
+      // Orella dreta
+      staticContent.fill(255, 220, 200);
+      staticContent.stroke(0);
+      staticContent.strokeWeight(2);
+      staticContent.triangle(450, 300, 500, 350, 450, 400);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("triangle(450,300,500,350,450,400) → Orella D", 315, 295);
+      
+      // Ull esquerre
+      staticContent.fill(255);
+      staticContent.noStroke();
+      staticContent.ellipse(250, 250, 50, 30);
+      staticContent.fill(0);
+      staticContent.ellipse(250, 250, 20, 20);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("ellipse(250,250,50,30) → Ull E", 150, 280);
+      staticContent.text("ellipse(250,250,20,20) → Pupil", 150, 240);
+      
+      // Ull dret
+      staticContent.fill(255);
+      staticContent.noStroke();
+      staticContent.ellipse(350, 250, 50, 30);
+      staticContent.fill(0);
+      staticContent.ellipse(350, 250, 20, 20);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("ellipse(350,250,50,30) → Ull D", 370, 230);
+      staticContent.text("ellipse(350,250,20,20) → Pupil", 370, 250);
+      
+      // Celles
+      staticContent.stroke(0);
+      staticContent.strokeWeight(3);
+      staticContent.line(230, 220, 270, 220);
+      staticContent.line(310, 220, 370, 220);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("line(230,220,270,220) → Cell·la E", 230, 200);
+      staticContent.text("line(310,220,370,220) → Cell·la D", 310,215);
+      
+      // Boca
+      staticContent.noFill();
+      staticContent.stroke(150, 0, 0);
+      staticContent.strokeWeight(2);
+      staticContent.arc(300, 360, 120, 50, 0, PI);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("arc(300,360,120,50,0,PI) → Boca", 310, 390);
+      
+      // Contorn exterior
+      staticContent.noFill();
+      staticContent.stroke(0, 100, 200);
+      staticContent.strokeWeight(3);
+      staticContent.ellipse(300, 300, 320, 420);
+      staticContent.fill(0);
+      staticContent.noStroke();
+      staticContent.text("noFill() + ellipse(300,300,320,420) → Contorn", 310, 530);
+    }
+
+    function drawGrid(target) {
+      target.stroke(220);
+      target.strokeWeight(1);
+      for (let x = 0; x <= target.width; x += 50) {
+        if (x % 100 === 0) {
+          target.stroke(180);
+          target.strokeWeight(1.5);
+        } else {
+          target.stroke(220);
+          target.strokeWeight(1);
+        }
+        target.line(x, 0, x, target.height);
+      }
+      for (let y = 0; y <= target.height; y += 50) {
+        if (y % 100 === 0) {
+          target.stroke(180);
+          target.strokeWeight(1.5);
+        } else {
+          target.stroke(220);
+          target.strokeWeight(1);
+        }
+        target.line(0, y, target.width, y);
+      }
+      target.noStroke();
+      target.fill(0);
+      target.text("(0,0)", 5, 15);
+      target.text("(600,600)", target.width - 60, target.height - 10);
+      
+      target.stroke(0);
+      target.strokeWeight(2);
+      target.line(20, 20, 70, 20);
+      target.line(70, 20, 65, 15);
+      target.line(70, 20, 65, 25);
+      target.noStroke();
+      target.fill(0);
+      target.text("X+", 75, 20);
+      
+      target.stroke(0);
+      target.strokeWeight(2);
+      target.line(20, 20, 20, 70);
+      target.line(20, 70, 15, 65);
+      target.line(20, 70, 25, 65);
+      target.noStroke();
+      target.fill(0);
+      target.text("Y+", 20, 75);
+      
+      for (let x = 50; x < target.width; x += 50) {
+        if (x !== 600) {
+          target.text(x, x - 10, 35);
+        }
+      }
+      for (let y = 50; y < target.height; y += 50) {
+        if (y !== 600) {
+          target.text(y, 35, y + 5);
+        }
+      }
+      
+      target.stroke(100);
+      target.strokeWeight(1);
+      target.line(295, 300, 305, 300);
+      target.line(300, 295, 300, 305);
+      target.noStroke();
+      target.fill(0);
+      target.text("(300,300)", 305, 295);
+    }
+
+    function drawMouseIndicator() {
+      let scaledX = mouseX / zoomLevel;
+      let scaledY = mouseY / zoomLevel;
+        
+      stroke(255, 0, 0, 200);
+      strokeWeight(1 / zoomLevel);
+      line(mouseX, 0, mouseX, height);
+      line(0, mouseY, width, mouseY);
+      
+      noFill();
+      stroke(255, 0, 0);
+      strokeWeight(2 / zoomLevel);
+      ellipse(mouseX, mouseY, 10 / zoomLevel, 10 / zoomLevel);
+      
+      fill(255, 255, 220);
+      stroke(200);
+      rect(mouseX + 10, mouseY - 10, 70, 20);
+      fill(0);
+      noStroke();
+      textSize(12 / zoomLevel);
+      text("(" + Math.round(scaledX) + "," + Math.round(scaledY) + ")", mouseX + 15, mouseY);
+    }
+
+    function mouseMoved() {
+      let scaledX = mouseX / zoomLevel;
+      let scaledY = mouseY / zoomLevel;
+      mouseInfo = "Ratolí: (" + Math.round(scaledX) + ", " + Math.round(scaledY) + ")";
+      lastMoveTime = millis();
+      isIndicatorVisible = true;
+    }
+
+    function touchMoved() {
+      let scaledX = touches[0].x / zoomLevel;
+      let scaledY = touches[0].y / zoomLevel;
+      mouseInfo = "Touch: (" + Math.round(scaledX) + ", " + Math.round(scaledY) + ")";
+      lastMoveTime = millis();
+      isIndicatorVisible = true;
+      return false;
+    }
+  </script>
+</body>
+</html>
