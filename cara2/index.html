@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>face-api amb càmeres i visualitzacions</title>
+    <!-- Llibreries necessàries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ml5js/Intro-ML-Arts-IMA@ml5-build-10-7-19/ml5_build/ml5.min.js"></script>
+    
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f4f4f4;
+      }
+      /* Pantalla de càrrega visible fins que es dibuixi el primer frame */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        font-size: 18px;
+        color: #333;
+        z-index: 10;
+      }
+      .loader {
+        width: 50px;
+        height: 50px;
+        border: 6px solid #3498db;
+        border-top: 6px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      /* Estils per als canvases */
+      #canvas-main {
+        border: 2px solid #2c2c2c;
+      }
+      #canvas-points {
+        border: 2px solid #2c2c2c;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Pantalla de càrrega -->
+    <div id="loading-screen">
+      <div class="loader"></div>
+      <p>Carregant models, si us plau, espera...</p>
+    </div>
+    
+    <script>
+      let faceapi;
+      let detections = [];
+      let video;
+      let mainCanvas;    // Canvas de dalt: mostra la imatge real amb landmarks
+      let pointsCanvas;  // Canvas inferior: mostra dibuixos p5.js de mida més gran
+      let modelsMostrats = false;
+      
+      function setup() {
+        // Canvas superior: per mostrar la imatge de la càmera amb landmarks
+        mainCanvas = createCanvas(480, 480);
+        mainCanvas.id("canvas-main");
+        
+        // Canvas inferior: més gran, per dibuixos p5.js (per exemple 600x600)
+        pointsCanvas = createGraphics(600, 600);
+        pointsCanvas.canvas.id = "canvas-points";
+        pointsCanvas.canvas.style.display = "block";
+        pointsCanvas.canvas.style.margin = "20px auto";
+        
+        // Captura de vídeo
+        video = createCapture(VIDEO);
+        video.id("video");
+        video.size(480, 480); // La imatge de la càmera cobreix tot el canvas superior
+        video.hide();
+        
+        const faceOptions = {
+          withLandmarks: true,
+          withExpressions: true,
+          withDescriptors: true,
+          minConfidence: 0.5
+        };
+        
+        // Inicialitza el model de detecció facial
+        faceapi = ml5.faceApi(video, faceOptions, faceReady);
+      }
+      
+      function faceReady() {
+        faceapi.detect(gotFaces);
+      }
+      
+      function gotFaces(error, result) {
+        if (error) {
+          console.log(error);
+          return;
+        }
+        detections = result;
+        
+        // Amaga la pantalla de càrrega en el primer frame processat
+        if (!modelsMostrats) {
+          document.getElementById("loading-screen").style.display = "none";
+          modelsMostrats = true;
+        }
+        
+        faceapi.detect(gotFaces);
+      }
+      
+      // Funció draw() per actualitzar el canvas principal amb la imatge real i els landmarks
+      function draw() {
+        // Dibuixa la imatge real capturada en el canvas de dalt
+        image(video, 0, 0, width, height);
+        
+        // Si hi ha deteccions, sobreposa les caixes, els landmarks i l'expressió
+        if (detections && detections.length > 0) {
+          drawOverlay(detections);
+        }
+        
+        // Actualitza el canvas inferior (pointsCanvas) amb un dibuix més gran de la cara
+        pointsCanvas.clear();
+        if (detections && detections.length > 0) {
+          drawBigFace(pointsCanvas, detections[0]);
+        }
+      }
+      
+      // Funció per sobreposar sobre la imatge de la càmera
+      function drawOverlay(detections) {
+        for (let f = 0; f < detections.length; f++) {
+          let d = detections[f];
+          let box = d.alignedRect._box;
+          // Dibuixa la caixa de detecció
+          stroke(44, 169, 225);
+          strokeWeight(2);
+          noFill();
+          rect(box._x, box._y, box._width, box._height);
+          
+          // Dibuixa els landmarks
+          let points = d.landmarks.positions;
+          for (let i = 0; i < points.length; i++) {
+            fill(255, 0, 0);
+            noStroke();
+            ellipse(points[i]._x, points[i]._y, 5, 5);
+          }
+          
+          // Dibuixa el text amb l'expressió dominant
+          let expr = d.expressions;
+          let dominant = Object.keys(expr).reduce((a, b) => expr[a] > expr[b] ? a : b);
+          noStroke();
+          fill(44, 169, 225);
+          textSize(16);
+          textFont('Helvetica Neue');
+          text("Expressió: " + dominant, 10, height - 20);
+        }
+      }
+      
+      // Funció per dibuixar una representació més gran de la cara en el canvas inferior
+      function drawBigFace(pg, detection) {
+        let expr = detection.expressions;
+        let dominant = Object.keys(expr).reduce((a, b) => expr[a] > expr[b] ? a : b);
+        
+        let cx = pg.width / 2;
+        let cy = pg.height / 2;
+        let faceSize = 300;
+        
+        // Dibuixa el contorn de la cara
+        pg.fill(255);
+        pg.stroke(0);
+        pg.ellipse(cx, cy, faceSize, faceSize);
+        
+        // Dibuixa els ulls
+        pg.fill(0);
+        pg.ellipse(cx - faceSize / 5, cy - faceSize / 5, 30, 30);
+        pg.ellipse(cx + faceSize / 5, cy - faceSize / 5, 30, 30);
+        
+        // Dibuixa la boca segons l'expressió dominant
+        pg.noFill();
+        pg.strokeWeight(4);
+        pg.stroke(0);
+        if (dominant === "happy") {
+          pg.arc(cx, cy + faceSize / 8, 150, 80, 0, PI);
+        } else if (dominant === "sad") {
+          pg.arc(cx, cy + faceSize / 4, 150, 80, PI, 0);
+        } else if (dominant === "angry") {
+          pg.line(cx - 70, cy - 70, cx - 20, cy - 50);
+          pg.line(cx + 20, cy - 50, cx + 70, cy - 70);
+          pg.line(cx - 70, cy + faceSize / 8, cx + 70, cy + faceSize / 8);
+        } else if (dominant === "fearful") {
+          pg.ellipse(cx, cy + faceSize / 8, 100, 60);
+        } else if (dominant === "surprised") {
+          pg.ellipse(cx, cy + faceSize / 8, 80, 80);
+        } else if (dominant === "disgusted") {
+          pg.line(cx - 70, cy + faceSize / 8, cx + 70, cy + faceSize / 8);
+        } else { // neutre
+          pg.line(cx - 70, cy + faceSize / 8, cx + 70, cy + faceSize / 8);
+        }
+        
+        // Mostra el text amb l'expressió
+        pg.noStroke();
+        pg.fill(44, 169, 225);
+        pg.textSize(24);
+        pg.textAlign(CENTER, CENTER);
+        pg.text("Expressió: " + dominant, cx, cy + faceSize / 2 + 30);
+      }
+    </script>
+  </body>
+</html>
