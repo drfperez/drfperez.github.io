@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Projecte Morse amb Arduino en Un Sol HTML</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { color: #003366; }
+    pre { background: #f0f0f0; padding: 10px; overflow-x: auto; }
+    code { font-family: Consolas, monospace; }
+    section { margin-bottom: 40px; }
+    .notice { background: #ffffcc; padding: 10px; border: 1px solid #cccc99; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Projecte Morse amb Arduino</h1>
+    <p>Aquest document HTML recull tot el projecte des de les pràctiques més bàsiques fins a una integració avançada amb interfície web.</p>
+  </header>
+
+  <!-- Secció 1: Introducció i Objectius -->
+  <section id="introduccio">
+    <h2>1. Introducció i Objectius</h2>
+    <p>
+      El codi Morse és un sistema de transmissió d'informació mitjançant punts i ratlles. En aquest projecte aprendràs a programar l'Arduino per generar senyals Morse amb un LED, un buzzer, rebre entrades amb un botó i, finalment, comunicar-te amb una interfície web.
+    </p>
+  </section>
+
+  <!-- Secció 2: Pràctiques Bàsiques -->
+  <section id="practiques-basica">
+    <h2>2. Pràctiques Bàsiques</h2>
+
+    <!-- Pràctica 1: LED en Morse -->
+    <article id="practica-led">
+      <h3>Pràctica 1: Encendre un LED en Patrons Morse</h3>
+      <p>Objectiu: Fer parpellejar un LED en patrons Morse (per exemple, la lletra "S": ···).</p>
+      <p>Codi Arduino d'exemple:</p>
+      <pre><code>
+// Pràctica 1: LED en Morse
+const int ledPin = 13;
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+  // "S" en Morse: tres punts
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(ledPin, HIGH);
+    delay(250); // Durada d'un punt
+    digitalWrite(ledPin, LOW);
+    delay(250);
+  }
+  delay(1000); // Separació de paraula
+}
+      </code></pre>
+    </article>
+
+    <!-- Pràctica 2: Buzzer en Morse -->
+    <article id="practica-buzzer">
+      <h3>Pràctica 2: Generar So amb un Buzzer en Morse</h3>
+      <p>Objectiu: Substituir el LED per un buzzer per reproduir sons en Morse.</p>
+      <p>Codi Arduino d'exemple:</p>
+      <pre><code>
+// Pràctica 2: Buzzer en Morse
+const int buzzerPin = 8;
+
+void setup() {
+  pinMode(buzzerPin, OUTPUT);
+}
+
+void loop() {
+  // "O" en Morse: tres ratlles
+  for (int i = 0; i < 3; i++) {
+    tone(buzzerPin, 1000);  // Emissió de so a 1000 Hz
+    delay(750);             // Durada d'una ratlla
+    noTone(buzzerPin);
+    delay(250);
+  }
+  delay(1000);
+}
+      </code></pre>
+    </article>
+
+    <!-- Pràctica 3: Rebre Entrades amb un Botó -->
+    <article id="practica-boto">
+      <h3>Pràctica 3: Rebre Entrades en Morse amb un Botó</h3>
+      <p>Objectiu: Capturar l'entrada de l'usuari mitjançant un botó i determinar si es tracta d'un punt o d'una ratlla.</p>
+      <p>Codi Arduino d'exemple:</p>
+      <pre><code>
+// Pràctica 3: Captura de senyals amb un botó
+const int buttonPin = 7;
+const int ledPin = 13;
+
+void setup() {
+  pinMode(buttonPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int state = digitalRead(buttonPin);
+  if (state == HIGH) {
+    digitalWrite(ledPin, HIGH);
+    unsigned long startTime = millis();
+    // Esperem que l'usuari deixi de prémer el botó
+    while(digitalRead(buttonPin) == HIGH);
+    unsigned long duration = millis() - startTime;
+    digitalWrite(ledPin, LOW);
+    
+    // Distingeix entre punt i ratlla segons la durada
+    if (duration < 500) {
+      Serial.println("Punt");
+    } else {
+      Serial.println("Ratlla");
+    }
+    delay(300);
+  }
+}
+      </code></pre>
+      <div class="notice">
+        Nota: Ajusta els valors de durada segons la teva prova i configuració.
+      </div>
+    </article>
+  </section>
+
+  <!-- Secció 3: Projecte Intermedi -->
+  <section id="projecte-intermedi">
+    <h2>3. Projecte Intermedi: Conversió de Morse a Text</h2>
+
+    <!-- Pràctica 4: Interpretació del Codi Morse -->
+    <article id="interpretacio">
+      <h3>Pràctica 4: Convertir Codi Morse en Text</h3>
+      <p>Objectiu: Desenvolupar un algoritme que, basant-se en la temporització dels senyals, converteixi els patrons Morse en caràcters alfabètics.</p>
+      <p>Continguts:</p>
+      <ul>
+        <li>Utilitzar arrays o mapes per emmagatzemar la correspondència entre Morse i lletres.</li>
+        <li>Implementar una funció que reconegui i agrupi els senyals.</li>
+      </ul>
+      <p>Exemple de pseudocodi:</p>
+      <pre><code>
+// Pseudocodi per convertir Morse a text
+String morseToLetter(String morse) {
+  // Exemple bàsic:
+  if(morse == ".") return "E";
+  else if(morse == "-") return "T";
+  // Afegeix més condicions segons el teu mapa Morse
+  return "";
+}
+      </code></pre>
+    </article>
+
+    <!-- Pràctica 5: Mostrar el Text en un LCD -->
+    <article id="lcd">
+      <h3>Pràctica 5: Visualització en un LCD</h3>
+      <p>Objectiu: Mostrar en temps real el text resultant en un display LCD.</p>
+      <p>Exemple de codi Arduino utilitzant la llibreria <code>LiquidCrystal</code>:</p>
+      <pre><code>
+#include <LiquidCrystal.h>
+
+// Configuració dels pins: RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+void setup() {
+  lcd.begin(16, 2);
+  lcd.print("Morse a Text");
+}
+
+void loop() {
+  // Simulació d'entrada de text
+  lcd.setCursor(0, 1);
+  lcd.print("Hola, món!");
+  delay(2000);
+}
+      </code></pre>
+    </article>
+  </section>
+
+  <!-- Secció 4: Projecte Avançat: Integració Web -->
+  <section id="projecte-advanced">
+    <h2>4. Projecte Avançat: Integració Web amb Arduino</h2>
+    <p>Objectiu: Crear una interfície web que mostri en temps real els senyals Morse capturats o enviats per l'Arduino. Es pot utilitzar la Web Serial API per connectar el navegador amb l'Arduino (si el navegador i l'Arduino ho permeten) o establir un servidor intermedi.</p>
+    <p>A continuació, un exemple de codi HTML amb JavaScript per establir la comunicació via la Web Serial API:</p>
+    <pre><code>
+// Exemple bàsic de Web Serial API
+async function connectSerial() {
+  try {
+    const port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 9600 });
+    const reader = port.readable.getReader();
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const text = new TextDecoder().decode(value);
+      document.getElementById('resultat').innerText += text;
+    }
+  } catch (error) {
+    console.error('Error al connectar:', error);
+  }
+}
+
+document.getElementById('connectBtn').addEventListener('click', connectSerial);
+    </code></pre>
+    <p>Inclou aquest codi dins d'aquest mateix HTML per tenir tot el projecte en un sol fitxer:</p>
+    <button id="connectBtn">Connectar Arduino</button>
+    <div id="resultat" style="margin-top:20px; padding:10px; background:#e8e8e8;">
+      Resultats de la comunicació seran mostrats aquí...
+    </div>
+    <p>
+      <em>Nota:</em> La Web Serial API requereix que el navegador sigui compatible i que la pàgina es serveixi a través d'un protocol segur (HTTPS o localhost).
+    </p>
+  </section>
+
+  <!-- Secció 5: Recursos Addicionals -->
+  <section id="recursos">
+    <h2>5. Recursos Addicionals</h2>
+    <ul>
+      <li><a href="https://www.arduino.cc/en/Guide/HomePage" target="_blank">Documentació oficial d'Arduino</a></li>
+      <li><a href="https://www.arduino.cc/en/Tutorial/HomePage" target="_blank">Tutorials d'Arduino</a></li>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API" target="_blank">Documentació Web Serial API</a></li>
+      <li>Llibreria <code>LiquidCrystal</code> per controlar LCDs</li>
+    </ul>
+  </section>
+
+  <!-- Secció 6: Conclusió -->
+  <section id="conclusio">
+    <h2>Resumint...</h2>
+    <p>
+      Aquest projecte et permetrà aprendre de manera progressiva des dels conceptes més bàsics fins a la integració avançada amb interfícies web. A més, tot el contingut està recollit en un únic document HTML per facilitar-ne la consulta i la distribució.
+    </p>
+  </section>
+
+  <footer>
+    <p>Projecte Morse amb Arduino - 2025</p>
+  </footer>
+</body>
+</html>
