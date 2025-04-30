@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magic Eraser</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+      background-color: #ffffff;
+    }
+    #controls {
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    #canvasContainer {
+      border: 1px solid #ccc;
+      overflow: auto;
+      width: 80vw;
+      height: 80vh;
+    }
+    #canvas {
+      transform-origin: 0 0;
+      display: block;
+    }
+    label, button {
+      cursor: pointer;
+    }
+    #brushSize {
+      width: 120px;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label>
+      Upload Image:
+      <input type="file" id="imageLoader" accept="image/*">
+    </label>
+    <button id="eraseBtn">Enable Eraser</button>
+    <label id="brushLabel" style="display:none;">
+      Brush Size:
+      <input type="range" id="brushSize" min="5" max="100" value="20">
+    </label>
+    <button id="undoBtn" disabled>Undo</button>
+    <button id="zoomInBtn">Zoom In</button>
+    <button id="zoomOutBtn">Zoom Out</button>
+    <button id="downloadBtn">Download</button>
+  </div>
+  <div id="canvasContainer">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script>
+    const imageLoader = document.getElementById('imageLoader');
+    const eraseBtn = document.getElementById('eraseBtn');
+    const brushSizeInput = document.getElementById('brushSize');
+    const brushLabel = document.getElementById('brushLabel');
+    const undoBtn = document.getElementById('undoBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('canvasContainer');
+
+    let isErasing = false;
+    let drawing = false;
+    let brushSize = parseInt(brushSizeInput.value, 10);
+    let scale = 1;
+    const bgColor = window.getComputedStyle(document.body).backgroundColor || '#ffffff';
+    const historyStack = [];
+
+    function updateTransform() {
+      canvas.style.transform = `scale(${scale})`;
+    }
+
+    // Load image into canvas and fit
+    imageLoader.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0);
+          // reset history
+          historyStack.length = 0;
+          undoBtn.disabled = true;
+          // fit to container
+          const maxW = container.clientWidth;
+          const maxH = container.clientHeight;
+          scale = Math.min(maxW / canvas.width, maxH / canvas.height, 1);
+          updateTransform();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Toggle eraser mode
+    eraseBtn.addEventListener('click', () => {
+      isErasing = !isErasing;
+      eraseBtn.textContent = isErasing ? 'Disable Eraser' : 'Enable Eraser';
+      brushLabel.style.display = isErasing ? 'inline-block' : 'none';
+      if (isErasing) {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = bgColor;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+      }
+    });
+
+    // Update brush size
+    brushSizeInput.addEventListener('input', () => {
+      brushSize = parseInt(brushSizeInput.value, 10);
+    });
+
+    // Push state to history
+    function saveState() {
+      historyStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      undoBtn.disabled = false;
+    }
+
+    // Undo last erase
+    undoBtn.addEventListener('click', () => {
+      if (historyStack.length > 0) {
+        const imgData = historyStack.pop();
+        ctx.putImageData(imgData, 0, 0);
+      }
+      if (historyStack.length === 0) undoBtn.disabled = true;
+    });
+
+    // Erase (mouse)
+    canvas.addEventListener('mousedown', (e) => {
+      if (!isErasing) return;
+      saveState();
+      drawing = true;
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isErasing || !drawing) return;
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+    });
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+    });
+    canvas.addEventListener('mouseleave', () => {
+      drawing = false;
+    });
+
+    // Erase (touch)
+    canvas.addEventListener('touchstart', (e) => {
+      if (!isErasing) return;
+      saveState();
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const x = (touch.clientX - rect.left) / scale;
+      const y = (touch.clientY - rect.top) / scale;
+      drawing = true;
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    });
+    canvas.addEventListener('touchmove', (e) => {
+      if (!isErasing || !drawing) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const x = (touch.clientX - rect.left) / scale;
+      const y = (touch.clientY - rect.top) / scale;
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    });
+    canvas.addEventListener('touchend', () => {
+      drawing = false;
+    });
+
+    // Zoom controls
+    zoomInBtn.addEventListener('click', () => {
+      scale *= 1.2;
+      updateTransform();
+    });
+    zoomOutBtn.addEventListener('click', () => {
+      scale /= 1.2;
+      updateTransform();
+    });
+
+    // Download image
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'erased_image.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  </script>
+</body>
+</html>
+
