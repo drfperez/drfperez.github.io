@@ -3,63 +3,197 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Magic Eraser</title>
+  <title>Magic Fill Tool</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
+    /* --- Base Styles --- */
     body {
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       margin: 20px;
-      background-color: #ffffff;
+      background-color: #f0f0f0; /* Light background for contrast */
     }
+
+    /* --- Controls Area --- */
     #controls {
-      margin-bottom: 10px;
+      margin-bottom: 15px; /* Space below controls */
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 12px; /* Spacing between controls */
+      align-items: center; /* Vertical alignment */
+      flex-wrap: wrap; /* Allow controls to wrap on smaller screens */
+      padding: 10px;
+      background-color: #ffffff; /* Controls background */
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
     }
+
+    /* --- Canvas Area --- */
     #canvasContainer {
       border: 1px solid #ccc;
-      overflow: auto;
-      width: 80vw;
-      height: 80vh;
+      overflow: auto; /* Enable scrolling when zoomed */
+      width: 85vw; /* Responsive width */
+      max-width: 1000px; /* Max width for large screens */
+      height: 70vh; /* Responsive height */
+      background-color: #ffffff; /* Canvas container background */
+      cursor: default;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     #canvas {
-      transform-origin: 0 0;
+      transform-origin: 0 0; /* Zoom from top-left */
       display: block;
+      cursor: default; /* Default cursor for canvas */
     }
-    label, button {
+
+    /* --- Icon and Button Styling --- */
+
+    /* Base style for Material Symbols */
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; /* Default settings */
+      vertical-align: middle; /* Align icon within buttons */
+      font-size: 24px; /* Icon size */
+      line-height: 1; /* Prevent extra height */
+      user-select: none; /* Prevent icon selection */
+    }
+
+    /* Style buttons and the upload label consistently */
+    #controls button, #controls label#uploadLabel {
+      padding: 8px; /* Padding around icon */
+      min-width: 40px; /* Minimum button width */
+      height: 40px; /* Fixed button height */
+      display: inline-flex; /* Use flex to center icon */
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px; /* Rounded corners */
+      border: 1px solid #ccc;
+      background-color: #e9e9e9; /* Default background */
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease; /* Smooth transitions */
+    }
+     #controls label#uploadLabel:hover,
+     #controls button:not(:disabled):hover {
+        background-color: #dcdcdc; /* Hover effect */
+        border-color: #bbb;
+     }
+    #controls button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5; /* Clearer disabled state */
+    }
+
+     /* Specific style for upload label (acts as button) */
+    #uploadLabel {
+        /* Styles already covered above */
+    }
+    /* Hide the actual file input element */
+    #imageLoader {
+        display: none;
+    }
+
+
+    /* Style for the "active" tool button (Fill) */
+    button.active-tool {
+        background-color: #cce5ff; /* Light blue background when active */
+        border-color: #99caff;
+    }
+    button.active-tool:hover {
+        background-color: #b8daff; /* Slightly darker blue on hover */
+    }
+
+
+    /* Adjust brush size label */
+    #brushLabel {
+      display: none; /* Initially hidden */
+      align-items: center; /* Vertically align icon and range */
+      gap: 6px; /* Space between icon and range */
+      /* Remove button-like styling */
+      border: none;
+      background-color: transparent;
+      padding: 0 5px; /* Add some horizontal padding */
+      cursor: default;
+      height: 40px; /* Match button height */
+    }
+    #brushLabel .material-symbols-outlined {
+       font-size: 22px; /* Slightly smaller brush icon */
+       color: #555; /* Make it less prominent than button icons */
+    }
+    input[type="range"]#brushSize {
+      vertical-align: middle;
+      width: 120px;
       cursor: pointer;
     }
-    #brushSize {
-      width: 120px;
+
+    /* Picked color display */
+    #pickedColorDisplay {
+      width: 25px;
+      height: 25px;
+      border: 1px solid #555; /* Darker border */
+      display: inline-block;
+      vertical-align: middle;
+      background-color: #ffffff; /* Initial color */
+      margin-left: 5px; /* Space from "Picked:" text */
+      border-radius: 3px; /* Slight rounding */
+      box-shadow: inset 0 0 2px rgba(0,0,0,0.2); /* Inner shadow */
+    }
+    #controls > span { /* Style the "Picked:" text label */
+        vertical-align: middle;
+        font-size: 0.9em;
+        color: #333;
+    }
+
+    /* Cursor for color picking mode */
+    .picking-color {
+      cursor: crosshair !important;
     }
   </style>
 </head>
 <body>
+
   <div id="controls">
-    <label>
-      Upload Image:
-      <input type="file" id="imageLoader" accept="image/*">
+    <label id="uploadLabel" for="imageLoader" title="Upload Image">
+         <span class="material-symbols-outlined">upload_file</span>
     </label>
-    <button id="eraseBtn">Enable Eraser</button>
-    <label id="brushLabel" style="display:none;">
-      Brush Size:
-      <input type="range" id="brushSize" min="5" max="100" value="20">
+    <input type="file" id="imageLoader" accept="image/*"> <button id="pickColorBtn" title="Pick Color">
+        <span class="material-symbols-outlined">colorize</span>
+    </button>
+
+    <span>Picked: <span id="pickedColorDisplay"></span></span>
+
+    <button id="fillBtn" disabled title="Enable Fill"> <span class="material-symbols-outlined">format_paint</span>
+    </button>
+
+    <label id="brushLabel" title="Brush Size">
+        <span class="material-symbols-outlined">brush</span>
+        <input type="range" id="brushSize" min="5" max="100" value="20">
     </label>
-    <button id="undoBtn" disabled>Undo</button>
-    <button id="zoomInBtn">Zoom In</button>
-    <button id="zoomOutBtn">Zoom Out</button>
-    <button id="downloadBtn">Download</button>
+
+    <button id="undoBtn" disabled title="Undo">
+         <span class="material-symbols-outlined">undo</span>
+    </button>
+
+    <button id="zoomInBtn" title="Zoom In">
+         <span class="material-symbols-outlined">zoom_in</span>
+    </button>
+    <button id="zoomOutBtn" title="Zoom Out">
+         <span class="material-symbols-outlined">zoom_out</span>
+    </button>
+
+    <button id="downloadBtn" title="Download Image">
+         <span class="material-symbols-outlined">download</span>
+    </button>
   </div>
+
   <div id="canvasContainer">
     <canvas id="canvas"></canvas>
   </div>
 
   <script>
+    // --- DOM Element References ---
     const imageLoader = document.getElementById('imageLoader');
-    const eraseBtn = document.getElementById('eraseBtn');
+    const uploadLabel = document.getElementById('uploadLabel');
+    const pickColorBtn = document.getElementById('pickColorBtn');
+    const pickedColorDisplay = document.getElementById('pickedColorDisplay');
+    const fillBtn = document.getElementById('fillBtn');
     const brushSizeInput = document.getElementById('brushSize');
     const brushLabel = document.getElementById('brushLabel');
     const undoBtn = document.getElementById('undoBtn');
@@ -67,148 +201,287 @@
     const zoomInBtn = document.getElementById('zoomInBtn');
     const zoomOutBtn = document.getElementById('zoomOutBtn');
     const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Performance hint
     const container = document.getElementById('canvasContainer');
 
-    let isErasing = false;
-    let drawing = false;
-    let brushSize = parseInt(brushSizeInput.value, 10);
-    let scale = 1;
-    const bgColor = window.getComputedStyle(document.body).backgroundColor || '#ffffff';
-    const historyStack = [];
+    // --- State Variables ---
+    let isFilling = false;      // Is the fill tool active?
+    let isPickingColor = false; // Is the color picker active?
+    let drawing = false;        // Is the mouse/touch currently down?
+    let brushSize = parseInt(brushSizeInput.value, 10); // Current brush size
+    let scale = 1;              // Current zoom scale
+    let pickedColor = null;     // Stores the picked color (e.g., 'rgba(r,g,b,a)')
+    const historyStack = [];    // Array for undo states (ImageData)
+    let originalImageData = null; // Stores the initial image data for accurate color picking
 
+    // --- Core Functions ---
+
+    // Update canvas scale transform for zooming
     function updateTransform() {
       canvas.style.transform = `scale(${scale})`;
     }
 
-    // Load image into canvas and fit
+    // Get mouse/touch coordinates relative to the canvas, accounting for zoom/scaling
+    function getCanvasCoordinates(event) {
+        const rect = canvas.getBoundingClientRect();
+        let clientX, clientY;
+
+        if (event.touches && event.touches.length > 0) {
+            // Touch event
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+        } else {
+            // Mouse event
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+
+        // Calculate coordinates relative to canvas element, then divide by scale
+        let x = (clientX - rect.left) / scale;
+        let y = (clientY - rect.top) / scale;
+
+        // Clamp coordinates to stay within the actual canvas dimensions
+        x = Math.max(0, Math.min(canvas.width, x));
+        y = Math.max(0, Math.min(canvas.height, y));
+
+        return { x, y };
+    }
+
+    // Save current canvas state to the undo history
+    function saveState() {
+      historyStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      undoBtn.disabled = false; // Enable undo button
+      // Optional: Limit history size to prevent memory issues
+       if (historyStack.length > 15) { // Limit to 15 undo steps
+            historyStack.shift(); // Remove the oldest state
+       }
+    }
+
+    // --- Event Listeners ---
+
+    // Handle Image Upload
     imageLoader.addEventListener('change', function(e) {
       const file = e.target.files[0];
-      if (!file) return;
+      if (!file) return; // Exit if no file selected
       const reader = new FileReader();
       reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
+          // Set canvas dimensions to image dimensions
           canvas.width = img.width;
           canvas.height = img.height;
+          // Clear canvas and draw the new image
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0);
-          // reset history
-          historyStack.length = 0;
-          undoBtn.disabled = true;
-          // fit to container
+          // Store the initial image data for color picking
+          originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+          // --- Reset Application State ---
+          historyStack.length = 0; // Clear undo history
+          undoBtn.disabled = true;  // Disable undo button
+          isFilling = false;       // Deactivate fill tool
+          isPickingColor = false;  // Deactivate color picker
+          pickedColor = null;      // Reset picked color
+          fillBtn.classList.remove('active-tool'); // Deactivate fill button visually
+          fillBtn.title = 'Enable Fill';           // Reset fill button tooltip
+          fillBtn.disabled = true;                // Disable fill button until color is picked
+          brushLabel.style.display = 'none';      // Hide brush slider
+          pickedColorDisplay.style.backgroundColor = '#ffffff'; // Reset color display
+          canvas.classList.remove('picking-color'); // Remove picking cursor class
+          container.style.cursor = 'default';     // Reset container cursor
+          canvas.style.cursor = 'default';        // Reset canvas cursor
+
+          // --- Fit Image to Container ---
           const maxW = container.clientWidth;
           const maxH = container.clientHeight;
+          // Calculate initial scale, ensuring it doesn't exceed 1 (100%)
           scale = Math.min(maxW / canvas.width, maxH / canvas.height, 1);
-          updateTransform();
+          updateTransform(); // Apply initial scale
         };
-        img.src = event.target.result;
+        img.src = event.target.result; // Load image data into Image object
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); // Read the file as a Data URL
     });
 
-    // Toggle eraser mode
-    eraseBtn.addEventListener('click', () => {
-      isErasing = !isErasing;
-      eraseBtn.textContent = isErasing ? 'Disable Eraser' : 'Enable Eraser';
-      brushLabel.style.display = isErasing ? 'inline-block' : 'none';
-      if (isErasing) {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = bgColor;
+    // Activate Color Picking Mode
+    pickColorBtn.addEventListener('click', () => {
+        if (!originalImageData) return; // Cannot pick color if no image is loaded
+
+        isPickingColor = true; // Set picking mode flag
+
+        // Deactivate fill mode if it was active to prevent conflicts
+        if (isFilling) {
+            isFilling = false;
+            fillBtn.classList.remove('active-tool');
+            fillBtn.title = 'Enable Fill';
+            brushLabel.style.display = 'none';
+        }
+
+        // Change cursors to indicate picking mode
+        canvas.classList.add('picking-color');
+        canvasContainer.style.cursor = 'crosshair'; // Change container cursor too
+        canvas.style.cursor = 'crosshair';
+
+        console.log("Color picking mode enabled.");
+    });
+
+    // Handle Click on Canvas (for Color Picking)
+    canvas.addEventListener('click', (e) => {
+        // Only proceed if in picking mode and an image is loaded
+        if (!isPickingColor || !originalImageData) return;
+
+        // Get coordinates where the click occurred
+        const { x, y } = getCanvasCoordinates(e);
+        const ix = Math.floor(x); // Use integer coordinates for pixel indexing
+        const iy = Math.floor(y);
+
+        // Calculate the index in the original image data array
+        // Each pixel takes 4 array elements (R, G, B, A)
+        const pixelIndex = (iy * originalImageData.width + ix) * 4;
+        // Extract RGBA values from the *original* image data
+        const r = originalImageData.data[pixelIndex];
+        const g = originalImageData.data[pixelIndex + 1];
+        const b = originalImageData.data[pixelIndex + 2];
+        const a = originalImageData.data[pixelIndex + 3];
+
+        // Store the picked color as an RGBA string
+        pickedColor = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
+        // Update the visual color display
+        pickedColorDisplay.style.backgroundColor = pickedColor;
+
+        console.log(`Picked color: ${pickedColor} at (${ix}, ${iy})`);
+
+        // --- Exit Picking Mode ---
+        isPickingColor = false;
+        canvas.classList.remove('picking-color'); // Remove special cursor class
+        canvasContainer.style.cursor = 'default'; // Reset container cursor
+        canvas.style.cursor = 'default';        // Reset canvas cursor
+        if (pickedColor) {
+             fillBtn.disabled = false; // Enable the fill button now that a color is picked
+        }
+    });
+
+
+    // Toggle Fill Tool Activation
+    fillBtn.addEventListener('click', () => {
+      // Cannot activate fill if picking color or if no color has been picked yet
+      if (isPickingColor || !pickedColor) return;
+
+      isFilling = !isFilling; // Toggle fill state
+
+      // Update button appearance and tooltip
+      fillBtn.title = isFilling ? 'Disable Fill' : 'Enable Fill';
+      fillBtn.classList.toggle('active-tool', isFilling); // Add/remove 'active-tool' class
+
+      // Show/hide the brush size slider using 'inline-flex' for proper layout
+      brushLabel.style.display = isFilling ? 'inline-flex' : 'none';
+
+      // Configure drawing context and cursor when activating/deactivating
+      if (isFilling) {
+        ctx.globalCompositeOperation = 'source-over'; // Set drawing mode (draw on top)
+        ctx.strokeStyle = pickedColor; // Set the drawing color
+        ctx.lineWidth = brushSize; // Apply current brush size
+        canvas.style.cursor = 'crosshair'; // Set fill cursor (or custom brush)
       } else {
-        ctx.globalCompositeOperation = 'source-over';
+         canvas.style.cursor = 'default'; // Reset cursor when deactivated
       }
     });
 
-    // Update brush size
+    // Update Brush Size from Slider
     brushSizeInput.addEventListener('input', () => {
       brushSize = parseInt(brushSizeInput.value, 10);
+      // If fill tool is active, update the context's line width immediately
+       if (isFilling) {
+            ctx.lineWidth = brushSize;
+       }
     });
 
-    // Push state to history
-    function saveState() {
-      historyStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      undoBtn.disabled = false;
-    }
-
-    // Undo last erase
+    // Undo Last Action
     undoBtn.addEventListener('click', () => {
       if (historyStack.length > 0) {
+        // Remove the last state from the history
         const imgData = historyStack.pop();
+        // Restore the canvas to that state
         ctx.putImageData(imgData, 0, 0);
       }
-      if (historyStack.length === 0) undoBtn.disabled = true;
+      // Disable undo button if history is empty
+      if (historyStack.length === 0) {
+        undoBtn.disabled = true;
+      }
     });
 
-    // Erase (mouse)
-    canvas.addEventListener('mousedown', (e) => {
-      if (!isErasing) return;
-      saveState();
-      drawing = true;
-      ctx.lineWidth = brushSize;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(e.offsetX, e.offsetY);
-    });
-    canvas.addEventListener('mousemove', (e) => {
-      if (!isErasing || !drawing) return;
-      ctx.lineTo(e.offsetX, e.offsetY);
-      ctx.stroke();
-    });
-    canvas.addEventListener('mouseup', () => {
-      drawing = false;
-    });
-    canvas.addEventListener('mouseleave', () => {
-      drawing = false;
-    });
+    // --- Drawing Event Handlers (using unified functions) ---
 
-    // Erase (touch)
-    canvas.addEventListener('touchstart', (e) => {
-      if (!isErasing) return;
-      saveState();
-      e.preventDefault();
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      const x = (touch.clientX - rect.left) / scale;
-      const y = (touch.clientY - rect.top) / scale;
-      drawing = true;
-      ctx.lineWidth = brushSize;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-    });
-    canvas.addEventListener('touchmove', (e) => {
-      if (!isErasing || !drawing) return;
-      e.preventDefault();
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      const x = (touch.clientX - rect.left) / scale;
-      const y = (touch.clientY - rect.top) / scale;
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    });
-    canvas.addEventListener('touchend', () => {
-      drawing = false;
-    });
+    function startDrawing(e) {
+        if (!isFilling) return; // Only draw if fill tool is active
+        // Prevent drawing if color picking is somehow still active (safety check)
+        if (isPickingColor) return;
+        saveState(); // Save state *before* starting the stroke
+        drawing = true;
+        const { x, y } = getCanvasCoordinates(e); // Get starting coordinates
+        // Configure brush properties
+        ctx.lineWidth = brushSize;
+        ctx.lineCap = 'round'; // Round ends for smoother strokes
+        ctx.lineJoin = 'round'; // Round corners for smoother turns
+        ctx.strokeStyle = pickedColor; // Ensure color is set
+        ctx.globalCompositeOperation = 'source-over'; // Ensure drawing mode
+        // Start the drawing path
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
 
-    // Zoom controls
+    function draw(e) {
+        if (!isFilling || !drawing) return; // Only draw if filling and mouse/touch is down
+        e.preventDefault(); // Prevent page scrolling on touch devices while drawing
+        const { x, y } = getCanvasCoordinates(e); // Get current coordinates
+        ctx.lineTo(x, y); // Draw a line segment to the new point
+        ctx.stroke();     // Render the segment
+    }
+
+    function stopDrawing() {
+        if (!isFilling || !drawing) return; // Only stop if filling and was drawing
+        // Could optionally call ctx.closePath() here if filling shapes, but not needed for lines.
+        drawing = false; // Set drawing flag to false
+    }
+
+    // Attach Drawing Handlers to Canvas Events
+    // Mouse Events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing); // Stop if mouse leaves canvas while drawing
+    // Touch Events
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('touchcancel', stopDrawing); // Handle interruptions like system alerts
+
+    // Zoom Controls
     zoomInBtn.addEventListener('click', () => {
-      scale *= 1.2;
-      updateTransform();
+      scale *= 1.2; // Increase scale factor
+      updateTransform(); // Apply new scale
     });
     zoomOutBtn.addEventListener('click', () => {
-      scale /= 1.2;
-      updateTransform();
+      scale /= 1.2; // Decrease scale factor
+      // Optional: Prevent zooming out too much
+      // scale = Math.max(0.1, scale);
+      updateTransform(); // Apply new scale
     });
 
-    // Download image
+    // Download Image
     downloadBtn.addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.download = 'erased_image.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+        // Ensure there is an image on the canvas to download
+        if (!originalImageData && historyStack.length === 0) {
+            alert("Please load an image first."); // Or provide better feedback
+            return;
+        }
+        const link = document.createElement('a'); // Create temporary link element
+        link.download = 'filled_image.png';      // Set default filename
+        link.href = canvas.toDataURL('image/png'); // Get canvas content as PNG data URL
+        link.click();                             // Simulate click to trigger download
     });
+
   </script>
+
 </body>
 </html>
-
