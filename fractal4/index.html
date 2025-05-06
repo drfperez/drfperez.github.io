@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buddhabrot Fractal Generator</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #infoPanel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 600px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #controls {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+        .sliderContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        canvas {
+            transform: rotate(90deg);
+            border: 1px solid #555;
+            margin-top: 20px;
+        }
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            font-size: 20px;
+            flex-direction: column;
+        }
+        #loadingOverlay span {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loadingOverlay">
+        <span>Rendering Buddhabrot... Please wait</span>
+    </div>
+
+    <h2>Buddhabrot Fractal Generator</h2>
+
+    <div id="infoPanel">
+        <p>The Buddhabrot is a unique rendering of the Mandelbrot fractal. With its meditative patterns, 
+        it resembles the form of Buddha. Use the sliders to adjust iterations, brightness, and color 
+        intensity to explore the fractal’s details.</p>
+    </div>
+
+    <div id="controls">
+        <div class="sliderContainer">
+            <label for="iterations">Iterations: <span id="iterationValue">1000</span></label>
+            <input type="range" id="iterations" min="100" max="5000" value="1000">
+        </div>
+        <div class="sliderContainer">
+            <label for="brightness">Brightness: <span id="brightnessValue">50</span></label>
+            <input type="range" id="brightness" min="1" max="100" value="50">
+        </div>
+        <div class="sliderContainer">
+            <label for="colorFactor">Color Factor: <span id="colorFactorValue">2</span></label>
+            <input type="range" id="colorFactor" min="1" max="10" value="2">
+        </div>
+    </div>
+
+    <canvas id="buddhabrotCanvas" width="800" height="800"></canvas>
+
+    <script>
+        const canvas = document.getElementById('buddhabrotCanvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.height;
+        const height = canvas.width;
+
+        let maxIterations = 1000;
+        let brightness = 50;
+        let colorFactor = 2;
+        let data = new Uint32Array(width * height);
+
+        // Show loading overlay
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        function hideLoadingOverlay() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        // Slider event listeners
+        document.getElementById('iterations').addEventListener('input', (event) => {
+            maxIterations = event.target.value;
+            document.getElementById('iterationValue').innerText = maxIterations;
+            resetAndRender();
+        });
+
+        document.getElementById('brightness').addEventListener('input', (event) => {
+            brightness = event.target.value;
+            document.getElementById('brightnessValue').innerText = brightness;
+            resetAndRender();
+        });
+
+        document.getElementById('colorFactor').addEventListener('input', (event) => {
+            colorFactor = event.target.value;
+            document.getElementById('colorFactorValue').innerText = colorFactor;
+            resetAndRender();
+        });
+
+        function buddhabrotPoint(cX, cY, iterations) {
+            let x = 0, y = 0;
+            let i = 0;
+            const points = [];
+
+            while (x * x + y * y < 4 && i < iterations) {
+                const tempX = x * x - y * y + cX;
+                y = 2 * x * y + cY;
+                x = tempX;
+                points.push({ x, y });
+                i++;
+            }
+
+            return i === iterations ? [] : points;
+        }
+
+        function renderChunk(xStart, xEnd, onFinish) {
+            for (let x = xStart; x < xEnd; x += 0.002) {
+                for (let y = -2; y < 2; y += 0.002) {
+                    const points = buddhabrotPoint(x, y, maxIterations);
+
+                    points.forEach(point => {
+                        const screenX = Math.floor((point.x + 2) * width / 4);
+                        const screenY = Math.floor((point.y + 2) * height / 4);
+
+                        if (screenX >= 0 && screenX < width && screenY >= 0 && screenY < height) {
+                            data[screenY * width + screenX]++;
+                        }
+                    });
+                }
+            }
+
+            // Once this chunk is processed, trigger next chunk
+            onFinish();
+        }
+
+        function drawBuddhabrot() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 0; i < width * height; i++) {
+                const value = Math.min(data[i] * colorFactor, 255);
+                const alpha = Math.min(value * brightness / 100, 255);
+                ctx.fillStyle = `rgba(${value}, ${value / 2}, ${255 - value}, ${alpha / 255})`;
+                ctx.fillRect(i % width, Math.floor(i / width), 1, 1);
+            }
+
+            hideLoadingOverlay();
+        }
+
+        function renderBuddhabrot() {
+            data = new Uint32Array(width * height);
+
+            let xStart = -2;
+            function renderLoop() {
+                if (xStart < 2) {
+                    // Render a chunk and then request the next frame
+                    renderChunk(xStart, xStart + 0.5, () => {
+                        xStart += 0.5;
+                        requestAnimationFrame(renderLoop);
+                    });
+                } else {
+                    drawBuddhabrot();
+                }
+            }
+            renderLoop();
+        }
+
+        function resetAndRender() {
+            loadingOverlay.style.display = 'flex';
+            renderBuddhabrot();
+        }
+
+        // Initial render on load
+        window.onload = resetAndRender;
+    </script>
+</body>
+</html>
