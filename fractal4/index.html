@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buddhabrot Fractal Generator</title>
+    <title>Generador de Fractals de Buddhabrot</title>
     <style>
         body {
             display: flex;
@@ -65,66 +65,55 @@
     </style>
 </head>
 <body>
-
     <div id="loadingOverlay">
-        <span>Rendering Buddhabrot... Please wait</span>
+        <span>Generant el Buddhabrot... Si us plau, espereu</span>
     </div>
-
-    <h2>Buddhabrot Fractal Generator</h2>
-
+    <h2>Generador de Fractals de Buddhabrot</h2>
     <div id="infoPanel">
-        <p>The Buddhabrot is a unique rendering of the Mandelbrot fractal. With its meditative patterns, 
-        it resembles the form of Buddha. Use the sliders to adjust iterations, brightness, and color 
-        intensity to explore the fractal’s details.</p>
+        <p>El Buddhabrot és una representació única del fractal de Mandelbrot. Amb els seus patrons meditatius, s'assembla a la forma de Buda. Utilitzeu els lliscadors per ajustar les iteracions, la brillantor i la intensitat del color per explorar els detalls del fractal.</p>
     </div>
-
     <div id="controls">
         <div class="sliderContainer">
-            <label for="iterations">Iterations: <span id="iterationValue">1000</span></label>
+            <label for="iterations">Iteracions: <span id="iterationValue">1000</span></label>
             <input type="range" id="iterations" min="100" max="5000" value="1000">
         </div>
         <div class="sliderContainer">
-            <label for="brightness">Brightness: <span id="brightnessValue">50</span></label>
+            <label for="brightness">Brillantor: <span id="brightnessValue">50</span></label>
             <input type="range" id="brightness" min="1" max="100" value="50">
         </div>
         <div class="sliderContainer">
-            <label for="colorFactor">Color Factor: <span id="colorFactorValue">2</span></label>
+            <label for="colorFactor">Factor de Color: <span id="colorFactorValue">2</span></label>
             <input type="range" id="colorFactor" min="1" max="10" value="2">
         </div>
     </div>
-
     <canvas id="buddhabrotCanvas" width="800" height="800"></canvas>
-
     <script>
         const canvas = document.getElementById('buddhabrotCanvas');
         const ctx = canvas.getContext('2d');
         const width = canvas.height;
         const height = canvas.width;
-
         let maxIterations = 1000;
         let brightness = 50;
         let colorFactor = 2;
         let data = new Uint32Array(width * height);
 
-        // Show loading overlay
+        // Mostra la capa de càrrega
         const loadingOverlay = document.getElementById('loadingOverlay');
         function hideLoadingOverlay() {
             loadingOverlay.style.display = 'none';
         }
 
-        // Slider event listeners
+        // Listeners d'esdeveniments dels lliscadors
         document.getElementById('iterations').addEventListener('input', (event) => {
             maxIterations = event.target.value;
             document.getElementById('iterationValue').innerText = maxIterations;
             resetAndRender();
         });
-
         document.getElementById('brightness').addEventListener('input', (event) => {
             brightness = event.target.value;
             document.getElementById('brightnessValue').innerText = brightness;
             resetAndRender();
         });
-
         document.getElementById('colorFactor').addEventListener('input', (event) => {
             colorFactor = event.target.value;
             document.getElementById('colorFactorValue').innerText = colorFactor;
@@ -135,7 +124,6 @@
             let x = 0, y = 0;
             let i = 0;
             const points = [];
-
             while (x * x + y * y < 4 && i < iterations) {
                 const tempX = x * x - y * y + cX;
                 y = 2 * x * y + cY;
@@ -143,7 +131,6 @@
                 points.push({ x, y });
                 i++;
             }
-
             return i === iterations ? [] : points;
         }
 
@@ -151,42 +138,36 @@
             for (let x = xStart; x < xEnd; x += 0.002) {
                 for (let y = -2; y < 2; y += 0.002) {
                     const points = buddhabrotPoint(x, y, maxIterations);
-
                     points.forEach(point => {
                         const screenX = Math.floor((point.x + 2) * width / 4);
                         const screenY = Math.floor((point.y + 2) * height / 4);
-
                         if (screenX >= 0 && screenX < width && screenY >= 0 && screenY < height) {
                             data[screenY * width + screenX]++;
                         }
                     });
                 }
             }
-
-            // Once this chunk is processed, trigger next chunk
+            // Un cop aquest fragment s'ha processat, activa el següent fragment
             onFinish();
         }
 
         function drawBuddhabrot() {
             ctx.clearRect(0, 0, width, height);
-
             for (let i = 0; i < width * height; i++) {
                 const value = Math.min(data[i] * colorFactor, 255);
                 const alpha = Math.min(value * brightness / 100, 255);
                 ctx.fillStyle = `rgba(${value}, ${value / 2}, ${255 - value}, ${alpha / 255})`;
                 ctx.fillRect(i % width, Math.floor(i / width), 1, 1);
             }
-
             hideLoadingOverlay();
         }
 
         function renderBuddhabrot() {
             data = new Uint32Array(width * height);
-
             let xStart = -2;
             function renderLoop() {
                 if (xStart < 2) {
-                    // Render a chunk and then request the next frame
+                    // Renderitza un fragment i després sol·licita el següent frame
                     renderChunk(xStart, xStart + 0.5, () => {
                         xStart += 0.5;
                         requestAnimationFrame(renderLoop);
@@ -203,7 +184,7 @@
             renderBuddhabrot();
         }
 
-        // Initial render on load
+        // Renderització inicial en carregar la finestra
         window.onload = resetAndRender;
     </script>
 </body>
