@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ca"> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualitzador Fractal d'Àudio</title> <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            min-height: 100vh;
+            background-color: #0d335f;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        canvas {
+            border: 2px solid white;
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+        #audio-upload, #shape-selector, #mic-button { /* Afegit #mic-button */
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        #mic-button {
+            background-color: #4CAF50; /* Verd */
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        #mic-button.active {
+            background-color: #f44336; /* Vermell */
+        }
+        #song-title {
+            color: white;
+            margin-top: 10px;
+            font-size: 18px;
+            text-align: center;
+            min-height: 27px; /* Per evitar salt quan el text canvia */
+            word-break: break-all;
+        }
+        .main-title { /* Estil per al títol principal */
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+         label {
+            color: white; 
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+</head>
+<body>
+    <h1 class="main-title">Visualitzador Fractal d'Àudio</h1> <div class="controls-container">
+        <label for="audio-upload">Puja un arxiu d'àudio:</label> <input type="file" id="audio-upload" accept="audio/*" />
+        
+        <label for="shape-selector">Selecciona un fractal:</label> <select id="shape-selector">
+            <option value="fractal5">Conjunt de Mandelbrot</option> <option value="fractal6">Conjunt de Julia</option> <option value="fractal7">Fractal Burning Ship</option> <option value="fractal8">Fractal Multibrot</option> </select>
+
+        <button id="mic-button">Activar Micròfon</button> <h2 id="song-title">Cap arxiu seleccionat</h2> <audio id="player" class="plyr" controls loop></audio> </div>
+
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+    <script>
+        let amplitude, fft, song, mic;
+        let selectedShape = 'fractal5'; // Valor inicial
+        let player;
+        let isMicActive = false;
+        let canvasElement;
+
+        // Paràmetres de zoom i desplaçament (pan)
+        let zoom = 1.0;
+        let offsetX = -0.5; // Centre X per Mandelbrot/Multibrot/BurningShip
+        let offsetY = 0.0;  // Centre Y
+        let juliaCX = -0.7; // Paràmetre c real per Julia
+        let juliaCY = 0.27015; // Paràmetre c imaginari per Julia
+
+        function setup() {
+            canvasElement = createCanvas(600, 600);
+            canvasElement.parent(document.body);
+            pixelDensity(1); // Important per a la manipulació de píxels
+            
+            amplitude = new p5.Amplitude();
+            fft = new p5.FFT(0.8, 256); // Smoothing, bins
+
+            mic = new p5.AudioIn();
+
+            document.getElementById('audio-upload').addEventListener('change', handleFileUpload);
+            document.getElementById('shape-selector').addEventListener('change', function() {
+                selectedShape = this.value;
+                 // Reiniciar zoom/pan en canviar de fractal pot ser una bona idea
+                resetFractalParameters();
+                if ((song && (song.isPlaying() || player.playing)) || isMicActive) {
+                    loop(); 
+                } else {
+                    noLoop(); 
+                    clearCanvasWithMessage("Canvi de fractal. Carrega àudio o activa micròfon.");
+                }
+            });
+            // Estableix el valor inicial del selector
+            document.getElementById('shape-selector').value = selectedShape;
+
+
+            document.getElementById('mic-button').addEventListener('click', toggleMicrophone);
+
+            player = new Plyr('#player', {
+                listeners: {
+                    play: () => {
+                        if (isMicActive) {
+                            toggleMicrophone(false);
+                        }
+                        if (song) {
+                            if (!song.isPlaying()) song.play(); 
+                            amplitude.setInput(song);
+                            fft.setInput(song);
+                            loop();
+                        }
+                    },
+                    pause: () => {
+                        if (song && song.isPlaying()) song.pause();
+                        if (!isMicActive) {
+                             noLoop();
+                             clearCanvasWithMessage("Àudio pausat.");
+                        }
+                    },
+                    ended: () => {
+                        if (!player.loop && !isMicActive) { // Plyr gestiona el seu propi bucle si està activat
+                            noLoop();
+                            clearCanvasWithMessage("Àudio finalitzat.");
+                        }
+                    }
+                }
+            });
+            player.elements.container.style.maxWidth = '300px';
+            player.elements.container.style.margin = '0 auto';
+
+            noLoop(); 
+            clearCanvasWithMessage("Puja un arxiu d'àudio o activa el micròfon");
+        }
+        
+        function resetFractalParameters() {
+            zoom = 1.0;
+            if (selectedShape === 'fractal5' || selectedShape === 'fractal8') { // Mandelbrot, Multibrot
+                offsetX = -0.5; offsetY = 0.0;
+            } else if (selectedShape === 'fractal7') { // Burning Ship
+                offsetX = -0.5; offsetY = -0.5; // Un centre típic per Burning Ship
+            } else if (selectedShape === 'fractal6') { // Julia
+                offsetX = 0.0; offsetY = 0.0; // El rang de Julia sol estar centrat a (0,0)
+                juliaCX = -0.7; juliaCY = 0.27015; // Valors clàssics per Julia
+            }
+        }
+
+
+        function clearCanvasWithMessage(message) {
+            background('#0d335f'); 
+            fill(220);
+            textAlign(CENTER, CENTER);
+            textSize(18);
+            text(message, width / 2, height / 2);
+        }
+
+        function toggleMicrophone(forceState) {
+            const micButton = document.getElementById('mic-button');
+            const songTitle = document.getElementById('song-title');
+            
+            if (typeof getAudioContext === 'function' && getAudioContext().state === 'suspended') {
+                getAudioContext().resume().catch(e => console.error("Error en reprendre AudioContext:", e));
+            }
+
+            let shouldBeActive = forceState !== undefined ? forceState : !isMicActive;
+
+            if (shouldBeActive) {
+                if (song && song.isPlaying()) {
+                    song.pause(); 
+                    player.pause();
+                }
+                mic.start(() => { 
+                    amplitude.setInput(mic);
+                    fft.setInput(mic);
+                    isMicActive = true;
+                    micButton.textContent = 'Desactivar Micròfon';
+                    micButton.classList.add('active');
+                    songTitle.textContent = 'Micròfon Actiu';
+                    loop();
+                }, (err) => { 
+                    console.error("Error en accedir al micròfon:", err);
+                    songTitle.textContent = "Error d'accés al micròfon";
+                    isMicActive = false; 
+                    micButton.textContent = 'Activar Micròfon';
+                    micButton.classList.remove('active');
+                });
+            } else { 
+                mic.stop();
+                isMicActive = false;
+                micButton.textContent = 'Activar Micròfon';
+                micButton.classList.remove('active');
+                
+                const currentFile = document.getElementById('audio-upload').files[0];
+                songTitle.textContent = currentFile ? currentFile.name : "Cap arxiu seleccionat";
+
+                if (song && player.source) { 
+                    amplitude.setInput(song); 
+                    fft.setInput(song);
+                    if (player.playing) { 
+                        if(!song.isPlaying()) song.play();
+                        loop();
+                    } else {
+                        noLoop();
+                        clearCanvasWithMessage(currentFile ? "Àudio pausat." : "Cap arxiu seleccionat.");
+                    }
+                } else {
+                    noLoop();
+                    clearCanvasWithMessage("Cap arxiu seleccionat.");
+                }
+            }
+        }
+
+        function draw() {
+            // No netegem el fons aquí (background('#0d335f');) perquè els fractals pinten tots els píxels.
+            // Fer-ho aquí causaria parpelleig. Es farà a clearCanvasWithMessage quan calgui.
+
+            let level = 0;
+            let spectrum = [];
+            let avgFreq = 0;
+
+            if (isMicActive && mic.enabled) { 
+                level = amplitude.getLevel();
+                spectrum = fft.analyze();
+            } else if (song && song.isPlaying()) {
+                level = amplitude.getLevel();
+                spectrum = fft.analyze();
+            } else { 
+                noLoop(); 
+                // No es neteja el canvas aquí per mantenir l'últim frame del fractal visible
+                return;
+            }
+            
+            if (spectrum.length > 0) {
+                 let usefulSpectrum = spectrum.slice(0, Math.floor(spectrum.length / 2));
+                 avgFreq = usefulSpectrum.reduce((a, b) => a + b, 0) / (usefulSpectrum.length || 1);
+            } else {
+                avgFreq = 0; 
+            }
+
+            // Ajust dinàmic del zoom i paràmetres basat en àudio
+            // El zoom disminueix (fa zoom in) amb més nivell.
+            zoom = map(level, 0, 0.6, 1.0, 0.7 + sin(frameCount*0.01)*0.1); // Zoom suaument variable
+            zoom = constrain(zoom, 0.1, 2.0); // Limita el zoom
+
+            // Petits desplaçaments (pan) amb la freqüència i el nivell
+            offsetX += map(avgFreq, 0, 100, -0.001, 0.001) * (1/zoom); // Més zoom, menys pan
+            offsetY += map(level, 0, 0.5, -0.001, 0.001) * (1/zoom);
+            
+            // Limitar el desplaçament per evitar perdre el fractal
+            offsetX = constrain(offsetX, -2, 1); 
+            offsetY = constrain(offsetY, -1.5, 1.5);
+
+
+            if (selectedShape === 'fractal5') { // Mandelbrot
+                drawMandelbrot(level, avgFreq, spectrum);
+            } else if (selectedShape === 'fractal6') { // Julia
+                // Ajusta els paràmetres de Julia amb l'àudio i el temps
+                juliaCX = map(level, 0, 0.7, -0.72, -0.78) + sin(frameCount * 0.005 + avgFreq*0.01) * 0.05;
+                juliaCY = map(avgFreq, 0, 120, 0.25, 0.30) + cos(frameCount * 0.008 - level*0.1) * 0.03;
+                drawJuliaSet(level, avgFreq, spectrum);
+            } else if (selectedShape === 'fractal7') { // Burning Ship
+                // Burning ship pot necessitar un rang de desplaçament diferent
+                offsetX = constrain(offsetX, -2, 0.5); 
+                offsetY = constrain(offsetY, -1, -0.2); // Ajustat per a Burning Ship
+                drawBurningShip(level, avgFreq, spectrum);
+            } else if (selectedShape === 'fractal8') { // Multibrot
+                drawMultibrot(level, avgFreq, spectrum);
+            }
+        }
+
+        function getColorForPixel(n, maxIterations, level, avgFreq, spectrumValue) {
+            colorMode(HSB, 360, 100, 100); // Max Hue, Sat, Bri
+            if (n === maxIterations) {
+                return color(0, 0, 0); // Interior del conjunt (negre)
+            }
+
+            // Mapeig més suau del to, influenciat per avgFreq
+            let hue = map(sqrt(n / maxIterations), 0, 1, 180, 360 + map(avgFreq,0,128,0,60)); // Tons blaus a vermells/magentes
+            hue = (hue + frameCount * map(level,0,1,0.1,0.5)) % 360; // Rotació de to amb el temps i nivell
+            
+            // Saturació alta per a colors vius
+            let saturation = 90 + map(spectrumValue,0,255,0,10); // Lleugera variació amb el valor de l'espectre
+            saturation = constrain(saturation, 80, 100);
+
+            // Brillantor basada en 'n' i influenciada per 'level'
+            let brightness = map(n, 0, maxIterations, 40, 100);
+            brightness = brightness * (0.7 + level * 0.6); // Més brillant amb més nivell
+            brightness = constrain(brightness, 30, 100);
+            
+            let c = color(hue, saturation, brightness);
+            return c;
+        }
+
+
+        function drawMandelbrot(level, avgFreq, spectrum) {
+            loadPixels();
+            let maxIterations = floor(map(level, 0, 0.7, 50, 250)); // Més iteracions si hi ha més 'level'
+            maxIterations = max(30, maxIterations); // Mínim d'iteracions
+
+            let baseRangeX = 2.5 / zoom;
+            let baseRangeY = 2.0 / zoom;
+
+
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    // Coordenades en el pla complex, ajustades per zoom i desplaçament
+                    let a = map(x, 0, width, offsetX - baseRangeX, offsetX + baseRangeX);
+                    let b = map(y, 0, height, offsetY - baseRangeY, offsetY + baseRangeY);
+                    
+                    let ca = a; // Constant c per a Mandelbrot és el mateix punt (a,b)
+                    let cb = b;
+                    let n = 0;
+
+                    while (n < maxIterations) {
+                        let aa = a * a - b * b; // Part real de z^2
+                        let bb = 2 * a * b;     // Part imaginària de z^2
+                        a = aa + ca;            // z_n+1 = z_n^2 + c
+                        b = bb + cb;
+                        if (a * a + b * b > 16) { // Si |z|^2 > R^2 (aquí R=4, R^2=16)
+                            break; // El punt escapa
+                        }
+                        n++;
+                    }
+                    
+                    let spectrumValue = spectrum[floor(x * spectrum.length / width)];
+                    let col = getColorForPixel(n, maxIterations, level, avgFreq, spectrumValue);
+                    
+                    let pix = (x + y * width) * 4;
+                    pixels[pix + 0] = red(col);
+                    pixels[pix + 1] = green(col);
+                    pixels[pix + 2] = blue(col);
+                    pixels[pix + 3] = 255; // Alpha
+                }
+            }
+            updatePixels();
+        }
+
+        function drawJuliaSet(level, avgFreq, spectrum) {
+            loadPixels();
+            let maxIterations = floor(map(level, 0, 0.7, 60, 280));
+            maxIterations = max(30, maxIterations);
+
+            let baseRange = 1.5 / zoom;
+
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    let zx = map(x, 0, width, offsetX - baseRange, offsetX + baseRange); 
+                    let zy = map(y, 0, height, offsetY - baseRange, offsetY + baseRange);
+                    
+                    let n = 0;
+                    while (n < maxIterations) {
+                        let xtemp = zx * zx - zy * zy + juliaCX; // Utilitza juliaCX i juliaCY
+                        zy = 2 * zx * zy + juliaCY;
+                        zx = xtemp;
+                        if (zx * zx + zy * zy > 4) {
+                            break;
+                        }
+                        n++;
+                    }
+                    
+                    let spectrumValue = spectrum[floor(y * spectrum.length / height)]; // Variació amb y per canviar
+                    let col = getColorForPixel(n, maxIterations, level, avgFreq, spectrumValue);
+
+                    let pix = (x + y * width) * 4;
+                    pixels[pix + 0] = red(col);
+                    pixels[pix + 1] = green(col);
+                    pixels[pix + 2] = blue(col);
+                    pixels[pix + 3] = 255;
+                }
+            }
+            updatePixels();
+        }
+
+        function drawBurningShip(level, avgFreq, spectrum) {
+            loadPixels();
+            let maxIterations = floor(map(level, 0, 0.7, 50, 250));
+            maxIterations = max(30, maxIterations);
+            
+            let baseRangeX = 2.0 / zoom;
+            let baseRangeY = 1.5 / zoom;
+
+
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    let a = map(x, 0, width, offsetX - baseRangeX, offsetX + baseRangeX);
+                    let b = map(y, 0, height, offsetY - baseRangeY, offsetY + baseRangeY);
+                    let ca = a;
+                    let cb = b;
+                    let n = 0;
+
+                    while (n < maxIterations) {
+                        let aa = a * a - b * b + ca;
+                        let bb = abs(2 * a * b) + cb; // La clau del Burning Ship: abs()
+                        a = aa;
+                        b = bb;
+                        if (a * a + b * b > 16) {
+                            break;
+                        }
+                        n++;
+                    }
+                    
+                    let spectrumValue = spectrum[floor((x + y) % spectrum.length)];
+                    let col = getColorForPixel(n, maxIterations, level, avgFreq, spectrumValue);
+
+                    let pix = (x + y * width) * 4;
+                    pixels[pix + 0] = red(col);
+                    pixels[pix + 1] = green(col);
+                    pixels[pix + 2] = blue(col);
+                    pixels[pix + 3] = 255;
+                }
+            }
+            updatePixels();
+        }
+
+        function drawMultibrot(level, avgFreq, spectrum) {
+            loadPixels();
+            let maxIterations = floor(map(level, 0, 0.7, 50, 200));
+            maxIterations = max(30, maxIterations);
+            
+            // La potència del Multibrot canvia amb la freqüència mitjana
+            let power = map(avgFreq, 0, 150, 2, 6); 
+            power = constrain(power, 1.5, 8.0); // Evita valors extrems
+
+            let baseRange = 2.0 / zoom;
+
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    let zx = map(x, 0, width, offsetX - baseRange, offsetX + baseRange);
+                    let zy = map(y, 0, height, offsetY - baseRange, offsetY + baseRange);
+                    let cx = zx; // c és el punt inicial per a Multibrot (z_0 = 0, c = punt actual)
+                    let cy = zy; 
+                    
+                    // Per Multibrot, z_0 és (0,0) i c és el punt del pla.
+                    // La iteració és z_{n+1} = z_n^power + c
+                    // Aquí estic implementant z_{n+1} = z_n^power + z_0 (com Mandelbrot),
+                    // on z_0 és el punt del pla (cx, cy) i el z inicial de la iteració és (zx,zy) = (cx,cy).
+                    // Per ser estrictament z_n^power + c, amb z_0 = 0, hauria de ser:
+                    // zx_iter = 0, zy_iter = 0;
+                    // ... loop ...
+                    //   ... calcula zx_new, zy_new a partir de zx_iter, zy_iter ...
+                    //   zx_iter = zx_new + cx; zy_iter = zy_new + cy;
+
+                    // Mantindré la forma actual que és més semblant a la implementació de Mandelbrot
+                    // on el 'c' additiu és el punt original del pla.
+                    // (zx,zy) és el z actual, (cx,cy) és el punt c fix.
+                    
+                    let n = 0;
+                    while (n < maxIterations) {
+                        // Converteix z a coordenades polars (r, theta)
+                        let r_sq = zx * zx + zy * zy;
+                        if (r_sq > 16) break; // Condició d'escapament
+
+                        let r_pow_power_div_2 = pow(r_sq, power / 2.0); // r^power
+                        let angle_mult_power = atan2(zy, zx) * power;    // power * theta
+
+                        // Converteix de nou a cartesianes i suma c
+                        zx = r_pow_power_div_2 * cos(angle_mult_power) + cx;
+                        zy = r_pow_power_div_2 * sin(angle_mult_power) + cy;
+                        
+                        n++;
+                    }
+                    
+                    let spectrumValue = spectrum[floor(x * spectrum.length / width)];
+                    let col = getColorForPixel(n, maxIterations, level, avgFreq, spectrumValue);
+
+                    let pix = (x + y * width) * 4;
+                    pixels[pix + 0] = red(col);
+                    pixels[pix + 1] = green(col);
+                    pixels[pix + 2] = blue(col);
+                    pixels[pix + 3] = 255;
+                }
+            }
+            updatePixels();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            const songTitle = document.getElementById('song-title');
+
+            if (file && file.type.startsWith('audio/')) {
+                let fileURL = URL.createObjectURL(file);
+                
+                if (isMicActive) {
+                    toggleMicrophone(false); 
+                }
+
+                document.getElementById('player').src = fileURL; 
+                songTitle.textContent = file.name;
+                
+                if (song) { 
+                    song.stop();
+                     if (typeof song.disconnect === 'function') song.disconnect(); // Allibera connexions anteriors
+                }
+                
+                loadSound(fileURL, loadedP5Sound => {
+                    song = loadedP5Sound; 
+                    song.setLoop(true); // Assegura que p5.SoundFile també faci bucle
+                    amplitude.setInput(song);
+                    fft.setInput(song);
+                    noLoop(); 
+                    clearCanvasWithMessage("Arxiu carregat: " + file.name + ". Prem play.");
+                    // No fem play aquí, Plyr ho farà i activarà el nostre listener.
+                }, err => {
+                    console.error("Error en carregar el so (p5.sound):", err);
+                    songTitle.textContent = "Error en carregar l'àudio";
+                });
+
+            } else {
+                songTitle.textContent = 'Error: Arxiu no vàlid';
+                console.error('Please upload a valid audio file');
+            }
+        }
+    </script>
+</body>
+</html>
