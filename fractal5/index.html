@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fractals Emocionals HSL - Exposició</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/ml5js/Intro-ML-Arts-IMA@ml5-build-10-7-19/ml5_build/ml5.min.js"></script>
+  <style>
+    html, body {
+      margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
+      background: #111;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #eee;
+      user-select: none;
+    }
+    #info {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.65);
+      padding: 25px 50px;
+      border-radius: 20px;
+      font-size: 3.2rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.05em;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+      max-width: 95vw;
+      line-height: 1.3;
+      pointer-events: none;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #info .label {
+      font-size: 1.6rem;
+      font-weight: 400;
+      opacity: 0.75;
+      margin-bottom: 0.3em;
+      font-style: italic;
+      letter-spacing: 0.02em;
+      display: block;
+    }
+    #sentiment-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6em;
+    }
+    #emocio {
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 14px #000a;
+      letter-spacing: 0.04em;
+    }
+    #intensitat {
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: #6cf;
+      text-shadow: 0 2px 8px #000a;
+      margin-left: 0.2em;
+    }
+    #loading-screen {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      color: #eee;
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .loader {
+      width: 56px;
+      height: 56px;
+      border: 7px solid #5af;
+      border-top: 7px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-screen">
+    <div class="loader"></div>
+    <p>Carregant models, si us plau, espera…</p>
+  </div>
+  <div id="info">
+    <span class="label">Expressió</span>
+    <div id="sentiment-row">
+      <span id="emocio">-</span>
+      <span id="intensitat">-</span>
+    </div>
+  </div>
+  <script>
+    let faceapi, detections = [], video;
+    let fractalBuffer, V_W, V_H;
+
+    // Traducció dels sentiments a català
+    const sentimentsCatala = {
+      happy: 'Feliç',
+      sad: 'Trist',
+      angry: 'Enfadat',
+      fearful: 'Por',
+      surprised: 'Sorprès',
+      disgusted: 'Fàstic',
+      neutral: 'Neutral'
+    };
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      pixelDensity(1);
+      V_W = width; V_H = height;
+      fractalBuffer = createGraphics(V_W, V_H);
+      video = createCapture(VIDEO);
+      video.size(320, 320);
+      video.hide();
+      const options = { withLandmarks: false, withExpressions: true };
+      faceapi = ml5.faceApi(video, options, () => faceapi.detect(gotResults));
+    }
+
+    function gotResults(err, result) {
+      if (err) console.error(err);
+      else detections = result;
+      const load = document.getElementById('loading-screen');
+      if (load) load.remove();
+      faceapi.detect(gotResults);
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+      V_W = width; V_H = height;
+      fractalBuffer = createGraphics(V_W, V_H);
+    }
+
+    function draw() {
+      background(0);
+      let label = 'neutral', intensity = 0.5;
+      if (detections.length) {
+        const expr = detections[0].expressions;
+        label = Object.keys(expr).reduce((a, b) => expr[a] > expr[b] ? a : b);
+        intensity = expr[label];
+      }
+      updateInfo(label, intensity);
+
+      if (label === 'disgusted') {
+        // Dibuixa arbre fractal directament al canvas principal
+        clear();
+        background(0);
+        drawFractalTree(intensity);
+      } else {
+        drawDynamicFractal(label, intensity);
+        image(fractalBuffer, 0, 0);
+      }
+      if (detections.length) image(video, width - 160, height - 160, 140, 140);
+    }
+
+    function updateInfo(label, i) {
+      const emocioCat = sentimentsCatala[label] || label;
+      const percent = Math.round(i * 100);
+      document.getElementById('emocio').textContent = emocioCat;
+      document.getElementById('intensitat').textContent = percent + '%';
+    }
+
+    function drawDynamicFractal(label, i) {
+      fractalBuffer.loadPixels();
+      const maxIt = 50 + floor(i * 150);
+      const hueBase = getHueBase(label);
+
+      for (let x = 0; x < V_W; x++) {
+        for (let y = 0; y < V_H; y++) {
+          let a = map(x, 0, V_W, -2, 2);
+          let b = map(y, 0, V_H, -2, 2);
+          let n = calculateIterations(a, b, label, maxIt);
+
+          // Color HSL segons intensitat i iteracions
+          const hue = (hueBase + i * 360 + n * 2) % 360;
+          const sat = 80 + (i * 20) + (n % 20);
+          const light = 50 + 30 * Math.sin(n * 0.1 + i * Math.PI);
+
+          const rgb = hslToRgb(hue / 360, sat / 100, light / 100);
+          setPixel(x, y, rgb);
+        }
+      }
+      fractalBuffer.updatePixels();
+    }
+
+    function getHueBase(label) {
+      switch (label) {
+        case 'happy': return 60;    // Groc
+        case 'sad': return 240;     // Blau
+        case 'angry': return 0;     // Vermell
+        case 'fearful': return 300; // Magenta
+        case 'surprised': return 180; // Cian
+        default: return 200;        // Blau clar
+      }
+    }
+
+    function calculateIterations(a0, b0, label, maxIt) {
+      let a = a0, b = b0, n = 0;
+      while (n < maxIt) {
+        const aa = a * a - b * b;
+        const bb = 2 * a * b;
+
+        switch (label) {
+          case 'happy':    a = aa + a0; b = bb + b0; break;
+          case 'sad':      a = aa - 0.4; b = bb - 0.6; break;
+          case 'angry':    a = Math.abs(aa) + a0; b = Math.abs(bb) + b0; break;
+          case 'fearful':  a = aa + a0; b = -bb + b0; break;
+          case 'surprised':a = aa + 0.3; b = bb + 0.5; break;
+          default:         a = aa + a0; b = bb + b0; break;
+        }
+
+        if (a * a + b * b > 16) break;
+        n++;
+      }
+      return n;
+    }
+
+    function setPixel(x, y, [r, g, b]) {
+      const pix = (x + y * V_W) * 4;
+      fractalBuffer.pixels[pix] = r;
+      fractalBuffer.pixels[pix + 1] = g;
+      fractalBuffer.pixels[pix + 2] = b;
+      fractalBuffer.pixels[pix + 3] = 255;
+    }
+
+    function hslToRgb(h, s, l) {
+      let r, g, b;
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return p + (q - p) * 6 * t;
+          if (t < 1 / 2) return q;
+          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+          return p;
+        };
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+      }
+      return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+    }
+
+    // ARBRE FRACTAL per a "fàstic"
+    function drawFractalTree(intensity) {
+      push();
+      translate(width/2, height*0.98);
+      stroke(60, 220, 80, 180);
+      branch(130 * (0.5 + intensity), intensity, 0);
+      pop();
+    }
+
+    function branch(len, intensity, depth) {
+      strokeWeight(map(len, 2, 130, 1, 8));
+      // Color verd variable segons intensitat i profunditat
+      let h = 120 + 60 * intensity + depth * 7;
+      let s = 60 + 30 * intensity;
+      let l = 30 + 40 * intensity;
+      stroke(color(`hsl(${h},${s}%,${l}%)`));
+      line(0, 0, 0, -len);
+      translate(0, -len);
+      if (len > 8) {
+        push();
+        rotate(radians(25 + 20 * intensity));
+        branch(len * (0.67 + 0.18 * intensity), intensity, depth + 1);
+        pop();
+        push();
+        rotate(radians(-25 - 20 * intensity));
+        branch(len * (0.67 + 0.18 * intensity), intensity, depth + 1);
+        pop();
+        // Opcional: ramificació central
+        if (intensity > 0.6) {
+          push();
+          rotate(radians(random(-10,10)));
+          branch(len * (0.5 + 0.2 * intensity), intensity, depth + 1);
+          pop();
+        }
+      }
+    }
+
+    function mousePressed() {
+      fullscreen(true);
+    }
+  </script>
+</body>
+</html>
