@@ -9,66 +9,39 @@
   <style>
     .row {
       padding: 70px 0;
-      &.demo {
-        padding: 0 0 35px;
-      }
     }
-
-    
+    #mainContent {
+      display: block; /* Mostrar contenido principal por defecto */
+    }
   </style>
   <script>
-  $(document).ready(function() {
-    $('#example').DataTable({
+    $(document).ready(function() {
+      $('#example').DataTable({
         "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
-        "pageLength": -1,
+        "pageLength": 10,
         "lengthChange": true,
         "dom": '<"top"lf>rt<"bottom"ip><"clear">',
         "language": {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "Mostrando _START_ de _END_ de _TOTAL_ resultados",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrados de un total de _MAX_ registros)",
-            "search": "Buscar:",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
+          "lengthMenu": "Mostrar _MENU_ registros por página",
+          "zeroRecords": "No se encontraron resultados",
+          "info": "Mostrando _START_ a _END_ de _TOTAL_ resultados",
+          "infoEmpty": "No hay registros disponibles",
+          "infoFiltered": "(filtrados de un total de _MAX_ registros)",
+          "search": "Buscar:",
+          "paginate": {
+            "first": "Primero",
+            "last": "Último",
+            "next": "Siguiente",
+            "previous": "Anterior"
+          }
         }
+      });
     });
-//});
-
-/*  $(document).ready(function() {
-    $('#example').DataTable({
-      "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
-      "pageLength": 10,
-      "lengthChange": true,
-      "dom": '<"top"lf>rt<"bottom"ip><"clear">',
-      "language": {
-        "lengthMenu": "Mostrar _MENU_ registros por página",
-        "zeroRecords": "No se encontraron resultados",
-        "info": "Mostrando página _PAGE_ de _PAGES_",
-        "infoEmpty": "No hay registros disponibles",
-        "infoFiltered": "(filtrados de un total de _MAX_ registros)",
-        "search": "Buscar:",
-        "paginate": {
-          "first": "Primero",
-          "last": "Último",
-          "next": "Siguiente",
-          "previous": "Anterior"
-        }
-      }
-    });*/
-
   </script>
 </head>
 <body>
   <section class="container">
     <h1>Medicamentos españoles a base de plantas</h1>
-
-    
     <!-- Contenido Principal -->
     <div id="mainContent">
 <p>
