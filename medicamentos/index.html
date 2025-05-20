@@ -74,20 +74,7 @@
     }
   });
 
-    function authenticate() {
-    var username = document.getElementById('username').value;
-    var password = document.getElementById('password').value;
-
-    if (username === 'il3' && password === 'fitoterapia') {
-      alert('¡Bienvenido alumno del Postgrado de IL3! Inicio de sesión exitoso');
-    } else if (username === 'carlemany' && password === 'fitoterapia') {
-      alert('¡Bienvenido alumno del Grado de Nutrición Humana y Dietética de la Universidad Carlemany! Inicio de sesión exitoso');
-    } else if (username === 'invitado' && password === 'fitoterapia') {
-      alert('¡Bienvenido invitado de fitoterapia.neocities.org! Inicio de sesión exitoso');
-    } else {
-      alert('Credenciales incorrectas. Inténtalo de nuevo.');
-      return;
-    }
+    
 
     // Ocultar la pantalla de usuario y contraseña
     document.getElementById('loginForm').style.display = 'none';
@@ -102,17 +89,7 @@
   <section class="container">
     <h1>Medicamentos españoles a base de plantas</h1>
 
-    <!-- Formulario de Autenticación -->
-
-
-    <form id="loginForm">
-      <label for="username">Usuario:</label>
-      <input type="text" id="username" required><br>
-      <label for="password">Contraseña:</label>
-      <input type="password" id="password" required><br>
-      <button type="button" onclick="authenticate()">Iniciar Sesión</button>
-    </form>
-
+    
     <!-- Contenido Principal -->
     <div id="mainContent">
 <p>
