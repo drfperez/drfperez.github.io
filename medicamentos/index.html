@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+  <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.js"></script>
+  <style>
+    .row {
+      padding: 70px 0;
+      &.demo {
+        padding: 0 0 35px;
+      }
+    }
+
+    #mainContent {
+      display: none; /* Ocultar contenido principal por defecto */
+    }
+  </style>
+  <script>
+  $(document).ready(function() {
+    $('#example').DataTable({
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+        "pageLength": -1,
+        "lengthChange": true,
+        "dom": '<"top"lf>rt<"bottom"ip><"clear">',
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron resultados",
+            "info": "Mostrando _START_ de _END_ de _TOTAL_ resultados",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrados de un total de _MAX_ registros)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        }
+    });
+//});
+
+/*  $(document).ready(function() {
+    $('#example').DataTable({
+      "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+      "pageLength": 10,
+      "lengthChange": true,
+      "dom": '<"top"lf>rt<"bottom"ip><"clear">',
+      "language": {
+        "lengthMenu": "Mostrar _MENU_ registros por página",
+        "zeroRecords": "No se encontraron resultados",
+        "info": "Mostrando página _PAGE_ de _PAGES_",
+        "infoEmpty": "No hay registros disponibles",
+        "infoFiltered": "(filtrados de un total de _MAX_ registros)",
+        "search": "Buscar:",
+        "paginate": {
+          "first": "Primero",
+          "last": "Último",
+          "next": "Siguiente",
+          "previous": "Anterior"
+        }
+      }
+    });*/
+
+    function ampliarImatge(imatge) {
+      // Alterna entre les classes d'estil per canviar la grandària i la posició de la imatge
+      if (imatge.classList.contains("ampliada")) {
+        imatge.classList.remove("ampliada");
+      } else {
+        imatge.classList.add("ampliada");
+      }
+    }
+  });
+
+    function authenticate() {
+    var username = document.getElementById('username').value;
+    var password = document.getElementById('password').value;
+
+    if (username === 'il3' && password === 'fitoterapia') {
+      alert('¡Bienvenido alumno del Postgrado de IL3! Inicio de sesión exitoso');
+    } else if (username === 'carlemany' && password === 'fitoterapia') {
+      alert('¡Bienvenido alumno del Grado de Nutrición Humana y Dietética de la Universidad Carlemany! Inicio de sesión exitoso');
+    } else if (username === 'invitado' && password === 'fitoterapia') {
+      alert('¡Bienvenido invitado de fitoterapia.neocities.org! Inicio de sesión exitoso');
+    } else {
+      alert('Credenciales incorrectas. Inténtalo de nuevo.');
+      return;
+    }
+
+    // Ocultar la pantalla de usuario y contraseña
+    document.getElementById('loginForm').style.display = 'none';
+    // Mostrar el contenido principal después de la autenticación
+    document.getElementById('mainContent').style.display = 'block';
+    // Redirigir o realizar acciones adicionales después del inicio de sesión
+  }
+
+  </script>
+</head>
+<body>
+  <section class="container">
+    <h1>Medicamentos españoles a base de plantas</h1>
+
+    <!-- Formulario de Autenticación -->
+
+
+    <form id="loginForm">
+      <label for="username">Usuario:</label>
+      <input type="text" id="username" required><br>
+      <label for="password">Contraseña:</label>
+      <input type="password" id="password" required><br>
+      <button type="button" onclick="authenticate()">Iniciar Sesión</button>
+    </form>
+
+    <!-- Contenido Principal -->
+    <div id="mainContent">
+<p>
+</p>
+<a href="https://cima.aemps.es/cima/publico/home.html">Fuente: Centro de Información del Medicamento CIMA</a>
+<p>
+</p>
+<table id="example" class="display" cellspacing="0" width="100%">
+<thead><tr><th title="Field #1">NOMBRE DEL MEDICAMENTO</th>
+<th title="Field #2">Composición</th>
+<th title="Field #3">Indicaciones terapéuticas</th>
+<th title="Field #4">Ficha técnica</th>
+</tr></thead>
+<tbody>
+
+		<tr>
+		<td>REFLEX GEL 50 g</td>
+		<td>Cada gramo contiene:<br/>Salicilato de metilo: 100 mg<br/>Esencia de Trementina: 60 mg<br/>Alcanfor: 30 mg<br/>Mentol: 30 mg<br/>Excipientes con efecto conocido:<br/>Propilenglicol (E-1520): 140 mg<br/>Etanol: 240 mg<br/>Alcohol bencílico: 10 mg</td>
+		<td>Está indicado en adolescentes a partir de 12 años y en adultos, para el alivio local, sintomático de los dolores musculares y articulares como: lumbalgias, tortícolis, pequeñas lesiones deportivas y de sobreesfuerzo como: esguinces leves contusiones, torceduras leves y calambres musculares.</td>
+		<td><a href="https://cima.aemps.es/cima/dochtml/ft/59479/FT_59479.html">Ficha técnica</a></td>
+		</tr>
+		<tr>
+		<td>REFLEX SPRAY SOLUCIÓN PARA PULVERIZACIÓN CUTÁNEA</td>
+		<td>Cada mililitro de solución contiene:<br/>Esencia de Trementina: 65 mg<br/>Alcanfor: 40 mg<br/>Mentol: 40 mg<br/>Salicilato de metilo: 25 mg<br/>Excipientes con efecto conocido<br/>Dimetilsulfóxido: 76 mg<br/>Alcohol bencílico: 13 mg</td>
+		<td>Está indicado en adolescentes a partir de 12 años y adultos, para el alivio local, sintomático de los dolores musculares y articulares como: lumbalgias, tortícolis, pequeñas lesiones deportivas y de sobreesfuerzo como: esguinces leves, contusiones, torceduras leves, calambres musculares.</td>
+		<td><a href="https://cima.aemps.es/cima/dochtml/ft/47889/FT_47889.html">Ficha técnica</a></td>
+		</tr>
+		<tr>
+<td>BRONCHIPRET COMPRIMIDOS RECUBIERTOS CON PELÍCULA</td>
+<td>Cada comprimido recubierto con película contiene:<br/>- 60 mg de extracto (como extracto seco) de Primula veris L./Primula elatior (L.) Hill, radix (raíz de<br/>Prímula) (6 - 7: 1).<br/>Solvente de extracción: Etanol 47,4% (V/V).<br/>- 160 mg de extracto (como extracto seco) de Thymus vulgaris L./Thymus zygis L., herba (tomillo) (6 -<br/>10: 1).<br/>Solvente de extracción: Etanol 70% (V/V).<br/>Excipiente(s) con efecto conocido<br/>Glucosa anhidra: 34,105 mg<br/>Lactosa anhidra: 47,536 mg</td>
+<td>Medicamento a base de plantas que se utiliza como expectorante para la tos productiva.<br/>Bronchipret está indicado en adultos.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/82992/FT_82992.pdf">Ficha técnica</a></td>
+</tr>
+
+<tr>
+<td>BRONCHOSTOP® ANTITUSIVO Y EXPECTORANTE, SOLUCIÓN ORAL.</td>
+<td>0,12 gr. de extracto seco de Thymus vulgaris L. o Thymus zygis L (hojas y flores), relación droga- extracto (DER) = 7-13: 1, solvente de extracción: agua. 0,83 g de extracto líquido de raíz de Althaea officinalis (raíz de malvavisco), relación droga-extracto (DER) = 1: 12-14, solvente de extracción: agua. Excipientes con efecto conocido:Parahidroxibenzoato de metilo 11,59 mg (E218) Parahidroxibenzoato de propilo 6,18 mg (E216) Azúcares totales del zumo concentrado de frambuesa aproximádamente 131 mg (conteniendo aprox. 7 mg de sacarosa, 58 mg de glucosa y 66 mg de fructuosa). Propilenglicol (E1520) 38,9 mg (contenido en el aromatizante de frambuesa)</td>
+<td>Medicamento tradicional a base de plantas para la tos productiva asociada al resfriado, y para aliviar la tos seca en la irritación de garganta. Basado exclusivamente en su uso tradicional. Está indicado en adultos, adolescentes y niños mayores de 6 años.          </td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/79116/FT_79116.html">Ficha técnica</a></td>
+</tr>
+
+
+<tr>
+<td>ACEITE RICINO ORRAVAN 1G/ML LIQUIDO ORAL</td>
+<td>Cada ml de líquido oral contiene 1 g de aceite de las semillas de Ricinus communis L.<br/>25 ml de aceite de Ricinus communis L (aceite de ricino).</td>
+<td>Medicamento a base de plantas indicado en adultos como laxante purgante para facilitar el vaciado intestinal</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/34912/FT_34912.html">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>AGIOLAX GRANULADO</td>
+<td>Cada dosis de 5 g de granulado contiene:<br/>Semillas de Plantago ovata polvo: 2,600 g<br/>Cutículas de semillas de Plantago ovata (Ispaghula husk): 0,110 g<br/>Frutos de Cassia angustifolia (Sennae fructus): 0,337-0,658 g<br/>(con un contenido en senósidos expresado como senósidos B: 0,015 g<br/>Excipientes con efecto conocido<br/>Cada dosis de 5 g de granulado (1 cucharada de postre) contiene aproximadamente 1,05 g de sacarosa.</td>
+<td>Tratamiento a corto plazo del estreñimiento ocasional.<br/></td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/56285/FT_56285.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>AGUA DEL CARMEN SOLUCIÓN ORAL</td>
+<td>Contenido por unidad de toma (cucharadita de 5 ml): Principio activo 3,75 ml del extracto fluido obtenido por destilación hidroetanólica a partir de las siguientes plantas medicinales: Melissa officinalis L. (Melisa hoja) 9,285 mg Matricaria chamomilla L. (Manzanilla flor) 2,43 mg Lippia triphilla O. (Hierba Luisa hoja) 1,43 mg Tila tomentosa M. (Tila inflorescencia) 1,14 mg Coriandrum sativum L. (Coriandro fruto) 1,14 mg Cinnamomum zeylanicum N. (Canela de Ceilán corteza) 1,43 mg Angélica archangélica L. (Angélica raíz) 0,855 mg Myristica fragans H. (Nuez moscada fruto) 0,714 mg Hissopus officinalis L. (Hisopo sumidad florida) 4,285 mg Y de las siguientes esencias Melissa officinalis L. (Melisa) 0,0025 ml Citrus aurantium L. corteza (Naranja) 0,0034 ml Citrus limón L. (Limón) 0,0017 ml Lippia triphilla O. (Hierba Luisa) 0,0017 ml Citrus aurantium L. flor (Azahar) 0,0013 ml Origanum majorana L. (Mejorana) 0,0013 ml Cinnamomum zeylanicum N. (Canela) 0,0008 ml Citrus bergamia R. (Bergamota) 0,0004 ml Pimpinella anisum L. (Anís) 0,0004 ml Vanilla planifolia A. (Vainilla) 0,00017 ml Rosmarinus officinalis L. (Romero) 0,00017 ml Eucalyptus globulus L. (Eucalipto) 0,00017 ml Thymus vulgaris L. (Tomillo) 0,00017 ml Prunus amygdalus S. (Almendras amargas) 0,00017 ml Mentha piperita L. (Menta) 0,00017 ml El contenido mínimo en aceites esenciales es superior al 0,14 % expresado como citral. El extracto fluido final con un contenido de etanol de 55% v/v. Excipientes: Sacarosa 0,0285 g</td>
+<td>AGUA DEL CARMEN se viene utilizando tradicionalmente en el tratamiento de los síntomas  relacionados con el estrés, tales como trastornos gastrointestinales y nerviosismo. Así como para el alivio del malestar asociado a la menstruación</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/27454/FT_27454.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ALLYNAT 240 Mg COMPRIMIDOS RECUBIERTOS</td>
+<td>Contenido por comprimido recubierto:<br/>240,0 mg de extracto seco etanólico al 60% V/V de raíz Harpagophytum procumbens D.C., equivalentes a 1056-1200 mg de raíz de Harpagophytum procumbens D.C. (proporción raíz:extracto 4,4-5,0:1).<br/>Excipientes: Lactosa, 113,04 m</td>
+<td>Tratamiento sintomático de los dolores ocasionales leves de las articulaciones.<br/><br/></td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/67071/FT_67071.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ARNICAMED GEL DE ARNICA</td>
+<td>1 gramo de gel contiene:<br/>500 mg de extracto líquido etanólico de flores frescas de Arnica montana L., que equivalen a 120- 200 mg de flores frescas y a 25 mg de flores secas.<br/>Disolvente de extracción: etanol 58% v/v.<br/>Excipientes con efecto conocido:<br/>Cada gramo de gel contiene 550 mg de etanol.</td>
+<td>Está indicado en el alivio sintomático de afecciones musculares localizadas, tales como dolor y rigidez, distensión, magulladura e hinchazón como consecuencia de un golpe.<br/>Estas indicaciones se basan exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/70483/FT_70483.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BEKUNIS COMPLEX COMPRIMIDOS RECUBIERTOS</td>
+<td>Composición por comprimido recubierto:<br/>Frutos de Cassia angustifolia (Sen)*: 60,0 mg<br/>Hojas de Cassia angustifolia (Sen)*: 20,0 mg<br/>Extracto acuoso seco de frutos de Cassia angustifolia (Sen)*: 25,0 mg<br/>Bisacodilo: 5,1 mg<br/>*(Contenido en derivados hidroxiantracénicos expresados como senósidos B de 4-6 mg.)<br/>Excipientes: sacarosa, 98,28 mg; lactosa anhidra, 77,90 mg; hidrolizado de almidón de maíz, 5,48 mg; caseína formaldehído (E-240), 5,00 mg.</td>
+<td>Tratamiento sintomático del estreñimiento ocasional.<br/><br/>Como preparación de exploraciones endoscópicas o radiológicas del intestino grueso.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/50052/FT_50052.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BEKUNIS INSTANT</td>
+<td>1 medida del dosificador contiene 325 mg de Bekunis Instant, que <br/>corresponde a un contingut de 10 mg de derivados hidroxiantracènicos totales, <br/>expressats com senòsid B.</td>
+<td>Adultos, adolescentes y niños mayores de 12 años: medicamento a base de plantas <br/>per al tracto de corta duración del estrés ocasional.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/61548/FT_61548.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BEKUNIS LAX TISANA</td>
+<td>1 cucharadita dosificadora (1,3 g) de Bekunis Lax Tisana contiene<br/>Principio activo: hojas cortadas de Cassia angustifolia Vahl. 1,04 g, con un contenido total de 30 mg de<br/>derivados hidroxiantracénicos, expresados como senósido B. </td>
+<td>Para el tratamiento de corta duración del estreñimiento ocasional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/75958/FT_75958.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BEKUNIS TISANA</td>
+<td>2 medidas del dosificador (1 g) de Bekunis Tisana corresponde a un<br/>contenido de 25 mg de derivados hidroxiantracénicos totales, expresados<br/>como senósido B.</td>
+<td>Adults, adolescents i nens major de 12 anys: medicament a base de plantes <br/>per al tractament de curta duració de l&#39;estrenyiment ocasional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/74918/FT_74918.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BLASGINA OVULOS VAGINALES<br/></td>
+<td>Principios Activos<br/>Metronidazol<br/>Miconazol Nitrato<br/>Centella Asiatica Exto<br/>Polimixina B Sulfato<br/>Neomicina Sulfato<br/>Excipientes <br/>Lactosa</td>
+<td>Indicaciones. Toda clase de alteraciones vaginales; vulvitis, vaginitis, cervicovaginitis tanto irritativas como bacterianas, moniliasis, tricomoniasis, leucorreas de cualquier etiología</td>
+<td><a href="https://cima.aemps.es/cima/publico/detalle.html?nregistro=50441">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BLASTOESTIMULINA 10 mg/g POMADA</td>
+<td>Cada gramo de pomada contiene 10 mg de extracto de Centella asiática (1%). Excipiente(s) con efecto conocido 291 mg de propilenglicol, 171 mg de palmitoestearato de dietilenglicol, fragancias con alérgenos (esencia de geranio, 4,5 mg y esencia de lavanda, 4,4 mg).</td>
+<td>Cicatrización de heridas, fisuras, úlceras, llagas, escaras y demás quiebras de la piel. También está indicada<br/>en la cicatrización de quemaduras leves y de heridas post-operatorias.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/86442/FT_86442.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BLASTOESTIMULINA 20 mg/g POLVO CUTÁNEO</td>
+<td>Cada gramo de polvo contiene 20 mg de extracto (como extracto seco purificado) de Centella asiatica (L.) Urban, herba (partes aéreas de centella asiática) (21,3 : 1), correspondientes a: 7,2-8 mg de asiaticósido y 8,6-12 mg de geninas triterpénicas<br/>Primer disolvente extractivo: etanol 70%</td>
+<td>Cicatrización de heridas, fisuras, úlceras, llagas, escaras y demás quiebras de la piel. También está indicada en la cicatrización de quemaduras leves y de heridas post-operatorias, especialmente en casos en los que interesa una buena aireación y pronto secado del proceso a tratar</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/35908/FT_35908.html">Ficha técnica</a></td>
+</tr>
+
+
+<tr>
+<td>BRONCHOSTOP ANTITUSIVO Y EXPECTORANTE SOLUCION ORAL</td>
+<td> 15 ml (= 15,45 gr.) contienen:<br/>0,12 gr. de extracto seco de Thymus vulgaris L. o Thymus zygis L (hojas y flores), relación droga- extracto (DER) = 7-13: 1, solvente  de extracción: agua.<br/>0,83 g de extracto líquido de raíz de Althaea officinalis (raíz de malvavisco), relación droga-extracto (DER) = 1: 12-14, solvente de extracción: agua.<br/>Excipientes con efecto conocido:<br/>Parahidroxibenzoato de metilo 11,59 mg (E218)<br/>Parahidroxibenzoato de propilo 6,18 mg (E216)<br/>Azúcares totales del zumo concentrado de frambuesa aproximádamente 131 mg (conteniendo aprox. 7 mg de sacarosa, 58 mg de glucosa y 66 mg de fructuosa).<br/>Propilenglicol (E1520) 38,9 mg (contenido en el aromatizante de frambuesa)</td>
+<td> Medicamento tradicional a base de plantas para la tos productiva asociada al resfriado, y para aliviar la tos seca en la irritación de garganta. Basado exclusivamente en su uso tradicional. Está indicado en adultos, adolescentes y niños mayores de 6 años</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/79116/FT_79116.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BRONCHOSTOP NITE SOLUCION ORAL<br/></td>
+<td>1 ml de solución oral contiene: 12,5 mg de extracto (como extracto seco) de Althaea officinalis L., radix (raíz de malvavisco) (7-9: 1). Disolvente de extracción: agua. 9,09 mg de extracto (como extracto seco) de Tilia cordata Miller, Tilia platyphyllos Scop., Tilia x vulgaris Heyne o sus mezclas, flos (flor de tilo) (3-8: 1). Disolvente de extracción: agua. 10,0 mg de extracto (como extracto seco) de Plantago lanceolata L., folium (llantén menor) (4-6: 1). Disolvente de extracción: agua. Excipientes con efecto conocido 184 mg xilitol (E967), 0,75 mg parahidroxibenzoato de metilo (E218), 0,44 mg parahidroxibenzoato de propilo (E216) y 0,91 mg propilenglicol (E1520)</td>
+<td>Medicamento tradicional a base de plantas para aliviar los síntomas del resfriado común, tales como como escalofríos, irritación de garganta y faríngea y tos. Es beneficioso para el alivio de la tos nocturna, por lo que ayuda a dormir. Es un medicamento tradicional a base de plantas para las indicaciones especificadas. Basado exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/81922/81922_ft.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>BRONCHOSTOP® ANTITUSIVO Y EXPECTORANTE, PASTILLAS BLANDAS<br/><br/>EXTRACTO DE THYMUS VULGARIS L.<br/><br/>EXTRACTO DE ALTHAEA OFFICINALIS L.</td>
+<td>Una pastilla contiene: 51,1 mg de extracto seco de tomillo (Thymus vulgaris o Thymus zygis, hojas y flores, relación droga-extracto = 7-13:1; solvente de extracción:agua). 4,5 mg de extracto seco de raíz de malvavisco (Althaea officinalis, raíz, relación droga-extracto = 7-9:1; solvente de extracción: agua). Excipientes con efecto conocido: 615 mg de maltitol (E965), 210 mg de sorbitol (, E420), 6,42 mg de propilenglicol (E1520) y 0,005 mg de alcohol bencílico (E1519). 15 ml (= 15,45 gr.) contienen: 0,12 gr. de extracto seco de Thymus vulgaris L. o Thymus zygis L (hojas y flores), relación droga- extracto (DER) = 7-13: 1, solvente de extracción: agua. 0,83 g de extracto líquido de raíz de Althaea officinalis (raíz de malvavisco), relación droga-extracto (DER) = 1: 12-14, solvente de extracción: agua. Excipientes con efecto conocido: Parahidroxibenzoato de metilo 11,59 mg (E218) Parahidroxibenzoato de propilo 6,18 mg (E216) Azúcares totales del zumo concentrado de frambuesa aproximádamente 131 mg (conteniendo aprox. 7 mg de sacarosa, 58 mg de glucosa y 66 mg de fructuosa). Propilenglicol (E1520) 38,9 mg (contenido en el aromatizante de frambuesa)</td>
+<td>Medicamento tradicional a base de plantas para la tos productiva asociada al resfriado, para aliviar la tos seca y calmar la garganta irritada.<br/>Basado exclusivamente en su uso tradicional.<br/>Está indicado en adultos, adolescentes y niños mayores de 6 años.<br/><br/> </td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/68611/FT_68611.html">Ficha técnica</a></td>
+</tr>
+
+<tr>
+<td>BRONQUIDIAZINA CR SUSPENSIÓN ORAL</td>
+<td>Cada 7,5 ml de suspensión contienen:<br/>80 mg de trimetroprima, 400 mg de sulfametoxazol, 4 mg de bromhexina hidrocloruro y 32,5 mg de extracto fluido de bálsamo de Tolú.</td>
+<td>Bronquidiazina CR está indicado en adultos, adolescentes y niños a partir de 2 años, para la profilaxis y tratamiento de la neumonía producida por Pneumocystis jirovecii (Pneumocystis carinii), en pacientes que además precisen la acción combinada de un expectorante/mucolítico.<br/>Además, Bronquidiazina CR, en adultos, adolescentes y niños a partir de 2 años, está indicado en el tratamiento oral de las siguientes infecciones de vías respiratorias superiores o inferiores producidas por mircoorganismos sensibles a la asociación trimetroprima/sulfametoxazol, cuando se considera inapropiado el uso de agentes antibacterianos recomendados normalmente en el tratamiento de primera línea:<br/>Bronquitis aguda<br/>Exacerbaciones agudas de bronquitis crónica en pacientes sin factores de riesgo<br/>Neumonías<br/>Sinusitis.<br/>Otitis media aguda</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/33618/FT_33618.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>CANEPHRON COMPRIMIDOS RECUBIERTOS</td>
+<td>Por comprimido recubierto:<br/>18 mg de partes aéreas desecadas de Centaura menor (Centaurium erythraea Rafn)<br/>18 mg de rizomas desecados de Levístico (Levisticum officinale Koch)<br/>18 mg de hojas desecadas de Romero (Rosmarinus officinalis L.) <br/>Excipientes con efecto conocido:<br/>Lactosa monohidrato, 45,0 mg<br/>Glucosa jarabe, 1,086 mg<br/>Sacarosa, 60,431 mg</td>
+<td>Medicamento tradicional a base de plantas utilizado como coadyuvante en el alivio de síntomas asociados a afecciones menores del tracto urinario inferior y para aumentar la eliminación de orina y facilitar la eliminación de arenillas</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/74847/FT_74847.html">Ficha técnica</a>  </td>
+</tr>
+<tr>
+<td>CAPSIDOL 0,25 Mg/g CREMA</td>
+<td>Cada gramo de crema contiene 0,25 mg de oleorresina de cápsico (expresada en capsaicina).<br/>Excipientes con efecto conocido: cada gramo de crema contiene: 70 mg de propilenglicol, 15 mg de alcohol cetílico, 2 mg de parahidroxibenzoato de metilo, sal de sodio (E-219) y 1 mg de parahidroxibenzoato de propilo (E-216)</td>
+<td>Alivio sintomático de dolores musculares o articulares localizados en adultos y niños mayores de 12 años.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/60156/FT_60156.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>CÁSCARA SAGRADA ARKOPHARMA CÁPSULAS DURAS</td>
+<td>250 mg de la corteza criomolida de Rhamnus purshianus D.C. (Cáscara sagrada)</td>
+<td>Adultos, adolescentes y niños mayores de 12 años:<br/>Medicamento a base de plantas para el tratamiento de corta duración del estreñimiento ocasional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/74097/FT_74097.pdf">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>CINFAHELIX JARABE</td>
+<td>Cada ml de jarabe de Cinfahelix (equivalente a 1,18 g) contiene:<br/>8,25 mg de extracto (en forma de extracto seco) de Hedera helix L. hoja (hojas de hiedra) (4-8:1),<br/>disolvente de extracción: etanol 30% (m/m).<br/>Excipiente(s) con efecto conocido<br/>708 mg de sorbitol (E-420) líquido (no cristalizable)</td>
+<td>Cinfahelix es un medicamento a base de plantas utilizado como expectorante para la tos productiva en<br/>adultos, adolescentes y niños mayores de 2 años.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/81847/FT_81847.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>CIRCULAVEEL COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>1 comprimido recubierto con película contiene:<br/>360 mg de extracto (en forma de extracto seco) de Vitis vinifera L., folium (hojas de vid roja) (4-6: 1, solvente de extracción: agua)</td>
+<td>Circulaveel Comprimidos recubiertos con película es un medicamento a base de plantas para el tratamiento en adultos de los síntomas de la insuficiencia venosa crónica, tales como piernas hinchadas, sensación de pesadez, dolor, cansancio, prurito, tensión y calambres en la parte posterior de las piernas.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/p/84748/P_84748.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>COLA DE CABALLO ARKOPHARMA CÁPSULAS DURAS</td>
+<td>Por cápsula contiene:<br/>190 mg de partes aéreas criomolidas de Equisetum arvense L. (Cola de caballo).</td>
+<td>Medicamento tradicional a base de plantas para aumentar la cantidad de orina consiguiendo limpiar el tracto urinario y ayudar en trastornos urinarios leves<br/><br/>Medicamento tradicional a base de plantas utilizado para fortalecer el cabello y las uñas quebradizas. Basado exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/71989/FT_71989.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>COLPERMIN 187 MG CAPSULAS DURAS GASTRORRESISTENTES</td>
+<td>Cada cápsula dura gastrorresistente contiene 187 mg (0,2 ml) de Mentha x piperita L., aetheroleum (aceite esencial de menta piperita).<br/>Excipiente con efecto conocido:<br/>Cada cápsula dura gastrorresistente contiene 136 mg de aceite de cacahuete (Arachis hypogaea L.) refinado.<br/></td>
+<td>Colpermin es un medicamento a base de plantas indicado en adultos, adolescentes y niños a partir de 8 años para el alivio sintomático de los espasmos leves del tracto gastrointestinal, la flatulencia y el dolor abdominal, en particular en pacientes con síndrome de intestino irritable</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/82699/FT_82699.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>CYSTUROL COMPRIMIDOS RECUBIERTOS</td>
+<td>Un comprimido recubierto contiene:<br/>108-120 mg de extracto (como extracto seco) de hoja de Arctostaphylos uva-ursi L. Spreng. (equivalente a 432-600 mg de hoja de gayuba), que corresponde a 27 mg de derivados de hidroquinona calculados como arbutina anhidra.<br/>Solvente de extracción: agua<br/>46,25 mg de extracto (como extracto seco) de hoja de Betula pendula Roth y/o Betula pubescens Ehrh. (equivalente a 185-277,5 mg de hoja de abedul).<br/>Solvente de extracción: agua<br/>40 mg de extracto (como extracto seco) de parte aérea de Solidago gigantea Ait. (equivalente a 160-240 mg de vara de oro).<br/>Solvente de extracción: etanol 57,9 % V/V</td>
+<td>Cysturol es un medicamento tradicional a base de plantas utilizado en mujeres adultas, para el tratamiento de los síntomas de infecciones leves del tracto urinario inferior (p. ej. infección de la vejiga), tales como sensación de ardor al orinar y/o necesidad frecuente de orinar, siempre que el médico haya descartado la presencia de afecciones graves.Este producto es un medicamento tradicional a base de plantas para uso en la indicación especificada, basada exclusivamente en un uso de larga tradición.<br/>Se debe consultar a un médico si empeora o si no mejora después de 4 días.<br/>Cysturol está indicado en mujeres adultas (a partir de 18 años). No se recomienda el uso del medicamento en hombres sin que se haya valorado la situación clínica y sea recomendado por el médico.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/82236/FT_82236.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>DIFUR 120 MG CÁPSULAS DURAS.</td>
+<td>Cada cápsula contiene 120 mg de extracto seco de rizoma de Polypodium leucotomos L.(DER nativo 4-6:1) correspondiente a 2,5-6,25 mg de ácido quínico. Disolvente de extracción: Etanol 12,5% V/V.<br/>Excipientes con efecto conocido: 180 mg de lactosa y 180 mg de almidón de maíz.</td>
+<td>Medicamento a base de plantas indicado para el alivio de los síntomas asociados a procesos inflamatorios leves a moderado de la piel, basado exclusivamente en su uso tradicional.<br/>Difur 120 mg cápsulas duras está indicado en adultos, adolescentes y niños mayores de 6 años.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/55757/FT_55757.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>DIGESMINT TISANA</td>
+<td>Cada bolsa/filtro contiene los siguientes principios activos:<br/>Hojas de Mentha x piperita L (Menta): 0,608 g.<br/>(Contenido en aceite esencial &gt; 9 ml/kg)<br/>Frutos de Pimpinella anisum L (Anís): 0,496 g.<br/>(Contenido en aceite esencial &gt; 20 ml/kg)<br/>Raíz de Glycyrrhiza glabra L (Regaliz): 0,496 g.<br/>(Contenido en ácido glicirrícico &gt; 4,0 %)</td>
+<td>Medicamento tradicional de plantas para el alivio sintomático de trastornos digestivos tales como dispepsia y flatulencia. <br/>Basado exclusivamente en su uso tradicional.<br/>Digesmint está indicado en adultos y niños mayores de 12 años</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/77334/FT_77334.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>DISMEGYN CAPSULAS (VITEX)<br/></td>
+<td>Cada cápsula contiene 4 mg de extracto seco de frutos de Vitex agnus castus L. Disolvente de extracción etanol al 60% (v/v)<br/>Relación fruto seco/extracto 7-13:1<br/>Contiene 36 mg de glucosa y 34 mg de lactosa.</td>
+<td>Alivio de hinchazón y tensión dolorosa mamaria del síndrome premenstrual y de irritabilidad derivada de estos síntomas</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/65744/FT_65744.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>DOLBAN 0,75 MG/G CREMA</td>
+<td>Cada 100 g de crema contienen:<br/>Oleorresina de Capsicum annuum L (312-625) mg equivalente a 75 mg de capsaicina Excipiente: Propilenglicol 5.0 g, Alcohol cetílico 1.0 (g)</td>
+<td>Alivio del dolor moderado a severo en la neuropatía diabética dolorosa que interfiera en las actividades diarias y que no haya respondido a otro tratamiento.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84901/FT_84901.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ECHINACIN MADAUS</td>
+<td>Jugo fresco de las partes aéreas floridas de Echinacea purpurea (1,7-2,5:19: 800 mg<br/>Etanol 21% (V/V): 170 mg<br/>Excipiente(s) con efecto conocido</td>
+<td>Tratamiento complementario del resfriado común e irritación de las vías respiratorias altas.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/61511/FT_61511.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ECHINAMED COMPRIMIDOS</td>
+<td>1 comprimido (750mg) contiene como principios activos:<br/>17.7 mg de extracto seco de la parte aérea fresca de Echinacea purpurea equivalente a 1140 mg de extracto hidroetanólico.<br/>0,9 mg de extracto seco de la raíz fresca de Echinacea purpurea equivalente a 60 mg de extracto hidroetanólico. Solvente de extracción: etanol al 57.3%(m/m)</td>
+<td>Tratamiento del resfriado común.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/71988/FT_71988.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ECHINAMED GOTAS ORALES EN SOLUCION</td>
+<td>1 ml [= 0.905g] contiene:<br/>860 mg de extracto (como tintura) de la parte aérea fresca de Echinacea purpurea (L.) Moench. (1:12-13) Equivalente en planta seca: 72 mg por ml de producto final. Solvente de extracción: etanol 65%V/V (57%m/m)<br/>45 mg de extracto (como tintura) de la raíz fresca de Echinacea purpurea (L.) Moench (1:11-12) Equivalente en planta seca: 4.1 mg por ml de producto final. Solvente de extracción: etanol 65%V/V (57%m/m)<br/>Contenido en etanol: 65%V/V (57%m/m)<br/>1 ml = 28 gotas<br/>Excipientes de declaración obligatoria en el material de embalaje.<br/>1 dosis (25 gotas) contiene 458 mg de etanol.</td>
+<td>EchinaMed gotas es un medicamento a base de plantas indicado en adultos, adolescentes y niños mayores de 12 años, para el tratamiento de los síntomas del resfriado común</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/78118/FT_78118.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ECHINAMED HOT DRINK CONCENTRADO PARA SOLUCION ORAL</td>
+<td>5 ml [= 6.615g] de concentrado contiene:<br/>1140 mg de extracto (como tintura) de la parte aérea fresca de Echinacea purpurea (L.) Moench (1:12-13)<br/>Equivalente en planta seca: 95 mg por 5 ml de producto final. Solvente de extracción: etanol 65%V/V (57%m/m)<br/>60 mg de extracto (como tintura) de la raíz fresca de Echinacea purpurea (L.) Moench (1:11-12). Equivalente en planta seca: 5.5 mg por 5 ml de producto final<br/>Solvente de extracción: etanol 65%V/V (57%m/m)<br/>Excipiente(s) con efecto conocido<br/>1 dosis (5 ml) contiene 4,12 g de sacarosa y un máximo de 22,2 mg de etanol</td>
+<td>EchinaMed Hot Drink, es un medicamento tradicional de plantas para aliviar los síntomas del resfriado común y la gripe, basado exclusivamente en su uso tradicional. </td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/81353/FT_81353.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ECHINAMED JUNIOR COMPRIMIDOS</td>
+<td>1 comprimido [Aprox. 300 mg] contiene:<br/>380 mg de tintura (Relación droga extracto (1:12-13))(como extracto seco) de la parte aérea fresca de Echinacea purpurea (L.) Moench. Equivalente en planta seca: 32 mg por comprimido. Solvente de extracción: etanol 65%V/V (57%m/m)<br/>20 mg de tintura (Relación droga extracto (1:11-12)(como extracto seco) de la raíz fresca de Echinacea purpurea (L.) Moench. Equivalente en planta seca: 1.8 mg por comprimido. Solvente de extracción: etanol 65%V/V (57%m/m)<br/>Excipientes de declaración obligatoria:<br/>Un comprimido de 300 mg contiene 266,15 mg de sorbitol</td>
+<td>EchinaMed Junior comprimidos, es un medicamento tradicional de plantas para aliviar los síntomas del resfriado y la gripe, basado exclusivamente en su uso tradicional.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/79701/FT_79701.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ECHINAMED PLUS SPRAY SOLUCION PARA PULVERIZACION BUCAL</td>
+<td>1 ml [= 1.055mg] contiene:<br/>863.3 mg de extracto de la parte aérea fresca de Echinacea purpurea (L.) Moench.(1:12-13), equivalente a 72 mg de planta seca. Solvente de extracción: etanol (65%V/V)<br/>45.5 mg de extracto de la raíz fresca de Echinacea purpurea (L.) Moench. (1:11-12), equivalente a 4.1 mg de planta seca. Solvente de extracción: etanol (65%V/V)<br/>430 mg de extracto de la hoja fresca de Salvia officinalis (L.) (1:17-18), equivalente a 25 mg de planta seca. Solvente de extracción: etanol (68%V/V)<br/>1 pulverización = 0.22 ml<br/>Contenido en etanol: 40-47%V/V (31.5-35.1% m/m)<br/>Excipientes con efecto conocido:<br/>1 ml del producto contiene un máximo de 370 mg de etanol, 407 mg de sorbitol, 20 mg de lecitina de soja y 5 mg de laurato de sacarosa.<br/></td>
+<td>EchinaMed plus spray es un medicamento tradicional de plantas utilizado para el tratamiento de faringitis asociada a catarro, enfriamiento o gripe, basado en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/76216/FT_76216.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ELLURA CÁPSULAS DURAS<br/>EXTRACTO DE ARÁNDANO ROJO VACCINIUM MACROCARPON AIT</td>
+<td>Una cápsula contiene 195-216 mg de extracto (como extracto seco, refinado) de zumo del fruto de<br/>Vaccinium macrocarpon Aiton (Arándano rojo) correspondientes a 36 mg de proantocianidinas (PAC),<br/>calculadas como PAC-A2. Solvente de extracción: Etanol 70% (V/V).</td>
+<td>Medicamento tradicional a base de plantas para evitar la recurrencia de infecciones agudas no complicadas<br/>del tracto urinario inferior (cistitis) basado exclusivamente en su uso tradicional.<br/>Este medicamento está indicado en mujeres adultas. </td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/82692/FT_82692.pdf">Ficha técnica</a></td>
+</tr>
+
+
+<tr>
+<td>EQUINACEA ARKOPHARMA CÁPSULAS DURAS</td>
+<td>Cada ml contiene:<br/>Jugo fresco de las partes aéreas floridas<br/>de Echinacea purpurea (1,7-2,5:1): 800 mg<br/>Etanol 21% (V/V): 170 mg<br/>2.2.1. Excipiente(s) con efecto conocido</td>
+<td>Medicamento tradicional a base de plantas para evitar la recurrencia de infecciones agudas no complicadas<br/>del tracto urinario inferior (cistitis) basado exclusivamente en su uso tradicional.<br/>Este medicamento está indicado en mujeres adultas.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/72921/FT_72921.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ESPINO ALBAR ARKOPHARMA</td>
+<td>350 mg de sumidades floridas criomolidas de Crataegus monogyna Jacq. (Lindm.) y C. laevigata (Poiret) D.C. (C. oxyacanthoides Thuill.) (Espino albar).</td>
+<td>Medicamento tradicional a base de plantas para aliviar el nerviosismo con percepción exagerada de latidos cardiacos (palpitaciones) y en caso de dificultad para dormir, basado exclusivamente en su uso tradicional</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/72463/FT_72463.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>EXPECTYM 110 MG/ML JARABE</td>
+<td> Extracto líquido de tomillo (Thymus vulgaris L., herba o Thymus zygis L., herba). 1 ml de jarabe<br/>(equivalente a 1,1 g) contiene 110 mg (0,11 ml) de extracto líquido de Thymus vulgaris L., herba o Thymus zygis L., herba (1 : 2-2,5).<br/>Disolventes de extracción: solución de amoníaco 10 % (m/m) / glicerina 85 % (m/m) / etanol 90% (V/V) /agua purificada (1/20/70/109).<br/>Excipientes con efecto conocido: etanol, sorbitol (E420).</td>
+<td> Medicamento tradicional de plantas que se utiliza como expectorante para la tos productiva asociada al<br/>resfriado en adultos, adolescentes y niños mayores de 4 años.<br/>Es un medicamento tradicional de plantas para la indicación especificada y basado exclusivamente en su<br/>uso tradicional.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/80289/FT_80289.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>EXTRACTO DE CÚRCUMA CENTRUM 100 MG COMPRIMIDOS.<br/>EXTRACTO SECO DE RIZOMA DE CURCUMA LONGA L.</td>
+<td>Cada comprimido contiene 100 mg de extracto seco de rizoma de Curcuma longa L., equivalente a 10 - 15<br/>mg de curcuminoides. Relación droga-extracto (5,5 - 6,5:1).<br/>Disolvente de extracción etanol 50 % V/V.</td>
+<td>Tratamiento de trastornos funcionales digestivos de origen hepático.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/64783/FT_64783.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>FABROVEN 150 mg/150bmg/100 mg CAPSULAS DURAS</td>
+<td>Una cápsula dura contiene:<br/>Extracto seco de Ruscus valorado en heterósidos esterólicos: 150,0 mg<br/>Hesperidina metil chalcona: 150,0 mg<br/>Acido ascórbico: 100,0 mg</td>
+<td>Indicado en adultos:<br/>Alivio a corto plazo (durante dos / tres meses) del edema y síntomas relacionados con la insuficiencia venosa crónica.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/59471/FT_59471.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>FAVE DE FUCA COMPRIMIDOS RECUBIERTOS</td>
+<td>Cada comprimido contiene:<br/>56,56 – 80,808 mg de extracto seco de Rhamnus frangula L., corteza, correspondiente a 13,33 mg de glucofrangulina calculado como Glucofrangulina A.<br/>Disolvente de extracción: Etanol 60% V/V<br/>103-58,9 mg de extracto seco de Rhamnus purshianus D.C., cáscara, correspondiente a 15,31 mg de glucosidos hidroxiantracénicos, expresados como Cascarosidos A.<br/>Disolvente de extracción: Etanol 60% V/V<br/>61,36 mg de extracto seco de Fucus vesiculosus L., alga, (1,5-3:1)<br/>2.2.1. Excipiente(s) con efecto conocido<br/>Glucosa líquida (1,51 mg)<br/>Glucosa monohidrato (110,48 mg)<br/>Sacarosa (12,62 mg)<br/>Lactosa (102.38 mg)<br/>Solución alcalina de parahidroxibenzoato de etilo, metilo y propilo, benzoato de sodio y propilenglicol (0,25 mg)</td>
+<td>Tratamiento del estreñimiento ocasional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/70157/70157_ft.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>FAVILAX CAPSULAS</td>
+<td>Cada cápsula contiene:<br/>Extracto seco de corteza de Rhamnus purshiana L. (Cáscara sagrada) 8,4% de heteróxidos hidroxiantracénicos (que corresponde a 14.28 mg/cápsula expresados como cascarósidos A) solvente de extracción etanol 60% V/V: 170 mg<br/>Extracto seco de corteza de Rhamnus frangula L. (Frángula) 1575% glucofrangulinas (que corresponde a 13.67 mg/cápsula expresados como glucofrangulinas A) solvente de extracción etanol 60% V/V: 86,8 mg<br/>Extracto acuoso seco de tallo de Fucus vesiculosus L. (que contiene 11,97-39,69 μg/cápsula de yodo): 126 mg</td>
+<td>Tratamiento del estreñimiento ocasional</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/75992/FT_75992.html">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>GASTROPAN 90 Mg/50 Mg CAPSULAS BLANDAS GASTRORRESISTENTES</td>
+<td>Una cápsula blanda gastrorresistente contiene:<br/>90 mg de aceite esencial de Mentha x piperita L. (aceite esencial de menta piperita) y 50 mg de aceite<br/>esencial de Carum carvi L. (aceite esencial de alcaravea).<br/>Excipiente con efecto conocido: hasta 11 mg de sorbitol, menos de 1mmol de sodio (23 mg) por cápsula</td>
+<td>Medicamento a base de plantas para el tratamiento de molestias gastrointestinales, tales como calambres<br/>leves, flatulencia, plenitud y dolor abdominal.<br/>Gastropan está indicado en adultos y adolescentes a partir de los 12 años de edad.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84901/FT_84901.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>GELODOL CREMA 10%</td>
+<td>1 g de crema contiene 100 mg de Rosmarinus officinalis L., aetheroleum (aceite esencial de romero).<br/>Excipiente(s) con efecto conocido<br/>3 g de alcohol cetoestearílico (Tipo A) emulsionante/100 g crema.<br/>Etanol (contenido total de etanol 17,4% V/V)</td>
+<td>Gelodol es un medicamento tradicional a base de plantas usado en adultos para el alivio de dolores musculares y articulares menores y trastornos circulatorios periféricos menores (con síntomas como piernas cansadas).</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/81246/FT_81246.pdf">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>GELODOL CREMA 5%</td>
+<td>2 g de crema contiene 100 mg de Rosmarinus officinalis L., aetheroleum (aceite esencial de romero).<br/>Excipiente(s) con efecto conocido<br/>3 g de alcohol cetoestearílico (Tipo A) emulsionante/100 g crema.<br/>Etanol (contenido total de etanol 17,4% V/V)</td>
+<td>Gelodol es un medicamento tradicional a base de plantas usado en adultos para el alivio de dolores musculares y articulares menores y trastornos circulatorios periféricos menores (con síntomas como piernas cansadas).<br/>El producto es un medicamento tradicional a base de plantas para unas indicaciones específicas basadas exclusivamente en su uso de larga tradición.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/81246/FT_81246.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>GINKGO ARKOPHARMA</td>
+<td>Cada cápsula contiene:180 mg de hojas criomolidas de Ginkgo biloba L. (Ginkgo).<br/>Con un contenido mínimo de 0,8 mg expresados como flavona glucosidos (o heterósidos<br/>Flavónicos)</td>
+<td>Medicamento tradicional a base de plantas utilizado para el alivio sintomático de los trastornos leves derivados de las alteraciones circulatorias cerebrales (como vértigo y mareos) o de las extremidades inferiores (como calambres y sensación de frío en las piernas), basado exclusivamente en su uso tradicional</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/74474/FT_74474.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>GRAIL 30 MG, CÁPSULAS</td>
+<td>Cada cápsula contiene:<br/>Extracto valorado Centella asiática : 30 mg<br/>(Extracto formado por la fracción triterpénica de la Centella asiática, 40% de asiaticósido y 60%<br/>de ácido asiático +ácido madecásico)-</td>
+<td>Alivio a corto plazo (de 2 a 3 meses ) de los síntomas relacionados con la insuficiencia venosa leve de la extremidades inferiores, tales como dolores y sensación de pesadez, hormigueo, calambres nocturnos y prurito en piernas con varices.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/67771/FT_67771.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>HARPAGOFITO ARKOPHARMA CÁPSULAS DURAS</td>
+<td>435 mg de raices criomolidas de Harpagophytum procumbens DC.(Harpagofito).</td>
+<td>Medicamento tradicional a base de plantas utilizado en el tratamiento de dolores articulares leves, basado exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/72529/FT_72529.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>HARPAGOMED COMPRIMIDOS RECUBIERTOS</td>
+<td>Un comprimido recubierto contiene: Principios activos: 480 mg de extracto (como extracto seco) de raíz de Harpagophytum procumbens DC. y /o H. zeyheri Decne. (raíz de garra del diablo) Equivalente a 720 – 1440 mg de raíz de garra del diablo Solvente de extracción: etanol 60% v/v Relación droga- extracto 1.5- 3:1</td>
+<td>HarpagoMed comprimidos recubiertos es un medicamento tradicional a base de plantas, utilizado en el<br/>tratamiento de dolores articulares leves. Su utilización se basa exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/73739/FT_73739.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>HEDETUS 5,4 MG/ML JARABE</td>
+<td>Extracto seco de hoja de hiedra (Hedera helix L., folium). 1 ml de jarabe (equivalente a 1,1 g) contiene 5,4<br/>mg de extracto (en forma de extracto seco) de Hedera helix L., folium (hoja de hiedra) (5-7,5:1).<br/>Solvente de extracción: Etanol 30% (m/m)<br/>Excipiente(s) con efecto conocido<br/>Excipientes con efecto conocido Hedetus contiene 292,6 mg/ml de sorbitol (E420) y 2,3 mg/ml de lactosa<br/>monohidrato.</td>
+<td>Hedetus es un medicamento de plantas que se utiliza como expectorante en caso de tos productiva.<br/>Hedetus está indicado en adultos, adolescentes y niños mayores de 2 años.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/81073/FT_81073.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>HEPAMED COMPRIMIDOS</td>
+<td>Un comprimido contiene:<br/>Principios activos:4,6 mg de extracto (como extracto seco) de la hoja fresca de Cynara scolymus L.<br/>(1:30-31). Solvente de extracción: etanol 65% v/v. Equivalente en planta seca: 7.7 mg por comprimido<br/>1,2 mg de extracto (como extracto seco)de la parte aérea y raíz fresca de Taraxacum officinale Weber ex. Wigg. (1:17-18)<br/>Solvente de extracción: etanol 51%v/v. Equivalente en planta seca: 3.5 mg por comprimido0,7 mg de extracto (como extracto seco) de la hoja de Peumus boldus Molina (1:10-11)<br/>Solvente de extracción: etanol 70%v/v. Equivalente en planta seca: 3.5 mg por comprimido<br/>3,2 mg de extracto (como extracto seco) del fruto de Silybum marianum (L.) Gaertn. (1:2.0- 2.1). Solvente de extracción: etanol 58%v/v<br/>Equivalente en planta seca: 80 mg por comprimido</td>
+<td>HepaMed comprimidos, es un medicamento tradicional de plantas utilizado para tratar los síntomas de la<br/>dispepsia como la indigestión, ardor de estómago, distensión abdominal, flatulencia y náuseas, basado<br/>exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/80883/FT_80883.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>HERBION PASTILLAS PARA CHUPAR<br/></td>
+<td>Cada pastilla para chupar contiene 35 mg de extracto (como extracto seco) de Hedera helix L., folium (hoja<br/>de hiedra) (5–7,5:1).<br/>Disolvente de extracción: etanol 30% (m/m).<br/>Excipientes con efecto conocido:<br/>Cada pastilla para chupar contiene 2447,50 mg de isomaltosa (tipo M) (E953) y 0,0006 mg de<br/>butilhidroxianisol (E320).</td>
+<td>Herbion es un medicamento a base de plantas usado como expectorante en caso de tos productiva en<br/>adultos, adolecentes y niños a partir de 6 años.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84351/FT_84351.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>HIPÉRICO ARKOPHARMA CÁPSULAS DURAS</td>
+<td> Cada comprimido contiene:<br/>Extracto seco de sumidades floridas de hipérico: 60 mg<br/>(Equivalente a 0,08 mg de hipericinas totales; disolvente de extracción: etanol 38%; relación planta seca / extracto 4,6-6,5:1)<br/>Extracto seco de raíz de valeriana: 28 mg<br/>(Disolvente de extracción: etanol 40%; relación planta seca / extracto 3,8-5,6:1)<br/>Extracto seco de sumidad de pasiflora: 32 mg<br/>(Disolvente de extracción: etanol 60%; relación planta seca / extracto 6,25-7,1:<br/>Excipientes:<br/>- Lactosa monohidrato (matriz en el extracto de hipérico), 16,0 mg<br/>- Lactosa monohidrato (como componente del núcleo), 74,50 mg<br/>- Glucosa líquida, spray dried (matriz en el extracto de valeriana), 10,4 mg<br/>- Glicerol 85%, 1,20 mg. </td>
+<td>Medicamento a base de plantas para el tratamiento sintomático de los estados de decaimiento que cursan<br/>con desánimo, pérdida de interés, cansancio y alteraciones del sueño.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/79963/FT_79963.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>IBEROGAST GOTAS ORALES EN SOLUCION</td>
+<td>Cada ml de gotas orales (20 gotas) contiene:<br/>Extracto líquido etanólico (50% (V/V)):<br/>0,15 ml de plantas frescas de Iberis amara L, carraspique blanco (1:1,5-2,5);<br/> Extractos líquidos etanólicos (30 % (V/V)):<br/>0,2 ml de flores de Matricaria recutita L, manzanilla (1: 2-4);<br/>0,1 ml de raíz de Angelica archangelica L, angélica (1: 2,5-3,5);<br/>0,1 ml de fruto de Carum carvi L, alcaravea (1: 2,5-3,5);<br/>0,1 ml de Chelidonium majus L, celidonia (1: 2,5-3,5);<br/>0,1 ml de raíz de Glycyrrhiza glabra L, regaliz (1: 2,5-3,5);<br/>0,1 ml de hoja de Melissa officinalis L, melisa (1: 2,5-3,5);<br/>0,1 ml de fruto de Silybum marianum L Gaertner, cardo mariano (1: 2,5-3,5) y<br/>0,05 ml  de hoja de Mentha piperita L, menta (1: 2,5-3,5). El medicamento contiene un 31% (V/V) de etanol.</td>
+<td>Iberogast está indicado en adultos y  adolescentes mayores de 12 años. Iberogast es un medicamento a base de plantas para el tratamiento de trastornos gastrointestinales tales como dispepsia y gastritis, así como en el alivio de los síntomas asociados, dolor de estómago, hinchazón abdominal, flatulencia, cólicos gastrointestinales, náuseas y ardor de estómago</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/75509/FT_75509.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>IMUPRET COMPRIMIDOS RECUBIERTOS</td>
+<td>1 comprimido recubierto contiene:<br/>12 mg Juglandis regia L., hojas (Nogal)<br/>10 mg Equisetum arvense L., tallos estériles (Cola de caballo)<br/>8 mg Althaeae officinalis L., raíz (Malvavisco)<br/>6 mg Matricaria recutita L. (Chamomilla recutita (L.) Rauschert), flores (Camomila)<br/>4 mg Quercus robur L. Q. petraea (Matt) Liebl y Q. Pubescens Willd., corteza (Roble común, álbar y<br/>pubescente)<br/>4 mg Taraxacum officinale Weber, partes aéreas (Diente de león)<br/>4 mg Achillea millefolium L., sumidad florida (Milenrama)<br/>Excipientes con efecto conocido:<br/>Glucosa monohidrato 0,929 mg, lactosa monohidrato 51,523 mg, sacarosa 63,096 mg, almidón de maiz<br/>23,290 mg </td>
+<td>Medicamento tradicional a base de plantas para el alivio de síntomas del resfriado como picor e irritación<br/>de garganta y tos seca. Basado exclusivamente en su uso tradicional .<br/>Imupret es un medicamento tradicional a base de plantas.<br/>Esta indicado en adultos, adolescentes y niños mayores de 12 años.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/79944/79944_ft.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>IPSODOL 0,075% CREMA</td>
+<td>Cada 100 g de crema contienen:<br/>Oleorresina de Capsicum annuum L. (312-625 mg) equivalente a 75 mg de capsaicina<br/>Excipientes con efecto conocido:<br/>Propilenglicol (E-1520) 5,0 g,<br/>alcohol cetílico 1 g,<br/>Parahidroxibenzoato de propilo, sal de sodio (E-217)0,10 g<br/>Parahidroxibenzoato de metilo, sal de sodio (E-219)0,20 g.</td>
+<td>Alivio del dolor moderado a severo en la neuropatía diabética dolorosa que interfiera en las actividades diarias y que no haya respondido a otro tratamiento</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/68669/FT_68669.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>JARABE DEL DR MANCEAU</td>
+<td>5ml de jarabe (1 medidas de 5ml de la cucharilla dosificadora)), corresponden a:<br/>400mg de extracto acuoso de hojas de Cassia angustifolia Vahl (sen), con un contenido equivalente a 10mg de heterósidos hidroxiantracénicos expresados como senósidos B.<br/>500mg de extracto acuoso de frutos de Pyrus Malus L (manzana reineta).<br/>50mg de extracto acuoso de frutos de Coriandro sativum L (coriandro).<br/>Excipientes: Sacarosa 768mg/ml de jarabe, agua purificada</td>
+<td>Medicamento a base de plantas para el tratamiento de corta duración del estreñimiento ocasional en adultos, adolescentes y niños mayores de 12 años</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/43225/FT_43225.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>JUANOLCOLD RESFRIADOS (COMPRIMIDOS)</td>
+<td>Cada comprimido contiene 20 mg de extracto seco de raíz de Pelargonium sidoides DC y/o P. reniforme<br/>Curt., radix (4-7:1).<br/>Agente de extracción: etanol 14% (v/v).</td>
+<td>Medicamento tradicional a base de plantas para el alivio de los síntomas del resfriado común, en adultos,<br/>adolescentes y niños mayores de 6 años, basado en el uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/80945/FT_80945.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>JUANOLTUS EXPECTORANTE JARABE<br/></td>
+<td>El principio activo es extracto seco de hiedra (Hedera helix L.)<br/>1 ml de jarabe contienen 7 mg de extracto seco de hojas de Hedera helix L. (4-8:1), disolvente de<br/>extracción: etanol 30 % m/m<br/>Excipiente(s) con efecto conocido: Maltitol</td>
+<td>Medicamento a base de plantas utilizado como expectorante para la tos productiva en adultos, adolescentes<br/>y niños mayores de 2 años.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84734/FT_84734.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>KALOBA COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Composición por comprimido de 400 mg:<br/>20 mg de extracto (líquido) desecado de la raíz de Pelargonium sidoides DC (1:8-10) (EPs® 7630)<br/>Agente de extracción etanol 11% (m/m).<br/>Excipientes:<br/>Lactosa monohidrato (20 mg) y otros.</td>
+<td>Medicamento tradicional a base de plantas para el alivio del resfriado común, basado en el uso tradicional.<br/><br/> <br/><br/>Este medicamento está indicado en adultos, adolescentes y niños mayores de 6 años</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/71732/FT_71732.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>KALOBA GOTAS ORALES</td>
+<td>Sustancia activa: 10 g (= 9.75 ml) de solución contienen 8.0 g de extracto líquido de raíz de Pelargonium sidoides DC (1 : 8 - 10) (EPs® 7630). Agente de extracción: Etanol 11% (m/m).<br/>Excipientes:<br/>Etanol 12% (v/v) que se corresponde con 0,084 g por ml.<br/>Glicerol 0,174 g</td>
+<td>Medicamento tradicional a base de plantas para el alivio del resfriado común basado en el uso tradicional.<br/>Este medicamento está indicado en adultos, adolescentes y niños a partir de 6 años</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/71733/FichaTecnica_71733.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>KALOBA JARABE</td>
+<td>1 ml (1,06 g) de jarabe contiene 2,67 mg de extracto (como extracto seco) de raíz de Pelargonium sidoides<br/>DC y/o Pelargonium reniforme Curt (DER 1:8-10) (EPs® 7630). Disolvente de extracción: etanol 11%<br/>(m/m).</td>
+<td>Medicamento tradicional a base de plantas para el alivio del resfriado común basado en el uso tradicional.<br/>Este medicamento está indicado en adultos, adolescentes y niños a partir de 6 años. </td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/83172/FT_83172.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>LADIVA CAPSULAS</td>
+<td>Cada cápsula dura contiene 226 mg de extracto (como extracto seco) de Rubus idaeus L., folium (hoja de<br/>frambueso) (3-5:1).<br/>Disolvente de extracción: agua.</td>
+<td>Es un medicamento tradicional a base de plantas utilizado para el alivio simptomático de espasmos<br/>menores asociados con los períodos menstruales en mujeres adultas.<br/>El producto es un medicamento tradicional a base de plantas para uso exclusivo en la indicación<br/>especificada, en base a su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84186/FT_84186.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>LASEA<br/>80 MG / CÁPSULAS BLANDAS</td>
+<td>Principio activo:<br/>Cada cápsula blanda contiene 80 mg de aceite esencial de Lavandula angustifolia Mill. (aceite de lavanda).<br/>Excipiente con efecto conocido: Sorbitol, aproximadamente 12 mg/cápsula blanda.</td>
+<td>Medicamento a base de plantas para el tratamiento de los síntomas transitorios de la ansiedad.<br/>Lasea está indicado en adultos.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84238/FT_84238.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>LAXOR 320 MG COMPRIMIDOS</td>
+<td>Cada comprimido contiene:<br/>320 mg de polvo de corteza de Rhamnus purshianus D.C. (cáscara sagrada) con un contenido en glucósidos<br/>hidroxiantracénicos expresados como cascarósido A, de 26,88 mg.</td>
+<td>Medicamento a base de plantas para uso a corto plazo en casos de estreñimiento ocasional<br/>Este medicamento está indicado en adultos y adolescentes mayores de 12 años</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/77018/FT_77018.pdf">Ficha técnica</a>  </td>
+</tr>
+<tr>
+<td>LINEASUL TISANA</td>
+<td>La composición por bolsa de 1,4 g la siguiente:<br/>Principios activos<br/>Cassia angustifolia Vahl (hoja): 700 mg*<br/>Rhamnus frangula L. Corteza: 168 mg**<br/>(*) Contenido total de derivados hidroxiantracénicos expresados como senósido B: 15,8 mg<br/>(**) Contenido total en glucofrangulinas A: 11,9 mg </td>
+<td>Adultos, adolescentes y niños mayores de 12 años: Medicamento a base de plantas para el tratamiento de<br/>corta duración del estreñimiento ocasional.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/78544/FT_78544.pdf">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>LINITUL APOSITO IMPREGNADO</td>
+<td>Cada gramo de mezcla de Linitul Apósito impregnado contiene:<br/>- La fracción soluble de 18,5 mg de Bálsamo del Perú<br/>- 167,8 mg de Aceite de ricino.</td>
+<td>Linitul Apósito impregnado está indicado para promover la cicatrización de heridas, úlceras por presión (de decúbito) y úlceras varicosas</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/32591/FT_32591.html">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>LINITUL POMADA</td>
+<td>Cada gramo de pomada contiene:<br/>- La fracción soluble de 20 mg de Bálsamo del Perú<br/>- 150 mg de Aceite de ricino.</td>
+<td>Linitul Pomada está indicado para promover la cicatrización de heridas, úlceras por presión (de decúbito) y<br/>úlceras varicosas.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/32608/FT_32608.pdf">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>LINOMED, GRANULADO</td>
+<td>Cada dosis de 4,1 g (una cuchara dosificadora) contiene:<br/>Semilla de lino (Linum usitatissimum ( L.)) enteras, 1,76 g<br/>Hoja de sen (Cassia angustifolia (Vahl.)) en polvo, 0.56g<br/>Corteza de frángula (Rhamnus frangula) en polvo, 0.05g<br/>Con un contenido de 20,5 mg de derivados hidroxiantracénicos expresados como<br/>senósidos B.<br/>Excipientes con efecto conocido: cada dosis de 4.1 g contiene 480 mg de<br/>Sacarosa</td>
+<td>Tratamiento sintomático y de corta duración del estreñimiento ocasional.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/68995/FT_68995.html">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>MENSIFEM COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>1 comprimido recubierto con película contiene<br/>2,8 mg de extracto seco de Cimicifuga racemosa (L.) Nutt., rizoma (cohosh negro) (5-10:1)<br/>Solvente de extracción: etanol al 58% (v/v)<br/>Excipiente con efecto conocido:<br/>Lactosa monohidrato, 17,2 mg                                                                                                                                           </td>
+<td>Medicamento a base de plantas indicado en mujeres adultas para el alivio de las molestias de la<br/>menopausia, tales como sofocos y sudoración intensa</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/78990/FT_78990.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>NERVIKAN COMPRIMIDOS RECUBIERTOS</td>
+<td>Cada comprimido recubierto contiene:<br/>Extracto seco, obtenido con etanol al 70% v/v, de raíz de Valeriana officinalis (Valeriana) 160 mg equivalente a 480 - 960 mg de raíz seca de Valeriana<br/>Extracto seco, obtenido con etanol al 36% v/v, de hojas de Melissa officinalis (Melisa) 80 mg equivalente a 320 - 480 mg de hojas secas de Melisa<br/>Excipiente(s) con efecto conocido: 2,5 mg sacarosa</td>
+<td>Tratamiento sintomático de los estados temporales y leves de nerviosismo y de la dificultad ocasional para conciliar el sueño de origen nervioso.<br/><br/>Nervikán está indicado en adultos y adolescentes a partir de 12 años</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/62721/FT_62721.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>NEURAPAS COMPRIMIDOS RECUBIERTOS</td>
+<td>Cada comprimido contiene:<br/>-Extracto seco de sumidades floridas de hipérico: 60 mg<br/>(Equivalente a 0,08 mg de hipericinas totales; disolvente de extracción: etanol 38%; relación planta seca / extracto 4,6-6,5:1)<br/>-Extracto seco de raíz de valeriana: 28 mg<br/>(Disolvente de extracción: etanol 40%; relación planta seca / extracto 3,8-5,6:1)<br/>-Extracto seco de sumidad de pasiflora: 32 mg<br/>(Disolvente de extracción: etanol 60%; relación planta seca / extracto 6,25-7,1:1)<br/>Excipientes:<br/>- Lactosa monohidrato (matriz en el extracto de hipérico), 16,0 mg<br/>- Lactosa monohidrato (como componente del núcleo), 74,50 mg<br/>- Glucosa líquida, spray dried (matriz en el extracto de valeriana), 10,4 mg<br/>- Glicerol 85%, 1,20 mg</td>
+<td>Tradicionalmente indicado en el alivio de los estados de decaimiento que cursan con pérdida de interés y alteraciones del sueño.<br/><br/></td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/69109/FT_69109.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>OJOSBEL GOTAS OCUALARES 0,30 MG/0,08 ML COLIRIO EN SOLUCIÓN</td>
+<td>Cada ml contiene:<br/>Nafazolina clorhidrato, 0,30 mg<br/>Agua de Hamamelis, 0,08 ml</td>
+<td>OJOSBEL GOTAS OCULARES está indicado en el alivio sintomático de irritaciones de la conjuntiva,<br/>congestiones oculares, conjuntivitis alérgica y enrojecimiento por agentes externos.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/56489/FT_56489.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>OTOCERUM GOTAS OTICAS EN SOLUCION</td>
+<td>Cada ml contiene:<br/>Esencia de Trementina: 150 mg (15 %)<br/>Clorobutanol: 50 mg (5 %)<br/>Benzocaína: 30 mg (3 %)<br/>Fenol: 10 mg (1 %)<br/>Aceite de ricino: 400 mg (40 %)</td>
+<td>Disolvente del cerumen auricular, antiséptico y ligeramente analgésico.<br/>Extracción indolora del cerumen auricular.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/32103/FT_32103.html">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>OTOGEN® CALMANTE</td>
+<td>ml Tetracaína (D.O.E.) clorhidrato, 100 mg Fenol, 40 mg Mentol, 40 mg Aceite esencial de clavos, 40 mg Benzalconio cloruro (D.O.E.),  0,3 mg Excipiente: Dietilenglicol </td>
+<td>Afecciones de oído medio y externo que presenten acusado dolor y necesidad de antisepsia. Forunculosis<br/>de oído externo. Otitis media catarral simple con tímpano integro.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/p/46544/P_46544.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PASANG 425 MG COMPRIMIDOS RECUBIERTOS</td>
+<td>Cada comprimido contiene:<br/>Extracto seco de Passiflora Incarnata: 425,00 mg<br/>(Solvente de extracción: etanol 50%; relación planta seca / extracto 5:1)<br/>Excipientes:<br/>Glucosa líquida (spray dried), 187,039 mg<br/>Sacarosa, 5,133 mg</td>
+<td>Tradicionalmente utilizado para el tratamiento sintomático y transitorio de los estados de inquietud, estrés e irritabilidad con dificultad para conciliar el sueño.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/68994/FT_68994.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PASIFLORA ARKOPHARMA CÁPSULAS DURAS</td>
+<td>Cada cápsula contiene:<br/>300 mg de partes aéreas criomolidas de  Passiflora incarnata L. (Pasiflora).</td>
+<td>Medicamento tradicional a base de plantas utilizado para aliviar los síntomas moderados de estrés mental y para ayudar a dormir.<br/><br/>Basado exclusivamente en su uso tradicional</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/71776/FT_71776.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PHARMATRES TISANA</td>
+<td>Composición por bolsa de 1,5 g:<br/>Cassia angustifolia Vahl. (polvo de hojas): 0,375 g*<br/>Cassia angustifolia Vahl. (polvo de frutos): 0,375 g*<br/>Fucus vesiculosus L. (talos): 0,750 g**<br/>(*) Contenido total en derivados hidroxiantracénicos expresados como senósido B: entre 15,25 y 18,97 mg por bolsa<br/>(**) Contenido de yodo: entre 297 y363 microgramos por bolsa<br/>Excipientes: no contiene excipientes</td>
+<td>Medicamento a base de plantas para el tratamiento de corta duración del estreñimiento ocasional.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/72525/FT_72525.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PLANTAGO OVATA CINFA 3,5 g POLVO PARA SUSPENSION ORAL</td>
+<td>Cada sobre contiene 3,5 g de cutícula de semillas de Plantago ovata (Ispágula Husk).<br/>Excipientes con efecto conocido<br/>Cada sobre contiene 90 mg de aspartamo (E-951) y 3,5 mg de amarillo anaranjado S (E-110).</td>
+<td>Tratamiento sintomático del estreñimiento.<br/>Para facilitar la deposición de las heces en casos de deposiciones dolorosas, por ejemplo tras cirugía rectal o anal, fisuras anales y hemorroides.<br/>En pacientes en los que es aconsejable aumentar la ingesta diaria de fibra, por ej. Como coadyuvante en el estreñimiento asociado al síndrome de colon irritable y como coadyuvante a la dieta en hipercolesterolemia.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/68088/FT_68088.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PLANTAGO OVATA NORMON 3,5 g POLVO PARA SUSPENSION ORAL</td>
+<td>Cada sobre monodosis contiene:<br/>Cutícula de semillas de Plantago ovata (Ispágula Husk): 3,5 g<br/>Excipientes con efecto conocido:<br/>Colorante amarillo-anaranjado S (E-110): 2,5 mg<br/>Sodi: 180 mg (7,85 mmol)</td>
+<td>Tratamiento sintomático del estreñimiento.<br/>Para facilitar la deposición de las heces en casos de deposiciones dolorosas, por ejemplo tras cirugía rectal o anal, fisuras anales y hemorroides.<br/>En pacientes en los que es aconsejable aumentar la ingesta diaria de fibra, por ej. Como coadyuvante en el estreñimiento asociado al síndrome de colon irritable y como coadyuvante a la dieta en hipercolesterolemia.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/p/68514/P_68514.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>POMADA BELLADONA ORRAVAN POMADA<br/></td>
+<td>Belladona Exto Blando<br/>Excipientes <br/>Alcohol Etilico (Etanol)<br/>Lanolina</td>
+<td>Belladona en crema: usos y beneficios. La belladona en crema, por su parte, se utiliza para aliviar los dolores de las articulaciones y los dolores reumáticos. </td>
+<td><a href="https://cima.aemps.es/cima/publico/detalle.html?nregistro=34491">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PROSPANTUS JARABE</td>
+<td>Composición por 2,5 ml de jarabe:<br/>17,5 mg de extracto seco de hoja de Hedera helix L. (hiedra) (5-7,5:1), disolvente de extracción: etanol 30% (m/m), equivalente a 88 - 131 mg de hojas secas de Hedera helix L.<br/>Excipientes con efecto conocido: Sorbitol 1375 mg.</td>
+<td>Prospantus está indicado en adultos, adolescentes y niños mayores de 2 años como expectorante en caso de tos productiva que acompaña a afecciones bronquiales benignas. Facilita la eliminación del moco.<br/><br/></td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/66613/FT_66613.html">Ficha técnica</a>#6</td>
+</tr>
+<tr>
+<td>PROSPANTUS JARABE EN SOBRES</td>
+<td>Composición por 5 ml de jarabe:<br/>35 mg de extracto seco de hoja de Hedera helix L. (hiedra) (5-7,5:1), disolvente de extracción: etanol 30% m/m, equivalente a 176 - 262 mg de hojas secas de Hedera helix L.</td>
+<td>Prospantus está indicado en adultos, adolescentes y niños mayores de 6 años como expectorante en caso de tos productiva que acompaña a afecciones bronquiales benignas. Facilita la eliminación del moco.<br/></td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/77456/FT_77456.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PROSPANTUS PASTILLAS DE GOMA</td>
+<td>1 pastilla de goma contiene 26 mg de extracto seco de hojas de hiedra ((5 – 7,5): 1). Disolvente de extracción: etanol 30 % (m/m)<br/>Excipiente(s) con efecto conocido:<br/>Sorbitol líquido no cristalizable 70% (526.110 mg); Maltitol líquido 75% (526.110 mg)</td>
+<td>Prospantus Pastillas de goma es un medicamento a base de plantas utilizado como expectorante para la tos productiva. Está indicado en adultos, adolescentes y niños mayores de 6 años.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84827/FT_84827.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PROSTAMED CAPSULAS</td>
+<td>Una cápsula de [aprox.480 mg] contiene:<br/>320 mg de extracto (como extracto blando) del fruto de Serenoa repens (BARTRAM) SMALL = Sabal serrulata(MICHAUX) NICHOLS ( 9-12:1) Solvente de extracción: etanol 96% V/V<br/>Excipientes de declaración obligatoria en el material de embalaje:<br/>Sorbitol (E-420)</td>
+<td>Adultos:<br/>Medicamento tradicional de plantas utilizado para el alivio de los síntomas del tracto urinario inferior relacionados con la función de eliminación de orina, tales como aumento de la frecuencia de la micción, especialmente durante la noche (nicturia), tenesmo vesical (dificultad para orinar), flujo urinario débil, sensación de un vaciado incompleto de la vejiga, basado exclusivamente en su uso tradicional.<br/>Este medicamento está indicado en adultos que padecen aumento de tamaño de la próstata asociado a la edad (hiperplasia prostática benigna, HPB) una vez que el médico haya excluido una situación clínica grave</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/79702/FT_79702.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PROSTUROL </td>
+<td>Cada cápsula contiene:<br/>Extracto lípido-esterólico de Prunus Africana: 25 mg<br/>Bencidamina (D.C.I. rec) HCl: 25 mg<br/>Excipientes: Sílice coloidal, celulosa microcristalina, estearato magnésico, talco, eritrosina (E-127), amarillo de quinoleina (E-104), indigotina (E-132), bióxido de titanio (E-171) y gelatina.</td>
+<td>Hiperplasia de la próstata.<br/>Cuadro de incontinencia urinaria y disuria post-adenomectomía.<br/>Tratamiento preoperatorio en la cirugía del adenoma prostático. Prostatitis.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/p/54225/P_54225.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>REDSENG 300 MG CAPSULAS</td>
+<td>300 mg de raíz de Panax ginseng C.A. Meyer (Ginseng rojo coreano, raíz de 6 años)</td>
+<td>Medicamento tradicional a base de plantas utilizado en estados de fatiga, agotamiento físico o intelectual y debilidad, basado exclusivamente en .su uso tradicional.<br/>Redseng está indicado en adultos</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/75841/FT_75841.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>REDSENG 300MG COMPRIMIDOS</td>
+<td>300 mg de raíz de Panax ginseng C.A. Meyer (Ginseng rojo coreano, raíz de 6 años)</td>
+<td>Medicamento tradicional a base de plantas utilizado en estados de fatiga, agotamiento físico o intelectual y debilidad, basado exclusivamente en .su uso tradicional.<br/>Redseng está indicado en adultos.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/75845/FT_75845.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>REMIFEMIN COMPRIMIDOS</td>
+<td>Cada comprimido contiene:<br/>0,018-0,026 ml de extracto líquido de rizoma de cimicifuga racemosa L., que corresponde a 20 mg de droga vegetal (agente de extracción: propan-2-ol al 40% v/v). Relación rizoma seco / extracto: (0,78-1,14: 1)<br/>Excipientes con efecto conocido<br/>Lactosa.</td>
+<td>Remifemin está indicado en el tratamiento de síntomas relacionados con la menopausia, tales como sofocos y sudoración intensa.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/64493/64493_ft.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ROTERCYSTI COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Cada comprimido recubierto con película contiene 425,25 mg - 519,75 mg de extracto (como extracto seco) de Arctostaphylos uva-ursi (L.), folium (hoja de gayuba) que equivalen a 105 mg de derivados de hidroquinona, calculados como arbutina anhidra (espectrofotometría)</td>
+<td>Medicamento tradicional a base de plantas utilizado en mujeres adultas, para el tratamiento de los síntomas de infecciones leves del tracto urinario inferior (p. ej. infección de la vejiga), tales como sensación de ardor al orinar y/o micción frecuente.<br/>Este producto es un medicamento tradicional a base de plantas para uso en la indicación especificada, basada exclusivamente en un uso de larga tradición. </td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/81744/FT_81744.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>SALVIAMED</td>
+<td>Aceite esencial (hasta un 3%) constituido principalmente por α-tuyona (hasta un 60%), ß-tuyona (10%), alcanfor y 1,8-cineol. La composición es muy variable dependiendo de la procedencia, tipo de producción, época de recolección, etc.<br/>Derivados del ácido hidroxicinámico (3,5%), principalmente ácido rosmarínico (hasta 3,3%).<br/>Diterpenos fenólicos entre los cuales el más importante es el carnosol.<br/>Flavonoides (1.1%)</td>
+<td>La salvia está indicada en el tratamiento sintomático de inflamaciones de la cavidad bucal y la garganta, como gingivitis y faringitis.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/78542/FT_78542.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>SATIVEX 2,7 MG / 2,5 MG</td>
+<td>Cada ml contiene:<br/>38-44 mg y 35-42 mg de dos extractos (como extractos suaves) de Cannabis sativa L., folium cum flore (hoja y flor de cannabis) equivalentes a 27 mg de delta-9-tetrahidrocannabinol y 25 mg de cannabidiol. Disolvente de extracción: dióxido de carbono líquido.<br/>Cada pulverización de 100 microlitros contiene:<br/>2,7 mg de delta-9-tetrahidrocannabinol (THC) y 2,5 mg de cannabidiol (CBD) de Cannabis sativa L.<br/>Excipiente(s) con efecto conocido:<br/>cada pulverización de 100 microlitros contiene hasta 40 mg de etanol. Cada pulverización de 100 microlitros contiene 52 mg de propilenglicol</td>
+<td>Sativex está indicado como tratamiento para la mejoría de los síntomas en pacientes adultos con espasticidad moderada o grave debida a la esclerosis múltiple (EM) que no han respondido de forma adecuada a otros medicamentos antiespásticos y que han mostrado una mejoría clínicamente significativa de los síntomas relacionados con la espasticidad durante un período inicial de prueba del tratamiento</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/72544/FT_72544.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>SEDISLEEP COMPRIMIDOS RECUBIERTOS CON PELÍCULA</td>
+<td>Cada comprimido recubierto con película contiene 500 mg de extracto seco de Valeriana officinalis L., radix (equivalente a 2 g - 3 g de raíz de valeriana).<br/>Solvente de extracción: etanol 60% (V/V).</td>
+<td>Medicamento a base de plantas utilizado para el alivio de la tensión nerviosa leve y los trastornos del sueño.<br/>Sedisleep está indicado en adultos y adolescentes mayores de 12 años</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/83519/FT_83519.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>SEDISTRESS COMPRIMIDOS RECUBIERTOS (PASSIFLORA INCARNATA)</td>
+<td>Cada comprimido recubierto contiene 200 mg de extracto de Passiflora incarnata L. (como extracto seco), partes aéreas (equivalente a 700 mg – 1000 mg de pasiflora). Disolvente de extracción: etanol 60% v/v.<br/>Excipiente con efecto conocido:<br/>Este medicamento contiene menos de 1 mmol de sodio (23 mg) por comprimido recubierto, es decir, esencialmente “libre de sodio”</td>
+<td>Medicamento tradicional a base de plantas y utilizado para reducir los síntomas moderados del estrés mental como el nerviosismo, la inquietud o la irritabilidad, así como para facilitar el sueño.<br/>Este fármaco es un medicamento tradicional realizado a base de plantas y que ha de ser utilizado siguiendo determinadas indicaciones específicas basadas exclusivamente en un uso de larga duración. <br/><br/>Sedistress está indicado en adultos y adolescentes de 12 años o mayores.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/74770/FT_74770.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>SEREPROSTAT 80 MG COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Cada comprimido recubierto con película contiene 80 mg de extracto lípidoesterólico de Serenoa repens (Bartram) Small (DER 7-11:1). Disolvente hexánico.<br/>Excipiente(s) con efecto conocido.<br/>100 mg de almidón de trigo por comprimido. Un comprimido recubierto no contiene más de 10 microgramos de gluten.</td>
+<td>Sereprostat está indicado en hombres adultos en el tratamiento de los trastornos miccionales moderados ligados a la hiperplasia benigna de la próstata</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/56872/FT_56872.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>SEREQUR 320 MG CAPSULAS BLANDAS</td>
+<td>Serequr 320 mg cápsula blanda<br/>Cada cápsula de gelatina blanda contiene 320 mg de extracto lipidoesterólico de fruto de Serenoa repens (Bartram) Small (DER 9-11:1). Disolvente etanol 96% V/V.<br/>Excipientes con efecto conocido: parahidroxibenzoato de etilo, sal de sodio (E-215) 0,72 mg y parahidroxibenzoato de propilo, sal de sodio (E-217) 0,36 mg.</td>
+<td>Serequr está indicado en hombres adultos en el tratamiento de los trastornos miccionales moderados<br/>ligados a la hiperplasia benigna de la próstata</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84613/FT_84613.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>SINUS INHALACIONES</td>
+<td>Por mililitro:<br/>Cineol (Eucaliptol): 250 mg<br/>Aceite esencial de eucalipto: 120 mg<br/>Aceite esencial de pino: 60 mg<br/>Mentol: 15 mg<br/>Aceite esencial de menta: 10 mg<br/>Alcanfor: 1,2 mg<br/>Excipientes con efecto conocido:<br/>Propilenglicol (E-1520): 150 mg<br/>Esencia de bergamota (contiene d-Limoneno, linalol y citral): 1,4 mg<br/>Esencia de canela (contiene cinamaldehído, eugenol, linalol,<br/>benzoato de bencilo y cumarina): 0,5 mg<br/>Esencia de enebro (contiene d-Limoneno): 0,2 mg</td>
+<td>Está indicado en adultos y adolescentes a partir de 12 años, para el alivio de la congestión nasal con exceso de mucosidad asociada a procesos gripales y catarrales</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/41653/FT_41653.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>TANAKENE SOLUCION ORAL</td>
+<td>Por ml: 40 mg de extracto estandarizado seco de hojas de Ginkgo biloba, obtenido con acetona 60% m/m (relación planta extracto 35-67:1), conteniendo de un 22 a 27% de flavonoides expresados como glucósidos flavónicos y de un 5 a un 7% de lactonas terpénicas, de las que aproximadamente de un 2,8 a 3,4% son ginkgólidos A, B y C, y de un 2,6 a 3,2% es bilobalida y no más de 5 p.p.m. son de ácidos ginkgólicos.Etanol 95% v/v y otros excipientes.</td>
+<td>Medicamento a base de plantas para la mejoría del deterioro cognitivo asociado a la edad.<br/>Este medicamento está indicado en adultos</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/65745/65745_ft.pdf">Ficha técnica</a></td>
+</tr>
+
+<tr>
+<td>TAVONIN 120 MG COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Cada comprimido recubierto con película contiene:<br/>Principio Activo:<br/>120,0 mg de extracto seco de hojas de Ginkgo biloba EGb 761® (relación planta seca/extracto: 35-67:1), obtenido con acetona al 60% m/m, cuantificado a 26.4 – 32.4 mg de glucósidos flavónicos y de 6.48 – 7.92 mg de lactonas terpénicas, de las que 3.36 –4.08 mg son ginkgólidos A, B, y C, y 3.12 – 3.84 mg son bilobálidos y no más de 0,6 microgramos son ácidos ginkgólicos.</td>
+<td>Tratamiento sintomático de alteraciones en la microcirculación cerebral (como vértigos y tinnitus) o de los síntomas asociados a insuficiencia circulatoria en las extremidades (tales como calambres y sensación de frío en las piernas).<br/>Este medicamento está indicado en adultos</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/78485/FT_78485.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>TAVONIN 40 MG COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Cada comprimido recubierto con película contiene:<br/>Principio Activo:<br/>40,0 mg de extracto seco de hojas de Ginkgo biloba EGb 761®(rel. planta seca / extracto: 35-67 : 1), obtenido con acetona al 60% m/m, cuantificado a 8,8-10,8 mg de glucósidos flavónicos y de 2,0- 2,8 mg de lactonas terpénicas, de las que aproximadamente 1,12 – 1,36 mg son ginkgólidos A, B, y C,y 1,04 – 1,28 mg son bilobalidos y no más de 0,2 microgramos son ácidos ginkgólicos.</td>
+<td>Tratamiento sintomático de alteraciones en la microcirculación cerebral (como vértigos y tinnitus) o de lossíntomas asociados a insuficiencia circulatoria en las extremidades (tales como calambres y sensación de frío en las piernas).<br/>Este medicamento está indicado en adultos.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/63114/FT_63114.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>TEBOFORTAN 120 MG COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Cada comprimido recubierto con película contiene:<br/>Principio Activo:<br/>120,0 mg de extracto seco de hojas de Ginkgo biloba EGb 761® (relación planta seca/extracto: 35-67:1), obtenido con acetona al 60% m/m, cuantificado a 26.4 – 32.4 mg de glucósidos flavónicos y de 6.48 – 7.92 mg de lactonas terpénicas, de las que 3.36 –4.08 mg son ginkgólidos A, B, y C, y 3.12 – 3.84 mg son bilobalidos y no más de 0,6 microgramos son ácidos ginkgólicos</td>
+<td>Medicamento a base de plantas para la mejoría del deterioro cognitivo asociado a la edad.<br/>Este medicamento está indicado en adultos.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/p/78486/P_78486.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>TEBOFORTAN 240MG COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Cada comprimido recubierto con película contiene:<br/>Principio Activo:<br/>240,0 mg de extracto seco de hojas de Ginkgo biloba EGb 761® (relación planta seca/extracto: 35-67:1), obtenido con acetona al 60% m/m, cuantificado a 52,8 – 64,8 mg de glucósidos flavónicos y de 12,96 – 15,84 mg de lactonas terpénicas, de las que 6,72 – 8,16 mg son ginkgólidos A, B, y C, y 6,24 – 7,68 mg son bilobálidos y no más de 1,2 microgramos son ácidos ginkgólicos.</td>
+<td>Medicamento a base de plantas para la mejoría del deterioro cognitivo asociado a la edad.<br/>Este medicamento está indicado en adultos.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/82367/FT_82367.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>TOSIVY JARABE</td>
+<td>Composición por (1) ml de jarabe:<br/>7,4 mg de extracto seco de hojas de Hedera helix L. (hiedra), (4-8:1), disolvente de extracción etanol 30 % m/m.<br/>Excipiente(s) con efecto conocido:<br/>Sorbitol 70% (320 mg por cada ml).</td>
+<td>Medicamento tradicional a base de plantas utilizado como expectorante para la tos productiva. Estáindicado en adultos, adolescentes y niños, mayores de 2 años. Este producto es un medicamento tradicional a base de plantas, para uso en las indicaciones específicas basadas en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84605/FT_84605.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>TRANQUIGOR CÁPSULAS BLANDAS</td>
+<td>Cada cápsula contiene:<br/>Principios activos:<br/>Extracto seco metanólico 45% V/V de raíz de Valeriana officinalis, relación planta seca/extracto (4:1) (equivalente a 500 mg de raíz de Valeriana)      125,00 mg<br/>Extracto seco metanólico 40% V/V de estróbilos de Humulus lupulus, relación planta seca/extracto (5:1) (equivalente a 139 mg de estróbilos de Lúpulo): 27,80 mg<br/>Excipiente(s) con efecto conocido<br/>- Aceite de soja hidrogenado, 7,222 mg<br/>- Aceite de soja parcialmente hidrogenado, 28,889 mg<br/>- Lactosa monohidrato, 21,250 mg<br/>- Glicerol (E 422), 23,91 / 28,07 mg<br/>- Sol. de sorbitol 70% (no cristalizable), sustancia seca, 16,12 / 18,92 mg</td>
+<td>Tratamiento sintomático de los estados temporales y leves de nerviosismo y de la dificultad ocasional para conciliar el sueño.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/63125/FT_63125.html">Ficha técnica</a></td>
+</tr>
+
+<tr>
+<td>TUSCLIN JARABE</td>
+<td>Cada ml de Jarabe contiene 7 mg de extracto (en forma de extracto seco) de Hedera helix L. folium (hoja de hiedra) (4-8:1), disolvente de extracción con etanol 30% (m/m). Excipiente(s) con efecto conocido: Sorbitol: 1 ml de Jarabe contiene 498 mg de sorbitol (E-420).</td>
+<td>Medicamento a base de plantas medicinales utilizado como expectorante en caso de tos productiva. Tusclin Jarabe está indicado en adultos, adolescentes y niños mayores de 2 años.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/82374/FT_82374.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>TUTUKON SOLUCION ORAL</td>
+<td>Cada 100 mL de solución oral contiene 94,66 g de destilado acuoso (3,35/1,94/1,65/1/1/1/1/1) obtenido a<br/>partir de las siguientes plantas medicinales:<br/>4, 74 g de la parte aérea estéril de Equisetum arvense L. (Cola de caballo)<br/>2,74 g de la parte aérea florida de Spergularia rubra Dietrich (Arenaria)<br/>2,33 g de hojas de Peumus boldus Molina (Boldo)<br/>1,41 g de flores de Opuntia ficus- indica Miller (Chumbera)<br/>1,41 g de sumidades floridas de Sideritis angustifolia L. (Rabo de gato)<br/>1,41 g de hojas de Rosmarinus officinalis L. (Romero)<br/>1,41 g de rizoma de Cynodon dactylon L. (Grama)<br/>1,41 g de hojas de Melissa officinalis L. (Melisa)<br/>* El disolvente de extracción es agua</td>
+<td>Tutukon solución oral, es un medicamento tradicional a base de plantas utilizado para facilitar la eliminación renal de líquidos.<br/>Basado exclusivamente en su uso tradicional.<br/>Este medicamento está indicado en adultos. </td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/82648/FT_82648.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ULTRA-LEVURA 250 MG CAPSULAS DURAS</td>
+<td>Cada cápsula contiene:<br/>Saccharomyces boulardii CNCM I-745&#174;<br/> 250 mg<br/>Excipientes con efecto conocido:<br/>Lactosa monohidrato 32,50 mg</td>
+<td>Está indicado en adultos y niños mayores de 12 años para el tratamiento sintomático de las diarreas agudas inespecíficas y en la prevención y tratamiento sintomático de los procesos diarreicos producidos por la administración de antibióticos</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/78272/FT_78272.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ULTRA-LEVURA 250 MG POLVO PARA SUSPENSION ORAL</td>
+<td>Cada sobre contiene:<br/>Saccharomyces boulardii CNCM I-745&#174; 250 mg<br/>Excipientes con efecto conocido:<br/>Lactosa monohidrato 32,50 mg<br/>Fructosa 471,90 mg<br/>Sorbitol (E-420) (contenido en el aroma de tutti frutti) 0,1 mg</td>
+<td>Está indicado en adultos y niños para el tratamiento sintomático de las diarreas agudas inespecíficas y en la prevención y tratamiento sintomático de los procesos diarreicos producidos por la administración de antibióticos.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/78258/FT_78258.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>ULTRA-LEVURA 50 MG CAPSULAS DURAS</td>
+<td>Cada cápsula dura contiene:<br/>Saccharomyces boulardii CNCM I-745&#174;-50 mg<br/>Excipiente(s) con efecto conocido<br/>Excipientes con efecto conocido:<br/>Lactosa monohidrato 6,5 mg<br/>Sacarosa 92,30 mg</td>
+<td>Está indicado en adultos y niños mayores de 12 años para el tratamiento sintomático de las diarreas agudas inespecíficas y prevención de los procesos diarreicos producidos por la administración de antibióticos.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/46035/FT_46035.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VALDISPERT COMPLEX</td>
+<td>Cada comprimido recubierto contiene:<br/>60 mg de extracto etanólico seco granulado de raíz de Valeriana officinalis (equivalente a 180-360 mg de raíz de Valeriana). Solvente de extracción etanol al 70 % v/v<br/>30 mg de extracto etanólico seco de Pasiflora incarnata (equivalente a 150-210 mg de Pasiflora). Solvente de extracción etanol al 60 % v/v<br/>Excipientes: 86,77 mg de sacarosa.</td>
+<td>Medicamento a base de plantas para el alivio de la tensión nerviosa leve y de los trastornos del sueño.</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/58836/FT_58836.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VALDISPERTSTRESS COMPRIMIDOS RECUBIERTOS.</td>
+<td>Cada comprimido recubierto contiene:<br/>200 mg de extracto (como extracto seco) de raíz de Valeriana officinalis L. s.l. (raíz de Valeriana) (4-6,7:1). Solvente de extracción: etanol 70% v/v. Equivalentes a 800 – 1340 mg de raíz seca de Valeriana.<br/>68 mg de extracto (como extracto seco) de flor de Humulus lupulus L. (estróbilos de Lúpulo) (4-8:1). Solvente de extracción: etanol 40% v/v. Equivalentes a 272 – 544 mg de estróbilo seco de Lúpulo.</td>
+<td>Medicamento tradicional a base de plantas para el alivio de los síntomas leves del estrés mental. Este producto es un medicamento tradicional a base de plantas para uso en las indicaciones especificadas, basado exclusivamente en un uso de larga tradición. Valdispertstress está indicado en adultos y adolescentes mayores de 12 años.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/78170/FT_78170.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VALDISPERTSTRESS COMPRIMIDOS RECUBIERTOS.</td>
+<td>Cada comprimido recubierto contiene:<br/>200 mg de extracto (como extracto seco) de raíz de Valeriana officinalis L. s.l. (raíz de Valeriana) (4-6,7:1). Solvente de extracción: etanol 70% v/v. Equivalentes a 800 – 1340 mg de raíz seca de Valeriana.<br/>68 mg de extracto (como extracto seco) de flor de Humulus lupulus L. (estróbilos de Lúpulo) (4-8:1). Solvente de extracción: etanol 40% v/v. Equivalentes a 272 – 544 mg de estróbilo seco de Lúpulo.<br/>Excipiente(s) con efecto conocido :<br/>Este medicamento contiene 46,5 mg de glucosa, 14,45 mg de lactosa y 166,17 mg de sacarosa por comprimido recubierto</td>
+<td>Medicamento tradicional a base de plantas para el alivio de los síntomas leves del estrés mental. Este producto es un medicamento tradicional a base de plantas para uso en las indicaciones especificadas, basado exclusivamente en un uso de larga tradición. Valdispertstress está indicado en adultos y adolescentes mayores de 12 años</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/78170/FT_78170.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VALENAT 400 mg CÁPSULAS</td>
+<td>Cada cápsula contiene:<br/>400 mg de raíz de Valeriana officinalis L (Valeriana).<br/>Contenido en ácidos sesquiterpénicos ≥ 0,40 mg/cápsula (expresados como ácido valerénico)</td>
+<td>Medicamento tradicional a base de plantas para adultos, adolescentes y niños mayores de 12 años, para el alivio de los síntomas leves de estrés mental y para ayudar a dormir, basado exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/76123/FT_76123.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VEREGEN 100 mg/g POMADA</td>
+<td>1 g de pomada contiene 100 mg de extracto (como extracto seco, refinado) de Camellia sinensis (L.) O. Kuntze folium (hoja de té verde) (24-56:1),  correspondiente a 55-72 mg  de (-) epigalocatequina galato.<br/>Primer solvente de extracción: agua.<br/>Excipiente(s) con efecto conocido:<br/>1 g de pomada contiene:<br/>50 mg de monopalmitoestearato de propilenglicol.<br/>350 mg de miristato de isopropilo. </td>
+<td>Veregen está indicado para el tratamiento cutáneo de verrugas genitales externas y perianales (Condylomata acuminata) en pacientes inmunocompetentes a partir de 18 años</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/71435/FT_71435.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VITADORON COMPRIMIDOS MASTICABLES</td>
+<td>1 comprimido masticable (250 mg) contiene:<br/>40 mg de Fragaria vesca, folium sicc. (hoja de fresa silvestre) correspondientes a 40 mg de polvo de hoja seca de fresa silvestre.<br/>40 mg de Vitis vinifera, folium sicc. (hoja de vid ) correspondientes a 40 mg de polvo de hoja de vid seca.<br/>Excipientes con efectos conocidos: Almidón de trigo 3.32 mg, lactosa monohidratada 164.17 mg</td>
+<td>Medicamento tradicional a base de plantas utilizado para:<br/>- molestias gastrointestinales leves (por ejemplo, estreñimiento ocasional o flatulencia),<br/>- eccema leve<br/>- cansancio y fatiga<br/>Este producto es un medicamento tradicional a base de plantas para las indicaciones especificadas, basadas exclusivamente en su uso tradicional.<br/>Vitadoron está indicado en adultos. </td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/83153/FT_83153.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VITANGO COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Un comprimido recubierto con película contiene:<br/>200 mg de extracto seco de raíz y rizoma de Rhodiola rosea (1.5-5:1) (WS® 1375).<br/>El agente de extracción es etanol 60% (m/m).</td>
+<td>Medicamento tradicional a base de plantas usado para el alivio temporal de los síntomas asociados al estrés, tales como fatiga y sensación de debilidad. Basado exclusivamente en su uso tradicional</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/72268/FT_72268.html">Ficha técnica</a> </td>
+</tr>
+<tr>
+<td>ZENINAS COMPRIMIDOS RECUBIERTOS CON PELICULA</td>
+<td>Cada comprimido recubierto contiene:<br/>51,72 mg- 92,59 mg de Polvo de Aloe ferox (Aloe de El Cabo)(equivalente a 15 mg de heterósidos hidroxiantracénicos, expresados como barbaloina)<br/>60, 00 mg - 78,95 mg de extracto seco estandarizado de Rhamnus purshianus  D.C (Cascara sagrada) (equivalente a 15 mg de heterósidos hidroxiantracénicos, expresados como cascarosidos A). DER (4-6:1). Etanol 60% v/v</td>
+<td>Medicamento a base de plantas para el tratamiento sintomático y temporal del estreñimiento ocasional.<br/><br/>Adultos, adolescentes y niños mayores de 12 años</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/85433/FT_85433.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>MENTOBOX POMADA</td>
+<td>Alcanfor: 5 g. Mentol: 3 g. Eucaliptol: 1.5 g. Ac. Esencia de cedro: 0.85 g. Timol: 0.20 g. Trementina de Venecia: 0.25 g.Salicilato de metilo: 0,25 g. Vaselina c.s.p.: 100 g. </td>
+<td>Resfriados nasales, resfriado común, laringitis, bronquitis, etc. </td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/p/24208/24208_p.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VAPORUB POMADA</td>
+<td>Un gramo de pomada contiene 50 mg de alcanfor, 50 mg de esencia de trementina, 27.5 mg de mentol, 15 mg de esencia de eucalipto y 2,5 mg de timol.</td>
+<td>Alivio sintomático de la tos y la congestión nasal existente en el resfriado y la gripe.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/22051/FT_22051.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>VALERIANA ARKOPHARMA cápsulas duras</td>
+<td>350 mg de raíces criomolidas de  Valeriana officinalis L. (Valeriana)</td>
+<td>Medicamento tradicional a base de plantas para el alivio del estrés mental y para facilitar el sueño.Basado exclusivamente en su uso tradicional</td>
+<td><a href="https://cima.aemps.es/cima/dochtml/ft/72461/FT_72461.html">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>AMAPOLA DE CALIFORNIA ARKOPHARMA CAPSULAS DURAS</td>
+<td>Por cápsula contiene:300 mg de polvo de partes aéreas floridas de Eschscholtzia californica Chamisso (Amapola de California).</td>
+<td>Medicamento tradicional a base de plantas utilizado en el alivio del estrés mental (nerviosismo e irritabilidad) y como ayuda para mejorar el sueño, basado exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/83942/FT_83942.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>CAMILINA ARKOPHARMA CÁPSULAS DURAS</td>
+<td>300 mg de hojas criomolidas de Camellia sinensis L. (Te verde).</td>
+<td>Medicamento tradicional a base de plantas utilizado en adultos y adolescentes mayores de 12 años como complemento en dietas de control de peso para facilitar la eliminación de líquidos del organismo, en personas con sobrepeso, basado exclusivamente en su uso tradicional</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/75957/FT_75957.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>CARDO MARIANO ARKOPHARMA CAPSULAS DURAS</td>
+<td>Por cápsula:390 mg de frutos criomolidos de Silybum marianum L. Gaertner (Cardo mariano).</td>
+<td>Medicamento tradicional a base de plantas para el alivio sintomático de problemas digestivos, como digestiones pesadas, sensación de plenitud y para facilitar la función hepática, una vez que el médico haya excluido una situación clínica grave. Este producto es un medicamento tradicional a base de plantas para uso en la indicación especificada, basado exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/84655/FT_84655.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>CRATAESOR 400 mg CÁPSULAS</td>
+<td>Cada cápsula contiene: 400 mg de polvo de hojas y flores de Crataegus oxyacanthoides Thuill (Espino blanco). (Contenido en flavonoides (expresados como hiperósido) ≥ 6 mg/cápsula)</td>
+<td>Medicamento tradicional a base de plantas para aliviar el nerviosismo con percepción exagerada de latidos cardíacos (palpitaciones) y en caso de dificultad para dormir, basado exclusivamente en su uso tradicional.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/ft/77467/FT_77467.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PLANTAGO OVATA LAINCO 3.5 g POLVO PARA SUSPENSION ORAL</td>
+<td>Cada sobre contiene: 3.5 g de cutícula de semillas de Plantago ovata (Ispaghula husk). Excipientes: cada sobre contiene 0,010 g de Amarillo anaranjado S (E-110)</td>
+<td>Para el tratamiento del estreñimiento habitual o crónico. En situaciones en las que sería deseable facilitar la deposición de las heces, por ej: en casos de deposiciones dolorosas tras cirugía rectal o anal, fisuras anales y hemorroides. En pacientes en los que es aconsejable aumentar la ingesta diaria de fibra, por ej. como coadyuvante en el estreñimiento asociado al síndrome de colon irritable y como coadyuvante a la dieta en hipercolesterolemia</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/73919/FT_73919.html.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>PLANTAGO OVATA MADAUS 3.5 g POLVO EFERVESCENTE</td>
+<td>Cada sobre contiene 3.5 g de cutícula de semillas de Plantago ovata (Ispaghula husk). Excipiente(s) con efecto conocido: Cada sobre contiene 6 mg de colorante amarillo anaranjado S (E-110) y 178.36 mg (7,75 mmol) de sodio.</td>
+<td>Plantago ovata está indicado: Para el tratamiento del estreñimiento habitual o crónico. En situaciones en las que sería deseable facilitar la deposición de las heces, por ej: en casos de deposiciones dolorosas tras cirugía rectal o anal, fisuras anales y hemorroides. En pacientes en los que es aconsejable aumentar la ingesta diaria de fibra, por ej. Como coadyuvante en el estreñimiento asociado al síndrome de colon irritable y como coadyuvante a la dieta en hipercolesterolemia.</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/69689/FT_69689.html.pdf">Ficha técnica</a></td>
+</tr>
+<tr>
+<td>CENAT GRANULADO</td>
+<td>5 g de granulado contienen: Principio activo: Semillas de Plantago ovata: 3.250 g. Cutículas de semilla de Plantago ovata (Ispaghula husk): 110 mg</td>
+<td>Estreñimiento crónico habitual, o bien a consecuencia de permanencia en cama tras operaciones quirúrgicas, por ejemplo, tras cirugía rectal o anal, por cambios de dieta, viajes o tratamientos prolongados con laxantes drásticos.Afecciones que cursan con alternancia de episodios de diarrea y estreñimiento (colon irritable, diverticulosis). Regulación de la evacuación en pacientes portadores de ano artificial (colostomía). Tratamiento sintomático de diarreas de origen funcional y como medida adicional en casos de enfermedad de Crohn. Procesos proctológicos como hemorroides, fisuras anales o abceso anal, en los que reduce el dolor de la defecación y facilita la evacuación de las heces, por ser éstas más ricas en agua. Para completar el aporte diario de fibras cuando éste es insuficiente (dietas de adelgazamiento y determinados trastornos metabólicos).</td>
+<td><a href="https://cima.aemps.es/cima/pdfs/es/ft/57774/FT_57774.html.pdf">Ficha técnica</a></td>
+</tr>
+</tbody></table>
+</div>
+</section>
+
+  </body>
+</html>
