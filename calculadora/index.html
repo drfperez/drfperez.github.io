@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<title>Calculadora de resistències</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+label {
+    margin-right: 5px;
+}
+section {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+#resistorDiagramColor, #resistorDiagramValue {
+    width: 300px;
+    height: 50px;
+    background: #ddd;
+    position: relative;
+    margin-top: 10px;
+}
+.band {
+    width: 15px;
+    height: 50px;
+    position: absolute;
+}
+</style>
+</head>
+<body>
+<div>
+  <label id="langLabel" for="langSelect">Idioma:</label>
+  <select id="langSelect">
+    <option value="ca">Català</option>
+    <option value="es">Español</option>
+    <option value="en">English</option>
+  </select>
+</div>
+<h1 id="title">Calculadora de resistències</h1>
+
+<section id="colorsToValue">
+  <h2 id="modeColorToValue">Codi de colors a valor</h2>
+  <div>
+    <label id="bandCountLabel">Nombre de bandes:</label>
+    <input type="radio" id="fourBands" name="bandCount" value="4" checked>
+    <label id="band4Label" for="fourBands">4 bandes</label>
+    <input type="radio" id="fiveBands" name="bandCount" value="5">
+    <label id="band5Label" for="fiveBands">5 bandes</label>
+  </div>
+  <div>
+    <label id="band1Label" for="band1">Banda 1:</label>
+    <select id="band1"></select>
+    <label id="band2Label" for="band2">Banda 2:</label>
+    <select id="band2"></select>
+    <span id="band3Group">
+      <label id="band3Label" for="band3">Banda 3:</label>
+      <select id="band3"></select>
+    </span>
+    <label id="multLabel" for="multiplier">Multiplicador:</label>
+    <select id="multiplier"></select>
+    <label id="tolLabel2" for="tol2">Tolerància:</label>
+    <select id="tol2"></select>
+  </div>
+  <button id="calculateColorToValue">Calcula</button>
+  <div id="resultColorToValue">
+    <p id="valueOutput"></p>
+    <div id="resistorDiagramColor"></div>
+  </div>
+</section>
+
+<section id="valueToColors">
+  <h2 id="modeValueToColor">Valor a codi de colors</h2>
+  <div>
+    <label id="valueInputLabel" for="valueInput">Valor (Ω):</label>
+    <input type="text" id="valueInput" size="10">
+    <label id="tolInputLabel" for="tolInput">Tolerància:</label>
+    <select id="tolInput"></select>
+  </div>
+  <button id="calculateValueToColor">Calcula</button>
+  <div id="resultValueToColor">
+    <p id="valueOutput2"></p>
+    <div id="resistorDiagramValue"></div>
+  </div>
+</section>
+
+<script>
+const translations = {
+    ca: {
+        title: "Calculadora de resistències",
+        langLabel: "Idioma:",
+        bandCountLabel: "Nombre de bandes:",
+        band4Label: "4 bandes",
+        band5Label: "5 bandes",
+        modeColorToValue: "Codi de colors a valor",
+        band1Label: "Banda 1:",
+        band2Label: "Banda 2:",
+        band3Label: "Banda 3:",
+        multLabel: "Multiplicador:",
+        tolLabel2: "Tolerància:",
+        calculate: "Calcula",
+        modeValueToColor: "Valor a codi de colors",
+        valueInputLabel: "Valor (Ω):",
+        tolInputLabel: "Tolerància:",
+        resultValue: "Valor: ",
+        errorInvalid: "Valor no vàlid",
+        lang_ca: "Català",
+        lang_es: "Castellà",
+        lang_en: "Anglès",
+        colors: {
+            black: "Negre", brown: "Marró", red: "Vermell", orange: "Taronja",
+            yellow: "Groc", green: "Verd", blue: "Blau", violet: "Violeta",
+            grey: "Gris", white: "Blanc", gold: "Daurat", silver: "Plata",
+            none: "Sense color"
+        }
+    },
+    es: {
+        title: "Calculadora de resistencias",
+        langLabel: "Idioma:",
+        bandCountLabel: "Número de bandas:",
+        band4Label: "4 bandas",
+        band5Label: "5 bandas",
+        modeColorToValue: "Código de color a valor",
+        band1Label: "Banda 1:",
+        band2Label: "Banda 2:",
+        band3Label: "Banda 3:",
+        multLabel: "Multiplicador:",
+        tolLabel2: "Tolerancia:",
+        calculate: "Calcular",
+        modeValueToColor: "Valor a código de color",
+        valueInputLabel: "Valor (Ω):",
+        tolInputLabel: "Tolerancia:",
+        resultValue: "Valor: ",
+        errorInvalid: "Valor no válido",
+        lang_ca: "Catalán",
+        lang_es: "Español",
+        lang_en: "Inglés",
+        colors: {
+            black: "Negro", brown: "Marrón", red: "Rojo", orange: "Naranja",
+            yellow: "Amarillo", green: "Verde", blue: "Azul", violet: "Violeta",
+            grey: "Gris", white: "Blanco", gold: "Dorado", silver: "Plata",
+            none: "Sin color"
+        }
+    },
+    en: {
+        title: "Resistor Calculator",
+        langLabel: "Language:",
+        bandCountLabel: "Number of bands:",
+        band4Label: "4 bands",
+        band5Label: "5 bands",
+        modeColorToValue: "Color code to value",
+        band1Label: "Band 1:",
+        band2Label: "Band 2:",
+        band3Label: "Band 3:",
+        multLabel: "Multiplier:",
+        tolLabel2: "Tolerance:",
+        calculate: "Calculate",
+        modeValueToColor: "Value to color code",
+        valueInputLabel: "Value (Ω):",
+        tolInputLabel: "Tolerance:",
+        resultValue: "Value: ",
+        errorInvalid: "Invalid value",
+        lang_ca: "Catalan",
+        lang_es: "Spanish",
+        lang_en: "English",
+        colors: {
+            black: "Black", brown: "Brown", red: "Red", orange: "Orange",
+            yellow: "Yellow", green: "Green", blue: "Blue", violet: "Violet",
+            grey: "Gray", white: "White", gold: "Gold", silver: "Silver",
+            none: "None"
+        }
+    }
+};
+let currentLang = "ca";
+let lastColorVal = null, lastColorTol = null;
+let lastNumericVal = null, lastNumericTol = null;
+
+function populateSelects() {
+    // Digit bands
+    const digitColors = ["black","brown","red","orange","yellow","green","blue","violet","grey","white"];
+    const band1 = document.getElementById("band1");
+    const band2 = document.getElementById("band2");
+    const band3 = document.getElementById("band3");
+    [band1, band2, band3].forEach(select => select.innerHTML = "");
+    digitColors.forEach((col, idx) => {
+        let opt = document.createElement("option");
+        opt.value = idx;
+        opt.text = translations[currentLang].colors[col];
+        if (idx === 0) opt.selected = true;
+        band1.add(opt.cloneNode(true));
+        band2.add(opt.cloneNode(true));
+        band3.add(opt.cloneNode(true));
+    });
+    // Multiplier
+    const mult = document.getElementById("multiplier");
+    mult.innerHTML = "";
+    const multExps = { "-2": "silver", "-1": "gold", "0": "black", "1": "brown", "2": "red",
+                        "3": "orange", "4": "yellow", "5": "green", "6": "blue", "7": "violet",
+                        "8": "grey", "9": "white" };
+    for (const exp in multExps) {
+        let colorKey = multExps[exp];
+        let opt = document.createElement("option");
+        opt.value = exp;
+        opt.text = translations[currentLang].colors[colorKey];
+        mult.add(opt);
+    }
+    // Tolerance selects
+    const tolerances = [
+        {color:"brown", value:"1"}, {color:"red", value:"2"},
+        {color:"green", value:"0.5"}, {color:"blue", value:"0.25"},
+        {color:"violet", value:"0.1"}, {color:"grey", value:"0.05"},
+        {color:"gold", value:"5"}, {color:"silver", value:"10"},
+        {color:"none", value:"20"}
+    ];
+    const tol2 = document.getElementById("tol2");
+    const tolInput = document.getElementById("tolInput");
+    [tol2, tolInput].forEach(select => {
+        select.innerHTML = "";
+        tolerances.forEach(t => {
+            let opt = document.createElement("option");
+            opt.value = t.value;
+            opt.text = translations[currentLang].colors[t.color] + " ±" + t.value + "%";
+            select.add(opt);
+        });
+    });
+}
+
+function updateLanguage() {
+    document.getElementById("title").textContent = translations[currentLang].title;
+    document.getElementById("langLabel").textContent = translations[currentLang].langLabel;
+    document.getElementById("bandCountLabel").textContent = translations[currentLang].bandCountLabel;
+    document.getElementById("band4Label").textContent = translations[currentLang].band4Label;
+    document.getElementById("band5Label").textContent = translations[currentLang].band5Label;
+    document.getElementById("modeColorToValue").textContent = translations[currentLang].modeColorToValue;
+    document.getElementById("band1Label").textContent = translations[currentLang].band1Label;
+    document.getElementById("band2Label").textContent = translations[currentLang].band2Label;
+    document.getElementById("band3Label").textContent = translations[currentLang].band3Label;
+    document.getElementById("multLabel").textContent = translations[currentLang].multLabel;
+    document.getElementById("tolLabel2").textContent = translations[currentLang].tolLabel2;
+    document.getElementById("calculateColorToValue").textContent = translations[currentLang].calculate;
+    document.getElementById("modeValueToColor").textContent = translations[currentLang].modeValueToColor;
+    document.getElementById("valueInputLabel").textContent = translations[currentLang].valueInputLabel;
+    document.getElementById("tolInputLabel").textContent = translations[currentLang].tolInputLabel;
+    document.getElementById("calculateValueToColor").textContent = translations[currentLang].calculate;
+    // Language options
+    let langSelect = document.getElementById("langSelect");
+    langSelect.options[0].text = translations[currentLang].lang_ca;
+    langSelect.options[1].text = translations[currentLang].lang_es;
+    langSelect.options[2].text = translations[currentLang].lang_en;
+    populateSelects();
+    // Re-run calculations to update any output text
+    if (lastColorVal !== null) computeColorToValue();
+    if (lastNumericVal !== null) computeValueToColor();
+}
+
+function drawResistor(colors, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    const width = container.clientWidth;
+    const bandWidth = 15;
+    const spacing = width / (colors.length + 1);
+    colors.forEach((col, i) => {
+        let band = document.createElement("div");
+        band.className = "band";
+        band.style.background = col;
+        let left = (i + 1) * spacing - bandWidth/2;
+        band.style.left = left + "px";
+        container.appendChild(band);
+    });
+}
+
+function computeColorToValue() {
+    const bandCount = document.querySelector('input[name="bandCount"]:checked').value;
+    const d1 = parseInt(document.getElementById("band1").value);
+    const d2 = parseInt(document.getElementById("band2").value);
+    let d3 = 0;
+    if (bandCount === "5") {
+        d3 = parseInt(document.getElementById("band3").value);
+    }
+    const exp = parseInt(document.getElementById("multiplier").value);
+    const tol = document.getElementById("tol2").value;
+    let value = 0;
+    if (bandCount === "4") {
+        value = (d1 * 10 + d2) * Math.pow(10, exp);
+    } else {
+        value = (d1 * 100 + d2 * 10 + d3) * Math.pow(10, exp);
+    }
+    if (isNaN(value) || value <= 0) {
+        document.getElementById("valueOutput").textContent = translations[currentLang].errorInvalid;
+        return;
+    }
+    lastColorVal = value;
+    lastColorTol = tol;
+    // Format output
+    let outVal;
+    if (value % 1 !== 0) {
+        outVal = value.toFixed(2);
+    } else {
+        outVal = value;
+    }
+    const outText = translations[currentLang].resultValue + outVal + " Ω ±" + tol + "%";
+    document.getElementById("valueOutput").textContent = outText;
+    // Draw resistor
+    const digitColorMap = ["black","brown","red","orange","yellow","green","blue","violet","grey","white"];
+    const expColorMap = { "-2": "silver", "-1": "gold", "0": "black", "1": "brown", "2": "red",
+                            "3": "orange", "4": "yellow", "5": "green", "6": "blue",
+                            "7": "violet", "8": "grey", "9": "white" };
+    const tolColorMap = { "1": "brown", "2": "red", "0.5": "green", "0.25": "blue",
+                            "0.1": "violet", "0.05": "grey", "5": "gold", "10": "silver",
+                            "20": "none" };
+    let colors = [digitColorMap[d1], digitColorMap[d2]];
+    if (bandCount === "5") {
+        colors.push(digitColorMap[d3]);
+    }
+    colors.push(expColorMap[exp.toString()]);
+    let tolColor = tolColorMap[tol];
+    colors.push(tolColor === "none" ? "white" : tolColor);
+    drawResistor(colors, "resistorDiagramColor");
+}
+
+function computeValueToColor() {
+    const bandCount = document.querySelector('input[name="bandCount"]:checked').value;
+    let inputVal = document.getElementById("valueInput").value;
+    // Remove spaces
+    inputVal = inputVal.replace(/\s/g, "");
+    let val = parseFloat(inputVal);
+    if (isNaN(val) || val <= 0) {
+        document.getElementById("valueOutput2").textContent = translations[currentLang].errorInvalid;
+        return;
+    }
+    const tol = document.getElementById("tolInput").value;
+    // Compute digits and multiplier
+    let exp, base;
+    if (bandCount === "4") {
+        exp = Math.floor(Math.log10(val)) - 1;
+        base = Math.round(val / Math.pow(10, exp));
+        if (base >= 100) {
+            exp += 1;
+            base = Math.round(val / Math.pow(10, exp));
+        }
+        const d1 = Math.floor(base / 10);
+        const d2 = base % 10;
+        if (isNaN(d1) || isNaN(d2)) {
+            document.getElementById("valueOutput2").textContent = translations[currentLang].errorInvalid;
+            return;
+        }
+        lastNumericVal = val;
+        lastNumericTol = tol;
+        let outVal;
+        if (val % 1 !== 0) {
+            outVal = val.toFixed(2);
+        } else {
+            outVal = val;
+        }
+        const outText = translations[currentLang].resultValue + outVal + " Ω ±" + tol + "%";
+        document.getElementById("valueOutput2").textContent = outText;
+        // Colors
+        const digitColorMap = ["black","brown","red","orange","yellow","green","blue","violet","grey","white"];
+        const expColorMap = { "-2": "silver", "-1": "gold", "0": "black", "1": "brown", "2": "red",
+                                "3": "orange", "4": "yellow", "5": "green", "6": "blue",
+                                "7": "violet", "8": "grey", "9": "white" };
+        const tolColorMap = { "1": "brown", "2": "red", "0.5": "green", "0.25": "blue",
+                                "0.1": "violet", "0.05": "grey", "5": "gold", "10": "silver",
+                                "20": "none" };
+        let colors = [digitColorMap[d1], digitColorMap[d2]];
+        colors.push(expColorMap[exp.toString()]);
+        let tolColor = tolColorMap[tol];
+        colors.push(tolColor === "none" ? "white" : tolColor);
+        drawResistor(colors, "resistorDiagramValue");
+    } else {
+        exp = Math.floor(Math.log10(val)) - 2;
+        base = Math.round(val / Math.pow(10, exp));
+        if (base >= 1000) {
+            exp += 1;
+            base = Math.round(val / Math.pow(10, exp));
+        }
+        const d1 = Math.floor(base / 100);
+        const d2 = Math.floor((base % 100) / 10);
+        const d3 = base % 10;
+        if (isNaN(d1) || isNaN(d2) || isNaN(d3)) {
+            document.getElementById("valueOutput2").textContent = translations[currentLang].errorInvalid;
+            return;
+        }
+        lastNumericVal = val;
+        lastNumericTol = tol;
+        let outVal;
+        if (val % 1 !== 0) {
+            outVal = val.toFixed(2);
+        } else {
+            outVal = val;
+        }
+        const outText = translations[currentLang].resultValue + outVal + " Ω ±" + tol + "%";
+        document.getElementById("valueOutput2").textContent = outText;
+        const digitColorMap = ["black","brown","red","orange","yellow","green","blue","violet","grey","white"];
+        const expColorMap = { "-2": "silver", "-1": "gold", "0": "black", "1": "brown", "2": "red",
+                                "3": "orange", "4": "yellow", "5": "green", "6": "blue",
+                                "7": "violet", "8": "grey", "9": "white" };
+        const tolColorMap = { "1": "brown", "2": "red", "0.5": "green", "0.25": "blue",
+                                "0.1": "violet", "0.05": "grey", "5": "gold", "10": "silver",
+                                "20": "none" };
+        let colors = [digitColorMap[d1], digitColorMap[d2], digitColorMap[d3]];
+        colors.push(expColorMap[exp.toString()]);
+        let tolColor = tolColorMap[tol];
+        colors.push(tolColor === "none" ? "white" : tolColor);
+        drawResistor(colors, "resistorDiagramValue");
+    }
+}
+
+document.getElementById("langSelect").addEventListener("change", function() {
+    currentLang = this.value;
+    updateLanguage();
+});
+document.querySelectorAll('input[name="bandCount"]').forEach(r => {
+    r.addEventListener("change", function() {
+        const band3Grp = document.getElementById("band3Group");
+        if (document.getElementById("fiveBands").checked) {
+            band3Grp.style.display = "inline";
+        } else {
+            band3Grp.style.display = "none";
+        }
+    });
+});
+document.getElementById("calculateColorToValue").addEventListener("click", computeColorToValue);
+document.getElementById("calculateValueToColor").addEventListener("click", computeValueToColor);
+window.onload = function() {
+    updateLanguage();
+    // Hide band3 by default for 4 bands
+    document.getElementById("band3Group").style.display = "none";
+};
+</script>
+</body>
+</html>
