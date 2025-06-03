@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engranatges Interactius</title>
+<style>
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    line-height: 1.4;
+}
+h1, h2 {
+    text-align: center;
+}
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.gearControl {
+    flex: 1;
+    min-width: 250px;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+.gearControl h3 {
+    margin-top: 0;
+}
+.gearControl label {
+    display: block;
+    margin: 5px 0;
+}
+.gearControl input {
+    width: 100%;
+    padding: 4px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+}
+#resultsContainer {
+    flex: 1;
+    min-width: 200px;
+    margin: 10px;
+}
+#gearCanvas {
+    flex: 2;
+    margin: 10px;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+}
+/* Responsive: stack on small screens */
+@media (max-width: 600px) {
+    .container {
+        flex-direction: column;
+    }
+    #gearCanvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+</style>
+</head>
+<body>
+
+<h1 id="pageTitle">Engranatges interactius</h1>
+<div style="text-align: center; margin-bottom: 20px;">
+  <label id="selectLangLabel" for="language">Idioma:</label>
+  <select id="language">
+    <option value="ca">Català</option>
+    <option value="es">Castellà</option>
+    <option value="en">English</option>
+  </select>
+</div>
+
+<div class="container" id="controls">
+  <div class="gearControl">
+    <h3 id="gear1ParamsLabel">Paràmetres de l'engranatge 1</h3>
+    <label id="teethLabel1" for="teeth1">Nombre de dents:</label>
+    <input type="number" id="teeth1" value="20" min="1">
+    <label id="diameterLabel1" for="diameter1">Diàmetre primitiu:</label>
+    <input type="number" id="diameter1" value="40" min="0" step="0.01">
+    <label id="moduleLabel1" for="module1">Mòdul:</label>
+    <input type="number" id="module1" value="2" min="0" step="0.01">
+    <label id="speedLabel1" for="rpm1">Velocitat de rotació (RPM):</label>
+    <input type="number" id="rpm1" value="60" min="0" step="0.1">
+  </div>
+  <div class="gearControl">
+    <h3 id="gear2ParamsLabel">Paràmetres de l'engranatge 2</h3>
+    <label id="teethLabel2" for="teeth2">Nombre de dents:</label>
+    <input type="number" id="teeth2" value="40" min="1">
+    <label id="diameterLabel2" for="diameter2">Diàmetre primitiu:</label>
+    <input type="number" id="diameter2" value="80" min="0" step="0.01">
+    <label id="moduleLabel2" for="module2">Mòdul:</label>
+    <input type="number" id="module2" value="2" min="0" step="0.01">
+    <label id="speedLabel2" for="rpm2">Velocitat de rotació (RPM):</label>
+    <input type="number" id="rpm2" value="30" min="0" step="0.1">
+  </div>
+</div>
+
+<div class="container" id="output">
+  <div id="resultsContainer">
+    <h3 id="resultsLabel">Resultats</h3>
+    <ul style="list-style: none; padding-left: 0;">
+      <li><strong id="transRatioLabel">Relació de transmissió:</strong> <span id="ratioValue"></span></li>
+      <li><strong id="angVelLabel">Velocitat angular de l'engranatge 2:</strong> <span id="angVelValue"></span></li>
+      <li><strong id="torqueLabel">Parell transmès (suposant 1 N·m d'entrada):</strong> <span id="torqueValue"></span></li>
+    </ul>
+  </div>
+  <canvas id="gearCanvas" width="600" height="300"></canvas>
+</div>
+
+<script>
+// Translation dictionary for Catalan (ca), Spanish (es), English (en)
+var translations = {
+  ca: {
+    pageTitle: "Engranatges interactius",
+    selectLang: "Idioma:",
+    gear1Params: "Paràmetres de l'engranatge 1",
+    gear2Params: "Paràmetres de l'engranatge 2",
+    numberOfTeeth: "Nombre de dents:",
+    primitiveDiameter: "Diàmetre primitiu:",
+    module: "Mòdul:",
+    rotationalSpeed: "Velocitat de rotació (RPM):",
+    results: "Resultats",
+    transmissionRatio: "Relació de transmissió:",
+    angularVelocity: "Velocitat angular de l'engranatge 2:",
+    transmittedTorque: "Parell transmès (suposant 1 N·m d'entrada):",
+    lang_ca: "Català",
+    lang_es: "Castellà",
+    lang_en: "Anglès",
+    gear1: "Engranatge 1",
+    gear2: "Engranatge 2"
+  },
+  es: {
+    pageTitle: "Engranajes interactivos",
+    selectLang: "Idioma:",
+    gear1Params: "Par\u00e1metros del engranaje 1",
+    gear2Params: "Par\u00e1metros del engranaje 2",
+    numberOfTeeth: "N\u00famero de dientes:",
+    primitiveDiameter: "Di\u00e1metro primitivo:",
+    module: "M\u00f3dulo:",
+    rotationalSpeed: "Velocidad de rotaci\u00f3n (RPM):",
+    results: "Resultados",
+    transmissionRatio: "Relaci\u00f3n de transmisi\u00f3n:",
+    angularVelocity: "Velocidad angular del engranaje 2:",
+    transmittedTorque: "Par transmitido (suponiendo 1 N\u00b7m de entrada):",
+    lang_ca: "Catal\u00e1n",
+    lang_es: "Castellano",
+    lang_en: "Ingl\u00e9s",
+    gear1: "Engranaje 1",
+    gear2: "Engranaje 2"
+  },
+  en: {
+    pageTitle: "Interactive Gears",
+    selectLang: "Language:",
+    gear1Params: "Gear 1 parameters",
+    gear2Params: "Gear 2 parameters",
+    numberOfTeeth: "Number of teeth:",
+    primitiveDiameter: "Pitch diameter:",
+    module: "Module:",
+    rotationalSpeed: "Rotational speed (RPM):",
+    results: "Results",
+    transmissionRatio: "Transmission ratio:",
+    angularVelocity: "Angular velocity of gear 2:",
+    transmittedTorque: "Transmitted torque (assuming 1 N\u00b7m input):",
+    lang_ca: "Catalan",
+    lang_es: "Spanish",
+    lang_en: "English",
+    gear1: "Gear 1",
+    gear2: "Gear 2"
+  }
+};
+
+// Apply selected language translations to all text elements
+var currentLang = 'ca';
+function updateLanguage(lang) {
+    var t = translations[lang];
+    document.getElementById('pageTitle').textContent = t.pageTitle;
+    document.getElementById('selectLangLabel').textContent = t.selectLang;
+    document.getElementById('gear1ParamsLabel').textContent = t.gear1Params;
+    document.getElementById('gear2ParamsLabel').textContent = t.gear2Params;
+    document.getElementById('teethLabel1').textContent = t.numberOfTeeth;
+    document.getElementById('diameterLabel1').textContent = t.primitiveDiameter;
+    document.getElementById('moduleLabel1').textContent = t.module;
+    document.getElementById('speedLabel1').textContent = t.rotationalSpeed;
+    document.getElementById('teethLabel2').textContent = t.numberOfTeeth;
+    document.getElementById('diameterLabel2').textContent = t.primitiveDiameter;
+    document.getElementById('moduleLabel2').textContent = t.module;
+    document.getElementById('speedLabel2').textContent = t.rotationalSpeed;
+    document.getElementById('resultsLabel').textContent = t.results;
+    document.getElementById('transRatioLabel').textContent = t.transmissionRatio;
+    document.getElementById('angVelLabel').textContent = t.angularVelocity;
+    document.getElementById('torqueLabel').textContent = t.transmittedTorque;
+    var sel = document.getElementById('language');
+    sel.options[0].text = t.lang_ca;
+    sel.options[1].text = t.lang_es;
+    sel.options[2].text = t.lang_en;
+    currentLang = lang;
+}
+// On language change, update texts
+document.getElementById('language').addEventListener('change', function() {
+    updateLanguage(this.value);
+});
+// Initialize default language
+updateLanguage(currentLang);
+
+// DOM elements for inputs and outputs
+var teeth1 = document.getElementById('teeth1');
+var diameter1 = document.getElementById('diameter1');
+var module1 = document.getElementById('module1');
+var rpm1 = document.getElementById('rpm1');
+var teeth2 = document.getElementById('teeth2');
+var diameter2 = document.getElementById('diameter2');
+var module2 = document.getElementById('module2');
+var rpm2 = document.getElementById('rpm2');
+var ratioValue = document.getElementById('ratioValue');
+var angVelValue = document.getElementById('angVelValue');
+var torqueValue = document.getElementById('torqueValue');
+
+// Canvas for gear animation
+var gearCanvas = document.getElementById('gearCanvas');
+var ctx = gearCanvas.getContext('2d');
+
+// Gear parameters and state
+var gear1 = { N: 20, m: 2, R: 20, Rout: 22, Rin: 17.5 };
+var gear2 = { N: 40, m: 2, R: 40, Rout: 42, Rin: 38.75 };
+var angle1 = 0, angle2 = 0;
+var w1 = 0, w2 = 0; // angular velocities
+var suppress = { rpm1: false, rpm2: false }; // flags to handle which gear is master
+
+// Update gear dimensions from inputs (N and m)
+function updateGear1Dimensions() {
+    gear1.N = parseInt(teeth1.value) || 0;
+    gear1.m = parseFloat(module1.value) || 0;
+    gear1.R = gear1.m * gear1.N / 2;
+    gear1.Rout = gear1.R + gear1.m;
+    gear1.Rin = gear1.R - 1.25 * gear1.m;
+    if (gear1.Rin < 0) gear1.Rin = gear1.R * 0.3;
+}
+function updateGear2Dimensions() {
+    gear2.N = parseInt(teeth2.value) || 0;
+    gear2.m = parseFloat(module2.value) || 0;
+    gear2.R = gear2.m * gear2.N / 2;
+    gear2.Rout = gear2.R + gear2.m;
+    gear2.Rin = gear2.R - 1.25 * gear2.m;
+    if (gear2.Rin < 0) gear2.Rin = gear2.R * 0.3;
+}
+
+// Recalculate all values and update outputs and animation
+function recalc() {
+    // Update gear dimensions and sync diameter inputs
+    updateGear1Dimensions();
+    diameter1.value = (gear1.R * 2).toFixed(2);
+    updateGear2Dimensions();
+    diameter2.value = (gear2.R * 2).toFixed(2);
+
+    // Get RPM values
+    var rpm1_val = parseFloat(rpm1.value) || 0;
+    var rpm2_val = parseFloat(rpm2.value) || 0;
+
+    // Compute angular velocities
+    w1 = (rpm1_val * 2 * Math.PI) / 60;
+    w2 = (rpm2_val * 2 * Math.PI) / 60;
+
+    // Update RPMs depending on which gear is master
+    if (!suppress.rpm2) {
+        // Gear 1 is master: update gear 2 RPM
+        if (gear1.R !== 0) {
+            var newrpm2 = rpm1_val * gear1.R / (gear2.R || 1);
+            rpm2.value = newrpm2.toFixed(2);
+            w2 = (newrpm2 * 2 * Math.PI) / 60;
+        }
+    }
+    if (suppress.rpm2) {
+        // Gear 2 is master: update gear 1 RPM
+        if (gear2.R !== 0) {
+            var newrpm1 = rpm2_val * gear2.R / (gear1.R || 1);
+            rpm1.value = newrpm1.toFixed(2);
+            w1 = (newrpm1 * 2 * Math.PI) / 60;
+        }
+    }
+    // Reset suppress flags
+    suppress.rpm1 = suppress.rpm2 = false;
+
+    // Transmission ratio (R2/R1)
+    var ratio = gear2.R / (gear1.R || 1);
+    ratioValue.textContent = ratio.toFixed(2);
+
+    // Angular velocity of gear 2
+    angVelValue.textContent = w2.toFixed(2) + " rad/s";
+
+    // Transmitted torque (assuming input = 1 N·m)
+    var torque = ratio;
+    torqueValue.textContent = torque.toFixed(2) + " N\u00b7m";
+
+    // Adjust canvas size to accommodate gears
+    resizeCanvas();
+}
+
+// Resize the canvas based on gear sizes
+function resizeCanvas() {
+    var maxR = Math.max(gear1.R, gear2.R);
+    var height = Math.ceil(maxR * 2 + 40);
+    gearCanvas.height = height;
+    var cx1 = gear1.R + 20;
+    var cx2 = cx1 + gear1.R + gear2.R;
+    var width = Math.ceil(cx2 + gear2.R + 20);
+    gearCanvas.width = width;
+}
+
+// Draw the gears on the canvas
+function draw() {
+    ctx.clearRect(0, 0, gearCanvas.width, gearCanvas.height);
+    var cy = gearCanvas.height / 2;
+    var cx1 = gear1.R + 20;
+    var cx2 = cx1 + gear1.R + gear2.R;
+    drawGear(ctx, cx1, cy, gear1.N, gear1.m, angle1, "#888");
+    drawGear(ctx, cx2, cy, gear2.N, gear2.m, angle2, "#555");
+}
+
+// Draw a single gear given center, teeth count, module, and rotation
+function drawGear(ctx, cx, cy, N, m, angle, color) {
+    var Rp = m * N / 2;
+    var Rout = Rp + m;
+    var Rin = Rp - 1.25 * m;
+    if (Rin < 0) Rin = Rp * 0.3;
+    var step = 2 * Math.PI / N;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (var i = 0; i < 2 * N; i++) {
+        var ang, r;
+        if (i % 2 === 0) {
+            ang = angle + (i / 2) * step;
+            r = Rout;
+        } else {
+            ang = angle + ((Math.floor(i/2) + 0.5) * step);
+            r = Rin;
+        }
+        var x = cx + r * Math.cos(ang);
+        var y = cy + r * Math.sin(ang);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+}
+
+// Animation loop to rotate gears
+var lastTime = null;
+function animate(time) {
+    if (!lastTime) lastTime = time;
+    var delta = (time - lastTime) / 1000;
+    lastTime = time;
+    angle1 += w1 * delta;
+    angle2 -= w2 * delta; // opposite direction
+    draw();
+    requestAnimationFrame(animate);
+}
+
+// Event listeners for user inputs
+teeth1.addEventListener('input', recalc);
+module1.addEventListener('input', recalc);
+diameter1.addEventListener('input', function() {
+    if (gear1.N != 0) {
+        module1.value = (parseFloat(diameter1.value) / gear1.N).toFixed(2);
+    }
+    recalc();
+});
+rpm1.addEventListener('input', function() {
+    suppress.rpm2 = false;
+    recalc();
+});
+
+teeth2.addEventListener('input', recalc);
+module2.addEventListener('input', recalc);
+diameter2.addEventListener('input', function() {
+    if (gear2.N != 0) {
+        module2.value = (parseFloat(diameter2.value) / gear2.N).toFixed(2);
+    }
+    recalc();
+});
+rpm2.addEventListener('input', function() {
+    suppress.rpm2 = true;
+    recalc();
+});
+
+// Initialize calculations and start animation
+recalc();
+requestAnimationFrame(animate);
+</script>
+
+</body>
+</html>
