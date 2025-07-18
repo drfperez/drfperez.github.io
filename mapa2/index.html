@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Navegació - Ports i Mar</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+  <style>
+    body { margin:0; padding:0; font-family:sans-serif }
+    #map { height:60vh }
+    #controls, #debug-panel { padding:1em; max-width:600px; margin:auto }
+    label,input,button,select { width:100%; margin-top:5px }
+    #debug-panel { background:#f0f0f0; font-family:monospace; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center">🧭 Simulador - Ports i Mar</h2>
+  <div id="map"></div>
+
+  <div id="controls">
+    <label>Vel. vaixell (nusos): <input type="number" id="velVaixell" value="7"></label>
+    <label>Tipus: 
+      <select id="tipus">
+        <option value="vela">⛵ Vela</option>
+        <option value="motor" selected>🚤 Motor</option>
+      </select>
+    </label>
+    <label>Dir. corrent (°): <input type="number" id="dirCorrent" value="5"></label>
+    <label>Vel. corrent (n): <input type="number" id="velCorrent" value="2"></label>
+    <label>Dir. vent (°): <input type="number" id="dirVent" value="35"></label>
+    <label>Vel. vent (n): <input type="number" id="velVent" value="5"></label>
+    <button onclick="calculaRuta()">📐 Calcula</button>
+  </div>
+
+  <div id="debug-panel">
+    <h3>🔍 Depuració</h3>
+    <div id="debug-content">Selecciona dos punts en un port o al mar</div>
+  </div>
+
+  <script>
+    const map = L.map('map').setView([35.9,-5.3],9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© OpenStreetMap', maxZoom:18
+    }).addTo(map);
+
+    // Capa de terra real (Natural Earth)
+    let land;
+    fetch('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m_physical/ne_110m_land.geojson')
+      .then(r => r.json())
+      .then(data => land = turf.featureCollection(data.features));
+
+    const ports = {
+      'Algesires':[36.133,-5.45],
+      'Ceuta':[35.89,-5.31],
+      'Tànger Med':[35.88,-5.5]
+    };
+
+    const portMarkers = L.layerGroup().addTo(map);
+    for (let name in ports) {
+      const [lat,lng] = ports[name];
+      const m = L.marker([lat,lng],{title:name}).addTo(portMarkers);
+      m.bindPopup(name).on('click', () => selectPoint(L.latLng(lat,lng)));
+    }
+
+    let punts=[];
+
+    function selectPoint(latlng) {
+      if (punts.length >= 2) {
+        punts = [];
+        map.eachLayer(l => {
+          if (l instanceof L.Marker && !Object.values(ports).flat().includes(l.getLatLng().lat)) map.removeLayer(l);
+          if (l instanceof L.Polyline) map.removeLayer(l);
+        });
+      }
+      L.marker(latlng).addTo(map);
+      punts.push(latlng);
+    }
+
+    map.on('click', e => {
+      if (!land) return alert('Carregant dades... espera un moment');
+      const point = turf.point([e.latlng.lng,e.latlng.lat]);
+      if (turf.booleanPointInPolygon(point, land)) {
+        alert('⛔ Aquest punt està a terra! Només mar o ports.');
+        return;
+      }
+      selectPoint(e.latlng);
+    });
+
+    function toRad(d) { return d * Math.PI/180; }
+    function toDeg(r) { return r * 180/Math.PI; }
+
+    function calculaRuta() {
+      if (punts.length !== 2) return alert('Selecciona dos punts vàlids.');
+      const [p1,p2] = punts;
+      const R = 6371e3;
+      const φ1 = toRad(p1.lat), φ2 = toRad(p2.lat);
+      const Δφ = toRad(p2.lat - p1.lat), Δλ = toRad(p2.lng - p1.lng);
+      const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const dist = (R*c)/1852;
+
+      const y = Math.sin(Δλ)*Math.cos(φ2), x = Math.cos(φ1)*Math.sin(φ2) -
+        Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+      const rumb = (toDeg(Math.atan2(y,x))+360)%360;
+
+      const velV = parseFloat(document.getElementById('velVaixell').value);
+      const tipus = document.getElementById('tipus').value;
+      const dirC = parseFloat(document.getElementById('dirCorrent').value);
+      const velC = parseFloat(document.getElementById('velCorrent').value);
+      const dirV = parseFloat(document.getElementById('dirVent').value);
+      const velVt = parseFloat(document.getElementById('velVent').value);
+
+      const θv = toRad(rumb), θc = toRad(dirC);
+      const vx = velV*Math.cos(θv)+velC*Math.cos(θc);
+      const vy = velV*Math.sin(θv)+velC*Math.sin(θc);
+      const velNoVent = Math.sqrt(vx*vx+vy*vy);
+      const rumbEf = (toDeg(Math.atan2(vy,vx))+360)%360;
+      let velEf = velNoVent;
+      if (tipus === 'vela') {
+        let angle = Math.abs(dirV - rumbEf);
+        if (angle > 180) angle = 360-angle;
+        if (angle >=90 && angle<=160) velEf += velVt*0.3;
+        else if (angle<90) velEf += velVt*0.1;
+      }
+      const temps = dist/velEf;
+
+      L.polyline(punts,{color:'blue'}).addTo(map);
+
+      mostrarDebug({
+        dist, rumb, velV, dirC, velC, dirV, velVt,
+        vx, vy, velNoVent, rumbEf, velEf, temps, tipus
+      });
+    }
+
+    function mostrarDebug(d) {
+      document.getElementById('debug-content').innerHTML = `
+        📍 Distància: ${d.dist.toFixed(2)} MN<br>
+        🧭 Rumb inicial: ${d.rumb.toFixed(1)}°<br>
+        🌊 Corrent: dir ${d.dirC}°, vel ${d.velC} n<br>
+        💨 Vent: dir ${d.dirV}°, vel ${d.velVt} n<br>
+        ↔️ Vel. sense vent: ${d.velNoVent.toFixed(2)} n<br>
+        ↕️ Rumb efectiu: ${d.rumbEf.toFixed(1)}°<br>
+        ⛵ Vel. final: ${d.velEf.toFixed(2)} n<br>
+        ⏱ Temps estimat: ${d.temps.toFixed(2)} h
+      `;
+    }
+  </script>
+</body>
+</html>
