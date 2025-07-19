@@ -95,7 +95,20 @@
     <li><strong>Pitàgores amb correcció:</strong> 6594 km (3560 MN)</li>
     <li><strong>Haversine:</strong> 6244 km (3371 MN)</li>
   </ul>
-  <p>La fórmula de Haversine ofereix una estimació més acurada per distàncies llargues perquè considera la curvatura de la Terra.</p>
+ 
+
+<p>
+  <strong>1. Pitàgores sense correcció:</strong> Aquest mètode tracta la superfície terrestre com un pla cartesià, i calcula la distància entre dos punts usant directament la diferència entre latituds i longituds expressades en radians. Tot i ser senzill i intuïtiu, no té en compte que la Terra és una esfera (o geoide), i per tant produeix una <em>sobreestimació significativa</em> en distàncies llargues com la de la Mini Transat. Aquest model dona una distància de 7438 km, que és clarament superior a la real.
+</p>
+
+<p>
+  <strong>2. Pitàgores amb correcció longitudinal:</strong> Aquest mètode millora l'anterior tenint en compte que la distància en longitud disminueix a mesura que ens allunyem de l'equador. Per això, s’aplica el cosinus de la latitud mitjana com a factor d’escala per ajustar la component horitzontal (longitudinal). Això redueix la distància calculada fins a uns 6594 km, la qual cosa és una millor aproximació, però encara assumeix una geometria plana i ignora completament la curvatura real de la Terra.
+</p>
+
+<p>
+  <strong>3. Fórmula de Haversine:</strong> Aquest és el mètode més precís dels tres per calcular distàncies entre dos punts sobre l’esfera terrestre. Fa ús de funcions trigonomètriques per determinar l’angle central entre els punts i després calcula la distància real sobre la superfície. És especialment útil per trajectes llargs com travesses oceàniques, ja que considera la curvatura de la Terra. En aquest cas, la distància resultant és de 6244 km, i es considera la millor estimació per rutes globals com la Mini Transat.
+</p>
+
 
   <h2>9. Visualització sobre el mapa</h2>
     
