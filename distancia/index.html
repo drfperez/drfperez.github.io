@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini Transat 2025 – Càlculs de Distància</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1em;
+      max-width: 500px;
+      margin: auto;
+      line-height: 1.6;
+    }
+    h1, h2 { color: #003366; }
+    .formula {
+      background: #f9f9f9;
+      border-left: 4px solid #0077cc;
+      padding: 1em;
+      margin: 1em 0;
+      font-size: 1em;
+      overflow-x: auto;
+    }
+    svg { display: block; margin: 2em auto; max-width: 100%; }
+    #map { height: 300px; margin-top: 2em; }
+    code { background: #eee; padding: 2px 4px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Mini Transat 2025 – Càlcul de Distància entre dos punts</h1>
+
+  <h2>1. Coordenades dels punts</h2>
+  <p><strong>Sortida (Les Sables-d’Olonne):</strong> \( \phi_1 = 46.5^\circ, \lambda_1 = -1.78^\circ \)</p>
+  <p><strong>Arribada (Guadeloupe):</strong> \( \phi_2 = 16.25^\circ, \lambda_2 = -61.5^\circ \)</p>
+
+  <h2>2. Conversió a radians</h2>
+  <div class="formula">
+    \( \phi_1 = 46.5 \times \frac{\pi}{180} = 0.8116 \, \text{rad} \)<br>
+    \( \lambda_1 = -1.78 \times \frac{\pi}{180} = -0.0311 \, \text{rad} \)<br>
+    \( \phi_2 = 16.25 \times \frac{\pi}{180} = 0.2837 \, \text{rad} \)<br>
+    \( \lambda_2 = -61.5 \times \frac{\pi}{180} = -1.0734 \, \text{rad} \)
+  </div>
+
+  <h2>3. Teorema de Pitàgores – Sense correcció</h2>
+  <p>Utilitzem només la diferència directa en radians:</p>
+  <div class="formula">
+    \( x = \lambda_2 - \lambda_1 = -1.0423 \, \text{rad} \)<br>
+    \( y = \phi_2 - \phi_1 = -0.528 \, \text{rad} \)<br>
+    \( d_{\text{angular}} = \sqrt{x^2 + y^2} = \sqrt{1.086 + 0.278} = \sqrt{1.364} = 1.168 \, \text{rad} \)<br>
+    \( d = 6371 \cdot 1.168 = \boxed{7438 \, \text{km}} \)
+  </div>
+
+  <h2>4. Teorema de Pitàgores – Amb correcció de longitud</h2>
+  <p>Compensem l’escalament longitudinal amb el cosinus de la latitud mitjana.</p>
+  <div class="formula">
+    \( \phi_m = \frac{\phi_1 + \phi_2}{2} = 0.5477 \, \text{rad} \)<br>
+    \( \cos(\phi_m) = 0.854 \)<br>
+    \( x = \Delta \lambda \cdot \cos(\phi_m) = -1.0423 \cdot 0.854 = -0.890 \, \text{rad} \)<br>
+    \( y = -0.528 \, \text{rad} \)<br>
+    \( d = 6371 \cdot \sqrt{(-0.890)^2 + (-0.528)^2} = 6371 \cdot \sqrt{0.793 + 0.278} = 6371 \cdot \sqrt{1.071} = \boxed{6594 \, \text{km}} \)
+  </div>
+
+  <h2>5. Visualització del triangle i catets</h2>
+  <p>Aquí representem gràficament els catets horitzontal i vertical amb la distància.</p>
+  <svg width="300" height="220" viewBox="0 0 300 220">
+    <line x1="50" y1="50" x2="240" y2="50" stroke="blue" stroke-width="2" />
+    <line x1="240" y1="50" x2="240" y2="170" stroke="green" stroke-width="2" />
+    <line x1="50" y1="50" x2="240" y2="170" stroke="red" stroke-width="2" />
+    <text x="130" y="40" fill="blue">x (longitud)</text>
+    <text x="245" y="120" fill="green">y (latitud)</text>
+    <text x="120" y="130" fill="red">d (distància)</text>
+  </svg>
+
+  <h2>6. Càlcul amb Haversine (trigonometria esfèrica)</h2>
+  <div class="formula">
+    \( \Delta \phi = -0.528 \)<br>
+    \( \Delta \lambda = -1.0423 \)<br>
+    \( a = \sin^2(-0.264) + \cos(0.8116) \cdot \cos(0.2837) \cdot \sin^2(-0.521) = 0.069 + 0.157 = 0.226 \)<br>
+    \( c = 2 \cdot \arctan2(\sqrt{0.226}, \sqrt{1-0.226}) = 0.98 \, \text{rad} \)<br>
+    \( d = 6371 \cdot 0.98 = \boxed{6244 \, \text{km}} \)
+  </div>
+
+  <h2>7. Conversió a milles nàutiques</h2>
+  <div class="formula">
+    \( \text{Distància sense correcció} = \frac{7438}{1.852} = 4016 \, \text{MN} \)<br>
+    \( \text{Distància amb correcció} = \frac{6594}{1.852} = 3560 \, \text{MN} \)<br>
+    \( \text{Distància Haversine} = \frac{6244}{1.852} = 3371 \, \text{MN} \)
+  </div>
+
+  <h2>8. Comparació final</h2>
+  <ul>
+    <li><strong>Pitàgores sense correcció:</strong> 7438 km (4016 MN)</li>
+    <li><strong>Pitàgores amb correcció:</strong> 6594 km (3560 MN)</li>
+    <li><strong>Haversine:</strong> 6244 km (3371 MN)</li>
+  </ul>
+  <p>La fórmula de Haversine ofereix una estimació més acurada per distàncies llargues perquè considera la curvatura de la Terra.</p>
+
+  <h2>9. Visualització sobre el mapa</h2>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const start = [46.5, -1.78];
+    const end = [16.25, -61.5];
+    const map = L.map('map').setView([30, -30], 3);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.polyline([start, end], {
+      color: 'red',
+      weight: 3
+    }).addTo(map).bindPopup("Distància Haversine");
+
+    L.polyline([start, end], {
+      color: 'blue',
+      weight: 3,
+      opacity: 0.5,
+      dashArray: '6, 4'
+    }).addTo(map).bindPopup("Distància plana (Pitàgores)");
+
+    L.marker(start).addTo(map).bindPopup("Sortida: Les Sables-d’Olonne");
+    L.marker(end).addTo(map).bindPopup("Arribada: Guadeloupe");
+  </script>
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>
