@@ -98,7 +98,9 @@
   <p>La fórmula de Haversine ofereix una estimació més acurada per distàncies llargues perquè considera la curvatura de la Terra.</p>
 
   <h2>9. Visualització sobre el mapa</h2>
+    
   <div id="map"></div>
+  <p>🔴 Esfèrica (Haversine), 🔵 Plana amb correcció, 🟢 Catets sense correcció</p>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -109,17 +111,22 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    L.polyline([start, end], {
-      color: 'red',
-      weight: 3
-    }).addTo(map).bindPopup("Distància Haversine");
+    // Distància esfèrica
+    L.polyline([start, end], { color: 'red', weight: 3 }).addTo(map);
 
+    // Línia x i y (sense correcció)
+    const xCatet = [start, [start[0], end[1]]];
+    const yCatet = [[start[0], end[1]], end];
+    L.polyline(xCatet, { color: 'green', weight: 2 }).addTo(map);
+    L.polyline(yCatet, { color: 'orange', weight: 2 }).addTo(map);
+
+    // Distància plana amb correcció
     L.polyline([start, end], {
       color: 'blue',
       weight: 3,
-      opacity: 0.5,
+      opacity: 0.6,
       dashArray: '6, 4'
-    }).addTo(map).bindPopup("Distància plana (Pitàgores)");
+    }).addTo(map);
 
     L.marker(start).addTo(map).bindPopup("Sortida: Les Sables-d’Olonne");
     L.marker(end).addTo(map).bindPopup("Arribada: Guadeloupe");
