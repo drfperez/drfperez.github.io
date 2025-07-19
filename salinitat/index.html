@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simulació: Salinitat i Flotabilitat</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1em;
+      background: #e0f2f1;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #00695c;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5em;
+    }
+
+    .panel {
+      flex: 1 1 320px;
+      max-width: 500px;
+      background: #ffffff;
+      padding: 1em;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 1em;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      background: #b3e5fc;
+      border-radius: 6px;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌊 Simulació: Salinitat, Temperatura i Flotabilitat</h1>
+
+<div class="container">
+  <!-- Controls -->
+  <div class="panel">
+    <h2>Controls</h2>
+    <label for="salinitat">Salinitat: <span id="salVal">3.5</span>%</label>
+    <input type="range" id="salinitat" min="0" max="10" step="0.1" value="3.5">
+
+    <label for="temp">Temperatura: <span id="tempVal">20</span>°C</label>
+    <input type="range" id="temp" min="0" max="40" step="1" value="20">
+
+    <p style="margin-top:1em;">
+      La temperatura incrementa l’evaporació → més salinitat. Això fa que els objectes flotin més i canvia els corrents marins.
+    </p>
+    <canvas id="correntsCanvas"></canvas>
+  </div>
+
+  <!-- Simulació -->
+  <div class="panel">
+    <h2>Simulació del Vaixell</h2>
+    <canvas id="marCanvas"></canvas>
+  </div>
+
+  <!-- Gràfica -->
+  <div class="panel">
+    <h2>Gràfica de Flotabilitat</h2>
+    <canvas id="grafica"></canvas>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const salSlider = document.getElementById('salinitat');
+  const tempSlider = document.getElementById('temp');
+  const salVal = document.getElementById('salVal');
+  const tempVal = document.getElementById('tempVal');
+
+  const marCanvas = document.getElementById('marCanvas');
+  const correntsCanvas = document.getElementById('correntsCanvas');
+  const marCtx = marCanvas.getContext('2d');
+  const correntsCtx = correntsCanvas.getContext('2d');
+
+  function resizeCanvas() {
+    marCanvas.width = marCanvas.clientWidth;
+    marCanvas.height = 250;
+    correntsCanvas.width = correntsCanvas.clientWidth;
+    correntsCanvas.height = 150;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  let salinitat = parseFloat(salSlider.value);
+  let temperatura = parseFloat(tempSlider.value);
+  let vaixellX = 0;
+
+  const vaixellImg = new Image();
+  vaixellImg.src = "sail.png"; // Assegura't que la imatge està a la mateixa carpeta
+
+  function dibuixaVaixell() {
+    marCtx.clearRect(0, 0, marCanvas.width, marCanvas.height);
+
+    // Fórmula corregida: més salinitat → més flotabilitat → el vaixell puja
+    const flotabilitat = 10 + salinitat * 2;
+    const yBase = 180 - flotabilitat;
+
+    // Aigua
+    marCtx.fillStyle = '#29b6f6';
+    marCtx.fillRect(0, 0, marCanvas.width, marCanvas.height);
+
+    // Línia del mar
+    marCtx.beginPath();
+    marCtx.moveTo(0, 180);
+    marCtx.lineTo(marCanvas.width, 180);
+    marCtx.strokeStyle = '#01579b';
+    marCtx.lineWidth = 2;
+    marCtx.stroke();
+
+    // Vaixell
+    vaixellX += salinitat * 0.5;
+    if (vaixellX > marCanvas.width) vaixellX = -50;
+    marCtx.drawImage(vaixellImg, vaixellX, yBase - 30, 50, 50);
+  }
+
+  // Corrents marins
+  let fletxes = Array.from({ length: 8 }, (_, i) => ({
+    y: 20 + i * 15,
+    x: Math.random() * 300
+  }));
+
+  function animacioCorrents() {
+    correntsCtx.clearRect(0, 0, correntsCanvas.width, correntsCanvas.height);
+    const velocitat = 1 + salinitat * 0.4;
+    const color = temperatura > 25 ? 'red' : temperatura < 10 ? 'blue' : 'orange';
+
+    fletxes.forEach(f => {
+      correntsCtx.beginPath();
+      correntsCtx.moveTo(f.x, f.y);
+      correntsCtx.lineTo(f.x + 15, f.y);
+      correntsCtx.strokeStyle = color;
+      correntsCtx.lineWidth = 2;
+      correntsCtx.stroke();
+
+      correntsCtx.beginPath();
+      correntsCtx.moveTo(f.x + 15, f.y);
+      correntsCtx.lineTo(f.x + 10, f.y - 4);
+      correntsCtx.lineTo(f.x + 10, f.y + 4);
+      correntsCtx.fillStyle = color;
+      correntsCtx.fill();
+
+      f.x += velocitat;
+      if (f.x > correntsCanvas.width) f.x = -20;
+    });
+
+    requestAnimationFrame(animacioCorrents);
+  }
+
+  // Gràfica
+  const ctxChart = document.getElementById('grafica').getContext('2d');
+  const flotStatic = [];
+  for (let s = 0; s <= 10; s += 0.5) {
+    flotStatic.push({ x: s, y: 10 + s * 2 });
+  }
+
+  const grafica = new Chart(ctxChart, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Flotabilitat teòrica',
+          data: flotStatic,
+          borderColor: 'green',
+          showLine: true,
+          pointRadius: 0
+        },
+        {
+          label: 'Valor actual',
+          data: [{ x: salinitat, y: 10 + salinitat * 2 }],
+          backgroundColor: 'red',
+          pointRadius: 6
+        }
+      ]
+    },
+    options: {
+      animation: false,
+      scales: {
+        x: {
+          title: { display: true, text: 'Salinitat (%)' },
+          min: 0,
+          max: 10
+        },
+        y: {
+          title: { display: true, text: 'Flotabilitat (px)' },
+          min: 0,
+          max: 35
+        }
+      }
+    }
+  });
+
+  function actualitzaGrafica() {
+    grafica.data.datasets[1].data[0] = { x: salinitat, y: 10 + salinitat * 2 };
+    grafica.update();
+  }
+
+  // Interacció i simulació contínua
+  setInterval(() => {
+    const evap = temperatura * 0.0015;
+    salinitat = Math.min(10, salinitat + evap);
+    salSlider.value = salinitat.toFixed(2);
+    salVal.textContent = salinitat.toFixed(2);
+    dibuixaVaixell();
+    actualitzaGrafica();
+  }, 1000);
+
+  salSlider.addEventListener('input', () => {
+    salinitat = parseFloat(salSlider.value);
+    salVal.textContent = salinitat.toFixed(1);
+    dibuixaVaixell();
+    actualitzaGrafica();
+  });
+
+  tempSlider.addEventListener('input', () => {
+    temperatura = parseFloat(tempSlider.value);
+    tempVal.textContent = temperatura.toFixed(0);
+  });
+
+  function animacioVaixell() {
+    dibuixaVaixell();
+    requestAnimationFrame(animacioVaixell);
+  }
+
+  // Inicialització
+  vaixellImg.onload = () => {
+    dibuixaVaixell();
+    animacioVaixell();
+    animacioCorrents();
+  };
+</script>
+
+</body>
+</html>
