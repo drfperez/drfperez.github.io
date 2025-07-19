@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <title>Parts del Vaixell Mini Transat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background: #f9f9f9;
+    }
+    #puntuacio {
+      font-size: 22px;
+      font-weight: bold;
+      color: #1a73e8;
+      margin-bottom: 15px;
+    }
+    #info {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 90%;
+      display: inline-block;
+    }
+    #pregunta {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    svg {
+      max-width: 100%;
+      height: auto;
+      margin-top: 10px;
+    }
+    .clickable {
+      cursor: pointer;
+      fill-opacity: 0;
+      transition: fill-opacity 0.3s ease;
+    }
+    .clickable:hover {
+      fill-opacity: 0.1;
+      fill: orange;
+    }
+  </style>
+</head>
+<body>
+  <h1>Descobreix les parts del vaixell!</h1>
+  <div id="puntuacio">Puntuació: 0 punts</div>
+  <div id="pregunta">Fes clic sobre: ...</div>
+
+  <!-- Imatge SVG -->
+  <svg viewBox="0 0 811 1080" xmlns="http://www.w3.org/2000/svg">
+    <image href="sail.png" x="0" y="0" width="811" height="1080" />
+    <polygon points="289,14 309,24 341,823 326,823" class="clickable" onclick="comprovarResposta('mast')" />
+    <polygon points="308,22 781,821 578,838 339,824" class="clickable" onclick="comprovarResposta('mainSail')" />
+    <polygon points="306,27 789,829 786,659 758,512 717,363 648,222 550,121 478,68 381,25" class="clickable" onclick="comprovarResposta('jib')" />
+    <polygon points="288,22 142,22 113,242 90,507 79,804 328,801" class="clickable" onclick="comprovarResposta('gennaker')" />
+    <polygon points="45,871 362,860 584,830 597,923 331,938 51,925 38,902" class="clickable" onclick="comprovarResposta('hull')" />
+    <polygon points="33,901 14,914 28,1014 45,1017 45,919" class="clickable" onclick="comprovarResposta('rudder')" />
+    <polygon points="209,870 213,818 398,828 453,846" class="clickable" onclick="comprovarResposta('coachroof')" />
+    <polygon points="294,938 342,928 336,1062 264,1062 301,1047" class="clickable" onclick="comprovarResposta('keel')" />
+  </svg>
+
+  <div id="info">Clica sobre la part que et demanem per aprendre!</div>
+
+  <script>
+    const parts = {
+      mast: {
+        ca: "Màstil", es: "Mástil", en: "Mast",
+        funcio: "Sosté les veles i transmet la força del vent al vaixell."
+      },
+      mainSail: {
+        ca: "Vela major", es: "Vela mayor", en: "Mainsail",
+        funcio: "És la vela principal que impulsa el vaixell gràcies al vent."
+      },
+      jib: {
+        ca: "Génova (vela de proa)", es: "Foque / Génova", en: "Jib / Genoa",
+        funcio: "Ajuda a dirigir el vaixell i millora la seva velocitat."
+      },
+      gennaker: {
+        ca: "Gennaker (vela de popa)", es: "Gennaker / Vela de popa asimètrica", en: "Gennaker",
+        funcio: "Permet aprofitar els vents de través i popa per augmentar la velocitat de forma eficaç i segura, especialment en navegació en solitari."
+      },
+      hull: {
+        ca: "Casc", es: "Casco", en: "Hull",
+        funcio: "És la part principal que flota i dona estabilitat al vaixell."
+      },
+      coachroof: {
+        ca: "Sobrecabina", es: "Sobrecabina", en: "Coachroof",
+        funcio: "Protegeix l’entrada a la cabina i proporciona alçada per maniobrar a dins, mantenint un perfil lleuger i aerodinàmic."
+      },
+      keel: {
+        ca: "Quilla", es: "Quilla", en: "Keel",
+        funcio: "Ofereix estabilitat i evita que el vaixell derivi quan rep el vent de costat."
+      },
+      rudder: {
+        ca: "Timó", es: "Timón", en: "Rudder",
+        funcio: "Serveix per canviar la direcció del vaixell durant la navegació."
+      }
+    };
+
+    let partActual = "";
+    let puntuacio = 0;
+
+    function novaPregunta() {
+      const claus = Object.keys(parts);
+      partActual = claus[Math.floor(Math.random() * claus.length)];
+      document.getElementById("pregunta").innerHTML = `🔍 Fes clic sobre: <strong>${parts[partActual].ca}</strong>`;
+      document.getElementById("info").innerHTML = "📌 Esperem la teva resposta...";
+    }
+
+    function comprovarResposta(clicada) {
+      if (clicada === partActual) {
+        puntuacio++;
+        const p = parts[clicada];
+        document.getElementById("info").innerHTML = `
+          ✅ <strong>Molt bé!</strong> Has seleccionat correctament.<br><br>
+          <strong>📘 Català:</strong> ${p.ca}<br>
+          <strong>📗 Español:</strong> ${p.es}<br>
+          <strong>📙 English:</strong> ${p.en}<br><br>
+          <strong>🎯 Funció:</strong> ${p.funcio}
+        `;
+        document.getElementById("puntuacio").textContent = `Puntuació: ${puntuacio} ${puntuacio === 1 ? 'punt' : 'punts'}`;
+        setTimeout(novaPregunta, 3000); // Nova pregunta als 3 segons
+      } else {
+        document.getElementById("info").innerHTML = "❌ Aquesta no és la part correcta. Torna-ho a intentar!";
+      }
+    }
+
+    // Inici del joc
+    novaPregunta();
+  </script>
+</body>
+</html>
