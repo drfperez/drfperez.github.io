@@ -126,7 +126,7 @@
           <strong>🎯 Funció:</strong> ${p.funcio}
         `;
         document.getElementById("puntuacio").textContent = `Puntuació: ${puntuacio} ${puntuacio === 1 ? 'punt' : 'punts'}`;
-        setTimeout(novaPregunta, 5000); // Nova pregunta als 5 segons
+        setTimeout(novaPregunta, 10000); // Nova pregunta als 10 segons
       } else {
         document.getElementById("info").innerHTML = "❌ Aquesta no és la part correcta. Torna-ho a intentar!";
       }
