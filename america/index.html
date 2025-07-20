@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productes del Descobriment d'Amèrica</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f0f0f0;
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    #punts {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      background: #d1f7d1;
+      padding: 0.5rem;
+      border-radius: 8px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #missatge {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: green;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 1rem;
+    }
+
+    .products {
+      flex: 1 1 100%;
+      min-height: 300px;
+      background: white;
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .dropzone {
+      flex: 1 1 45%;
+      min-height: 250px;
+      background: white;
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .product {
+      display: inline-block;
+      margin: 0.25rem;
+      padding: 0.25rem;
+      background: #e0e0ff;
+      border-radius: 8px;
+      cursor: grab;
+      user-select: none;
+      text-align: center;
+      width: 60px;
+      font-size: 0.8rem;
+    }
+
+    .product img {
+      width: 35px;
+      height: 35px;
+      display: block;
+      margin: auto;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .dropzone {
+        flex: 1 1 100%;
+      }
+
+      .products {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h2>Arrossega els productes a la seva regió d’origen</h2>
+<div id="punts">Punts: 0 / 16</div>
+<div id="missatge"></div>
+
+<div class="container">
+  <div class="products" id="products">
+    <!-- AMÈRICA -->
+    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/tomato.png"/>Tomàquet</div>
+    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/potato.png"/>Patata</div>
+    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/chocolate-bar.png"/>Cacau</div>
+    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/corn.png"/>Blat de moro</div>
+    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/chili-pepper.png"/>Pebrot</div>
+    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/orchid.png"/>Vainilla</div>
+<div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/avocado.png"/>Alvocat</div>
+
+    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/pumpkin.png"/>Carbassa</div>
+
+    <!-- EUROPA -->
+    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/wheat.png"/>Blat</div>
+    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/horse.png"/>Cavall</div>
+    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/sheep.png"/>Ovella</div>
+    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/onion.png"/>Ceba</div>
+    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/garlic.png"/>All</div>
+    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/cheese.png"/>Formatge</div>
+    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/pig.png"/>Porc</div>
+    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/honey.png"/>Mel</div>
+  </div>
+
+  <div class="dropzone" id="america">
+    <h3>Procedents d’Amèrica 🌎</h3>
+  </div>
+
+  <div class="dropzone" id="europa">
+    <h3>Procedents d’Europa 🌍</h3>
+  </div>
+</div>
+
+<script>
+  const products = document.querySelectorAll('.product');
+  const dropzones = document.querySelectorAll('.dropzone');
+  const puntsDisplay = document.getElementById('punts');
+  const missatge = document.getElementById('missatge');
+  let punts = 0;
+
+  products.forEach((product, index) => {
+    product.id = 'producte-' + index;
+
+    // Drag per ordinador
+    product.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', product.id);
+    });
+
+    // Drag per mòbils (touch)
+    product.addEventListener('touchstart', (e) => {
+      e.target.classList.add('dragging');
+    });
+  });
+
+  dropzones.forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.style.background = '#d0ffd0';
+    });
+
+    zone.addEventListener('dragleave', () => {
+      zone.style.background = 'white';
+    });
+
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.style.background = 'white';
+      const producteId = e.dataTransfer.getData('text/plain');
+      const producte = document.getElementById(producteId);
+      assignarProducte(producte, zone);
+    });
+
+    // Compatibilitat mòbil: arrossegar manual amb touch
+    zone.addEventListener('touchmove', e => {
+      const touch = e.touches[0];
+      const dragging = document.querySelector('.dragging');
+      if (dragging) {
+        dragging.style.position = 'absolute';
+        dragging.style.left = touch.pageX + 'px';
+        dragging.style.top = touch.pageY + 'px';
+      }
+    });
+
+    zone.addEventListener('touchend', e => {
+      const dragging = document.querySelector('.dragging');
+      if (dragging) {
+        dragging.style.position = 'static';
+        dragging.classList.remove('dragging');
+        assignarProducte(dragging, zone);
+      }
+    });
+  });
+
+  function assignarProducte(producte, zona) {
+    if (!producte || producte.classList.contains('colocat')) return;
+    const origen = producte.dataset.origin;
+    const nom = producte.textContent.trim();
+
+    if ((zona.id === 'america' && origen === 'america') ||
+        (zona.id === 'europa' && origen === 'europa')) {
+
+      zona.appendChild(producte);
+      producte.classList.add('colocat');
+      producte.setAttribute('draggable', 'false');
+      producte.style.cursor = 'default';
+      producte.style.opacity = '0.6';
+      punts++;
+      puntsDisplay.textContent = `Punts: ${punts} / 16`;
+      missatge.textContent = `✔️ Has col·locat correctament: ${nom}`;
+      missatge.style.display = 'block';
+
+      if (punts === 16) {
+        missatge.textContent = "🎉 Felicitats! Has col·locat tots els productes correctament!";
+      }
+    } else {
+      alert("❌ Aquest producte no pertany a aquesta zona!");
+    }
+  }
+</script>
+
+</body>
+</html>
