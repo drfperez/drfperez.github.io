@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniTransat Challenge: La Travessa de l'Atlàntic</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #a8dadc 0%, #457b9d 100%);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background-color: #fefefe;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 90%;
+            max-width: 900px;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        h1, h2, h3 {
+            color: #1d3557;
+            margin-top: 0;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #457b9d;
+        }
+        .header-info div {
+            padding: 5px 15px;
+            background-color: #e0f2f7;
+            border-radius: 8px;
+            margin: 5px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        #gameMap {
+            width: 100%;
+            height: 250px;
+            /* Nova URL per a una imatge de mapa més fiable */
+            background: url('mercator.jpg') center center / cover no-repeat;
+            border: 2px solid #1d3557;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #boat {
+            position: absolute;
+            bottom: 20px;
+            left: 10%;
+            width: 50px;
+            height: 50px;
+            /* Imatge de vaixell en Base64 per a més fiabilitat */
+            background: url('sail1.png') center center / contain no-repeat;
+            transition: left 2s linear, filter 0.5s ease; /* Smooth movement and filter changes */
+        }
+
+        .event-section {
+            background-color: #f1faee;
+            border-left: 5px solid #a8dadc;
+            padding: 15px 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .options-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .option-button {
+            background-color: #1d3557;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            flex: 1 1 45%; /* For responsive buttons */
+            max-width: 300px;
+        }
+        .option-button:hover {
+            background-color: #457b9d;
+            transform: translateY(-2px);
+        }
+        .option-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #startButton {
+            background-color: #e63946;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+        }
+        #startButton:hover {
+            background-color: #c02936;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f1faee;
+            border: 2px solid #a8dadc;
+            border-radius: 10px;
+            display: none; /* Hidden by default */
+        }
+        .result-section h3 {
+            color: #e63946;
+        }
+
+        /* --- Modal Styles --- */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+            animation: fadeIn 0.3s ease-out;
+           /* display: flex; /* Use flexbox to center content */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            animation: slideIn 0.4s ease-out;
+            text-align: left;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 30px;
+            font-weight: bold;
+            line-height: 20px; /* Adjust line height for better alignment */
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #1d3557;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content h4 {
+            margin-top: 0;
+            color: #1d3557;
+            font-size: 1.5rem;
+        }
+
+        .modal-content p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: block; /* Ensure it's block to take full width */
+            margin-left: auto; /* Center image */
+            margin-right: auto; /* Center image */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            .header-info {
+                flex-direction: column;
+                align-items: center;
+            }
+            .option-button {
+                flex: 1 1 100%;
+            }
+            .modal-content {
+                margin: 5% auto;
+                padding: 20px;
+            }
+            #gameMap {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container" id="gameContainer">
+        <h1>MiniTransat Challenge: La Travessa de l'Atlàntic</h1>
+        <p>Prepara't per una de les regates en solitari més dures del món! La MiniTransat creua l'Atlàntic en petits velers de 6.50 metres. Les teves decisions marcaran el rumb.</p>
+
+        <button id="startButton" class="option-button">Començar Viatge!</button>
+
+        <div id="gamePlay" style="display:none;">
+            <div class="header-info">
+                <div>Dia: <span id="dayCount">0</span></div>
+                <div>Distància Recorreguda: <span id="distance">0</span> NM</div>
+                <div>Salut del Veler: <span id="boatHealth">100%</span></div>
+                <div>Moral Tripulació: <span id="crewMoral">100%</span></div>
+            </div>
+
+            <div id="gameMap">
+                <div id="boat"></div>
+            </div>
+
+            <div class="event-section">
+                <h3 id="currentEventTitle">Comença la teva aventura!</h3>
+                <p id="currentEventDescription">Estàs a la línia de sortida a Las Palmas (Gran Canària), punt de la segona etapa de la MiniTransat. El temps és bo. Quin rumb prens?</p>
+            </div>
+
+            <div class="options-container" id="optionsContainer">
+                </div>
+        </div>
+
+        <div class="result-section" id="resultScreen">
+            <h3>Viatge Finalitzat!</h3>
+            <p id="finalMessage"></p>
+            <p>Distància total recorreguda: <span id="finalDistance"></span> NM</p>
+            <p>Dies totals: <span id="finalDays"></span></p>
+            <button class="option-button" onclick="restartGame()">Tornar a jugar</button>
+        </div>
+    </div>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h4 id="modalTitle"></h4>
+            <img id="modalImage" class="modal-image" src="" alt="Imatge relacionada amb la nàutica">
+            <p id="modalText"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- Game State Variables ---
+        let currentDay = 0;
+        let distance = 0; // Nautical Miles (NM)
+        let boatHealth = 100; // %
+        let crewMoral = 100; // %
+        let gameStarted = false;
+        let gameEnded = false;
+
+        // --- DOM Elements ---
+        const startButton = document.getElementById('startButton');
+        const gamePlay = document.getElementById('gamePlay');
+        const resultScreen = document.getElementById('resultScreen');
+        const dayCount = document.getElementById('dayCount');
+        const distanceDisplay = document.getElementById('distance');
+        const boatHealthDisplay = document.getElementById('boatHealth');
+        const crewMoralDisplay = document.getElementById('crewMoral');
+        const currentEventTitle = document.getElementById('currentEventTitle');
+        const currentEventDescription = document.getElementById('currentEventDescription');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const boatElement = document.getElementById('boat');
+
+        // Modal elements
+        const infoModal = document.getElementById('infoModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const modalImage = document.getElementById('modalImage');
+        const closeButton = document.querySelector('.close-button');
+
+        // --- Game Configuration ---
+        const MAX_DISTANCE = 2700; // Aproximadament la distància de la segona etapa de la MiniTransat (Las Palmas a St. François, Guadalupe)
+        const MIN_HEALTH = 0;
+        const MIN_MORAL = 0;
+        const BASE_DISTANCE_PER_DAY = 120; // NM per dia en condicions ideals per un Mini 6.50
+        const MAX_HEALTH = 100;
+        const MAX_MORAL = 100;
+
+        // Imatge per defecte quan no se n'especifica una per al modal
+        const DEFAULT_MODAL_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNhOGRhZGMiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIzNSIgZmlsbD0iI2YxZmFlZSIvPjxwYXRoIGQ9Ik00NSAyNWwxMCA1MC0xMCA1em0wIDUwYTMgMyAwIDEgMCA2IDAgMyAzIDAgMSAwLTYgMHoiIGZpbGw9IiM0NTdiOWQiLz48L3N2Zz4=';
+
+
+        // --- Game Events Data ---
+        const gameEvents = [
+            {
+                id: 'start',
+                title: 'A punt per la sortida!',
+                description: 'Estàs a la línia de sortida a Las Palmas (Gran Canària), punt de la segona etapa de la MiniTransat. El temps és bo, vents d\'uns 15 nusos de popa. Quin rumb prens?',
+                options: [
+                    { text: 'Rumb Oest directe (menys milles, més risc de calmes)', effect: { distance: BASE_DISTANCE_PER_DAY, health: 0, moral: 0, days: 1 }, info: { title: 'Rumb Oest i els Doldrums', text: 'Un rumb directe és el més curt en distància, però pot portar-te directament a la Zona de Convergència Intertropical (ZCIT) o "Doldrums". Aquesta zona, prop de l\'Equador, es caracteritza per vents molt variables, tempestes intenses i períodes de calma total que poden aturar els vaixells durant dies, posant a prova la paciència i les provisions.', image: 'minitransat3.jpg' } },
+                    { text: 'Rumb Sud-Oest (buscant els alisis, ruta més llarga però estable)', effect: { distance: BASE_DISTANCE_PER_DAY * 0.9, health: 0, moral: 5, days: 1 }, info: { title: 'Els Vents Alisis i la seva Importància', text: 'Els vents alisis són vents constants i estables que bufen a les zones tropicals, des dels tròpics cap a l\'equador. Han estat fonamentals per a la navegació transoceànica des de fa segles. A la MiniTransat, molts regatistes busquen desplaçar-se cap al sud-oest per enganxar-los i gaudir d\'una navegació més ràpida i còmoda, tot i que això implica recórrer més distància.', image: 'minitransat2.jpg' } }
+                ]
+            },
+            {
+                id: 'calm',
+                title: 'Calma Chicha!',
+                description: 'El vent ha caigut completament. El vaixell no avança i la moral del navegant comença a decaure amb la lentitud del progrés.',
+                options: [
+                    { text: 'Esperar pacientment el vent (racionant provisions)', effect: { distance: BASE_DISTANCE_PER_DAY * 0.1, health: 0, moral: -10, days: 2 }, info: { title: 'La Paciència a la Calma Chicha', text: 'La "calma chicha" és el malson de qualsevol navegant de veler. És l\'absència total de vent i pot durar hores o dies. En una regata en solitari, posa a prova la resistència mental. Racionar l\'aigua i el menjar és crucial, ja que la durada del viatge és incerta.', image: 'calm.jpg' } },
+                    { text: 'Intentar una petita reparació o revisar equipament (mantenir-se ocupat)', effect: { distance: BASE_DISTANCE_PER_DAY * 0.05, health: 2, moral: 5, days: 1 }, info: { title: 'Aprofitar la Calma per a Manteniment', text: 'Quan el vaixell no es mou, és una oportunitat d\'or per fer revisions o petites reparacions que amb onades serien impossibles. Des de revisar el cordam fins a l\'electrònica, mantenir-se actiu ajuda a la moral i prepara el vaixell per al pròxim vent. Tot i que no guanyes moltes milles, inverteixes en el futur del viatge.', image: 'minitransat.jpg' } }
+                ],
+                condition: () => Math.random() < 0.3 && distance < MAX_DISTANCE * 0.7 // 30% chance, more likely in first 70% of race
+            },
+            {
+                id: 'storm',
+                title: 'Tempesta Tropical en Apropament!',
+                description: 'Un front de tempesta s\'apropa ràpidament. Els vents augmenten, les onades creixen i el baròmetre cau.',
+                options: [
+                    { text: 'Arriar veles i capejar el temporal (seguretat abans de velocitat)', effect: { distance: BASE_DISTANCE_PER_DAY * 0.1, health: -10, moral: -5, days: 1 }, info: { title: 'Tècniques per Capejar una Tempesta', text: 'Capejar una tempesta implica reduir dràsticament la superfície vèlica, fins i tot arriar-la del tot, i orientar el vaixell de manera que suporti millor l\'embat de les onades i el vent. Potser amb un "tormentí" o "vela de capa" (una petita vela de tempesta). L\'objectiu és la supervivència i minimitzar els danys, no avançar. La seguretat del navegant i del vaixell és primordial.', image: 'storm.jpg' } },
+                    { text: 'Intentar esquivar la tempesta (canviant dràsticament de rumb)', effect: { distance: BASE_DISTANCE_PER_DAY * 0.5, health: -5, moral: 0, days: 2 }, info: { title: 'Importància de la Meteorologia a la Regata Oceànica', text: 'Un bon navegant de regata ha d\'estar constantment analitzant els models meteorològics per prendre decisions estratègiques. Esquivar un sistema meteorològic advers pot estalviar grans danys al vaixell i desgast al navegant, però sovint implica fer més milles i allargar el temps total de la travessa. És una balança entre seguretat i velocitat.', image: 'minitransat4.jpg' } }
+                ],
+                condition: () => Math.random() < 0.25 && distance > MAX_DISTANCE * 0.1 && distance < MAX_DISTANCE * 0.9 // 25% chance, not at very start or end
+            },
+            {
+                id: 'damage',
+                title: 'Avaria Menor a Bord!',
+                description: 'Un cop de mar inesperat o el desgast del material ha provocat una avaria lleu (p. ex., driça de la major esfilagarsada, electrònica intermitent).',
+                options: [
+                    { text: 'Reparar immediatament (perdre hores, estalviar-se un problema major)', effect: { distance: BASE_DISTANCE_PER_DAY * 0.3, health: 0, moral: -10, days: 0.5 }, info: { title: 'Autonomia i Enginy en Solitari', text: 'En una regata en solitari com la MiniTransat, el navegant és el seu propi mecànic, electricista i metge. Les reparacions a alta mar, amb el vaixell en moviment, són un repte constant. Tenir un bon joc d\'eines i coneixements bàsics és vital. Una avaria menor ignorada pot escalar ràpidament a un problema que acabi amb la regata.', image: 'minitransat5.jpg' } },
+                    { text: 'Continuar sense reparar (arriscar-se a més danys, però guanyar temps)', effect: { distance: BASE_DISTANCE_PER_DAY * 0.8, health: -15, moral: 5, days: 0 }, info: { title: 'Gestió del Risc i Prioritats en Regata', text: 'Decidir si reparar immediatament o continuar és una decisió crítica en regata. A vegades, el temps perdut en una reparació pot ser més costós que el risc de danys addicionals a curt termini, sobretot si s\'està en una bona posició. És un equilibri delicat que pot portar a glòria o a l\'abandó de la regata. Un bon regatista sap quan forçar i quan parar.', image: 'minitransat1.jpg' } }
+                ],
+                condition: () => Math.random() < 0.2 && distance > MAX_DISTANCE * 0.05 // 20% chance, not right at the start
+            },
+            {
+                id: 'favorable_wind',
+                title: 'Vent Favorable i Bon Rumb!',
+                description: 'Has enganxat una bona pertorbació amb vent de popa sostingut (els alisis t\'impulsen). Condicions ideals per avançar a gran velocitat!',
+                options: [
+                    { text: 'Mantenir rumb i aprofitar al màxim (accelerar al màxim)', effect: { distance: BASE_DISTANCE_PER_DAY * 1.5, health: 0, moral: 10, days: 1 }, info: { title: 'Aprofitar al Màxim les Condicions', text: 'Trobar i aprofitar les condicions de vent òptimes és l\'objectiu de qualsevol regatista oceànic. Els vents de popa constants permeten utilitzar veles de gran superfície com els spinnakers o gennakers, que impulsen el vaixell a la màxima velocitat possible. Són moments clau per guanyar distància respecte als competidors i elevar la moral del navegant. Requereix concentració per mantenir el vaixell en línia i evitar orzades incontrolades.', image: 'minitransat6.jpeg' } }
+                ],
+                condition: () => Math.random() < 0.4 // 40% chance
+            },
+            {
+                id: 'dolphin_sighting',
+                title: 'Visita de Dofins!',
+                description: 'Un grup de dofins està saltant i jugant al voltant del teu veler. Un espectacle meravellós enmig de l\'oceà.',
+                options: [
+                    { text: 'Gaudir de l\'espectacle (augmenta la moral)', effect: { distance: BASE_DISTANCE_PER_DAY * 0.9, health: 0, moral: 15, days: 1 }, info: { title: 'La Vida Salvatge a l\'Oceà', text: 'La solitud de l\'oceà sovint es trenca amb trobades amb la vida marina. Dofins, balenes, ocells marins poden convertir-se en companys per un temps. Aquests moments són molt valorats pels navegants solitaris, ja que alleugen la monotonia i augmenten la moral, recordant la bellesa de la natura. No sempre es guanyen milles, però es guanya experiència i benestar.', image: 'dolphins.jpg' } }
+                ],
+                condition: () => Math.random() < 0.15 && crewMoral < 80 // 15% chance, more likely if moral is a bit low
+            }
+        ];
+
+        // --- Game Functions ---
+
+        function startGame() {
+            gameStarted = true;
+            gameEnded = false;
+            currentDay = 0;
+            distance = 0;
+            boatHealth = 100;
+            crewMoral = 100;
+
+            startButton.style.display = 'none';
+            gamePlay.style.display = 'block';
+            resultScreen.style.display = 'none';
+
+            updateGameStats();
+            loadEvent(gameEvents[0]); // Start with the initial event
+            console.log("Joc iniciat!");
+        }
+
+        function updateGameStats() {
+            dayCount.textContent = currentDay;
+            distanceDisplay.textContent = distance.toFixed(0);
+            boatHealthDisplay.textContent = boatHealth.toFixed(0) + '%';
+            crewMoralDisplay.textContent = crewMoral.toFixed(0) + '%';
+
+            // Update boat position on map
+            const boatPosition = (distance / MAX_DISTANCE) * 80; // % across the map (20% margin left/right)
+            boatElement.style.left = `${10 + boatPosition}%`;
+            boatElement.style.filter = `hue-rotate(${boatHealth * 1.5}deg) brightness(${crewMoral / 100 + 0.5})`; // Visual health/moral feedback
+
+            checkGameStatus();
+        }
+
+        function loadEvent(eventData) {
+            currentEventTitle.textContent = eventData.title;
+            currentEventDescription.textContent = eventData.description;
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            eventData.options.forEach(option => {
+                const optionWrapper = document.createElement('div'); // Wrapper to group button and info button
+                optionWrapper.style.display = 'flex';
+                optionWrapper.style.gap = '10px';
+                optionWrapper.style.flexWrap = 'wrap';
+                optionWrapper.style.justifyContent = 'center';
+                optionWrapper.style.width = '100%';
+
+                const button = document.createElement('button');
+                button.classList.add('option-button');
+                button.textContent = option.text;
+                button.onclick = () => handleOption(option);
+                button.style.flexGrow = '1'; // Allow main button to grow
+                optionWrapper.appendChild(button);
+
+                // Add "Saber més" button for the option's info
+                if (option.info) {
+                    const infoButton = document.createElement('button');
+                    infoButton.classList.add('option-button');
+                    infoButton.textContent = 'Saber més';
+                    infoButton.style.backgroundColor = '#62b6cb'; // Different color for info
+                    infoButton.style.maxWidth = '120px'; // Limit width for info button
+                    infoButton.onclick = (e) => {
+                        e.stopPropagation(); // Prevent handling the main option if clicked simultaneously
+                        openModal(option.info.title, option.info.text, option.info.image);
+                    };
+                    optionWrapper.appendChild(infoButton);
+                }
+                optionsContainer.appendChild(optionWrapper);
+            });
+            console.log("Esdeveniment carregat:", eventData.title);
+        }
+
+        function handleOption(option) {
+            if (gameEnded) return;
+
+            // Apply effects
+            currentDay += option.effect.days;
+            distance += option.effect.distance;
+            boatHealth += option.effect.health;
+            crewMoral += option.effect.moral;
+
+            // Clamp values to min/max
+            boatHealth = Math.max(MIN_HEALTH, Math.min(MAX_HEALTH, boatHealth));
+            crewMoral = Math.max(MIN_MORAL, Math.min(MAX_MORAL, crewMoral));
+
+            console.log(`Opció escollida: ${option.text}. Efectes: Dies: ${option.effect.days}, Distància: ${option.effect.distance}, Salut: ${option.effect.health}, Moral: ${option.effect.moral}`);
+
+            updateGameStats();
+            if (!gameEnded) {
+                setTimeout(nextDay, 1500); // Wait a bit before next event
+            }
+        }
+
+        function nextDay() {
+            if (gameEnded) return;
+
+            // Try to find a random event based on conditions
+            // Filter events that have a condition AND that condition returns true
+            const availableEvents = gameEvents.filter(e => e.condition && e.condition());
+            let nextEvent = null;
+
+            if (availableEvents.length > 0) {
+                nextEvent = availableEvents[Math.floor(Math.random() * availableEvents.length)];
+            } else {
+                // If no random event, provide a "continue" option or basic progress
+                nextEvent = {
+                    title: 'Tot en calma...',
+                    description: 'Un dia tranquil a l\'Atlàntic. El sol brilla i el vent és constant. Un bon dia per avançar milles sense problemes.',
+                    options: [
+                        { text: 'Continuar navegant', effect: { distance: BASE_DISTANCE_PER_DAY, health: 0, moral: 2, days: 1 } }
+                    ]
+                };
+            }
+            loadEvent(nextEvent);
+            console.log("Passant al següent dia/esdeveniment.");
+        }
+
+        function checkGameStatus() {
+            if (distance >= MAX_DISTANCE) {
+                endGame(true, `Felicitaaaats! Has creuat l'Atlàntic i completat el teu MiniTransat Challenge en ${currentDay} dies! Ets un veritable navegant solitari!`);
+            } else if (boatHealth <= MIN_HEALTH) {
+                endGame(false, `Oh, no! La teva embarcació ha patit massa danys i s'ha tornat inoperable. Has hagut d'activar la balisa de socors i abandonar la regata.`);
+            } else if (crewMoral <= MIN_MORAL) {
+                endGame(false, `La moral del navegant ha caigut massa amb la solitud i els desafiaments. Has perdut les ganes de seguir i has hagut d'abandonar el teu somni de MiniTransat.`);
+            }
+        }
+
+        function endGame(success, message) {
+            gameEnded = true;
+            gamePlay.style.display = 'none';
+            resultScreen.style.display = 'block';
+            document.getElementById('finalMessage').textContent = message;
+            document.getElementById('finalDistance').textContent = distance.toFixed(0);
+            document.getElementById('finalDays').textContent = currentDay;
+            if (success) {
+                document.getElementById('resultScreen').style.borderColor = '#4CAF50';
+                document.getElementById('resultScreen h3').style.color = '#4CAF50';
+            } else {
+                document.getElementById('resultScreen').style.borderColor = '#e63946';
+                document.getElementById('resultScreen h3').style.color = '#e63946';
+            }
+            console.log("Joc finalitzat.");
+        }
+
+        function restartGame() {
+            gameEnded = false;
+            gameStarted = false; // Reset game state fully
+            startButton.style.display = 'block';
+            gamePlay.style.display = 'none';
+            resultScreen.style.display = 'none';
+            boatElement.style.left = '10%'; // Reset boat position
+            boatElement.style.filter = ''; // Reset boat filter
+            console.log("Joc reiniciat.");
+        }
+
+        // --- Modal Functions ---
+        function openModal(title, text, imageUrl = null) {
+            console.log(`Obrint modal per: ${title}`);
+            modalTitle.textContent = title;
+            modalText.innerHTML = text; // Use innerHTML for potential formatting if needed
+
+            if (imageUrl) {
+                modalImage.src = imageUrl;
+                modalImage.style.display = 'block';
+            } else {
+                modalImage.src = DEFAULT_MODAL_IMAGE; // Fallback to a generic image
+                modalImage.style.display = 'block';
+            }
+
+            infoModal.style.display = 'flex'; // Use flex to center
+        }
+
+        function closeModal() {
+            infoModal.style.display = 'none';
+            console.log("Modal tancat.");
+        }
+
+        // Close the modal when the user clicks on <span> (x)
+        closeButton.onclick = closeModal;
+
+        // Close the modal when the user clicks anywhere outside of the modal content
+        window.onclick = function(event) {
+            if (event.target == infoModal) {
+                closeModal();
+            }
+        }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startGame);
+
+    </script>
+</body>
+</html>
