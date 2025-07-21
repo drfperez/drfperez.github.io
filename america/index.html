@@ -82,6 +82,8 @@
       text-align: center;
       width: 60px;
       font-size: 0.8rem;
+      position: relative; /* Important for touch drag */
+      z-index: 1; /* Ensure product is above other elements when dragging */
     }
 
     .product img {
@@ -89,6 +91,25 @@
       height: 35px;
       display: block;
       margin: auto;
+    }
+
+    /* Estils per quan s'està arrossegant un element */
+    .dragging {
+      opacity: 0.7;
+      border: 2px solid #555;
+      transform: scale(1.05);
+    }
+
+    /* Estils per a la zona on es pot deixar anar un element */
+    .drop-hover {
+      background: #e6ffe6 !important;
+      border-color: #4CAF50 !important;
+    }
+
+    .colocat {
+      opacity: 0.6;
+      cursor: default;
+      pointer-events: none; /* Disable events after being placed */
     }
 
     @media (max-width: 768px) {
@@ -114,18 +135,15 @@
 
 <div class="container">
   <div class="products" id="products">
-    <!-- AMÈRICA -->
     <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/tomato.png"/>Tomàquet</div>
     <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/potato.png"/>Patata</div>
     <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/chocolate-bar.png"/>Cacau</div>
     <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/corn.png"/>Blat de moro</div>
     <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/chili-pepper.png"/>Pebrot</div>
     <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/orchid.png"/>Vainilla</div>
-<div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/avocado.png"/>Alvocat</div>
-
+    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/avocado.png"/>Alvocat</div>
     <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/pumpkin.png"/>Carbassa</div>
 
-    <!-- EUROPA -->
     <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/wheat.png"/>Blat</div>
     <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/horse.png"/>Cavall</div>
     <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/sheep.png"/>Ovella</div>
@@ -151,62 +169,118 @@
   const puntsDisplay = document.getElementById('punts');
   const missatge = document.getElementById('missatge');
   let punts = 0;
+  let draggingProduct = null; // Per a la gestió tàctil
 
+  // Assigna un ID únic a cada producte i gestiona els esdeveniments de drag
   products.forEach((product, index) => {
     product.id = 'producte-' + index;
 
-    // Drag per ordinador
+    // --- Drag per ordinador (API estàndard) ---
     product.addEventListener('dragstart', e => {
       e.dataTransfer.setData('text/plain', product.id);
+      product.classList.add('dragging');
     });
 
-    // Drag per mòbils (touch)
+    product.addEventListener('dragend', () => {
+      product.classList.remove('dragging');
+    });
+
+    // --- Drag per mòbils (simulació amb touch events) ---
     product.addEventListener('touchstart', (e) => {
-      e.target.classList.add('dragging');
+      draggingProduct = product;
+      product.classList.add('dragging');
+      // Crear una còpia visual de l'element per arrossegar
+      const clone = product.cloneNode(true);
+      clone.style.position = 'absolute';
+      clone.style.left = product.getBoundingClientRect().left + 'px';
+      clone.style.top = product.getBoundingClientRect().top + 'px';
+      clone.style.width = product.offsetWidth + 'px';
+      clone.style.height = product.offsetHeight + 'px';
+      clone.style.pointerEvents = 'none'; // Evitar que el clon interfereixi amb altres tocs
+      clone.id = 'dragging-clone'; // Un ID per trobar-lo fàcilment
+      document.body.appendChild(clone);
     });
   });
 
+  // Gestiona els esdeveniments de dropzones
   dropzones.forEach(zone => {
+    // --- Drop per ordinador (API estàndard) ---
     zone.addEventListener('dragover', e => {
-      e.preventDefault();
-      zone.style.background = '#d0ffd0';
+      e.preventDefault(); // Permet el drop
+      zone.classList.add('drop-hover');
     });
 
     zone.addEventListener('dragleave', () => {
-      zone.style.background = 'white';
+      zone.classList.remove('drop-hover');
     });
 
     zone.addEventListener('drop', e => {
       e.preventDefault();
-      zone.style.background = 'white';
+      zone.classList.remove('drop-hover');
       const producteId = e.dataTransfer.getData('text/plain');
       const producte = document.getElementById(producteId);
       assignarProducte(producte, zone);
     });
 
-    // Compatibilitat mòbil: arrossegar manual amb touch
-    zone.addEventListener('touchmove', e => {
-      const touch = e.touches[0];
-      const dragging = document.querySelector('.dragging');
-      if (dragging) {
-        dragging.style.position = 'absolute';
-        dragging.style.left = touch.pageX + 'px';
-        dragging.style.top = touch.pageY + 'px';
-      }
-    });
+    // --- Drop per mòbils (detecció de la posició del touch) ---
+    document.addEventListener('touchmove', e => {
+      if (draggingProduct) {
+        e.preventDefault(); // Evita el scroll durant el drag
+        const touch = e.touches[0];
+        const clone = document.getElementById('dragging-clone');
+        if (clone) {
+          clone.style.left = (touch.pageX - clone.offsetWidth / 2) + 'px';
+          clone.style.top = (touch.pageY - clone.offsetHeight / 2) + 'px';
+        }
 
-    zone.addEventListener('touchend', e => {
-      const dragging = document.querySelector('.dragging');
-      if (dragging) {
-        dragging.style.position = 'static';
-        dragging.classList.remove('dragging');
-        assignarProducte(dragging, zone);
+        // Resalta la zona de drop si el clon està sobre ella
+        const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+        dropzones.forEach(dz => {
+          if (dz.contains(targetElement)) {
+            dz.classList.add('drop-hover');
+          } else {
+            dz.classList.remove('drop-hover');
+          }
+        });
+      }
+    }, { passive: false }); // 'passive: false' permet cridar preventDefault
+
+    document.addEventListener('touchend', e => {
+      if (draggingProduct) {
+        const clone = document.getElementById('dragging-clone');
+        if (clone) {
+          clone.remove(); // Elimina el clon
+        }
+
+        const touch = e.changedTouches[0];
+        const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        let droppedInZone = false;
+        dropzones.forEach(dz => {
+          dz.classList.remove('drop-hover'); // Neteja l'estil de hover
+          if (dz.contains(targetElement)) {
+            assignarProducte(draggingProduct, dz);
+            droppedInZone = true;
+          }
+        });
+
+        draggingProduct.classList.remove('dragging');
+        draggingProduct = null;
+
+        // Si no s'ha deixat anar en cap zona, el producte torna a la seva posició original
+        if (!droppedInZone) {
+          // Si el producte no ha estat assignat (no ha caigut a una zona vàlida),
+          // assegura't que torni a la zona "products" si ja no hi és.
+          // En aquest cas, com que sempre està en el DOM, no cal fer res si no ha caigut en un dropzone vàlid.
+          // La lògica de "colocat" ja s'encarrega de que no es pugui tornar a moure un cop ben posat.
+        }
       }
     });
   });
 
   function assignarProducte(producte, zona) {
     if (!producte || producte.classList.contains('colocat')) return;
+
     const origen = producte.dataset.origin;
     const nom = producte.textContent.trim();
 
@@ -215,19 +289,25 @@
 
       zona.appendChild(producte);
       producte.classList.add('colocat');
-      producte.setAttribute('draggable', 'false');
-      producte.style.cursor = 'default';
-      producte.style.opacity = '0.6';
+      producte.setAttribute('draggable', 'false'); // Deshabilita el drag per a PC
+      // Per a mòbils, simplement no el marquem com a 'draggingProduct' la propera vegada
       punts++;
       puntsDisplay.textContent = `Punts: ${punts} / 16`;
       missatge.textContent = `✔️ Has col·locat correctament: ${nom}`;
       missatge.style.display = 'block';
+      missatge.style.color = 'green';
 
       if (punts === 16) {
         missatge.textContent = "🎉 Felicitats! Has col·locat tots els productes correctament!";
+        missatge.style.color = 'darkgreen';
       }
     } else {
-      alert("❌ Aquest producte no pertany a aquesta zona!");
+      missatge.textContent = `❌ Aquest producte (${nom}) no pertany a aquesta zona!`;
+      missatge.style.display = 'block';
+      missatge.style.color = 'red';
+      // Si el producte es deixa en una zona incorrecta, torna-lo a la zona inicial (products)
+      // tot i que visualment potser ja no hi és, assegurem que el DOM estigui correcte
+      document.getElementById('products').appendChild(producte);
     }
   }
 </script>
