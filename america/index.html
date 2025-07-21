@@ -107,10 +107,97 @@
     }
 
     .colocat {
-      opacity: 0.6;
+      opacity: 0.8; /* Una mica menys transparent per veure el botó */
       cursor: default;
-      pointer-events: none; /* Disable events after being placed */
+      pointer-events: none; /* Disable events after being placed (per defecte) */
+      position: relative; /* Per al botó "Saber més" */
     }
+
+    /* Estil per al botó "Saber més" */
+    .saber-mes-btn {
+        display: none; /* Ocult per defecte */
+        position: absolute;
+        bottom: 0px; /* Ajusta la posició si cal */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 2px 5px;
+        font-size: 0.65rem;
+        cursor: pointer;
+        pointer-events: all; /* Habilita els esdeveniments de clic */
+        white-space: nowrap; /* Evita que el text es trenqui */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .colocat .saber-mes-btn {
+        display: block; /* Mostra el botó quan l'element està col·locat */
+    }
+
+    /* --- Modal Styles --- */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 100; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto; /* 10% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 10px;
+        width: 80%; /* Could be more or less, depending on screen size */
+        max-width: 600px;
+        position: relative;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .modal-content h4 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .modal-content p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #555;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
 
     @media (max-width: 768px) {
       .container {
@@ -124,6 +211,10 @@
       .products {
         justify-content: center;
       }
+      .modal-content {
+          width: 90%;
+          margin: 20% auto;
+      }
     }
   </style>
 </head>
@@ -135,23 +226,23 @@
 
 <div class="container">
   <div class="products" id="products">
-    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/tomato.png"/>Tomàquet</div>
-    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/potato.png"/>Patata</div>
-    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/chocolate-bar.png"/>Cacau</div>
-    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/corn.png"/>Blat de moro</div>
-    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/chili-pepper.png"/>Pebrot</div>
-    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/orchid.png"/>Vainilla</div>
-    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/avocado.png"/>Alvocat</div>
-    <div class="product" draggable="true" data-origin="america"><img src="https://img.icons8.com/color/96/pumpkin.png"/>Carbassa</div>
+    <div class="product" draggable="true" data-origin="america" data-name="Tomàquet"><img src="https://img.icons8.com/color/96/tomato.png"/>Tomàquet<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="america" data-name="Patata"><img src="https://img.icons8.com/color/96/potato.png"/>Patata<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="america" data-name="Cacau"><img src="https://img.icons8.com/color/96/chocolate-bar.png"/>Cacau<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="america" data-name="Blat de moro"><img src="https://img.icons8.com/color/96/corn.png"/>Blat de moro<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="america" data-name="Pebrot"><img src="https://img.icons8.com/color/96/chili-pepper.png"/>Pebrot<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="america" data-name="Vainilla"><img src="https://img.icons8.com/color/96/orchid.png"/>Vainilla<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="america" data-name="Alvocat"><img src="https://img.icons8.com/color/96/avocado.png"/>Alvocat<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="america" data-name="Carbassa"><img src="https://img.icons8.com/color/96/pumpkin.png"/>Carbassa<button class="saber-mes-btn">Saber més</button></div>
 
-    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/wheat.png"/>Blat</div>
-    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/horse.png"/>Cavall</div>
-    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/sheep.png"/>Ovella</div>
-    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/onion.png"/>Ceba</div>
-    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/garlic.png"/>All</div>
-    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/cheese.png"/>Formatge</div>
-    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/pig.png"/>Porc</div>
-    <div class="product" draggable="true" data-origin="europa"><img src="https://img.icons8.com/color/96/honey.png"/>Mel</div>
+    <div class="product" draggable="true" data-origin="europa" data-name="Blat"><img src="https://img.icons8.com/color/96/wheat.png"/>Blat<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="europa" data-name="Cavall"><img src="https://img.icons8.com/color/96/horse.png"/>Cavall<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="europa" data-name="Ovella"><img src="https://img.icons8.com/color/96/sheep.png"/>Ovella<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="europa" data-name="Ceba"><img src="https://img.icons8.com/color/96/onion.png"/>Ceba<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="europa" data-name="All"><img src="https://img.icons8.com/color/96/garlic.png"/>All<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="europa" data-name="Formatge"><img src="https://img.icons8.com/color/96/cheese.png"/>Formatge<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="europa" data-name="Porc"><img src="https://img.icons8.com/color/96/pig.png"/>Porc<button class="saber-mes-btn">Saber més</button></div>
+    <div class="product" draggable="true" data-origin="europa" data-name="Mel"><img src="https://img.icons8.com/color/96/honey.png"/>Mel<button class="saber-mes-btn">Saber més</button></div>
   </div>
 
   <div class="dropzone" id="america">
@@ -163,6 +254,14 @@
   </div>
 </div>
 
+<div id="infoModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <h4 id="modalTitle"></h4>
+    <p id="modalText"></p>
+  </div>
+</div>
+
 <script>
   const products = document.querySelectorAll('.product');
   const dropzones = document.querySelectorAll('.dropzone');
@@ -171,7 +270,33 @@
   let punts = 0;
   let draggingProduct = null; // Per a la gestió tàctil
 
-  // Assigna un ID únic a cada producte i gestiona els esdeveniments de drag
+  // Modal elements
+  const infoModal = document.getElementById('infoModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalText = document.getElementById('modalText');
+  const closeButton = document.querySelector('.close-button');
+
+  // Informació detallada dels productes
+  const productInfo = {
+    "Tomàquet": "El tomàquet va ser portat d'Amèrica a Europa al segle XVI. Inicialment es pensava que era tòxic, però ràpidament es va convertir en un ingredient fonamental de la cuina mediterrània. Les rutes marítimes van ser clau per la seva expansió global.",
+    "Patata": "Originària de la regió andina d'Amèrica del Sud, la patata va arribar a Europa al segle XVI. Va trigar a ser acceptada com a aliment humà, però va esdevenir un pilar de l'alimentació en moltes regions, ajudant a prevenir fams. La seva adaptabilitat a diferents climes la va fer un cultiu essencial.",
+    "Cacau": "El cacau, base de la xocolata, prové de Mesoamèrica, on era considerat un aliment sagrat i fins i tot s'utilitzava com a moneda. Els europeus el van conèixer amb l'arribada a Amèrica i el van portar al Vell Món, popularitzant-lo com a beguda de luxe.",
+    "Blat de moro": "Un dels cultius més antics d'Amèrica, el blat de moro (o moresc) era un aliment bàsic per a moltes civilitzacions precolombines. La seva alta productivitat i valor nutricional el van fer un cultiu de gran èxit global, gràcies a la seva introducció a Europa després del 1492.",
+    "Pebrot": "Els pebrots i els xilis, amb la seva varietat de formes i graus de picant, són originaris d'Amèrica. Després del descobriment, es van estendre ràpidament per Europa, Àsia i Àfrica, transformant les cuines locals amb el seu sabor distintiu.",
+    "Vainilla": "La vainilla és una orquídia amb fruits aromàtics originària de Mèxic. Els asteques l'utilitzaven per aromatitzar la seva beguda de cacau. Va ser portada a Europa, però el seu cultiu fora d'Amèrica va ser difícil fins que es va descobrir la pol·linització manual.",
+    "Alvocat": "Fruit originari de Mesoamèrica, l'alvocat ja era cultivat des de fa milers d'anys. Va arribar a Europa relativament més tard que altres productes americans, però avui dia és valorat mundialment pel seu sabor i propietats nutricionals.",
+    "Carbassa": "La carbassa és un dels cultius més antics d'Amèrica, amb evidències arqueològiques de milers d'anys. Es cultivava en diverses varietats per a l'alimentació i fins i tot com a recipients. La seva adaptabilitat va facilitar la seva expansió global.",
+    "Blat": "Un dels cereals més antics i importants del món, el blat és originari de l'Orient Mitjà i es va estendre per Europa des de l'antiguitat. Va ser un cultiu fonamental per a les civilitzacions europees i va ser transportat a Amèrica pels colons.",
+    "Cavall": "Tot i que els avantpassats dels cavalls van viure a Amèrica, es van extingir fa milers d'anys. Els cavalls moderns van ser reintroduïts a Amèrica pels europeus, transformant la vida, la guerra i el transport al continent.",
+    "Ovella": "Les ovelles són animals de ramat domesticats fa milers d'anys a l'Orient Mitjà i presents a Europa des de l'antiguitat. Van ser portades a Amèrica pels europeus, sent una font vital de llana, carn i llet per als colons.",
+    "Ceba": "La ceba és una hortalissa amb orígens a l'Àsia central, conreada des de fa milers d'anys. Era un ingredient essencial a la cuina europea abans del descobriment i es va introduir a Amèrica, on es va adaptar bé al nou clima.",
+    "All": "Similar a la ceba, l'all té els seus orígens a l'Àsia central i va ser un condiment i remei popular a Europa des de temps immemorials. Va ser un dels productes portats pels europeus a les Amèriques.",
+    "Formatge": "El formatge, producte lacti, té una història mil·lenària a Europa, lligada a la ramaderia. No existia a Amèrica abans de l'arribada dels europeus, que van introduir-hi els animals lactis i la tradició formatgera.",
+    "Porc": "Els porcs van ser domesticats a Euràsia i ja eren part fonamental de la ramaderia i la dieta europea. Van ser introduïts a Amèrica pels espanyols, reproduint-se ràpidament i convertint-se en una font de proteïnes important per als colons.",
+    "Mel": "La mel, produïda per les abelles, era un edulcorant principal a Europa abans de l'arribada del sucre de canya d'Amèrica. Les abelles europees i les seves tècniques d'apicultura van ser portades al Nou Món pels conqueridors."
+  };
+
+
   products.forEach((product, index) => {
     product.id = 'producte-' + index;
 
@@ -271,8 +396,9 @@
         if (!droppedInZone) {
           // Si el producte no ha estat assignat (no ha caigut a una zona vàlida),
           // assegura't que torni a la zona "products" si ja no hi és.
-          // En aquest cas, com que sempre està en el DOM, no cal fer res si no ha caigut en un dropzone vàlid.
           // La lògica de "colocat" ja s'encarrega de que no es pugui tornar a moure un cop ben posat.
+          // Si l'element es queda enganxat en algun lloc, el següent pot ajudar:
+          // document.getElementById('products').appendChild(draggingProduct);
         }
       }
     });
@@ -282,7 +408,7 @@
     if (!producte || producte.classList.contains('colocat')) return;
 
     const origen = producte.dataset.origin;
-    const nom = producte.textContent.trim();
+    const nom = producte.dataset.name; // Use data-name for consistency
 
     if ((zona.id === 'america' && origen === 'america') ||
         (zona.id === 'europa' && origen === 'europa')) {
@@ -290,12 +416,20 @@
       zona.appendChild(producte);
       producte.classList.add('colocat');
       producte.setAttribute('draggable', 'false'); // Deshabilita el drag per a PC
-      // Per a mòbils, simplement no el marquem com a 'draggingProduct' la propera vegada
+      // Ja no necessitem producte.style.cursor = 'default';
+      // producte.style.opacity = '0.6'; // L'opacitat es controla amb .colocat
+
       punts++;
       puntsDisplay.textContent = `Punts: ${punts} / 16`;
       missatge.textContent = `✔️ Has col·locat correctament: ${nom}`;
       missatge.style.display = 'block';
       missatge.style.color = 'green';
+
+      // Attach event listener to the "Saber més" button
+      const saberMesBtn = producte.querySelector('.saber-mes-btn');
+      if (saberMesBtn) {
+          saberMesBtn.onclick = () => openModal(nom);
+      }
 
       if (punts === 16) {
         missatge.textContent = "🎉 Felicitats! Has col·locat tots els productes correctament!";
@@ -306,8 +440,28 @@
       missatge.style.display = 'block';
       missatge.style.color = 'red';
       // Si el producte es deixa en una zona incorrecta, torna-lo a la zona inicial (products)
-      // tot i que visualment potser ja no hi és, assegurem que el DOM estigui correcte
       document.getElementById('products').appendChild(producte);
+    }
+  }
+
+  // --- Modal Functions ---
+  function openModal(productName) {
+    modalTitle.textContent = productName;
+    modalText.textContent = productInfo[productName] || "Informació no disponible per a aquest producte.";
+    infoModal.style.display = 'block';
+  }
+
+  function closeModal() {
+    infoModal.style.display = 'none';
+  }
+
+  // Close the modal when the user clicks on <span> (x)
+  closeButton.onclick = closeModal;
+
+  // Close the modal when the user clicks anywhere outside of the modal content
+  window.onclick = function(event) {
+    if (event.target == infoModal) {
+      closeModal();
     }
   }
 </script>
