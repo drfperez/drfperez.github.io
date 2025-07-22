@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="page_title">Simulador Solar Embarcació</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9fafb; padding: 20px; color: #111827; }
+    h2, h3 { text-align: center; }
+    .pas { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .pas.actiu { display: block; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input[type="number"] { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #d1d5db; border-radius: 6px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-top: 20px; }
+    .controls button { padding: 10px 16px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer; flex: 1; }
+    .seguent { background-color: #2563eb; color: white; }
+    .enrere { background-color: #e5e7eb; color: #111827; }
+    .resultat { background: #ecfdf5; border: 1px solid #a7f3d0; padding: 20px; border-radius: 10px; }
+    canvas { max-width: 100%; margin-top: 20px; }
+    
+    /* Estils de la finestra modal */
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0;
+      top: 0;
+      width: 100%; 
+      height: 100%; 
+      overflow: auto; 
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-contingut {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px 30px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 10px;
+      position: relative;
+    }
+    .modal-tanca {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .modal-tanca:hover, .modal-tanca:focus {
+      color: black;
+      text-decoration: none;
+    }
+    .modal-contingut ul { padding-left: 20px; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @media (max-width: 600px) { 
+      .controls { flex-direction: column; } 
+      .modal-contingut { margin: 20% auto; width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="ajudaModal" class="modal">
+  <div class="modal-contingut">
+    <span class="modal-tanca" onclick="tancaModal()">&times;</span>
+    <h3 data-i18n="modal_title"></h3>
+    <p data-i18n="modal_p1"></p>
+    <strong data-i18n="modal_subtitle1"></strong>
+    <ul>
+      <li data-i18n="modal_li1"></li>
+      <li data-i18n="modal_li2"></li>
+      <li data-i18n="modal_li3"></li>
+    </ul>
+    <strong data-i18n="modal_subtitle2"></strong>
+    <p data-i18n="modal_p2"></p>
+  </div>
+</div>
+
+
+<h2 data-i18n="main_title">🌞 Simulador Solar per Embarcació</h2>
+<p style="text-align:center;">
+  <button class="seguent" onclick="obreModal()" data-i18n="btn_help">❓ Ajuda</button>
+  <button class="seguent" onclick="guardarConfiguracio()" data-i18n="btn_save">💾 Desa configuració</button>
+  <button class="enrere" onclick="restaurarConfiguracio()" data-i18n="btn_restore">🔄 Restaura</button>
+  <button class="enrere" onclick="reiniciarFormulari()" data-i18n="btn_reset">♻️ Reinicia tot</button>
+  <select id="lang_selector" onchange="canviaIdioma(this.value)">
+    <option value="ca">Català</option>
+    <option value="es">Español</option>
+    <option value="en">English</option>
+  </select>
+</p>
+
+<div class="pas actiu" id="pas1">
+  <h3 data-i18n="step1_title">Pas 1: Consum dels equips</h3>
+  <label data-i18n="label_light_w">Llum interior (W):</label><input type="number" id="llumW" value="10">
+  <label data-i18n="label_hours_day">Hores/dia:</label><input type="number" id="llumH" value="5">
+  <label data-i18n="label_gps_w">GPS (W):</label><input type="number" id="gpsW" value="15">
+  <label data-i18n="label_hours_day_2">Hores/dia:</label><input type="number" id="gpsH" value="3">
+  <label data-i18n="label_radio_w">Ràdio (W):</label><input type="number" id="radioW" value="20">
+  <label data-i18n="label_hours_day_3">Hores/dia:</label><input type="number" id="radioH" value="2">
+  <label data-i18n="label_fridge_w">Frigorífic (W):</label><input type="number" id="frigoW" value="60">
+  <label data-i18n="label_hours_day_4">Hores/dia:</label><input type="number" id="frigoH" value="6">
+  <label data-i18n="label_autopilot_w">Pilot automàtic (W):</label><input type="number" id="pilotW" value="25">
+  <label data-i18n="label_hours_day_5">Hores/dia:</label><input type="number" id="pilotH" value="4">
+  <div class="controls">
+    <span></span>
+    <button class="seguent" onclick="canviaPas(2)" data-i18n="btn_next">Següent ➔</button>
+  </div>
+</div>
+
+<div class="pas" id="pas2">
+  <h3 data-i18n="step2_title">Pas 2: Configuració del sistema solar</h3>
+  <label data-i18n="label_panel_power">Potència placa (W):</label><input type="number" id="potenciaPlaca" value="100">
+  <label data-i18n="label_sun_hours">Hores de sol útils/dia:</label><input type="number" id="horesSol" value="5">
+  <label data-i18n="label_efficiency">Eficiència del sistema (%):</label><input type="number" id="eficiencia" value="80">
+  <label data-i18n="label_margin">Marge de seguretat (%):</label><input type="number" id="marge" value="20">
+  <label data-i18n="label_voltage">Voltatge sistema (V):</label><input type="number" id="voltatge" value="12">
+  <label data-i18n="label_autonomy">Dies d'autonomia:</label><input type="number" id="diesAutonomia" value="2">
+  <div class="controls">
+    <button class="enrere" onclick="canviaPas(1)" data-i18n="btn_back">← Enrere</button>
+    <button class="seguent" onclick="canviaPas(3); calcular()" data-i18n="btn_next_2">Següent ➔</button>
+  </div>
+</div>
+
+<div class="pas" id="pas3">
+  <h3 data-i18n="step3_title">Pas 3: Resultats i gràfic</h3>
+  <div class="resultat" id="resultat"></div>
+  <canvas id="graficConsum"></canvas>
+  <div class="controls">
+    <button class="enrere" onclick="canviaPas(2)" data-i18n="btn_back_2">← Enrere</button>
+    <button class="seguent" onclick="exportarCSV()" data-i18n="btn_export">Exporta a CSV</button>
+  </div>
+</div>
+
+<script>
+let pasActual = 1;
+let exportacioDades = {};
+let currentLang = 'ca';
+
+const traduccions = {
+  ca: {
+    page_title: "Simulador Solar Embarcació",
+    main_title: "🌞 Simulador Solar per Embarcació",
+    btn_help: "❓ Ajuda",
+    btn_save: "💾 Desa configuració",
+    btn_restore: "🔄 Restaura",
+    btn_reset: "♻️ Reinicia tot",
+    step1_title: "Pas 1: Consum dels equips",
+    label_light_w: "Llum interior (W):",
+    label_hours_day: "Hores/dia:",
+    label_gps_w: "GPS (W):",
+    label_radio_w: "Ràdio (W):",
+    label_fridge_w: "Frigorífic (W):",
+    label_autopilot_w: "Pilot automàtic (W):",
+    btn_next: "Següent ➔",
+    step2_title: "Pas 2: Configuració del sistema solar",
+    label_panel_power: "Potència placa (W):",
+    label_sun_hours: "Hores de sol útils/dia:",
+    label_efficiency: "Eficiència del sistema (%):",
+    label_margin: "Marge de seguretat (%):",
+    label_voltage: "Voltatge sistema (V):",
+    label_autonomy: "Dies d'autonomia:",
+    btn_back: "← Enrere",
+    step3_title: "Pas 3: Resultats i gràfic",
+    btn_export: "Exporta a CSV",
+    res_total_consum: "<strong>Consum total diari:</strong>",
+    res_with_margin: "<strong>Amb marge:</strong>",
+    res_panel_gen: "<strong>Generació placa/dia:</strong>",
+    res_panels_needed: "<strong>Plaques necessàries:</strong>",
+    res_battery: "<strong>Bateria recomanada:</strong>",
+    res_controller: "<strong>Regulador mínim:</strong>",
+    chart_light: "Llum",
+    chart_fridge: "Frigorífic",
+    chart_autopilot: "Pilot aut.",
+    alert_calc_first: "Primer fes el càlcul.",
+    alert_config_saved: "Configuració desada.",
+    alert_config_restored: "Configuració restaurada.",
+    alert_form_reset: "Formulari reiniciat.",
+    csv_header: "Paràmetre,Valor",
+    csv_param1: "Consum total diari (Wh)",
+    csv_param2: "Consum amb marge (Wh)",
+    csv_param3: "Energia placa al dia (Wh)",
+    csv_param4: "Nombre de plaques",
+    csv_param5: "Dies autonomia",
+    csv_param6: "Capacitat bateria (Wh)",
+    csv_param7: "Capacitat bateria (Ah)",
+    csv_param8: "Regulador solar mínim (A)",
+    modal_title: "Guia d'Ús del Simulador",
+    modal_p1: "Aquesta eina t'ajuda a estimar les necessitats del teu sistema solar per a una embarcació, calculant les plaques solars, bateries i el regulador necessaris.",
+    modal_subtitle1: "Com funciona:",
+    modal_li1: "Pas 1: Introdueix el consum en watts (W) de cada aparell i les hores d'ús diàries.",
+    modal_li2: "Pas 2: Configura els paràmetres del teu sistema solar, com la potència de les plaques, les hores de sol o el marge de seguretat desitjat.",
+    modal_li3: "Pas 3: Consulta els resultats, on es detalla el nombre de plaques, la capacitat de la bateria i el regulador recomanats. També veuràs un gràfic del consum.",
+    modal_subtitle2: "Consells:",
+    modal_p2: "Pots desar la teva configuració per no haver d'introduir les dades cada cop. Utilitza valors realistes per obtenir una estimació precisa."
+  },
+  es: {
+    page_title: "Simulador Solar Embarcación",
+    main_title: "🌞 Simulador Solar para Embarcación",
+    btn_help: "❓ Ayuda",
+    btn_save: "💾 Guardar configuración",
+    btn_restore: "🔄 Restaurar",
+    btn_reset: "♻️ Reiniciar todo",
+    step1_title: "Paso 1: Consumo de los equipos",
+    label_light_w: "Luz interior (W):",
+    label_hours_day: "Horas/día:",
+    label_gps_w: "GPS (W):",
+    label_radio_w: "Radio (W):",
+    label_fridge_w: "Nevera (W):",
+    label_autopilot_w: "Piloto automático (W):",
+    btn_next: "Siguiente ➔",
+    step2_title: "Paso 2: Configuración del sistema solar",
+    label_panel_power: "Potencia panel (W):",
+    label_sun_hours: "Horas de sol útiles/día:",
+    label_efficiency: "Eficiencia del sistema (%):",
+    label_margin: "Margen de seguridad (%):",
+    label_voltage: "Voltaje sistema (V):",
+    label_autonomy: "Días de autonomía:",
+    btn_back: "← Atrás",
+    step3_title: "Paso 3: Resultados y gráfico",
+    btn_export: "Exportar a CSV",
+    res_total_consum: "<strong>Consumo total diario:</strong>",
+    res_with_margin: "<strong>Con margen:</strong>",
+    res_panel_gen: "<strong>Generación panel/día:</strong>",
+    res_panels_needed: "<strong>Paneles necesarios:</strong>",
+    res_battery: "<strong>Batería recomendada:</strong>",
+    res_controller: "<strong>Regulador mínimo:</strong>",
+    chart_light: "Luz",
+    chart_fridge: "Nevera",
+    chart_autopilot: "Piloto aut.",
+    alert_calc_first: "Primero realiza el cálculo.",
+    alert_config_saved: "Configuración guardada.",
+    alert_config_restored: "Configuración restaurada.",
+    alert_form_reset: "Formulario reiniciado.",
+    csv_header: "Parámetro,Valor",
+    csv_param1: "Consumo total diario (Wh)",
+    csv_param2: "Consumo con margen (Wh)",
+    csv_param3: "Energía panel al día (Wh)",
+    csv_param4: "Número de paneles",
+    csv_param5: "Días de autonomía",
+    csv_param6: "Capacidad batería (Wh)",
+    csv_param7: "Capacidad batería (Ah)",
+    csv_param8: "Regulador solar mínimo (A)",
+    modal_title: "Guía de Uso del Simulador",
+    modal_p1: "Esta herramienta te ayuda a estimar las necesidades de tu sistema solar para una embarcación, calculando los paneles solares, baterías y el regulador necesarios.",
+    modal_subtitle1: "Cómo funciona:",
+    modal_li1: "Paso 1: Introduce el consumo en vatios (W) de cada aparato y las horas de uso diarias.",
+    modal_li2: "Paso 2: Configura los parámetros de tu sistema solar, como la potencia de los paneles, las horas de sol o el margen de seguridad deseado.",
+    modal_li3: "Paso 3: Consulta los resultados, donde se detalla el número de paneles, la capacidad de la batería y el regulador recomendados. También verás un gráfico del consumo.",
+    modal_subtitle2: "Consejos:",
+    modal_p2: "Puedes guardar tu configuración para no tener que introducir los datos cada vez. Utiliza valores realistas para obtener una estimación precisa."
+  },
+  en: {
+    page_title: "Boat Solar Simulator",
+    main_title: "🌞 Boat Solar Simulator",
+    btn_help: "❓ Help",
+    btn_save: "💾 Save Configuration",
+    btn_restore: "🔄 Restore",
+    btn_reset: "♻️ Reset All",
+    step1_title: "Step 1: Equipment Consumption",
+    label_light_w: "Interior light (W):",
+    label_hours_day: "Hours/day:",
+    label_gps_w: "GPS (W):",
+    label_radio_w: "Radio (W):",
+    label_fridge_w: "Refrigerator (W):",
+    label_autopilot_w: "Autopilot (W):",
+    btn_next: "Next ➔",
+    step2_title: "Step 2: Solar System Configuration",
+    label_panel_power: "Panel power (W):",
+    label_sun_hours: "Useful sun hours/day:",
+    label_efficiency: "System efficiency (%):",
+    label_margin: "Safety margin (%):",
+    label_voltage: "System voltage (V):",
+    label_autonomy: "Days of autonomy:",
+    btn_back: "← Back",
+    step3_title: "Step 3: Results and Chart",
+    btn_export: "Export to CSV",
+    res_total_consum: "<strong>Total daily consumption:</strong>",
+    res_with_margin: "<strong>With margin:</strong>",
+    res_panel_gen: "<strong>Panel generation/day:</strong>",
+    res_panels_needed: "<strong>Panels needed:</strong>",
+    res_battery: "<strong>Recommended battery:</strong>",
+    res_controller: "<strong>Minimum controller:</strong>",
+    chart_light: "Light",
+    chart_fridge: "Fridge",
+    chart_autopilot: "Autopilot",
+    alert_calc_first: "First, perform the calculation.",
+    alert_config_saved: "Configuration saved.",
+    alert_config_restored: "Configuration restored.",
+    alert_form_reset: "Form reset.",
+    csv_header: "Parameter,Value",
+    csv_param1: "Total daily consumption (Wh)",
+    csv_param2: "Consumption with margin (Wh)",
+    csv_param3: "Panel energy per day (Wh)",
+    csv_param4: "Number of panels",
+    csv_param5: "Days of autonomy",
+    csv_param6: "Battery capacity (Wh)",
+    csv_param7: "Battery capacity (Ah)",
+    csv_param8: "Minimum solar controller (A)",
+    modal_title: "Simulator User Guide",
+    modal_p1: "This tool helps you estimate the needs for your boat's solar system, calculating the required solar panels, batteries, and controller.",
+    modal_subtitle1: "How it works:",
+    modal_li1: "Step 1: Enter the consumption in watts (W) for each device and its daily hours of use.",
+    modal_li2: "Step 2: Configure your solar system parameters, such as panel power, sun hours, or the desired safety margin.",
+    modal_li3: "Step 3: Check the results, which detail the number of panels, battery capacity, and the recommended controller. You will also see a consumption chart.",
+    modal_subtitle2: "Tips:",
+    modal_p2: "You can save your configuration to avoid entering the data every time. Use realistic values to get an accurate estimation."
+  }
+};
+// Add keys for repeated labels
+['es', 'en', 'ca'].forEach(lang => {
+  traduccions[lang].label_hours_day_2 = traduccions[lang].label_hours_day;
+  traduccions[lang].label_hours_day_3 = traduccions[lang].label_hours_day;
+  traduccions[lang].label_hours_day_4 = traduccions[lang].label_hours_day;
+  traduccions[lang].label_hours_day_5 = traduccions[lang].label_hours_day;
+  traduccions[lang].btn_next_2 = traduccions[lang].btn_next;
+  traduccions[lang].btn_back_2 = traduccions[lang].btn_back;
+});
+
+function canviaIdioma(lang) {
+  currentLang = lang;
+  localStorage.setItem('simulador_lang', lang);
+  document.documentElement.lang = lang;
+  document.getElementById('lang_selector').value = lang;
+
+  const t = traduccions[lang] || traduccions.ca;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) {
+      // Use innerHTML for elements that might contain tags like <strong> or for the modal
+      if (key.startsWith('res_') || key.startsWith('modal_')) {
+          el.innerHTML = t[key];
+      } else {
+          el.innerText = t[key];
+      }
+    }
+  });
+  // Recalculate if results are visible to update their text
+  if (pasActual === 3) {
+    calcular();
+  }
+}
+
+function canviaPas(n) {
+  pasActual = n;
+  document.querySelectorAll(".pas").forEach(p => p.classList.remove("actiu"));
+  document.getElementById("pas" + n).classList.add("actiu");
+}
+
+function getEquips() {
+    const t = traduccions[currentLang];
+    return [
+        { nom: t.chart_light, w: 'llumW', h: 'llumH' },
+        { nom: 'GPS', w: 'gpsW', h: 'gpsH' },
+        { nom: 'Ràdio', w: 'radioW', h: 'radioH' },
+        { nom: t.chart_fridge, w: 'frigoW', h: 'frigoH' },
+        { nom: t.chart_autopilot, w: 'pilotW', h: 'pilotH' }
+    ];
+}
+
+function calcular() {
+  const t = traduccions[currentLang];
+  const equips = getEquips();
+  let consumTotal = 0;
+  let dadesGrafic = [];
+  equips.forEach(e => {
+    const w = parseFloat(document.getElementById(e.w).value) || 0;
+    const h = parseFloat(document.getElementById(e.h).value) || 0;
+    const consum = w * h;
+    consumTotal += consum;
+    dadesGrafic.push({ nom: e.nom, valor: consum });
+  });
+
+  const marge = parseFloat(document.getElementById('marge').value) / 100;
+  const eficiencia = parseFloat(document.getElementById('eficiencia').value) / 100;
+  const potenciaPlaca = parseFloat(document.getElementById('potenciaPlaca').value);
+  const horesSol = parseFloat(document.getElementById('horesSol').value);
+  const voltatge = parseFloat(document.getElementById('voltatge').value);
+  const diesAutonomia = parseFloat(document.getElementById('diesAutonomia').value);
+
+  const consumAmbMarge = consumTotal * (1 + marge);
+  const energiaPerPlaca = potenciaPlaca * horesSol * eficiencia;
+  const nombrePlaques = (energiaPerPlaca > 0) ? Math.ceil(consumAmbMarge / energiaPerPlaca) : 0;
+  const capacitatBateriaWh = consumAmbMarge * diesAutonomia;
+  const capacitatBateriaAh = (capacitatBateriaWh / voltatge).toFixed(1);
+  const reguladorAmp = Math.ceil(potenciaPlaca * nombrePlaques / voltatge);
+
+  document.getElementById("resultat").innerHTML = `
+    ${t.res_total_consum} ${consumTotal.toFixed(2)} Wh<br/>
+    ${t.res_with_margin} ${consumAmbMarge.toFixed(2)} Wh<br/>
+    ${t.res_panel_gen} ${energiaPerPlaca.toFixed(2)} Wh<br/>
+    ${t.res_panels_needed} ${nombrePlaques}<br/>
+    ${t.res_battery} ${capacitatBateriaWh.toFixed(0)} Wh (${capacitatBateriaAh} Ah a ${voltatge}V)<br/>
+    ${t.res_controller} ${reguladorAmp} A
+  `;
+  
+  exportacioDades = {
+    consumTotal: consumTotal.toFixed(2), consumAmbMarge: consumAmbMarge.toFixed(2),
+    energiaPerPlaca: energiaPerPlaca.toFixed(2), nombrePlaques, diesAutonomia,
+    capacitatBateriaWh: capacitatBateriaWh.toFixed(0), capacitatBateriaAh, reguladorAmp
+  };
+  
+  const ctx = document.getElementById("graficConsum").getContext("2d");
+  if (window.myChart) window.myChart.destroy();
+  window.myChart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: dadesGrafic.map(e => e.nom),
+      datasets: [{
+        data: dadesGrafic.map(e => e.valor),
+        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#a855f7']
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+  });
+}
+
+function exportarCSV() {
+  if (Object.keys(exportacioDades).length === 0) return alert(traduccions[currentLang].alert_calc_first);
+  const t = traduccions[currentLang];
+  const d = exportacioDades;
+  const csvRows = [
+    t.csv_header,
+    `${t.csv_param1},${d.consumTotal}`,
+    `${t.csv_param2},${d.consumAmbMarge}`,
+    `${t.csv_param3},${d.energiaPerPlaca}`,
+    `${t.csv_param4},${d.nombrePlaques}`,
+    `${t.csv_param5},${d.diesAutonomia}`,
+    `${t.csv_param6},${d.capacitatBateriaWh}`,
+    `${t.csv_param7},${d.capacitatBateriaAh}`,
+    `${t.csv_param8},${d.reguladorAmp}`
+  ];
+  const csv = csvRows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "simulador_embarcacio.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// FUNCIONS DE LA FINESTRA MODAL
+const ajudaModal = document.getElementById("ajudaModal");
+
+function obreModal() {
+  ajudaModal.style.display = "block";
+}
+
+function tancaModal() {
+  ajudaModal.style.display = "none";
+}
+
+// Tanca la modal si l'usuari fa clic fora del contingut
+window.onclick = function(event) {
+  if (event.target == ajudaModal) {
+    tancaModal();
+  }
+}
+
+// CONFIGURACIÓ LOCAL
+function guardarConfiguracio() {
+  const camps = document.querySelectorAll("input[type='number']");
+  let dades = {};
+  camps.forEach(c => dades[c.id] = c.value);
+  localStorage.setItem("simulador_config", JSON.stringify(dades));
+  alert(traduccions[currentLang].alert_config_saved);
+}
+function restaurarConfiguracio() {
+  const dades = JSON.parse(localStorage.getItem("simulador_config") || "{}");
+  for (let id in dades) {
+    if (document.getElementById(id)) document.getElementById(id).value = dades[id];
+  }
+  alert(traduccions[currentLang].alert_config_restored);
+}
+function reiniciarFormulari() {
+  const defaults = { llumW: 10, llumH: 5, gpsW: 15, gpsH: 3, radioW: 20, radioH: 2, frigoW: 60, frigoH: 6, pilotW: 25, pilotH: 4, potenciaPlaca: 100, horesSol: 5, eficiencia: 80, marge: 20, voltatge: 12, diesAutonomia: 2 };
+  document.querySelectorAll("input[type='number']").forEach(c => c.value = defaults[c.id] || "");
+  localStorage.removeItem("simulador_config");
+  // Neteja els resultats
+  document.getElementById("resultat").innerHTML = "";
+  if (window.myChart) window.myChart.destroy();
+  exportacioDades = {};
+  alert(traduccions[currentLang].alert_form_reset);
+}
+
+// INICI
+window.addEventListener("load", () => {
+  const langGuardat = localStorage.getItem('simulador_lang') || 'ca';
+  canviaIdioma(langGuardat);
+});
+</script>
+
+</body>
+</html>
