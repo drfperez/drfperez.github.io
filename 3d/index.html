@@ -1,158 +1,123 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Model 3D: base.glb</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model 3D: Base</title>
   <style>
-    /* Estils optimitzats */
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #f8f9fa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
     }
 
-    h1 {
-      margin: 20px 0 10px;
-      font-size: 1.8rem;
+    header {
+      background-color: #1CAAD9;
+      color: white;
+      padding: 20px;
       text-align: center;
     }
 
-    #visor3d {
-      width: 95%;
+    .container {
       max-width: 900px;
-      height: 65vh;
-      border: 1px solid #ddd;
+      margin: 30px auto;
+      background: white;
       border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       overflow: hidden;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-      background: #000;
     }
 
-    .loading {
+    .sketchfab-embed-wrapper {
+      position: relative;
+      padding-top: 56.25%;
+    }
+
+    .sketchfab-embed-wrapper iframe {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .info {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .info h2 {
+      margin-top: 0;
+      font-size: 1.8em;
+    }
+
+    .info p {
+      color: #555;
+      margin: 10px 0 20px 0;
+    }
+
+    .download-btn {
+      background-color: #1CAAD9;
       color: white;
-      font-size: 1.2rem;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background-color: #1596c6;
     }
 
     footer {
-      margin: 20px;
-      font-size: 0.9rem;
-      color: #555;
       text-align: center;
+      padding: 20px;
+      font-size: 0.9em;
+      color: #777;
+    }
+
+    @media (max-width: 600px) {
+      .info h2 {
+        font-size: 1.5em;
+      }
+
+      .download-btn {
+        width: 100%;
+        display: inline-block;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Model 3D interactiu: <code>base.glb</code></h1>
 
-  <div id="visor3d">
-    <div class="loading">Carregant model...</div>
+  <header>
+    <h1>Explora el model 3D: Base</h1>
+  </header>
+
+  <div class="container">
+    <div class="sketchfab-embed-wrapper">
+      <iframe title="Base" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking"
+        xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share
+        src="https://sketchfab.com/models/1bdde83a90124b83a400fbdcb4dc122a/embed">
+      </iframe>
+    </div>
+    <div class="info">
+      <h2>Model: Base</h2>
+      <p>
+        Creat per <a href="https://sketchfab.com/drfperez" target="_blank" style="color: #1CAAD9; font-weight: bold;">drfperez</a> a 
+        <a href="https://sketchfab.com" target="_blank" style="color: #1CAAD9; font-weight: bold;">Sketchfab</a>
+      </p>
+      <a class="download-btn" href="https://sketchfab.com/models/1bdde83a90124b83a400fbdcb4dc122a/download" target="_blank">
+        ⬇️ Descarrega el model 3D
+      </a>
+    </div>
   </div>
 
-  <footer>Fet amb Three.js – <a href="public/base.glb" download>Descarrega base.glb</a></footer>
+  <footer>
+    © 2025 | Creat amb ❤️ per Minitransat
+  </footer>
 
-  <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.module.js';
-    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/controls/OrbitControls.js';
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/loaders/GLTFLoader.js';
-    import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/loaders/DRACOLoader.js';
-
-    // 1. Configuració inicial
-    const container = document.getElementById('visor3d');
-    const loadingIndicator = container.querySelector('.loading');
-    
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x121212);
-    
-    const camera = new THREE.PerspectiveCamera(
-      50, 
-      container.clientWidth / container.clientHeight, 
-      0.1, 
-      100
-    );
-    camera.position.set(0, 1.5, 5);
-
-    // 2. Renderer amb configuració millorada
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance"
-    });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    container.appendChild(renderer.domElement);
-
-    // 3. Controls amb opcions optimitzades
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.screenSpacePanning = false;
-    controls.maxPolarAngle = Math.PI / 2;
-
-    // 4. Il·luminació millorada
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    directionalLight.position.set(3, 5, 2);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
-    
-    const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
-    scene.add(hemisphereLight);
-
-    // 5. Carregador GLB amb suport Draco
-    const loader = new GLTFLoader();
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-    loader.setDRACOLoader(dracoLoader);
-
-    // 6. Càrrega del model amb gestió d'errors
-    loader.load(
-      'base.glb', // Ruta relativa correcta
-      gltf => {
-        scene.add(gltf.scene);
-        loadingIndicator.style.display = 'none';
-        
-        // Centrat automàtic del model
-        const box = new THREE.Box3().setFromObject(gltf.scene);
-        const center = box.getCenter(new THREE.Vector3());
-        gltf.scene.position.sub(center);
-      },
-      progress => {
-        // Visualització de progrés
-        loadingIndicator.textContent = `Carregant: ${Math.round(progress.loaded / progress.total * 100)}%`;
-      },
-      error => {
-        console.error('Error carregant el model:', error);
-        loadingIndicator.textContent = 'Error en carregar el model';
-        loadingIndicator.style.color = '#ff6b6b';
-      }
-    );
-
-    // 7. Animació i gestió de redimensionat
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    // 8. Gestió de redimensionat optimitzada
-    const resizeObserver = new ResizeObserver(entries => {
-      const { width, height } = entries[0].contentRect;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    });
-    resizeObserver.observe(container);
-  </script>
 </body>
 </html>
