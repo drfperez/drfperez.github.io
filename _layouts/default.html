@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ page.title | default: site.title }}</title>
+  <link rel="stylesheet" href="/assets/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/assets/css/fontawesome.min.css" />
+  <link rel="stylesheet" href="/assets/css/custom.css" />
+  <script src="/assets/js/bootstrap.bundle.min.js" defer></script>
+  <script src="/assets/js/theme-toggler.js" defer></script>
+</head>
+<body>
+  {% include navbar.html %}
+
+  <main class="container my-4">
+    {{ content }}
+  </main>
+
+  <footer class="text-center py-4">
+    <small>&copy; {{ site.time | date: "%Y" }} Prof. F. Pérez</small>
+  </footer>
+</body>
+</html>
