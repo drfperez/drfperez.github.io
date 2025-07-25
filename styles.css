@@ -1,0 +1,64 @@
+        /* Estils per al mode clar (Light Mode) */
+        .navbar {
+            background-color: #ffffff;
+            transition: background-color 0.3s ease;
+        }
+.navbar-brand, .nav-link {
+    color: #000000 !important; /* Text canviat a negre per a contrast */
+    transition: all 0.3s ease;
+}
+
+        .nav-link:hover {
+            color: #ffd700 !important;
+            transform: scale(1.05);
+        }
+        .dropdown-menu {
+            background-color: #f8f9fa;
+        }
+        .dropdown-item {
+            color: #0056b3 !important;
+        }
+        .dropdown-item:hover {
+            background-color: #e9ecef;
+            color: #007bff !important;
+        }
+
+        /* Estils per al mode fosc (Dark Mode) */
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #1a1a1a;
+            --bs-body-color: #f8f9fa;
+            --bs-tertiary-bg: #2b3035;
+        }
+        [data-bs-theme="dark"] .navbar {
+            background-color: #0d1117 !important;
+            border-bottom: 1px solid #30363d;
+        }
+        [data-bs-theme="dark"] .navbar-brand,
+        [data-bs-theme="dark"] .nav-link {
+            color: #c9d1d9 !important;
+        }
+        [data-bs-theme="dark"] .dropdown-menu {
+            background-color: #161b22;
+            border-color: #30363d;
+        }
+        [data-bs-theme="dark"] .dropdown-item {
+            color: #c9d1d9 !important;
+        }
+        [data-bs-theme="dark"] .dropdown-item:hover {
+            background-color: #0d1117;
+            color: #ffd700 !important;
+        }
+        [data-bs-theme="dark"] h1, [data-bs-theme="dark"] h4 {
+            color: #f0f6fc;
+        }
+        [data-bs-theme="dark"] .container a {
+            color: #58a6ff;
+        }
+
+        /* Estil per al botó de canvi de tema */
+        #theme-toggler {
+            border: none;
+        }
+        #theme-toggler:focus {
+            box-shadow: none;
+        }
