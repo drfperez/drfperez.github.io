@@ -29,8 +29,17 @@ section {
     position: absolute;
 }
 </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
+<div id="navbar-placeholder"></div>
+
+  <main class="container py-4">
+
+
+
 <div>
   <label id="langLabel" for="langSelect">Idioma:</label>
   <select id="langSelect">
@@ -430,5 +439,9 @@ window.onload = function() {
     document.getElementById("band3Group").style.display = "none";
 };
 </script>
+ </main>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../navbar.js"></script>
+
 </body>
 </html>
