@@ -23,11 +23,12 @@
             color: #d14;
         }
 
-        img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }   
+        img[src]:not([src^="http"]):not([src^="/"]) {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+   
     </style>
     <script>
         function downloadBMP(filename) {
