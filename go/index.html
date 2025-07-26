@@ -6,11 +6,12 @@
     <title>Explicació de HTML en 10 passos</title>
     <style>
 
-        img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
+        img[src]:not([src^="http"]):not([src^="/"]) {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
     
         
     /* Estilos Generales */
