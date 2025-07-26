@@ -1,121 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="ca">
 <head>
     <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Un intèrpret de Python (REPL) interactiu al navegador web utilitzant Pyodide.">
 
-    <title>Pyodide v0.26.0 REPL example</title>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.0/full/pyodide.js"></script>
+    <title>Exemple de REPL amb Pyodide v0.28.0</title>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+
     <style>
+        /* S'han separat les seccions del codi per a més claredat */
+        :root {
+            --padding-base: 10px;
+        }
         body, html {
             height: 100%;
             margin: 0;
             display: flex;
             flex-direction: column;
         }
-        #simple-example {
+        #repl-container {
             display: flex;
             flex-direction: column;
             height: 50%;
-            padding: 10px;
+            padding: var(--padding-base);
             box-sizing: border-box;
         }
         #code, #output {
             width: 100%;
             flex: 1;
             resize: none;
+            font-family: monospace;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 5px;
         }
-        #run {
-            margin-top: 10px;
+        #run-button {
+            margin-top: var(--padding-base);
             align-self: flex-start;
         }
-        #output-container {
+        /* MILLORA: S'ha afegit un contenidor per a la sortida per a l'accessibilitat (aria-live) */
+        #output-section {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: auto;
-            padding: 10px;
+            padding: var(--padding-base);
             box-sizing: border-box;
         }
     </style>
-
- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <link rel="stylesheet" href="../styles.css">
 </head>
-<body> 
-  <!-- Aquí es carregarà la navbar -->
+<body>
   <div id="navbar-placeholder"></div>
+
   <main class="container py-4">
 
- 
-    <div id="simple-example">
-        <textarea id='code' rows='10'>
+    <div id="repl-container">
+        <label for="code">Codi Python:</label>
+        <textarea id="code" rows="10">
 import math
 
+# El nom de la funció pot quedar en anglès per convenció, però els textos de sortida es tradueixen
 def solve_quadratic(a, b, c):
     discriminant = b**2 - 4*a*c
     if discriminant >= 0:
-        root1 = (-b + math.sqrt(discriminant)) / (2*a)
-        root2 = (-b - math.sqrt(discriminant)) / (2*a)
-        return f"Root 1: {root1}\nRoot 2: {root2}"
+        arrel1 = (-b + math.sqrt(discriminant)) / (2*a)
+        arrel2 = (-b - math.sqrt(discriminant)) / (2*a)
+        return f"Arrel 1: {arrel1}\nArrel 2: {arrel2}"
     else:
-        return "No real roots"
+        return "No hi ha arrels reals"
 
+# Valors d'exemple
 a = 2
 b = -7
 c = 3
-result = solve_quadratic(a, b, c)
-print(result)
+resultat = solve_quadratic(a, b, c)
+print(resultat)
         </textarea>
-        <button id='run' onclick='evaluatePython()'>Run</button>
-        <div>You can execute any Python code. Just enter something in the box above and click the button.</div>
-    </div>
-    <div id="output-container">
-        Output:
-        <textarea id='output' rows='10' disabled></textarea>
+        <button id="run-button" class="btn btn-primary" onclick="evaluatePython()">Executa</button>
+        <p class="mt-2 text-muted">Pots executar qualsevol codi de Python. Simplement escriu al quadre de dalt i fes clic al botó.</p>
     </div>
 
-    <script type='text/javascript'>
-        const output = document.getElementById("output");
-        const code = document.getElementById("code");
-
-        function addToOutput(s) {
-            output.value += `${s}\n`;
-            output.scrollTop = output.scrollHeight;
-        }
-
-        async function evaluatePython() {
-            addToOutput(`>>>${code.value}`);
-
-            try {
-                await pyodide.loadPackagesFromImports(code.value);
-                let result = await pyodide.runPythonAsync(code.value);
-                addToOutput(`${result}`);
-            }
-            catch (e) {
-                addToOutput(`${e}`);
-            }
-        }
-
-        (async () => { 
-            output.value = 'Initializing...\n';
-
-            try {
-                // init Pyodide
-                window.pyodide = await loadPyodide({ stdout: addToOutput, stderr: addToOutput });
-                output.value += 'Ready!\n';
-            } catch (e) {
-                addToOutput(`Error initializing Pyodide: ${e}`);
-            }
-        })();
-    </script>
-   
+    <div id="output-section" aria-live="polite">
+        <label for="output">Sortida:</label>
+        <textarea id="output" rows="10" readonly></textarea> </div>
 
   </main>
+
+  <script>
+    const output = document.getElementById("output");
+    const code = document.getElementById("code");
+    const runButton = document.getElementById("run-button");
+
+    function addToOutput(s) {
+        // Assegurem que 's' no sigui 'undefined'
+        if (typeof s !== 'undefined') {
+          output.value += `${s}\n`;
+        }
+        output.scrollTop = output.scrollHeight; // Auto-scroll cap avall
+    }
+
+    async function evaluatePython() {
+        // Mostra el que s'executa
+        addToOutput(`>>> ${code.value}`);
+        runButton.disabled = true; // Desactiva el botó mentre s'executa
+        runButton.innerText = "Executant...";
+
+        try {
+            // Assegura que Pyodide estigui inicialitzat
+            if (!window.pyodide) {
+                addToOutput("Pyodide no s'ha carregat encara. Espera un moment.");
+                return;
+            }
+            // Carrega els paquets que el codi importa
+            await window.pyodide.loadPackagesFromImports(code.value);
+            // Executa el codi
+            let result = await window.pyodide.runPythonAsync(code.value);
+            addToOutput(result);
+        } catch (error) {
+            addToOutput(error);
+        } finally {
+            runButton.disabled = false; // Torna a activar el botó
+            runButton.innerText = "Executa";
+        }
+    }
+
+    // Funció principal autoejecutable per carregar Pyodide
+    (async () => {
+        addToOutput('Inicialitzant Pyodide...');
+        try {
+            // Inicialitza Pyodide i redirigeix la sortida estàndard (stdout) i d'errors (stderr)
+            window.pyodide = await loadPyodide({
+                stdout: addToOutput,
+                stderr: addToOutput
+            });
+            addToOutput('A punt! Ja pots executar codi de Python.');
+        } catch (error) {
+            addToOutput(`Error en inicialitzar Pyodide: ${error}`);
+        }
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../navbar.js"></script>
 </body>
 </html>
-
-
