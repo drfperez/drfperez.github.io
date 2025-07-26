@@ -33,9 +33,12 @@
       margin-bottom: 10px;
     }
     svg {
-      max-width: 100%;
+      max-width: 600px; /* NEW: Sets a maximum width for the SVG */
       height: auto;
       margin-top: 10px;
+      display: block; /* NEW: Makes the SVG a block element */
+      margin-left: auto; /* NEW: Centers the SVG horizontally */
+      margin-right: auto; /* NEW: Centers the SVG horizontally */
     }
     .clickable {
       cursor: pointer;
@@ -60,7 +63,6 @@
   <div id="puntuacio">Puntuació: 0 punts</div>
   <div id="pregunta">Fes clic sobre: ...</div>
 
-  <!-- Imatge SVG -->
   <svg viewBox="0 0 811 1080" xmlns="http://www.w3.org/2000/svg">
     <image href="sail.png" x="0" y="0" width="811" height="1080" />
     <polygon points="289,14 309,24 341,823 326,823" class="clickable" onclick="comprovarResposta('mast')" />
