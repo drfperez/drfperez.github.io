@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Un intèrpret de Python (REPL) interactiu al navegador web utilitzant Pyodide.">
+    <meta name="description" content="Un intèrpret de Python (REPL) interactiu amb exemples per aprendre, utilitzant Pyodide.">
 
-    <title>Exemple de REPL amb Pyodide v0.28.0</title>
+    <title>Aprèn Python amb Pyodide REPL</title>
 
     <script src="https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.js"></script>
 
@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="../styles.css">
 
     <style>
-        /* S'han separat les seccions del codi per a més claredat */
         :root {
             --padding-base: 10px;
         }
@@ -23,13 +22,6 @@
             margin: 0;
             display: flex;
             flex-direction: column;
-        }
-        #repl-container {
-            display: flex;
-            flex-direction: column;
-            height: 50%;
-            padding: var(--padding-base);
-            box-sizing: border-box;
         }
         #code, #output {
             width: 100%;
@@ -40,18 +32,20 @@
             border: 1px solid #ccc;
             padding: 5px;
         }
-        #run-button {
-            margin-top: var(--padding-base);
-            align-self: flex-start;
+        #output-section, #repl-container {
+            padding: var(--padding-base);
+            box-sizing: border-box;
         }
-        /* MILLORA: S'ha afegit un contenidor per a la sortida per a l'accessibilitat (aria-live) */
+        #repl-container {
+            display: flex;
+            flex-direction: column;
+            height: 60%; /* Una mica més d'alçada per al codi */
+        }
         #output-section {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: auto;
-            padding: var(--padding-base);
-            box-sizing: border-box;
         }
     </style>
 </head>
@@ -61,85 +55,143 @@
   <main class="container py-4">
 
     <div id="repl-container">
+        <div class="mb-3">
+            <label for="exemple-selector" class="form-label">Tria un exemple per aprendre o comença des de zero:</label>
+            <select id="exemple-selector" class="form-select">
+                <option value="hola_mon">1. Hola, Món!</option>
+                <option value="variables">2. Variables i Text Formatat (f-strings)</option>
+                <option value="bucles">3. Bucles 'for' i Llistes</option>
+                <option value="funcions">4. Definir i Cridar Funcions</option>
+                <option value="quadratica">5. Exemple Avançat (Equació Quadràtica)</option>
+                <option value="personalitzat">Escriu el teu propi codi (en blanc)</option>
+            </select>
+        </div>
+
         <label for="code">Codi Python:</label>
-        <textarea id="code" rows="10">
-import math
-
-# El nom de la funció pot quedar en anglès per convenció, però els textos de sortida es tradueixen
-def solve_quadratic(a, b, c):
-    discriminant = b**2 - 4*a*c
-    if discriminant >= 0:
-        arrel1 = (-b + math.sqrt(discriminant)) / (2*a)
-        arrel2 = (-b - math.sqrt(discriminant)) / (2*a)
-        return f"Arrel 1: {arrel1}\nArrel 2: {arrel2}"
-    else:
-        return "No hi ha arrels reals"
-
-# Valors d'exemple
-a = 2
-b = -7
-c = 3
-resultat = solve_quadratic(a, b, c)
-print(resultat)
-        </textarea>
-        <button id="run-button" class="btn btn-primary" onclick="evaluatePython()">Executa</button>
-        <p class="mt-2 text-muted">Pots executar qualsevol codi de Python. Simplement escriu al quadre de dalt i fes clic al botó.</p>
+        <textarea id="code" rows="15"></textarea>
+        <button id="run-button" class="btn btn-primary mt-3 align-self-start" onclick="evaluatePython()">Executa el Codi</button>
     </div>
 
     <div id="output-section" aria-live="polite">
         <label for="output">Sortida:</label>
-        <textarea id="output" rows="10" readonly></textarea> </div>
+        <textarea id="output" rows="10" readonly></textarea>
+    </div>
 
   </main>
 
   <script>
+    // Referències als elements del DOM
     const output = document.getElementById("output");
     const code = document.getElementById("code");
     const runButton = document.getElementById("run-button");
+    const exempleSelector = document.getElementById("exemple-selector");
+
+    // NOU: Objecte amb els fragments de codi dels exemples
+    const exemplesCodi = {
+        'hola_mon': `print("Hola, Món!")
+# Aquesta línia imprimeix un missatge a la consola de sortida.
+# És el primer pas clàssic per aprendre qualsevol llenguatge!`,
+
+        'variables': `nom = "Àlex"
+edat = 28
+
+# Les f-strings (format strings) permeten inserir variables dins d'un text fàcilment.
+print(f"Hola, em dic {nom} i tinc {edat} anys.")`,
+
+        'bucles': `fruites = ["poma", "plàtan", "cirera", "taronja"]
+
+print("La meva cistella de fruites té:")
+# Un bucle 'for' recorre cada element d'una llista (o un altre objecte iterable).
+for fruita in fruites:
+    print(f"- {fruita}")`,
+
+        'funcions': `# Definim una funció per saludar.
+# 'nom' és un paràmetre que la funció espera rebre.
+def saludar(nom):
+  return f"Hola, {nom}! Benvingut/da a Python."
+
+# Ara cridem la funció amb diferents arguments.
+missatge1 = saludar("Jordi")
+print(missatge1)
+
+missatge2 = saludar("Marta")
+print(missatge2)`,
+      
+        'quadratica': `import math
+
+def resoldre_quadratica(a, b, c):
+    """Aquesta funció resol una equació de segon grau: ax^2 + bx + c = 0"""
+    discriminant = b**2 - 4*a*c
+    if discriminant >= 0:
+        arrel1 = (-b + math.sqrt(discriminant)) / (2*a)
+        arrel2 = (-b - math.sqrt(discriminant)) / (2*a)
+        return f"Les arrels són: {arrel1} i {arrel2}"
+    else:
+        return "No hi ha arrels reals."
+
+# Prova la funció amb aquests valors o canvia'ls!
+resultat = resoldre_quadratica(1, -5, 6) # x^2 - 5x + 6 = 0
+print(resultat)`,
+
+        'personalitzat': `# Escriu aquí el teu propi codi de Python
+# Per exemple, prova a sumar dos números:
+#
+# print(123 + 456)
+#
+# O crea una llista de les teves pel·lícules preferides i mostra-la!`
+    };
+
+    // NOU: Funció per actualitzar l'àrea de codi quan es canvia el menú
+    function actualitzarCodiSeleccionat() {
+        const clauSeleccionada = exempleSelector.value;
+        code.value = exemplesCodi[clauSeleccionada];
+    }
+
+    // NOU: Afegim un 'event listener' al menú desplegable
+    exempleSelector.addEventListener('change', actualitzarCodiSeleccionat);
+
+
+    // ---- Lògica de Pyodide (la mateixa d'abans) ----
 
     function addToOutput(s) {
-        // Assegurem que 's' no sigui 'undefined'
         if (typeof s !== 'undefined') {
           output.value += `${s}\n`;
         }
-        output.scrollTop = output.scrollHeight; // Auto-scroll cap avall
+        output.scrollTop = output.scrollHeight;
     }
 
     async function evaluatePython() {
-        // Mostra el que s'executa
-        addToOutput(`>>> ${code.value}`);
-        runButton.disabled = true; // Desactiva el botó mentre s'executa
+        addToOutput(`>>> Executant el codi...`);
+        runButton.disabled = true;
         runButton.innerText = "Executant...";
 
         try {
-            // Assegura que Pyodide estigui inicialitzat
             if (!window.pyodide) {
                 addToOutput("Pyodide no s'ha carregat encara. Espera un moment.");
                 return;
             }
-            // Carrega els paquets que el codi importa
             await window.pyodide.loadPackagesFromImports(code.value);
-            // Executa el codi
             let result = await window.pyodide.runPythonAsync(code.value);
             addToOutput(result);
         } catch (error) {
             addToOutput(error);
         } finally {
-            runButton.disabled = false; // Torna a activar el botó
-            runButton.innerText = "Executa";
+            runButton.disabled = false;
+            runButton.innerText = "Executa el Codi";
+            addToOutput("--- Finalitzat ---");
         }
     }
 
-    // Funció principal autoejecutable per carregar Pyodide
     (async () => {
-        addToOutput('Inicialitzant Pyodide...');
+        addToOutput('Inicialitzant Pyodide (pot trigar uns segons)...');
         try {
-            // Inicialitza Pyodide i redirigeix la sortida estàndard (stdout) i d'errors (stderr)
             window.pyodide = await loadPyodide({
                 stdout: addToOutput,
                 stderr: addToOutput
             });
-            addToOutput('A punt! Ja pots executar codi de Python.');
+            addToOutput('A punt! Tria un exemple o escriu el teu codi.');
+            // NOU: Carrega el primer exemple per defecte en iniciar
+            actualitzarCodiSeleccionat();
         } catch (error) {
             addToOutput(`Error en inicialitzar Pyodide: ${error}`);
         }
