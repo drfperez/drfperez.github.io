@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aprèn JavaScript Interactiu</title>
+  <style>
+    :root {
+      --primary-color: #0066cc;
+      --border-color: #ccc;
+      --bg: #f4f4f4;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem 0;
+    }
+
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    #controls select,
+    #run-btn {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      font-weight: bold;
+    }
+
+    #run-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+      min-height: 300px;
+    }
+
+    .panel-header {
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      background: #f1f1f1;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    textarea {
+      flex: 1;
+      padding: 0.5rem;
+      font-family: monospace;
+      border: none;
+      resize: none;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Aprèn JavaScript de Forma Interactiva</h1>
+  <div id="controls">
+    <label for="example-select"><strong>Tria un exemple:</strong></label>
+    <select id="example-select">
+      <option value="alerta">1. Alerta Simple</option>
+      <option value="canvi_text">2. Canviar Text</option>
+      <option value="color">3. Canviar Color</option>
+      <option value="comptador">4. Comptador</option>
+      <option value="interaccio">5. Click d’un Botó</option>
+      <option value="afegir">6. Afegir HTML Dinàmicament</option>
+      <option value="mostrar_ocultar">7. Mostrar / Ocultar Element</option>
+      <option value="canvi_imatge">8. Canvi d’Imatge</option>
+      <option value="mouse">9. Esdeveniments del Ratolí</option>
+      <option value="cronometre">10. Cronòmetre</option>
+    </select>
+    <button id="run-btn">Executa</button>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">HTML</div>
+    <textarea id="html-code"></textarea>
+  </div>
+  <div class="panel">
+    <div class="panel-header">CSS</div>
+    <textarea id="css-code"></textarea>
+  </div>
+  <div class="panel">
+    <div class="panel-header">JavaScript</div>
+    <textarea id="js-code"></textarea>
+  </div>
+</main>
+
+<div class="panel" style="margin: 1rem;">
+  <div class="panel-header">Resultat</div>
+  <iframe id="preview"></iframe>
+</div>
+
+<script>
+  const htmlCode = document.getElementById('html-code');
+  const cssCode = document.getElementById('css-code');
+  const jsCode = document.getElementById('js-code');
+  const preview = document.getElementById('preview');
+  const runBtn = document.getElementById('run-btn');
+  const exampleSelect = document.getElementById('example-select');
+
+  const examples = {
+    alerta: {
+      html: `<button onclick="alert('Hola!')">Fes clic</button>`,
+      css: `button { font-size: 16px; padding: 10px; }`,
+      js: `// No cal JavaScript aquí perquè es fa servir directament a l'HTML`
+    },
+    canvi_text: {
+      html: `<p id="text">Text original</p>\n<button onclick="canvia()">Canvia text</button>`,
+      css: `p { font-weight: bold; }`,
+      js: `function canvia() {\n  document.getElementById('text').innerText = "Text canviat!";\n}`
+    },
+    color: {
+      html: `<div id="box">Canvia'm el color</div>\n<button onclick="canviaColor()">Canvia color</button>`,
+      css: `#box { width: 100%; height: 100px; background: lightgray; margin-bottom: 10px; }`,
+      js: `function canviaColor() {\n  document.getElementById('box').style.background = "#66bb6a";\n}`
+    },
+    comptador: {
+      html: `<p id="compte">0</p>\n<button onclick="incrementa()">+1</button>`,
+      css: `p { font-size: 24px; }`,
+      js: `let valor = 0;\nfunction incrementa() {\n  valor++;\n  document.getElementById('compte').innerText = valor;\n}`
+    },
+    interaccio: {
+      html: `<button id="boton">Fes clic</button>\n<p id="resposta"></p>`,
+      css: ``,
+      js: `document.getElementById('boton').onclick = () => {\n  document.getElementById('resposta').innerText = "Has fet clic!";\n};`
+    },
+    afegir: {
+      html: `<div id="contenidor"></div>\n<button onclick="afegeix()">Afegeix paràgraf</button>`,
+      css: ``,
+      js: `function afegeix() {\n  const p = document.createElement('p');\n  p.textContent = "Nou paràgraf";\n  document.getElementById('contenidor').appendChild(p);\n}`
+    },
+    mostrar_ocultar: {
+      html: `<p id="text">Aquest text es pot ocultar.</p>\n<button onclick="toggle()">Mostra/Oculta</button>`,
+      css: ``,
+      js: `function toggle() {\n  const el = document.getElementById('text');\n  el.style.display = el.style.display === "none" ? "block" : "none";\n}`
+    },
+    canvi_imatge: {
+      html: `<img id="img" src="https://via.placeholder.com/200x100" onmouseover="canvia()" onmouseout="torna()">`,
+      css: `img { cursor: pointer; }`,
+      js: `function canvia() {\n  document.getElementById('img').src = "https://via.placeholder.com/200x100/ff6666";\n}\nfunction torna() {\n  document.getElementById('img').src = "https://via.placeholder.com/200x100";\n}`
+    },
+    mouse: {
+      html: `<div id="zona">Passa el ratolí per aquí</div>`,
+      css: `#zona { padding: 40px; background: #e0e0e0; text-align: center; }`,
+      js: `const zona = document.getElementById('zona');\nzona.onmouseenter = () => zona.style.background = "#90caf9";\nzona.onmouseleave = () => zona.style.background = "#e0e0e0";`
+    },
+    cronometre: {
+      html: `<p id="temps">0</p>\n<button onclick="inicia()">Inicia</button>\n<button onclick="atura()">Atura</button>`,
+      css: `p { font-size: 24px; }`,
+      js: `let temps = 0;\nlet interval;\nfunction inicia() {\n  interval = setInterval(() => {\n    temps++;\n    document.getElementById('temps').innerText = temps;\n  }, 1000);\n}\nfunction atura() {\n  clearInterval(interval);\n}`
+    }
+  };
+
+  function render() {
+    const html = htmlCode.value;
+    const css = cssCode.value;
+    const js = jsCode.value;
+
+    localStorage.setItem('html', html);
+    localStorage.setItem('css', css);
+    localStorage.setItem('js', js);
+
+    const fullCode = `
+      <html>
+      <head><style>${css}</style></head>
+      <body>
+      ${html}
+      <script>${js}<\/script>
+      </body>
+      </html>
+    `;
+    preview.srcdoc = fullCode;
+  }
+
+  function loadExample(key) {
+    const ex = examples[key];
+    htmlCode.value = ex.html;
+    cssCode.value = ex.css;
+    jsCode.value = ex.js;
+    render();
+  }
+
+  function loadFromStorage() {
+    if (localStorage.getItem('html')) {
+      htmlCode.value = localStorage.getItem('html');
+      cssCode.value = localStorage.getItem('css');
+      jsCode.value = localStorage.getItem('js');
+      render();
+    } else {
+      loadExample('alerta');
+    }
+  }
+
+  exampleSelect.addEventListener('change', () => {
+    loadExample(exampleSelect.value);
+  });
+
+  runBtn.addEventListener('click', render);
+
+  loadFromStorage();
+</script>
+
+</body>
+</html>
