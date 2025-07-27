@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprèn CSS Interactiu (Responsiu)</title>
+  <style>
+    :root {
+      --primary-color: #28a745;
+      --border-color: #ccc;
+      --background-color: #f8f9fa;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, sans-serif;
+      background-color: var(--background-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    header {
+      background-color: white;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    main {
+      display: flex;
+      flex-grow: 1;
+      gap: 1rem;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      min-height: 300px;
+    }
+
+    .panel-header {
+      background-color: #f1f1f1;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    textarea {
+      flex-grow: 1;
+      width: 100%;
+      border: none;
+      resize: none;
+      padding: 0.5rem;
+      font-family: monospace;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    iframe {
+      flex-grow: 1;
+      width: 100%;
+      border: none;
+    }
+
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    #exemple-selector {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+    }
+
+    #render-btn {
+      padding: 0.5rem 1rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #render-btn:hover {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 800px) {
+      main {
+        flex-direction: column;
+      }
+      #controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Aprèn CSS de Forma Interactiva</h1>
+  <div id="controls">
+    <label for="exemple-selector"><strong>Tria un exemple:</strong></label>
+    <select id="exemple-selector">
+      <option value="color_text">1. Color del text</option>
+      <option value="fons">2. Fons personalitzat</option>
+      <option value="marges_padding">3. Marges i farciments</option>
+      <option value="borde">4. Bordes</option>
+      <option value="fonts">5. Fonts personalitzades</option>
+      <option value="hover">6. Pseudo-classe :hover</option>
+      <option value="id_class">7. Selectors per ID i classe</option>
+      <option value="display">8. Display: block, inline, none</option>
+      <option value="flex">9. Flexbox bàsic</option>
+      <option value="grid">10. Grid bàsic</option>
+      <option value="media_queries">11. Media Queries</option>
+      <option value="zindex">12. Z-index i capes</option>
+      <option value="posicio">13. Posicionament absolut i relatiu</option>
+      <option value="transicions">14. Transicions</option>
+      <option value="transformacions">15. Transformacions (rotate, scale)</option>
+      <option value="animacions">16. Animacions @keyframes</option>
+      <option value="llistes">17. Estils de llistes</option>
+      <option value="formularis">18. Estilitzar formularis</option>
+      <option value="variables">19. Variables CSS</option>
+      <option value="propi">20. Codi Propi</option>
+    </select>
+    <button id="render-btn">Renderitza el Codi</button>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">Codi CSS</div>
+    <textarea id="css-code" spellcheck="false"></textarea>
+  </div>
+  <div class="panel">
+    <div class="panel-header">Resultat Visual</div>
+    <iframe id="render-frame"></iframe>
+  </div>
+</main>
+
+<script>
+const cssExamples = {
+  color_text: `
+<style>
+  p { color: red; }
+</style>
+<p>Aquest text és vermell gràcies al CSS.</p>`,
+
+  fons: `
+<style>
+  body { background-color: #e0f7fa; }
+  h1 { background-color: yellow; }
+</style>
+<h1>Títol amb fons</h1>`,
+
+  marges_padding: `
+<style>
+  div {
+    margin: 20px;
+    padding: 15px;
+    background: lightblue;
+  }
+</style>
+<div>Element amb marge i farciment.</div>`,
+
+  borde: `
+<style>
+  p {
+    border: 2px solid green;
+    padding: 10px;
+  }
+</style>
+<p>Paràgraf amb borde verd.</p>`,
+
+  fonts: `
+<style>
+  p {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+  }
+</style>
+<p>Text amb font Courier.</p>`,
+
+  hover: `
+<style>
+  button:hover {
+    background-color: orange;
+    color: white;
+  }
+</style>
+<button>Passa el cursor per sobre meu!</button>`,
+
+  id_class: `
+<style>
+  #principal { color: blue; }
+  .destacat { font-weight: bold; }
+</style>
+<p id="principal">Text amb ID.</p>
+<p class="destacat">Text amb classe.</p>`,
+
+  display: `
+<style>
+  .bloc { display: block; }
+  .en-linia { display: inline; background: yellow; }
+</style>
+<div class="bloc">Bloc</div>
+<span class="en-linia">En línia</span>`,
+
+  flex: `
+<style>
+  .contenidor {
+    display: flex;
+    gap: 10px;
+  }
+  .element {
+    background: lightgreen;
+    padding: 10px;
+    flex: 1;
+  }
+</style>
+<div class="contenidor">
+  <div class="element">1</div>
+  <div class="element">2</div>
+  <div class="element">3</div>
+</div>`,
+
+  grid: `
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .cel·la {
+    background: #ddd;
+    padding: 20px;
+  }
+</style>
+<div class="grid">
+  <div class="cel·la">A</div>
+  <div class="cel·la">B</div>
+</div>`,
+
+  media_queries: `
+<style>
+  body {
+    background: lightblue;
+  }
+  @media (max-width: 600px) {
+    body {
+      background: lightpink;
+    }
+  }
+</style>
+<p>Canvia de color si redueixes la finestra.</p>`,
+
+  zindex: `
+<style>
+  .baix {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1;
+    background: yellow;
+    padding: 10px;
+  }
+  .alt {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    z-index: 2;
+    background: red;
+    padding: 10px;
+    color: white;
+  }
+</style>
+<div class="baix">Baix</div>
+<div class="alt">Dalt</div>`,
+
+  posicio: `
+<style>
+  .contenidor {
+    position: relative;
+    height: 150px;
+    background: #eee;
+  }
+  .absolut {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: orange;
+    padding: 5px;
+  }
+</style>
+<div class="contenidor">
+  <div class="absolut">Absolut</div>
+</div>`,
+
+  transicions: `
+<style>
+  div {
+    width: 100px;
+    height: 100px;
+    background: green;
+    transition: background 0.5s;
+  }
+  div:hover {
+    background: purple;
+  }
+</style>
+<div></div>`,
+
+  transformacions: `
+<style>
+  div {
+    width: 100px;
+    height: 100px;
+    background: coral;
+    transform: rotate(15deg);
+  }
+</style>
+<div></div>`,
+
+  animacions: `
+<style>
+  @keyframes moure {
+    0% { left: 0; }
+    100% { left: 100px; }
+  }
+  div {
+    position: relative;
+    background: steelblue;
+    width: 50px;
+    height: 50px;
+    animation: moure 2s infinite alternate;
+  }
+</style>
+<div></div>`,
+
+  llistes: `
+<style>
+  ul {
+    list-style-type: square;
+    padding-left: 20px;
+  }
+</style>
+<ul>
+  <li>Primer</li>
+  <li>Segon</li>
+</ul>`,
+
+  formularis: `
+<style>
+  input {
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+  input:focus {
+    border-color: dodgerblue;
+  }
+</style>
+<input type="text" placeholder="Escriu aquí">`,
+
+  variables: `
+<style>
+  :root {
+    --color-principal: #ff5722;
+  }
+  h1 {
+    color: var(--color-principal);
+  }
+</style>
+<h1>Text amb variable CSS</h1>`,
+
+  propi: `
+<style>
+  body { background: #f4f4f4; }
+  h1 { color: teal; }
+</style>
+<h1>El teu propi codi aquí!</h1>
+<p>Pots escriure qualsevol HTML + CSS.</p>`
+};
+
+// Elements
+const selector = document.getElementById('exemple-selector');
+const codeArea = document.getElementById('css-code');
+const renderFrame = document.getElementById('render-frame');
+const renderBtn = document.getElementById('render-btn');
+
+// Funcions
+function renderCss() {
+  const code = codeArea.value;
+  const doc = renderFrame.contentWindow.document;
+  doc.open();
+  doc.write(code);
+  doc.close();
+}
+
+function updateCodeArea() {
+  const selected = selector.value;
+  codeArea.value = cssExamples[selected];
+  renderCss();
+}
+
+// Events
+selector.addEventListener('change', updateCodeArea);
+renderBtn.addEventListener('click', renderCss);
+
+// Inicialització
+updateCodeArea();
+</script>
+
+</body>
+</html>
