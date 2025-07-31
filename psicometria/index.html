@@ -29,6 +29,7 @@
     }
     .close { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; }
     .chart-container { width: 100%; max-width:700px; margin:2rem auto 0 auto; background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.09);}
+    .notice { color:#a21a1a; font-weight:500; margin-bottom:1em;}
   </style>
 </head>
 <body>
@@ -69,30 +70,50 @@
   </div>
 
   <!-- Modal -->
-  <div id="modal">
-    <div id="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <h3>Ayuda y Conceptos Psicométricos</h3>
-      <p><strong>Dificultad (p):</strong> proporción de participantes que aciertan el ítem. Valores altos = ítem fácil.</p>
-      <p><strong>Discriminación (rpbi):</strong> correlación entre el ítem y la puntuación total. Mide cómo el ítem diferencia entre estudiantes con alto y bajo rendimiento. Valores &gt;0.2 son buenos.</p>
-      <p><strong>Punt-Biserial:</strong> Es una medida específica de discriminación para ítems dicotómicos. En este código se emplea una aproximación equivalente mediante correlación simple.</p>
-      <p><strong>Alpha de Cronbach:</strong> Medida de consistencia interna del test. Valores:
-        <ul>
-          <li>&gt; 0.90: Excelente</li>
-          <li>&gt; 0.80: Buena</li>
-          <li>&gt; 0.70: Aceptable</li>
-          <li>&lt; 0.70: Baja</li>
-        </ul>
-      </p>
-      <p><strong>Formato esperado:</strong> Archivo CSV o entrada manual con filas (participantes) y columnas (ítems). Todas las celdas deben ser 0 (respuesta incorrecta) o 1 (respuesta correcta).</p>
-    </div>
+<div id="modal">
+  <div id="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h3>📊 Guía de Interpretación Psicométrica</h3>
+
+    <p><strong>Dificultad del Ítem (p):</strong> Proporción de estudiantes que respondieron correctamente.</p>
+    <ul>
+      <li>Rango: 0 a 1.</li>
+      <li><strong>p &lt; 0.20:</strong> Muy difícil</li>
+      <li><strong>p &gt; 0.80:</strong> Muy fácil</li>
+      <li>Ideal: entre 0.30 y 0.70</li>
+    </ul>
+
+    <p><strong>Discriminación (Correlación Punto-Biserial Corregida):</strong></p>
+    <ul>
+      <li>Mide la capacidad del ítem para diferenciar entre estudiantes con alto y bajo rendimiento.</li>
+      <li><strong>pbis &gt; 0.30:</strong> Buena discriminación</li>
+      <li><strong>pbis &lt; 0.20:</strong> Ítem poco informativo</li>
+    </ul>
+
+    <p><strong>Alpha de Cronbach (α):</strong> Estimador de la consistencia interna del test (fiabilidad).</p>
+    <ul>
+      <li><strong>α ≥ 0.90:</strong> Excelente</li>
+      <li><strong>0.80 ≤ α &lt; 0.90:</strong> Buena</li>
+      <li><strong>0.70 ≤ α &lt; 0.80:</strong> Aceptable</li>
+      <li><strong>α &lt; 0.70:</strong> Mejorable</li>
+    </ul>
+
+    <p><strong>Formato de Entrada Esperado:</strong></p>
+    <ul>
+      <li>Archivo <code>.csv</code> o entrada manual</li>
+      <li>Filas = Estudiantes, Columnas = Ítems</li>
+      <li>Solo valores 0 (incorrecto) o 1 (correcto)</li>
+    </ul>
+
+    <p><strong>Consejo:</strong> Revise ítems con p &lt; 0.30 o pbis &lt; 0.20. Podrían estar mal redactados o no alineados con los objetivos de aprendizaje.</p>
   </div>
+</div>
 
   <!-- Bibliotecas -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js" integrity="sha512-ad3j5/L4h648YM/KObaUfjCsZRBP9sAOmpjaT2BDx6u9aBrKFp7SbeHykruy83rxfmG42+5QqeL/ngcojglbJw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/5.0.2/jspdf.plugin.autotable.min.js" integrity="sha512-JizZOUNesiGhMcp9fsA/9W31FOat6QysBM8hSj6ir8iIANIUJ2mhko7Lo1+j0ErftmJ8SebMZLm9iielKjeIEQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
   <script>
     let resultatsGlobals = [];
     let psychChart = null;
@@ -113,21 +134,23 @@
       );
     }
 
-    function columnCorrelations(data) {
+    // NUEVO: punto biserial corregido (pbis)
+    function puntoBiserialCorregido(data, col) {
       const n = data.length;
-      const cols = data[0].length;
-      const totalScores = data.map(row => row.reduce((a, b) => a + b));
-      const meanTotal = totalScores.reduce((a, b) => a + b, 0) / n;
-      const stdTotal = Math.sqrt(totalScores.reduce((s, x) => s + Math.pow(x - meanTotal, 2), 0) / n);
-
-      return Array.from({ length: cols }, (_, j) => {
-        const x = data.map(row => row[j]);
-        const meanX = x.reduce((a, b) => a + b, 0) / n;
-        const stdX = Math.sqrt(x.reduce((s, xi) => s + Math.pow(xi - meanX, 2), 0) / n);
-        const cov = x.reduce((s, xi, i) => s + (xi - meanX) * (totalScores[i] - meanTotal), 0) / n;
-        if (stdX > 0 && stdTotal > 0) return (cov / (stdX * stdTotal));
-        else return 0;
-      });
+      const p = data.filter(r => r[col] === 1).length / n;
+      const q = 1 - p;
+      if (p === 0 || q === 0) return 0; // Sin variabilidad no hay discriminación
+      // Puntuación total sin el ítem actual
+      const totalesSinItem = data.map(row =>
+        row.reduce((suma, x, j) => j !== col ? suma + x : suma, 0)
+      );
+      const aciertan = totalesSinItem.filter((_, idx) => data[idx][col] === 1);
+      const fallan = totalesSinItem.filter((_, idx) => data[idx][col] === 0);
+      const mean1 = aciertan.length ? aciertan.reduce((a,b)=>a+b,0)/aciertan.length : 0;
+      const mean0 = fallan.length ? fallan.reduce((a,b)=>a+b,0)/fallan.length : 0;
+      const meanT = totalesSinItem.reduce((a,b)=>a+b,0)/n;
+      const stdT = Math.sqrt(totalesSinItem.reduce((a,b)=>a+Math.pow(b-meanT,2),0)/n);
+      return stdT === 0 ? 0 : ((mean1 - mean0) / stdT) * Math.sqrt(p * q);
     }
 
     function cronbachAlpha(data) {
@@ -169,24 +192,30 @@
     function process(text) {
       let data = parseCSV(text);
       const originalLength = data.length;
-      data = data.filter(row => row.length === data[0].length && row.every(val => val === 0 || val === 1));
-      if (data.length < originalLength) {
-        alert(`Se han descartado ${originalLength - data.length} filas con valores inválidos.`);
+      // Validación estricta: si hay algún NaN, error y explicación
+      for (let i = 0; i < data.length; i++) {
+        for (let j = 0; j < data[i].length; j++) {
+          if (isNaN(data[i][j])) {
+            document.getElementById('results').innerHTML = `<p class="notice">Error: dato no válido (solo 0 o 1) en la fila ${i+1}, columna ${j+1}.</p>`;
+            return;
+          }
+        }
       }
+      data = data.filter(row => row.length === data[0].length && row.every(val => val === 0 || val === 1));
       if (!data.length || data[0].length < 2) {
         document.getElementById('results').innerHTML = "<p style='color:red'>Datos inválidos.</p>";
         return;
       }
       const itemNames = Array.from({ length: data[0].length }, (_, i) => `Q${i + 1}`);
       const pValues = columnMeans(data);
-      const correlations = columnCorrelations(data);
+      const pbisValues = Array.from({ length: data[0].length }, (_, j) => puntoBiserialCorregido(data, j));
       const alpha = cronbachAlpha(data);
       resultatsGlobals = itemNames.map((name, i) => ({
         Ítem: name,
         Dificultad: pValues[i],
-        Discriminación: correlations[i]
+        Discriminación: pbisValues[i]
       }));
-      let html = '<table><tr><th>Ítem</th><th>Dificultad (p)</th><th>Discriminación (rpbi)</th></tr>';
+      let html = '<table><tr><th>Ítem</th><th>Dificultad (p)</th><th>Discriminación (pbis)</th></tr>';
       resultatsGlobals.forEach(row => {
         html += `<tr><td>${row.Ítem}</td><td>${row.Dificultad.toFixed(2)}</td><td>${row.Discriminación.toFixed(2)}</td></tr>`;
       });
@@ -211,7 +240,7 @@
               backgroundColor: 'rgba(0, 123, 255, 0.65)'
             },
             {
-              label: 'Discriminación (rpbi)',
+              label: 'Discriminación (pbis)',
               data: resultats.map(r => +r.Discriminación.toFixed(2)),
               backgroundColor: 'rgba(40, 167, 69, 0.65)'
             }
