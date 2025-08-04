@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Un simulador d'exemples de codi C++ interactiu per aprendre.">
+
+    <title>Aprèn C++ amb Exemples</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --padding-base: 10px;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex-grow: 1;
+        }
+        #code, #output {
+            width: 100%;
+            flex: 1;
+            resize: none;
+            font-family: monospace;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 5px;
+            min-height: 150px; /* Alçada mínima per evitar col·lapse */
+        }
+        #output-section, #repl-container {
+            padding: var(--padding-base);
+            box-sizing: border-box;
+        }
+        #repl-container {
+            display: flex;
+            flex-direction: column;
+            height: 60%;
+        }
+        #output-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+
+  <main class="container py-4">
+    <div id="repl-container">
+        <div class="mb-3">
+            <label for="exemple-selector" class="form-label">Tria un exemple per aprendre:</label>
+            <select id="exemple-selector" class="form-select">
+                <option value="hola_mon">1. Hola, Món!</option>
+                <option value="variables">2. Variables i Tipus de Dades</option>
+                <option value="entrada_salida">3. Entrada/Sortida amb `cin` i `cout`</option>
+                <option value="condicionals">4. Condicionals (if, else if, else)</option>
+                <option value="bucles_for">5. Bucle 'for'</option>
+                <option value="bucles_while">6. Bucle 'while'</option>
+                <option value="funcions">7. Definir i Cridar Funcions</option>
+                <option value="sobrecarga_funciones">8. Sobrecàrrega de Funcions</option>
+                <option value="arrays_vectors">9. Arrays i Vectors</option>
+                <option value="punteros_referencias">10. Punteros i Referències</option>
+                <option value="strings">11. Strings (`std::string`)</option>
+                <option value="classes_objectes">12. Classes i Objectes</option>
+                <option value="constructors_destructors">13. Constructors i Destructors</option>
+                <option value="herencia">14. Herència</option>
+                <option value="polimorfisme">15. Polimorfisme (Funcions virtuals)</option>
+                <option value="namespaces">16. Namespaces</option>
+                <option value="excepcions">17. Gestió d'Excepcions (`try-catch`)</option>
+                <option value="plantilles">18. Plantilles (Templates)</option>
+                <option value="gestio_fitxers">19. Gestió Bàsica de Fitxers</option>
+                <option value="lambda_expressions">20. Expressions Lambda (C++11+)</option>
+            </select>
+        </div>
+
+        <label for="code">Codi C++ (només lectura):</label>
+        <textarea id="code" rows="15" readonly></textarea>
+        <button id="run-button" class="btn btn-primary mt-3 align-self-start" onclick="simulateExecution()">Executa el Codi (Simulat)</button>
+    </div>
+
+    <div id="output-section" aria-live="polite">
+        <label for="output">Sortida Simulada:</label>
+        <textarea id="output" rows="10" readonly></textarea>
+    </div>
+
+  </main>
+
+  <script>
+    // Referències als elements del DOM
+    const output = document.getElementById("output");
+    const code = document.getElementById("code");
+    const runButton = document.getElementById("run-button");
+    const exempleSelector = document.getElementById("exemple-selector");
+
+    // Objecte amb els fragments de codi C++ i les seves sortides simulades
+    const exemplesCodiCpp = {
+        'hola_mon': {
+            code: `#include <iostream> // Per utilitzar cout
+
+int main() {
+    std::cout << "Hola, Món!" << std::endl; // Imprimeix un missatge a la consola
+    return 0; // Indica que el programa ha acabat correctament
+}`,
+            output: `Hola, Món!`
+        },
+        'variables': {
+            code: `#include <iostream>
+#include <string> // Per utilitzar std::string
+
+int main() {
+    int edat = 30; // Declara una variable entera
+    double preu = 19.99; // Declara una variable de punt flotant de doble precisió
+    char inicial = 'J'; // Declara un caràcter
+    std::string nom = "Anna"; // Declara una cadena de caràcters
+
+    std::cout << "Nom: " << nom << std::endl;
+    std::cout << "Edat: " << edat << std::endl;
+    std::cout << "Preu: " << preu << std::endl;
+    std::cout << "Inicial: " << inicial << std::endl;
+    return 0;
+}`,
+            output: `Nom: Anna
+Edat: 30
+Preu: 19.99
+Inicial: J`
+        },
+        'entrada_salida': {
+            code: `#include <iostream> // Per cin i cout
+#include <string>
+
+int main() {
+    std::string nom;
+    int edat;
+
+    // Aquesta part del codi C++ esperaria una entrada de l'usuari.
+    // Com que estem simulant, proporcionarem una entrada predefinida.
+    // std::cout << "Introdueix el teu nom: ";
+    // std::cin >> nom;
+    // std::cout << "Introdueix la teva edat: ";
+    // std::cin >> edat;
+
+    // Per la simulació, usem valors fixos
+    nom = "Simulador";
+    edat = 99;
+
+    std::cout << "Hola, " << nom << "! Tens " << edat << " anys." << std::endl;
+    return 0;
+}`,
+            output: `Hola, Simulador! Tens 99 anys.`
+        },
+        'condicionals': {
+            code: `#include <iostream>
+
+int main() {
+    int numero = 10;
+
+    if (numero > 0) {
+        std::cout << "El número és positiu." << std::endl;
+    } else if (numero == 0) {
+        std::cout << "El número és zero." << std::endl;
+    } else {
+        std::cout << "El número és negatiu." << std::endl;
+    }
+    return 0;
+}`,
+            output: `El número és positiu.`
+        },
+        'bucles_for': {
+            code: `#include <iostream>
+
+int main() {
+    std::cout << "Comptant de 1 a 5:" << std::endl;
+    for (int i = 1; i <= 5; ++i) { // '++i' és una forma eficient d'incrementar
+        std::cout << i << std::endl;
+    }
+    return 0;
+}`,
+            output: `Comptant de 1 a 5:
+1
+2
+3
+4
+5`
+        },
+        'bucles_while': {
+            code: `#include <iostream>
+
+int main() {
+    int comptador = 3;
+    std::cout << "Comptador descendent:" << std::endl;
+    while (comptador > 0) {
+        std::cout << comptador << std::endl;
+        comptador--; // Decrementa el comptador en 1
+    }
+    std::cout << "Fi del compte." << std::endl;
+    return 0;
+}`,
+            output: `Comptador descendent:
+3
+2
+1
+Fi del compte.`
+        },
+        'funcions': {
+            code: `#include <iostream>
+
+// Declaració de la funció
+int suma(int a, int b);
+
+int main() {
+    int resultat = suma(5, 3); // Crida a la funció
+    std::cout << "La suma és: " << resultat << std::endl;
+    return 0;
+}
+
+// Definició de la funció
+int suma(int a, int b) {
+    return a + b;
+}`,
+            output: `La suma és: 8`
+        },
+        'sobrecarga_funciones': {
+            code: `#include <iostream>
+
+// Funció suma per enters
+int sumar(int a, int b) {
+    return a + b;
+}
+
+// Funció suma sobrecarregada per doubles
+double sumar(double a, double b) {
+    return a + b;
+}
+
+// Funció suma sobrecarregada per tres enters
+int sumar(int a, int b, int c) {
+    return a + b + c;
+}
+
+int main() {
+    std::cout << "Suma d'enters: " << sumar(5, 3) << std::endl;
+    std::cout << "Suma de doubles: " << sumar(10.5, 2.3) << std::endl;
+    std::cout << "Suma de tres enters: " << sumar(1, 2, 3) << std::endl;
+    return 0;
+}`,
+            output: `Suma d'enters: 8
+Suma de doubles: 12.8
+Suma de tres enters: 6`
+        },
+        'arrays_vectors': {
+            code: `#include <iostream>
+#include <vector> // Per utilitzar std::vector
+
+int main() {
+    // Array clàssic (mida fixa)
+    int numeros_array[5] = {10, 20, 30, 40, 50};
+    std::cout << "Elements de l'array clàssic:" << std::endl;
+    for (int i = 0; i < 5; ++i) {
+        std::cout << "Element " << i << ": " << numeros_array[i] << std::endl;
+    }
+
+    std::cout << std::endl;
+
+    // Vector (mida dinàmica, més modern en C++)
+    std::vector<int> numeros_vector = {100, 200, 300};
+    numeros_vector.push_back(400); // Afegeix un element
+
+    std::cout << "Elements del vector:" << std::endl;
+    for (int num : numeros_vector) { // Bucle basat en rang (C++11+)
+        std::cout << num << std::endl;
+    }
+    return 0;
+}`,
+            output: `Elements de l'array clàssic:
+Element 0: 10
+Element 1: 20
+Element 2: 30
+Element 3: 40
+Element 4: 50
+
+Elements del vector:
+100
+200
+300
+400`
+        },
+        'punteros_referencias': {
+            code: `#include <iostream>
+
+int main() {
+    int valor = 100;
+    int *ptr = &valor; // Declaració i inicialització d'un punter
+    int &ref = valor; // Declaració i inicialització d'una referència
+
+    std::cout << "Valor original: " << valor << std::endl;
+    std::cout << "Valor a través del punter: " << *ptr << std::endl; // Desreferenciar el punter
+    std::cout << "Valor a través de la referència: " << ref << std::endl;
+
+    *ptr = 200; // Canvia el valor a través del punter
+    std::cout << "Nou valor (via punter): " << valor << std::endl;
+
+    ref = 300; // Canvia el valor a través de la referència
+    std::cout << "Nou valor (via referència): " << valor << std::endl;
+    return 0;
+}`,
+            output: `Valor original: 100
+Valor a través del punter: 100
+Valor a través de la referència: 100
+Nou valor (via punter): 200
+Nou valor (via referència): 300`
+        },
+        'strings': {
+            code: `#include <iostream>
+#include <string>
+
+int main() {
+    std::string salutacio = "Hola, ";
+    std::string nom = "Món!";
+    std::string missatge = salutacio + nom; // Concatenació de strings
+
+    std::cout << "Missatge: " << missatge << std::endl;
+    std::cout << "Llargada del missatge: " << missatge.length() << std::endl; // Llargada
+    
+    // Accés a caràcters
+    std::cout << "Primer caràcter: " << missatge[0] << std::endl; 
+    
+    return 0;
+}`,
+            output: `Missatge: Hola, Món!
+Llargada del missatge: 10
+Primer caràcter: H`
+        },
+        'classes_objectes': {
+            code: `#include <iostream>
+#include <string>
+
+// Definició d'una classe 'Cotxe'
+class Cotxe {
+public: // Membres públics (accessibles des de fora de la classe)
+    std::string marca;
+    std::string model;
+    int any;
+
+    // Constructor de la classe
+    Cotxe(std::string mrc, std::string mdl, int a) {
+        marca = mrc;
+        model = mdl;
+        any = a;
+    }
+
+    // Mètode de la classe
+    void mostrarInformacio() {
+        std::cout << "Marca: " << marca << ", Model: " << model << ", Any: " << any << std::endl;
+    }
+};
+
+int main() {
+    // Creació d'objectes (instàncies) de la classe Cotxe
+    Cotxe meuCotxe("Toyota", "Corolla", 2020);
+    Cotxe altreCotxe("Honda", "Civic", 2022);
+
+    meuCotxe.mostrarInformacio(); // Crida al mètode de l'objecte
+    altreCotxe.mostrarInformacio();
+    return 0;
+}`,
+            output: `Marca: Toyota, Model: Corolla, Any: 2020
+Marca: Honda, Model: Civic, Any: 2022`
+        },
+        'constructors_destructors': {
+            code: `#include <iostream>
+#include <string>
+
+class Persona {
+public:
+    std::string nom;
+
+    // Constructor per defecte
+    Persona() : nom("Desconegut") {
+        std::cout << "Constructor per defecte cridat." << std::endl;
+    }
+
+    // Constructor parametritzat
+    Persona(std::string n) : nom(n) {
+        std::cout << "Constructor parametritzat cridat per " << nom << std::endl;
+    }
+
+    // Destructor
+    ~Persona() {
+        std::cout << "Destructor cridat per " << nom << std::endl;
+    }
+
+    void saludar() {
+        std::cout << "Hola, sóc " << nom << "." << std::endl;
+    }
+};
+
+int main() {
+    Persona p1; // Crida al constructor per defecte
+    p1.saludar();
+
+    Persona p2("Maria"); // Crida al constructor parametritzat
+    p2.saludar();
+
+    // Els destructors es criden automàticament en sortir de l'àmbit
+    return 0;
+}`,
+            output: `Constructor per defecte cridat.
+Hola, sóc Desconegut.
+Constructor parametritzat cridat per Maria
+Hola, sóc Maria.
+Destructor cridat per Maria
+Destructor cridat per Desconegut`
+        },
+        'herencia': {
+            code: `#include <iostream>
+#include <string>
+
+// Classe base
+class Animal {
+public:
+    std::string nom;
+
+    Animal(std::string n) : nom(n) {}
+
+    void ferSo() {
+        std::cout << nom << " fa un so." << std::endl;
+    }
+};
+
+// Classe derivada (Hereta d'Animal)
+class Gos : public Animal {
+public:
+    Gos(std::string n) : Animal(n) {} // Constructor de Gos crida al constructor d'Animal
+
+    void bordar() {
+        std::cout << nom << " borda: Guau! Guau!" << std::endl;
+    }
+};
+
+int main() {
+    Animal animalGeneric("Un animal");
+    animalGeneric.ferSo();
+
+    Gos meuGos("Milú");
+    meuGos.ferSo(); // Mètode heretat
+    meuGos.bordar(); // Mètode propi de Gos
+    return 0;
+}`,
+            output: `Un animal fa un so.
+Milú fa un so.
+Milú borda: Guau! Guau!`
+        },
+        'polimorfisme': {
+            code: `#include <iostream>
+#include <string>
+
+class Forma {
+public:
+    // Funció virtual pura (fa que la classe sigui abstracta)
+    virtual void dibuixar() = 0;
+    // Funció virtual
+    virtual void obtenirInfo() {
+        std::cout << "Això és una forma genèrica." << std::endl;
+    }
+};
+
+class Cercle : public Forma {
+public:
+    void dibuixar() override { // 'override' és C++11+
+        std::cout << "Dibuixant un cercle." << std::endl;
+    }
+    void obtenirInfo() override {
+        std::cout << "Sóc un cercle." << std::endl;
+    }
+};
+
+class Quadrat : public Forma {
+public:
+    void dibuixar() override {
+        std::cout << "Dibuixant un quadrat." << std::endl;
+    }
+    void obtenirInfo() override {
+        std::cout << "Sóc un quadrat." << std::endl;
+    }
+};
+
+int main() {
+    // Punter a la classe base, apunta a objectes de classes derivades
+    Forma* f1 = new Cercle();
+    Forma* f2 = new Quadrat();
+
+    f1->dibuixar(); // Crida al mètode de Cercle
+    f1->obtenirInfo();
+
+    f2->dibuixar(); // Crida al mètode de Quadrat
+    f2->obtenirInfo();
+
+    delete f1; // Allibera memòria
+    delete f2;
+    return 0;
+}`,
+            output: `Dibuixant un cercle.
+Sóc un cercle.
+Dibuixant un quadrat.
+Sóc un quadrat.`
+        },
+        'namespaces': {
+            code: `#include <iostream>
+
+// Primer namespace
+namespace PrimeraBib {
+    void funcio() {
+        std::cout << "Funció des de PrimeraBib." << std::endl;
+    }
+}
+
+// Segon namespace
+namespace SegonaBib {
+    void funcio() {
+        std::cout << "Funció des de SegonaBib." << std::endl;
+    }
+}
+
+int main() {
+    PrimeraBib::funcio(); // Accés explícit al namespace
+    SegonaBib::funcio();
+
+    // Amb 'using namespace', podem evitar el prefix
+    using namespace PrimeraBib;
+    funcio(); // Ara crida a PrimeraBib::funcio()
+
+    // Però això pot causar ambigüitats si hi ha noms repetits
+    // using namespace SegonaBib; // Descomenta per veure un error d'ambigüitat
+
+    return 0;
+}`,
+            output: `Funció des de PrimeraBib.
+Funció des de SegonaBib.
+Funció des de PrimeraBib.`
+        },
+        'excepcions': {
+            code: `#include <iostream>
+#include <string>
+#include <stdexcept> // Per std::runtime_error
+
+double dividir(int numerador, int denominador) {
+    if (denominador == 0) {
+        throw std::runtime_error("No es pot dividir per zero!");
+    }
+    return static_cast<double>(numerador) / denominador;
+}
+
+int main() {
+    try {
+        double resultat1 = dividir(10, 2);
+        std::cout << "Resultat 1: " << resultat1 << std::endl;
+
+        double resultat2 = dividir(10, 0); // Això llançarà una excepció
+        std::cout << "Resultat 2: " << resultat2 << std::endl; // Aquesta línia no s'executarà
+    } catch (const std::runtime_error& e) {
+        std::cout << "Error capturat: " << e.what() << std::endl;
+    } catch (...) { // Captura qualsevol altra excepció
+        std::cout << "S'ha produït un error desconegut." << std::endl;
+    }
+    std::cout << "Programa continua després de la gestió d'errors." << std::endl;
+    return 0;
+}`,
+            output: `Resultat 1: 5
+Error capturat: No es pot dividir per zero!
+Programa continua després de la gestió d'errors.`
+        },
+        'plantilles': {
+            code: `#include <iostream>
+
+// Plantilla de funció per sumar dos valors de qualsevol tipus
+template <typename T>
+T sumar(T a, T b) {
+    return a + b;
+}
+
+// Plantilla de classe per a un parell de valors
+template <typename T1, typename T2>
+class Parell {
+public:
+    T1 primer;
+    T2 segon;
+
+    Parell(T1 p, T2 s) : primer(p), segon(s) {}
+
+    void mostrar() {
+        std::cout << "Primer: " << primer << ", Segon: " << segon << std::endl;
+    }
+};
+
+int main() {
+    // Ús de la plantilla de funció
+    std::cout << "Suma d'enters: " << sumar(5, 10) << std::endl;
+    std::cout << "Suma de doubles: " << sumar(3.5, 2.1) << std::endl;
+    // std::cout << "Suma de strings: " << sumar(std::string("Hola"), std::string("Món")) << std::endl; // Error de compilació sense + operador
+
+    // Ús de la plantilla de classe
+    Parell<int, double> p1(10, 20.5);
+    p1.mostrar();
+
+    Parell<std::string, int> p2("Edat", 30);
+    p2.mostrar();
+
+    return 0;
+}`,
+            output: `Suma d'enters: 15
+Suma de doubles: 5.6
+Primer: 10, Segon: 20.5
+Primer: Edat, Segon: 30`
+        },
+        'gestio_fitxers': {
+            code: `#include <iostream>
+#include <fstream> // Per a gestió de fitxers
+#include <string>
+
+int main() {
+    // --- Escriure a un fitxer ---
+    std::ofstream fitxerEscriptura("exemple.txt"); // Obre el fitxer en mode escriptura
+    if (fitxerEscriptura.is_open()) {
+        fitxerEscriptura << "Hola des de C++!" << std::endl;
+        fitxerEscriptura << "Aquesta és una segona línia." << std::endl;
+        fitxerEscriptura.close();
+        std::cout << "Dades escrites a exemple.txt" << std::endl;
+    } else {
+        std::cout << "No es pot obrir el fitxer per escriure." << std::endl;
+    }
+
+    // --- Llegir d'un fitxer ---
+    std::string linia;
+    std::ifstream fitxerLectura("exemple.txt"); // Obre el fitxer en mode lectura
+    if (fitxerLectura.is_open()) {
+        std::cout << "\\nContingut de exemple.txt:" << std::endl;
+        while (getline(fitxerLectura, linia)) {
+            std::cout << linia << std::endl;
+        }
+        fitxerLectura.close();
+    } else {
+        std::cout << "No es pot obrir el fitxer per llegir." << std::endl;
+    }
+    
+    // NOTA: En aquesta simulació HTML, la creació/lectura de fitxers és conceptual.
+    // Realment no es crearà un fitxer en el sistema de l'usuari.
+
+    return 0;
+}`,
+            output: `Dades escrites a exemple.txt
+
+Contingut de exemple.txt:
+Hola des de C++!
+Aquesta és una segona línia.`
+        },
+        'lambda_expressions': {
+            code: `#include <iostream>
+#include <vector>
+#include <algorithm> // Per std::for_each
+
+int main() {
+    std::vector<int> nombres = {1, 2, 3, 4, 5};
+
+    // Imprimeix cada nombre utilitzant una expressió lambda
+    std::cout << "Nombres:" << std::endl;
+    std::for_each(nombres.begin(), nombres.end(), [](int n) {
+        std::cout << n << " ";
+    });
+    std::cout << std::endl;
+
+    // Lambda per sumar dos nombres
+    auto suma = [](int a, int b) {
+        return a + b;
+    };
+    std::cout << "Suma de 5 i 7: " << suma(5, 7) << std::endl;
+
+    // Lambda amb captura (captura la variable 'factor')
+    int factor = 10;
+    auto multiplicar = [factor](int n) {
+        return n * factor;
+    };
+    std::cout << "Multiplicant 3 per factor (10): " << multiplicar(3) << std::endl;
+
+    return 0;
+}`,
+            output: `Nombres:
+1 2 3 4 5 
+Suma de 5 i 7: 12
+Multiplicant 3 per factor (10): 30`
+        }
+    };
+
+    // Funció per actualitzar l'àrea de codi i la sortida quan es canvia el menú
+    function actualitzarExempleSeleccionat() {
+        const clauSeleccionada = exempleSelector.value;
+        const exemple = exemplesCodiCpp[clauSeleccionada];
+        
+        if (exemple) {
+            code.value = exemple.code;
+            output.value = ""; // Neteja la sortida anterior
+            runButton.disabled = false;
+        } else {
+            code.value = "// Selecciona un exemple per veure el codi.";
+            output.value = "";
+            runButton.disabled = true;
+        }
+    }
+
+    // Funció per simular l'execució i mostrar la sortida predefinida
+    function simulateExecution() {
+        const clauSeleccionada = exempleSelector.value;
+        const exemple = exemplesCodiCpp[clauSeleccionada];
+
+        if (exemple) {
+            output.value = `>>> Simulant execució del codi C++...\n`;
+            runButton.disabled = true;
+            runButton.innerText = "Simulant...";
+
+            // Simulem un petit retard per donar sensació d'execució
+            setTimeout(() => {
+                output.value += `${exemple.output}\n`;
+                output.value += `--- Simulació Finalitzada ---`;
+                runButton.disabled = false;
+                runButton.innerText = "Executa el Codi (Simulat)";
+                output.scrollTop = output.scrollHeight; // Desplaça't al final
+            }, 700); // Retard de 0.7 segons
+        }
+    }
+
+    // Afegim un 'event listener' al menú desplegable
+    exempleSelector.addEventListener('change', actualitzarExempleSeleccionat);
+
+    // Carrega el primer exemple per defecte en iniciar
+    actualitzarExempleSeleccionat();
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
