@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Un simulador d'exemples de codi C interactiu per aprendre.">
+
+    <title>Aprèn C amb Exemples</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --padding-base: 10px;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex-grow: 1;
+        }
+        #code, #output {
+            width: 100%;
+            flex: 1;
+            resize: none;
+            font-family: monospace;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 5px;
+            min-height: 150px; /* Alçada mínima per evitar col·lapse */
+        }
+        #output-section, #repl-container {
+            padding: var(--padding-base);
+            box-sizing: border-box;
+        }
+        #repl-container {
+            display: flex;
+            flex-direction: column;
+            height: 60%;
+        }
+        #output-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+
+  <main class="container py-4">
+    <div id="repl-container">
+        <div class="mb-3">
+            <label for="exemple-selector" class="form-label">Tria un exemple per aprendre:</label>
+            <select id="exemple-selector" class="form-select">
+                <option value="hola_mon">1. Hola, Món!</option>
+                <option value="variables">2. Variables i Tipus de Dades</option>
+                <option value="entrada_salida">3. Entrada/Sortida Bàsica</option>
+                <option value="condicionals">4. Condicionals (if, else if, else)</option>
+                <option value="bucles_for">5. Bucle 'for'</option>
+                <option value="bucles_while">6. Bucle 'while'</option>
+                <option value="bucles_do_while">7. Bucle 'do-while'</option>
+                <option value="funcions">8. Definir i Cridar Funcions</option>
+                <option value="arrays">9. Arrays</option>
+                <option value="punteros">10. Punteros (Bàsic)</option>
+                <option value="strings">11. Strings (cadenes de caràcters)</option>
+                <option value="structs">12. Estructures (Structs)</option>
+                <option value="enums">13. Enumeracions (Enums)</option>
+                <option value="typedef">14. Redefinició de Tipus (`typedef`)</option>
+                <option value="memoria_dinamica">15. Gestió de Memòria Dinàmica (`malloc`, `free`)</option>
+                <option value="paso_por_valor_referencia">16. Pas per Valor vs. Pas per Referència (Punter)</option>
+                <option value="preprocesador">17. Directives del Preprocessador</option>
+                <option value="gestio_fitxers">18. Gestió Bàsica de Fitxers</option>
+                <option value="constant_keywords">19. Paraula clau `const`</option>
+                <option value="union">20. Unions</option>
+            </select>
+        </div>
+
+        <label for="code">Codi C (només lectura):</label>
+        <textarea id="code" rows="15" readonly></textarea>
+        <button id="run-button" class="btn btn-primary mt-3 align-self-start" onclick="simulateExecution()">Executa el Codi (Simulat)</button>
+    </div>
+
+    <div id="output-section" aria-live="polite">
+        <label for="output">Sortida Simulada:</label>
+        <textarea id="output" rows="10" readonly></textarea>
+    </div>
+
+  </main>
+
+  <script>
+    // Referències als elements del DOM
+    const output = document.getElementById("output");
+    const code = document.getElementById("code");
+    const runButton = document.getElementById("run-button");
+    const exempleSelector = document.getElementById("exemple-selector");
+
+    // Objecte amb els fragments de codi C i les seves sortides simulades
+    const exemplesCodiC = {
+        'hola_mon': {
+            code: `#include <stdio.h>
+
+int main() {
+    printf("Hola, Món!\\n"); // Imprimeix un missatge a la consola
+    return 0; // Indica que el programa ha acabat correctament
+}`,
+            output: `Hola, Món!`
+        },
+        'variables': {
+            code: `#include <stdio.h>
+
+int main() {
+    int edat = 30; // Declara una variable entera
+    float preu = 19.99; // Declara una variable de punt flotant
+    char inicial = 'J'; // Declara un caràcter
+    
+    printf("Edat: %d\\n", edat);
+    printf("Preu: %.2f\\n", preu); // '.2f' formata a 2 decimals
+    printf("Inicial: %c\\n", inicial);
+    return 0;
+}`,
+            output: `Edat: 30
+Preu: 19.99
+Inicial: J`
+        },
+        'entrada_salida': {
+            code: `#include <stdio.h>
+
+int main() {
+    char nom[50];
+    int edat;
+
+    // Aquesta part del codi C esperaria una entrada de l'usuari.
+    // Com que estem simulant, proporcionarem una entrada predefinida.
+    // printf("Introdueix el teu nom: ");
+    // scanf("%s", nom); // Llegeix una string
+    // printf("Introdueix la teva edat: ");
+    // scanf("%d", &edat); // Llegeix un enter
+
+    // Per la simulació, usem valors fixos
+    sprintf(nom, "Simulador"); // Escriu "Simulador" a l'array nom
+    edat = 99;
+
+    printf("Hola, %s! Tens %d anys.\\n", nom, edat);
+    return 0;
+}`,
+            output: `Hola, Simulador! Tens 99 anys.`
+        },
+        'condicionals': {
+            code: `#include <stdio.h>
+
+int main() {
+    int numero = 10;
+
+    if (numero > 0) {
+        printf("El número és positiu.\\n");
+    } else if (numero == 0) {
+        printf("El número és zero.\\n");
+    } else {
+        printf("El número és negatiu.\\n");
+    }
+    return 0;
+}`,
+            output: `El número és positiu.`
+        },
+        'bucles_for': {
+            code: `#include <stdio.h>
+
+int main() {
+    printf("Comptant de 1 a 5:\\n");
+    for (int i = 1; i <= 5; i++) {
+        printf("%d\\n", i);
+    }
+    return 0;
+}`,
+            output: `Comptant de 1 a 5:
+1
+2
+3
+4
+5`
+        },
+        'bucles_while': {
+            code: `#include <stdio.h>
+
+int main() {
+    int comptador = 3;
+    printf("Comptador descendent:\\n");
+    while (comptador > 0) {
+        printf("%d\\n", comptador);
+        comptador--; // Decrementa el comptador en 1
+    }
+    printf("Fi del compte.\\n");
+    return 0;
+}`,
+            output: `Comptador descendent:
+3
+2
+1
+Fi del compte.`
+        },
+        'bucles_do_while': {
+            code: `#include <stdio.h>
+
+int main() {
+    int i = 0;
+    printf("Bucle do-while (s'executa almenys una vegada):\\n");
+    do {
+        printf("El valor de i és: %d\\n", i);
+        i++;
+    } while (i < 3);
+    return 0;
+}`,
+            output: `Bucle do-while (s'executa almenys una vegada):
+El valor de i és: 0
+El valor de i és: 1
+El valor de i és: 2`
+        },
+        'funcions': {
+            code: `#include <stdio.h>
+
+// Declaració de la funció
+int suma(int a, int b);
+
+int main() {
+    int resultat = suma(5, 3); // Crida a la funció
+    printf("La suma és: %d\\n", resultat);
+    return 0;
+}
+
+// Definició de la funció
+int suma(int a, int b) {
+    return a + b;
+}`,
+            output: `La suma és: 8`
+        },
+        'arrays': {
+            code: `#include <stdio.h>
+
+int main() {
+    int numeros[] = {10, 20, 30, 40, 50}; // Declaració i inicialització d'un array
+
+    printf("Elements de l'array:\\n");
+    for (int i = 0; i < 5; i++) {
+        printf("Element %d: %d\\n", i, numeros[i]);
+    }
+    return 0;
+}`,
+            output: `Elements de l'array:
+Element 0: 10
+Element 1: 20
+Element 2: 30
+Element 3: 40
+Element 4: 50`
+        },
+        'punteros': {
+            code: `#include <stdio.h>
+
+int main() {
+    int valor = 100;
+    int *ptr; // Declaració d'un punter a un enter
+
+    ptr = &valor; // El punter 'ptr' apunta a l'adreça de 'valor'
+
+    printf("Valor original: %d\\n", valor);
+    printf("Valor a través del punter: %d\\n", *ptr); // Desreferenciar el punter
+
+    *ptr = 200; // Canvia el valor a través del punter
+    printf("Nou valor: %d\\n", valor);
+    return 0;
+}`,
+            output: `Valor original: 100
+Valor a través del punter: 100
+Nou valor: 200`
+        },
+        'strings': {
+            code: `#include <stdio.h>
+#include <string.h> // Per a funcions de strings
+
+int main() {
+    char salutacio[50] = "Hola, "; // Declara un array de caràcters per a una string
+    char nom[] = "Món!";
+
+    strcat(salutacio, nom); // Concatena 'nom' a 'salutacio'
+
+    printf("Missatge: %s\\n", salutacio);
+    printf("Llargada del missatge: %lu\\n", strlen(salutacio)); // Llargada de la string
+    return 0;
+}`,
+            output: `Missatge: Hola, Món!
+Llargada del missatge: 10`
+        },
+        'structs': {
+            code: `#include <stdio.h>
+#include <string.h>
+
+// Definició d'una estructura 'Llibre'
+struct Llibre {
+    char titol[50];
+    char autor[50];
+    int any_publicacio;
+};
+
+int main() {
+    // Creació d'una variable de tipus Llibre
+    struct Llibre llibre1;
+
+    // Assignació de valors als membres de l'estructura
+    strcpy(llibre1.titol, "El Quixot");
+    strcpy(llibre1.autor, "Miguel de Cervantes");
+    llibre1.any_publicacio = 1605;
+
+    printf("Informació del Llibre:\\n");
+    printf("Títol: %s\\n", llibre1.titol);
+    printf("Autor: %s\\n", llibre1.autor);
+    printf("Any de publicació: %d\\n", llibre1.any_publicacio);
+    return 0;
+}`,
+            output: `Informació del Llibre:
+Títol: El Quixot
+Autor: Miguel de Cervantes
+Any de publicació: 1605`
+        },
+        'enums': {
+            code: `#include <stdio.h>
+
+// Definició d'una enumeració per als dies de la setmana
+enum DiaSetmana {
+    DIUMENGE,    // Per defecte, val 0
+    DILLUNS,     // Val 1
+    DIMARTS = 5, // Val 5
+    DIMECRES,    // Val 6
+    DIJOUS,      // Val 7
+    DIVENDRES,   // Val 8
+    DISSABTE     // Val 9
+};
+
+int main() {
+    enum DiaSetmana avui = DILLUNS;
+    enum DiaSetmana mati = DIMECRES;
+
+    printf("Avui és el dia número: %d\\n", avui);
+    printf("El dimecres és el dia número: %d\\n", mati);
+
+    if (avui == DILLUNS) {
+        printf("És el primer dia laborable!\\n");
+    }
+    return 0;
+}`,
+            output: `Avui és el dia número: 1
+El dimecres és el dia número: 6
+És el primer dia laborable!`
+        },
+        'typedef': {
+            code: `#include <stdio.h>
+
+// Utilitzar typedef per crear un àlies per a 'unsigned int'
+typedef unsigned int U_INT;
+
+// Utilitzar typedef per a una estructura
+typedef struct {
+    char nom[50];
+    int edat;
+} Persona; // Ara podem usar 'Persona' directament
+
+int main() {
+    U_INT id_usuari = 12345;
+    printf("ID d'usuari: %u\\n", id_usuari); // %u per unsigned int
+
+    Persona persona1;
+    sprintf(persona1.nom, "Laura");
+    persona1.edat = 25;
+
+    printf("Nom: %s, Edat: %d\\n", persona1.nom, persona1.edat);
+    return 0;
+}`,
+            output: `ID d'usuari: 12345
+Nom: Laura, Edat: 25`
+        },
+        'memoria_dinamica': {
+            code: `#include <stdio.h>
+#include <stdlib.h> // Per a malloc i free
+
+int main() {
+    int *ptr;
+    int n = 5;
+
+    // Assigna memòria dinàmicament per a 5 enters
+    ptr = (int*) malloc(n * sizeof(int));
+
+    // Comprova si l'assignació ha estat reeixida
+    if (ptr == NULL) {
+        printf("Error: No es pot assignar memòria.\\n");
+        return 1; // Indica un error
+    }
+
+    // Inicialitza i imprimeix els valors
+    printf("Valors assignats:\\n");
+    for (int i = 0; i < n; i++) {
+        ptr[i] = (i + 1) * 10;
+        printf("%d ", ptr[i]);
+    }
+    printf("\\n");
+
+    // Allibera la memòria assignada dinàmicament
+    free(ptr);
+    printf("Memòria alliberada.\\n");
+
+    return 0;
+}`,
+            output: `Valors assignats:
+10 20 30 40 50 
+Memòria alliberada.`
+        },
+        'paso_por_valor_referencia': {
+            code: `#include <stdio.h>
+
+// Funció que rep un valor (pas per valor)
+void incrementarPerValor(int num) {
+    num = num + 10;
+    printf("Dins de incrementarPerValor: %d\\n", num);
+}
+
+// Funció que rep un punter (simulant pas per referència)
+void incrementarPerReferencia(int *numPtr) {
+    (*numPtr) = (*numPtr) + 10; // Desreferencia el punter i incrementa el valor
+    printf("Dins de incrementarPerReferencia: %d\\n", *numPtr);
+}
+
+int main() {
+    int valor = 5;
+    printf("Valor abans de la crida per valor: %d\\n", valor);
+    incrementarPerValor(valor);
+    printf("Valor després de la crida per valor: %d\\n", valor); // El valor original no canvia
+
+    printf("\\n");
+
+    int valorRef = 5;
+    printf("Valor abans de la crida per referència: %d\\n", valorRef);
+    incrementarPerReferencia(&valorRef); // Passem l'adreça de memòria
+    printf("Valor després de la crida per referència: %d\\n", valorRef); // El valor original SÍ que canvia
+
+    return 0;
+}`,
+            output: `Valor abans de la crida per valor: 5
+Dins de incrementarPerValor: 15
+Valor després de la crida per valor: 5
+
+Valor abans de la crida per referència: 5
+Dins de incrementarPerReferencia: 15
+Valor després de la crida per referència: 15`
+        },
+        'preprocesador': {
+            code: `#include <stdio.h>
+
+#define PI 3.14159 // Macro constant
+#define CUBO(x) ((x) * (x) * (x)) // Macro amb paràmetres
+
+// Inclusió condicional
+#define DEBUG_MODE // Descomenta per activar missatges de depuració
+
+int main() {
+    printf("El valor de PI és: %.5f\\n", PI);
+    printf("El cub de 3 és: %d\\n", CUBO(3));
+
+    #ifdef DEBUG_MODE
+        printf("Mode depuració activat!\\n");
+    #else
+        printf("Mode producció activat.\\n");
+    #endif
+
+    #ifndef MAX_VAL
+        #define MAX_VAL 100
+    #endif
+    printf("MAX_VAL és: %d\\n", MAX_VAL);
+
+    return 0;
+}`,
+            output: `El valor de PI és: 3.14159
+El cub de 3 és: 27
+Mode depuració activat!
+MAX_VAL és: 100`
+        },
+        'gestio_fitxers': {
+            code: `#include <stdio.h> // Per a funcions de fitxers
+
+int main() {
+    FILE *fp;
+    char buffer[100];
+
+    // --- Escriure a un fitxer ---
+    fp = fopen("dades.txt", "w"); // Obre el fitxer en mode escriptura ("w" - write)
+    if (fp == NULL) {
+        printf("No es pot obrir el fitxer per escriure.\\n");
+        return 1;
+    }
+    fprintf(fp, "Aquesta és la primera línia.\\n");
+    fprintf(fp, "Aquesta és la segona línia.\\n");
+    fclose(fp);
+    printf("Dades escrites a dades.txt\\n");
+
+    // --- Llegir d'un fitxer ---
+    fp = fopen("dades.txt", "r"); // Obre el fitxer en mode lectura ("r" - read)
+    if (fp == NULL) {
+        printf("No es pot obrir el fitxer per llegir.\\n");
+        return 1;
+    }
+    printf("\\nContingut de dades.txt:\\n");
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) { // Llegeix línia a línia
+        printf("%s", buffer);
+    }
+    fclose(fp);
+    
+    // NOTA: En aquesta simulació HTML, la creació/lectura de fitxers és conceptual.
+    // Realment no es crearà un fitxer en el sistema de l'usuari.
+
+    return 0;
+}`,
+            output: `Dades escrites a dades.txt
+
+Contingut de dades.txt:
+Aquesta és la primera línia.
+Aquesta és la segona línia.`
+        },
+        'constant_keywords': {
+            code: `#include <stdio.h>
+
+int main() {
+    const int EDAT_MINIMA = 18; // Una constant entera
+    // EDAT_MINIMA = 20; // Això donaria un error de compilació
+
+    int edat_actual = 20;
+    
+    // Punter a una constant (no pot canviar el valor apuntat)
+    const int *ptr_a_constant = &EDAT_MINIMA;
+    // *ptr_a_constant = 25; // Error: no es pot modificar el valor a través d'aquest punter
+
+    // Punter constant (no pot canviar on apunta)
+    int *const punter_constant = &edat_actual;
+    *punter_constant = 21; // OK: es pot modificar el valor apuntat
+    // punter_constant = &EDAT_MINIMA; // Error: no es pot canviar l'adreça del punter
+
+    printf("Edat mínima: %d\\n", EDAT_MINIMA);
+    printf("Valor a través de ptr_a_constant: %d\\n", *ptr_a_constant);
+    printf("Edat actual (modificada via punter_constant): %d\\n", edat_actual);
+
+    return 0;
+}`,
+            output: `Edat mínima: 18
+Valor a través de ptr_a_constant: 18
+Edat actual (modificada via punter_constant): 21`
+        },
+        'union': {
+            code: `#include <stdio.h>
+#include <string.h>
+
+// Definició d'una unió
+union Dades {
+    int i;
+    float f;
+    char str[20];
+};
+
+int main() {
+    union Dades dades;
+
+    // Només un membre de la unió pot tenir un valor alhora.
+    // L'espai de memòria és compartit.
+
+    dades.i = 10;
+    printf("Dades.i: %d\\n", dades.i); // Mostra 10
+
+    dades.f = 220.5;
+    printf("Dades.f: %.1f\\n", dades.f); // Mostra 220.5
+    // Ara dades.i tindrà un valor sense sentit (els bits de 220.5 interpretats com un int)
+    printf("Dades.i (després de float): %d\\n", dades.i); 
+
+    strcpy(dades.str, "Programació C");
+    printf("Dades.str: %s\\n", dades.str); // Mostra "Programació C"
+    // Ara dades.i i dades.f tindran valors sense sentit
+    printf("Dades.f (després de string): %.1f\\n", dades.f); 
+
+    printf("Mida de la unió Dades: %lu bytes (igual que el membre més gran)\\n", sizeof(union Dades));
+
+    return 0;
+}`,
+            output: `Dades.i: 10
+Dades.f: 220.5
+Dades.i (després de float): 1104874496
+Dades.str: Programació C
+Dades.f (després de string): 1.1
+
+Mida de la unió Dades: 20 bytes (igual que el membre més gran)`
+        }
+    };
+
+    // Funció per actualitzar l'àrea de codi i la sortida quan es canvia el menú
+    function actualitzarExempleSeleccionat() {
+        const clauSeleccionada = exempleSelector.value;
+        const exemple = exemplesCodiC[clauSeleccionada];
+        
+        if (exemple) {
+            code.value = exemple.code;
+            output.value = ""; // Neteja la sortida anterior
+            runButton.disabled = false;
+        } else {
+            code.value = "// Selecciona un exemple per veure el codi.";
+            output.value = "";
+            runButton.disabled = true;
+        }
+    }
+
+    // Funció per simular l'execució i mostrar la sortida predefinida
+    function simulateExecution() {
+        const clauSeleccionada = exempleSelector.value;
+        const exemple = exemplesCodiC[clauSeleccionada];
+
+        if (exemple) {
+            output.value = `>>> Simulant execució del codi C...\n`;
+            runButton.disabled = true;
+            runButton.innerText = "Simulant...";
+
+            // Simulem un petit retard per donar sensació d'execució
+            setTimeout(() => {
+                output.value += `${exemple.output}\n`;
+                output.value += `--- Simulació Finalitzada ---`;
+                runButton.disabled = false;
+                runButton.innerText = "Executa el Codi (Simulat)";
+                output.scrollTop = output.scrollHeight; // Desplaça't al final
+            }, 700); // Retard de 0.7 segons
+        }
+    }
+
+    // Afegim un 'event listener' al menú desplegable
+    exempleSelector.addEventListener('change', actualitzarExempleSeleccionat);
+
+    // Carrega el primer exemple per defecte en iniciar
+    actualitzarExempleSeleccionat();
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
