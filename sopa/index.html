@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador de Sopa de Letras</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      max-width: 800px;
+      margin: auto;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      font-family: monospace;
+      margin-bottom: 1em;
+    }
+    table {
+      border-collapse: collapse;
+      margin: 1em 0;
+    }
+    td {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #999;
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 18px;
+      font-family: monospace;
+    }
+    td.solution {
+      background-color: #d0f0d0;
+    }
+    button {
+      margin: 0.3rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+
+    /* Modal */
+    #modalHelp {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    #modalHelpContent {
+      background: #fff;
+      padding: 1.5em;
+      max-width: 500px;
+      border-radius: 10px;
+      text-align: left;
+    }
+    @media print {
+      #controls, #modalHelp { display: none !important; }
+      td { background: white !important; color: black !important; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Sopa de Letras</h1>
+
+<div id="controls">
+  <p>Introduce palabras (una por línea):</p>
+  <textarea id="wordInput"></textarea>
+  <br />
+  <button onclick="generate()">Generar Sopa</button>
+  <button onclick="toggleSolution()">Mostrar/Ocultar Solución</button>
+  <button onclick="window.print()">Exportar PDF</button>
+  <button onclick="showHelp()">Ayuda</button>
+</div>
+
+<div id="puzzleContainer"></div>
+
+<div id="modalHelp">
+  <div id="modalHelpContent">
+    <h2>❓ Ayuda</h2>
+    <p>1. Introduce una palabra por línea en el cuadro de texto.</p>
+    <p>2. Haz clic en "Generar Sopa" para crear el tablero.</p>
+    <p>3. Usa "Mostrar/Ocultar Solución" para ver las respuestas.</p>
+    <p>4. Puedes exportar la sopa como PDF con el botón correspondiente.</p>
+    <p>✍️ Las palabras deben estar en mayúsculas o se convertirán automáticamente.</p>
+    <button onclick="hideHelp()">Cerrar</button>
+  </div>
+</div>
+
+<script>
+  const wordList = `SOL
+LUNA
+AGUA
+FUEGO
+TIERRA
+MAR
+AIRE
+RAYO
+PLANETA
+ESTRELLA
+GALAXIA
+UNIVERSO
+ASTEROIDE
+COMETA
+SATÉLITE
+NEBULOSA
+ÓRBITA
+METEORITO
+GRAVEDAD
+ECLIPSE
+CONSTELACIÓN
+TELESCOPIO
+ROTACIÓN
+TRASLACIÓN
+ASTRONAUTA
+BIGBANG
+EXOPLANETA
+VIALÁCTEA`.split('\n');
+
+  document.getElementById("wordInput").value = wordList.join('\n');
+
+  const size = 20;
+  let showSolution = false;
+
+  function generate() {
+    const rawWords = document.getElementById("wordInput").value.trim().split('\n').map(w => w.replace(/\s/g, '').toUpperCase());
+    const grid = Array.from({ length: size }, () => Array(size).fill(null));
+    const directions = [
+      [0, 1], [1, 0], [1, 1], [-1, 1]
+    ];
+
+    function canPlace(word, row, col, dx, dy) {
+      if (row + dy * word.length > size || row + dy * word.length < -1) return false;
+      if (col + dx * word.length > size || col + dx * word.length < -1) return false;
+      for (let i = 0; i < word.length; i++) {
+        const r = row + dy * i;
+        const c = col + dx * i;
+        if (grid[r][c] && grid[r][c] !== word[i]) return false;
+      }
+      return true;
+    }
+
+    function place(word) {
+      for (let attempt = 0; attempt < 200; attempt++) {
+        const dir = directions[Math.floor(Math.random() * directions.length)];
+        const row = Math.floor(Math.random() * size);
+        const col = Math.floor(Math.random() * size);
+        if (canPlace(word, row, col, dir[0], dir[1])) {
+          for (let i = 0; i < word.length; i++) {
+            const r = row + dir[1] * i;
+            const c = col + dir[0] * i;
+            grid[r][c] = word[i];
+          }
+          return { word, row, col, dx: dir[0], dy: dir[1] };
+        }
+      }
+      return null;
+    }
+
+    const placedWords = [];
+    rawWords.forEach(word => {
+      const placed = place(word);
+      if (placed) placedWords.push(placed);
+    });
+
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (!grid[r][c]) {
+          grid[r][c] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        }
+      }
+    }
+
+    render(grid, placedWords);
+  }
+
+  function render(grid, placedWords) {
+    const container = document.getElementById("puzzleContainer");
+    const table = document.createElement("table");
+
+    for (let r = 0; r < size; r++) {
+      const tr = document.createElement("tr");
+      for (let c = 0; c < size; c++) {
+        const td = document.createElement("td");
+        td.textContent = grid[r][c];
+        if (showSolution) {
+          for (const w of placedWords) {
+            for (let i = 0; i < w.word.length; i++) {
+              const rr = w.row + w.dy * i;
+              const cc = w.col + w.dx * i;
+              if (rr === r && cc === c) {
+                td.classList.add("solution");
+              }
+            }
+          }
+        }
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+
+    const wordListHTML = `<h3>Palabras:</h3><ul>${placedWords.map(w => `<li>${w.word}</li>`).join('')}</ul>`;
+    container.innerHTML = '';
+    container.appendChild(table);
+    container.insertAdjacentHTML('beforeend', wordListHTML);
+  }
+
+  function toggleSolution() {
+    showSolution = !showSolution;
+    generate();
+  }
+
+  function showHelp() {
+    document.getElementById("modalHelp").style.display = "flex";
+  }
+
+  function hideHelp() {
+    document.getElementById("modalHelp").style.display = "none";
+  }
+</script>
+
+</body>
+</html>
