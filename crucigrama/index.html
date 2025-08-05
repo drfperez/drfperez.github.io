@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crucigrama con Palabras Reales</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: sans-serif; padding: 1em; max-width: 800px; margin: auto; }
+    textarea { width: 100%; height: 150px; font-family: monospace; margin-bottom: 1em; }
+    #grid { 
+      display: grid; 
+      gap: 0; 
+      margin-top: 1em; 
+      justify-content: start; 
+      grid-auto-rows: 30px;
+    }
+    .cell-wrapper { position: relative; width: 30px; height: 30px; }
+    .cell {
+      width: 100%; 
+      height: 100%; 
+      text-align: center; 
+      font-size: 16px; 
+      text-transform: uppercase; 
+      border: 1px solid #999; 
+      box-sizing: border-box; 
+      font-family: monospace;
+      padding: 0;
+      line-height: 1;
+    }
+    .black { display: none; }
+    .number { position: absolute; top: 0; left: 2px; font-size: 10px; color: black; }
+    button { margin: 0.3rem; padding: 0.5rem 1rem; font-size: 1rem; }
+    #clues { margin-top: 1em; }
+    .clue { margin-bottom: 0.5em; }
+    #modalHelp { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 10; }
+    #modalHelpContent { background: #fff; padding: 1.5em; max-width: 500px; border-radius: 10px; }
+@media print {
+  #controls,
+  #modalHelp {
+    display: none !important;
+  }
+
+  /* Mostra només les cel·les actives */
+  input.cell:disabled {
+    display: inline-block !important;
+    border: 1px solid black !important;
+    color: black !important;
+    background: white !important;
+  }
+
+/* Oculta les cel·les negres o no actives */
+input.cell:disabled,  /* Targets INACTIVE (disabled) input cells */
+.black {              /* Targets black cells (any element) */
+  display: none !important;
+}
+
+  .cell-wrapper {
+    width: 30px;
+    height: 30px;
+  }
+
+  .number {
+    color: black !important;
+  }
+}
+
+
+
+    .error-message { color: red; margin-top: 0.5em; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+
+
+      
+      
+  <h1>✨ Generador de Crucigramas</h1>
+
+  <div id="controls">
+    <textarea id="wordInput" placeholder="Ejemplo: SOL:Estrella del sistema solar" oninput="saveInput()"></textarea>
+    <div id="errorMessage" class="error-message"></div>
+    <button onclick="generate()">Generar Crucigrama</button>
+    <button onclick="toggleSolution()">Mostrar/Ocultar Solución</button>
+    <button onclick="window.print()">Exportar PDF</button>
+    <button onclick="showHelp()">Ayuda</button>
+  </div>
+
+  <div id="grid"></div>
+  <div id="clues"></div>
+
+  <div id="modalHelp">
+    <div id="modalHelpContent">
+      <h2>❓ Ayuda</h2>
+      <p>Introduce una lista de palabras con sus definiciones, una por línea.</p>
+      
+      <p>Formato:</p>
+      <code>PALABRA:Definición</code>
+      <p>Ejemplo:</p>
+      <pre>
+SOL:Estrella del sistema solar
+AGUA:Líquido vital para la vida
+FUEGO:Elemento que arde
+      </pre>
+      <button onclick="hideHelp()">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    function saveInput() {
+      localStorage.setItem("crucigramaPalabras", document.getElementById("wordInput").value);
+    }
+
+    function loadInput() {
+      const saved = localStorage.getItem("crucigramaPalabras");
+      document.getElementById("wordInput").value = saved || `SOL:Estrella del sistema solar\nLUNA:Satélite natural de la Tierra\nAGUA:Líquido vital para la vida\nFUEGO:Elemento que arde\nTIERRA:Tercer planeta del sistema solar\nMAR:Gran masa de agua salada\nAIRE:Gas invisible que respiramos\nRAYO:Descarga eléctrica en la atmósfera\nPLANETA:Cuerpo celeste que orbita una estrella\nESTRELLA:Esfera de gas que emite luz propia\nGALAXIA:Conjunto de estrellas, gas y polvo\nUNIVERSO:Totalidad del espacio y la materia\nASTEROIDE:Roca que orbita en el espacio\nCOMETA:Cuerpo helado con cola luminosa\nSATÉLITE:Objeto que orbita un planeta\nNEBULOSA:Nube de gas y polvo en el espacio\nÓRBITA:Trayectoria de un cuerpo en el espacio\nMETEORITO:Fragmento espacial que cae a la Tierra\nGRAVEDAD:Fuerza que atrae los cuerpos entre sí\nECLIPSE:Ocultación de un astro por otro\nCONSTELACIÓN:Grupo de estrellas con forma reconocible\nTELESCOPIO:Instrumento para observar objetos lejanos\nROTACIÓN:Giro de un cuerpo sobre su eje\nTRASLACIÓN:Movimiento de un cuerpo alrededor de otro\nASTRONAUTA:Persona que viaja al espacio\nBIG BANG:Teoría del origen del universo\nEXOPLANETA:Planeta fuera del sistema solar\nVÍA LÁCTEA:Galaxia donde se encuentra la Tierra`;
+
+}
+    window.onload = loadInput;
+
+    function showHelp() {
+      document.getElementById("modalHelp").style.display = "flex";
+    }
+    function hideHelp() {
+      document.getElementById("modalHelp").style.display = "none";
+    }
+
+    let showAnswers = false;
+    let placedWords = [];
+    let gridMap = new Map();
+
+    function isValidWordCharacter(char) {
+      return /^[A-ZÁÉÍÓÚÜÑ]$/i.test(char);
+    }
+
+    function generate() {
+      const input = document.getElementById("wordInput").value.trim();
+      const errorMessageEl = document.getElementById("errorMessage");
+      errorMessageEl.textContent = "";
+
+      const lines = input.split("\n").map(l => l.trim()).filter(l => l.includes(":"));
+      if (lines.length === 0) {
+        errorMessageEl.textContent = "Por favor, introduce al menos una palabra con su definición.";
+        return;
+      }
+
+      const entries = [];
+      for (const line of lines) {
+        const [word, clue] = line.split(":");
+        const cleanedWord = word.trim().toUpperCase();
+
+        if (!/^[A-ZÁÉÍÓÚÜÑ]+$/.test(cleanedWord)) {
+          errorMessageEl.textContent = `Error: La palabra '${word}' contiene caracteres no válidos.`;
+          return;
+        }
+
+        if (cleanedWord.length < 2) {
+          errorMessageEl.textContent = `Error: La palabra '${word}' es demasiado corta.`;
+          return;
+        }
+        entries.push({ word: cleanedWord, clue });
+      }
+
+      entries.sort((a, b) => b.word.length - a.word.length);
+
+      const gridSizeMax = 20;
+      const grid = Array.from({ length: gridSizeMax }, () => Array(gridSizeMax).fill(null));
+      gridMap.clear();
+      placedWords = [];
+
+      function canPlace(word, r, c, dir) {
+        if (dir === 'across' && c + word.length > gridSizeMax) return false;
+        if (dir === 'down' && r + word.length > gridSizeMax) return false;
+
+        for (let i = 0; i < word.length; i++) {
+          const rr = r + (dir === 'down' ? i : 0);
+          const cc = c + (dir === 'across' ? i : 0);
+          const cell = grid[rr][cc];
+          if (cell !== null && cell !== word[i]) return false;
+          if (cell === null) {
+            if (i === 0 && ((dir === 'across' && cc > 0 && grid[rr][cc - 1] !== null) || (dir === 'down' && rr > 0 && grid[rr - 1][cc] !== null))) return false;
+            if (i === word.length - 1 && ((dir === 'across' && cc < gridSizeMax - 1 && grid[rr][cc + 1] !== null) || (dir === 'down' && rr < gridSizeMax - 1 && grid[rr + 1][cc] !== null))) return false;
+            if (dir === 'across') {
+              if (rr > 0 && grid[rr - 1][cc] !== null) return false;
+              if (rr < gridSizeMax - 1 && grid[rr + 1][cc] !== null) return false;
+            } else {
+              if (cc > 0 && grid[rr][cc - 1] !== null) return false;
+              if (cc < gridSizeMax - 1 && grid[rr][cc + 1] !== null) return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      function placeWord(word, r, c, dir, clue, number) {
+        for (let i = 0; i < word.length; i++) {
+          const rr = r + (dir === 'down' ? i : 0);
+          const cc = c + (dir === 'across' ? i : 0);
+          grid[rr][cc] = word[i];
+          const key = rr + "," + cc;
+          if (!gridMap.has(key)) gridMap.set(key, []);
+          gridMap.get(key).push({ word, dir });
+        }
+        placedWords.push({ word, clue, r, c, dir, number });
+      }
+
+      let wordNum = 1;
+
+      if (entries.length > 0) {
+        const first = entries.shift();
+        const startR = Math.floor(gridSizeMax / 2);
+        const startC = Math.floor((gridSizeMax - first.word.length) / 2);
+        placeWord(first.word, startR, startC, 'across', first.clue, wordNum++);
+      } else {
+        errorMessageEl.textContent = "No hay palabras válidas para generar el crucigrama.";
+        return;
+      }
+
+      for (const entry of entries) {
+        let placed = false;
+        outer: for (const pw of placedWords) {
+          for (let i = 0; i < entry.word.length; i++) {
+            for (let j = 0; j < pw.word.length; j++) {
+              if (entry.word[i] === pw.word[j]) {
+                let r, c, dir;
+                if (pw.dir === 'across') {
+                  dir = 'down';
+                  r = pw.r - i;
+                  c = pw.c + j;
+                } else {
+                  dir = 'across';
+                  r = pw.r + j;
+                  c = pw.c - i;
+                }
+
+                if (canPlace(entry.word, r, c, dir)) {
+                  placeWord(entry.word, r, c, dir, entry.clue, wordNum++);
+                  placed = true;
+                  break outer;
+                }
+              }
+            }
+          }
+        }
+
+        if (!placed) {
+          let attempts = 0;
+          const maxAttempts = 100;
+          while (!placed && attempts < maxAttempts) {
+            const r = Math.floor(Math.random() * gridSizeMax);
+            const c = Math.floor(Math.random() * gridSizeMax);
+            const dir = Math.random() > 0.5 ? 'across' : 'down';
+            if (canPlace(entry.word, r, c, dir)) {
+              placeWord(entry.word, r, c, dir, entry.clue, wordNum++);
+              placed = true;
+            }
+            attempts++;
+          }
+        }
+      }
+
+      // recortar la grilla al área utilizada
+      let minRow = gridSizeMax, maxRow = 0, minCol = gridSizeMax, maxCol = 0;
+      for (let key of gridMap.keys()) {
+        const [r, c] = key.split(',').map(Number);
+        minRow = Math.min(minRow, r);
+        maxRow = Math.max(maxRow, r);
+        minCol = Math.min(minCol, c);
+        maxCol = Math.max(maxCol, c);
+      }
+
+      const adjustedGrid = [];
+      for (let r = minRow; r <= maxRow; r++) {
+        adjustedGrid.push(grid[r].slice(minCol, maxCol + 1));
+      }
+
+      placedWords = placedWords.map(w => ({
+        ...w,
+        r: w.r - minRow,
+        c: w.c - minCol
+      }));
+
+      render(adjustedGrid);
+    }
+
+    function render(grid) {
+      const gridEl = document.getElementById("grid");
+      const clues = document.getElementById("clues");
+      gridEl.innerHTML = "";
+      const rows = grid.length;
+      const cols = grid[0].length;
+      gridEl.style.gridTemplateColumns = `repeat(${cols}, 30px)`;
+
+      const numbers = Array(rows).fill(null).map(() => Array(cols).fill(null));
+      placedWords.forEach(w => numbers[w.r][w.c] = w.number);
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const wrapper = document.createElement("div");
+          wrapper.className = "cell-wrapper";
+          const key = `${r + "," + c}`;
+          const isActive = grid[r][c] !== null;
+          const input = document.createElement("input");
+          input.className = "cell";
+          input.disabled = !isActive;
+          input.maxLength = 1;
+          input.value = (showAnswers && isActive) ? grid[r][c] : "";
+          if (!isActive) input.classList.add("black");
+
+          if (numbers[r][c]) {
+            const label = document.createElement("div");
+            label.className = "number";
+            label.textContent = numbers[r][c];
+            wrapper.appendChild(label);
+          }
+
+          wrapper.appendChild(input);
+          gridEl.appendChild(wrapper);
+        }
+      }
+
+      clues.innerHTML = `<h3>Horizontales</h3>` + placedWords.filter(w => w.dir === 'across').sort((a, b) => a.number - b.number).map(w => `<div class="clue"><strong>${w.number}.</strong> ${w.clue}</div>`).join('') +
+        `<h3>Verticales</h3>` + placedWords.filter(w => w.dir === 'down').sort((a, b) => a.number - b.number).map(w => `<div class="clue"><strong>${w.number}.</strong> ${w.clue}</div>`).join('');
+    }
+
+    function toggleSolution() {
+      showAnswers = !showAnswers;
+      if (placedWords.length > 0 || document.getElementById("wordInput").value.trim() !== "") {
+        generate();
+      }
+    }
+  </script>
+
+
+
+</body>
+</html>
