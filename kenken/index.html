@@ -2,95 +2,124 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Generador de KenKen Robusto</title>
+  <title>Generador de KenKen</title>
   <style>
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      padding: 2rem; 
-      text-align: center; 
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
       color: #333;
       min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
+    
     .container {
       max-width: 900px;
-      margin: 0 auto;
+      width: 100%;
       background: rgba(255, 255, 255, 0.95);
-      padding: 2rem;
+      padding: 30px;
       border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
     }
-    h1 { 
-      color: #2c3e50; 
-      margin-bottom: 1.5rem;
-      font-size: 2.5rem;
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      font-size: 2.8rem;
+      margin-bottom: 15px;
       text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
     }
+    
     .subtitle {
       color: #7f8c8d;
-      margin-bottom: 2rem;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
+      margin-bottom: 5px;
     }
+    
     .controls {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 15px;
-      margin-bottom: 2rem;
-      padding: 15px;
+      margin-bottom: 30px;
+      padding: 20px;
       background: #f8f9fa;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
     }
+    
     select, button {
-      margin: 0.5rem;
-      font-size: 1rem;
-      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
+      padding: 12px 24px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.3s ease;
       font-weight: 600;
     }
+    
     select {
       background-color: #e9ecef;
       color: #333;
       border: 1px solid #ced4da;
-      min-width: 120px;
+      min-width: 140px;
     }
+    
     button {
       background: linear-gradient(to right, #3498db, #2c3e50);
       color: white;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
+      min-width: 200px;
     }
+    
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
     }
+    
     button:active {
       transform: translateY(1px);
     }
+    
     #kenkenGrid {
       display: grid;
-      margin-top: 1rem;
+      margin: 30px auto;
       gap: 0;
       justify-content: center;
-      margin-bottom: 2rem;
-      border: 3px solid #2c3e50;
+      border: 4px solid #2c3e50;
       background: #2c3e50;
-      border-radius: 5px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+      position: relative;
+      overflow: hidden;
     }
+    
     .cell {
       position: relative;
       width: 50px;
       height: 50px;
-      border: 1px solid #bdc3c7;
-      font-size: 22px;
+      border: 1px solid #7f8c8d;
+      font-size: 24px;
       text-align: center;
       vertical-align: middle;
       font-weight: bold;
@@ -102,183 +131,207 @@
       justify-content: center;
       transition: background 0.2s;
     }
+    
     .cell:hover {
       background-color: #f1f2f6;
     }
-    .border-top-region { border-top: 3px solid #2c3e50 !important; }
-    .border-right-region { border-right: 3px solid #2c3e50 !important; }
-    .border-bottom-region { border-bottom: 3px solid #2c3e50 !important; }
-    .border-left-region { border-left: 3px solid #2c3e50 !important; }
-
+    
+    .border-top-region { border-top: 4px solid #e74c3c !important; }
+    .border-right-region { border-right: 4px solid #e74c3c !important; }
+    .border-bottom-region { border-bottom: 4px solid #e74c3c !important; }
+    .border-left-region { border-left: 4px solid #e74c3c !important; }
+    
     .region-label {
       position: absolute;
-      top: 3px;
-      left: 3px;
-      font-size: 12px;
+      top: 4px;
+      left: 4px;
+      font-size: 13px;
       font-weight: bold;
-      background: rgba(44, 62, 80, 0.9);
+      background: linear-gradient(to right, #e74c3c, #c0392b);
       color: white;
-      padding: 1px 6px;
+      padding: 2px 8px;
       border-radius: 4px;
       user-select: none;
       pointer-events: none;
       z-index: 10;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
+    
     #helpModal {
       display: none;
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.85);
       justify-content: center;
       align-items: center;
       z-index: 1000;
     }
+    
     #helpContent {
-      background: white;
-      padding: 2.5rem;
-      border-radius: 12px;
-      max-width: 700px;
+      background: linear-gradient(to bottom, #f5f7fa, #e4e7ed);
+      padding: 40px;
+      border-radius: 15px;
+      max-width: 750px;
       text-align: left;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
       position: relative;
       overflow-y: auto;
       max-height: 90vh;
     }
+    
     #helpContent h2 {
       margin-top: 0;
       color: #3498db;
-      border-bottom: 2px solid #f1f2f6;
-      padding-bottom: 10px;
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
     }
+    
     #helpContent ul {
       list-style-type: none;
       padding-left: 0;
+      margin: 20px 0;
     }
+    
     #helpContent li {
-      padding: 8px 0;
-      border-bottom: 1px solid #ecf0f1;
+      padding: 12px 0;
+      border-bottom: 1px solid #dce1e6;
       display: flex;
       align-items: flex-start;
+      font-size: 1.1rem;
     }
+    
     #helpContent li:before {
       content: "•";
       color: #3498db;
       font-weight: bold;
+      font-size: 1.5rem;
       display: inline-block; 
       width: 1.5em;
       margin-left: -1.5em;
     }
+    
     #helpContent button {
-      margin-top: 1.5rem;
+      margin-top: 20px;
       background: linear-gradient(to right, #e74c3c, #c0392b);
-      padding: 12px 25px;
-      font-size: 1.1rem;
+      padding: 14px 30px;
+      font-size: 1.2rem;
     }
+    
     #helpContent button:hover {
       background: linear-gradient(to right, #c0392b, #a5281b);
     }
-    .example-region {
-      display: inline-block;
-      width: 50px;
-      height: 50px;
-      border: 3px solid #2c3e50;
-      position: relative;
-      margin: 0 10px;
-      background: white;
-    }
-    .example-label {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      font-size: 12px;
-      font-weight: bold;
-      background: rgba(44, 62, 80, 0.9);
-      color: white;
-      padding: 1px 6px;
-      border-radius: 4px;
-    }
-    .example-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 50px);
-      gap: 0;
-      margin: 20px auto;
-      width: fit-content;
-      border: 2px solid #2c3e50;
-      background: #2c3e50;
-      border-radius: 5px;
-    }
-    .example-cell {
-      width: 50px;
-      height: 50px;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      border: 1px solid #bdc3c7;
-    }
+    
     .stats {
       display: flex;
       justify-content: center;
       gap: 30px;
-      margin-top: 20px;
-      font-size: 1.1rem;
-      color: #2c3e50;
-      font-weight: 500;
+      margin: 30px 0;
     }
+    
     .stat-box {
       background: #ecf0f1;
-      padding: 12px 20px;
-      border-radius: 8px;
-      min-width: 150px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      padding: 18px 25px;
+      border-radius: 12px;
+      min-width: 170px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      text-align: center;
     }
+    
     .stat-value {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       font-weight: bold;
       color: #3498db;
-      margin-top: 5px;
+      margin-top: 10px;
     }
+    
+    .rules {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 25px;
+      margin: 30px 0;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+      border-left: 5px solid #3498db;
+    }
+    
+    .rules h3 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+    
+    .rules-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .rule-item {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    
+    .rule-item h4 {
+      color: #e74c3c;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
     footer {
-      margin-top: 2rem;
+      margin-top: 30px;
       color: #7f8c8d;
-      font-size: 0.9rem;
+      font-size: 1rem;
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
     }
+    
     @media (max-width: 768px) {
       .container {
-        padding: 1rem;
+        padding: 15px;
       }
+      
       .controls {
         flex-direction: column;
         align-items: center;
       }
+      
       select, button {
         width: 100%;
         max-width: 300px;
       }
+      
       .cell {
         width: 40px;
         height: 40px;
-        font-size: 18px;
+        font-size: 20px;
       }
-      .example-cell, .example-region {
-        width: 40px;
-        height: 40px;
+      
+      .stats {
+        flex-direction: column;
+        align-items: center;
       }
-      .example-grid {
-        grid-template-columns: repeat(3, 40px);
+      
+      .stat-box {
+        width: 100%;
       }
     }
+    
     @media print {
-      button, select, #helpModal, .stats, footer {
+      button, select, #helpModal, .stats, footer, .rules {
         display: none !important;
       }
+      
       .container {
         box-shadow: none;
         padding: 0;
         background: white;
       }
+      
       #kenkenGrid {
         box-shadow: none;
         margin-top: 0;
@@ -288,8 +341,10 @@
 </head>
 <body>
   <div class="container">
-    <h1>🧠 Generador de KenKen</h1>
-    <p class="subtitle">Crea puzzles personalizados con diferentes tamaños y niveles de dificultad</p>
+    <header>
+      <h1><span>🧩</span> Generador de KenKen</h1>
+      <p class="subtitle">Todos los grupos tienen al menos 2 celdas</p>
+    </header>
     
     <div class="controls">
       <select id="gridSize">
@@ -302,16 +357,16 @@
         <option value="9">9×9 (Experto)</option>
       </select>
       <button onclick="generateNewKenKen()">
-        <span>🔄</span> Generar Nuevo
+        <span>🔄</span> Generar Nuevo KenKen
       </button>
       <button onclick="toggleSolutionDisplay()">
         <span>👁️</span> Mostrar/Ocultar Solución
       </button>
       <button onclick="window.print()">
-        <span>📄</span> Exportar PDF
+        <span>🖨️</span> Imprimir/Exportar PDF
       </button>
       <button onclick="showHelp()">
-        <span>❓</span> Ayuda
+        <span>❓</span> Cómo Jugar
       </button>
     </div>
     
@@ -325,12 +380,34 @@
         <div class="stat-value" id="regionsStat">0</div>
       </div>
       <div class="stat-box">
-        <div>Nivel de Dificultad</div>
-        <div class="stat-value" id="difficultyStat">Medio</div>
+        <div>Tamaño Mín. Región</div>
+        <div class="stat-value" id="minRegionStat">2</div>
       </div>
     </div>
 
     <div id="kenkenGrid"></div>
+    
+    <div class="rules">
+      <h3>📘 Reglas del KenKen</h3>
+      <div class="rules-list">
+        <div class="rule-item">
+          <h4><span>1️⃣</span> Sin números repetidos</h4>
+          <p>Los números no deben repetirse en ninguna fila o columna.</p>
+        </div>
+        <div class="rule-item">
+          <h4><span>🧩</span> Grupos con operaciones</h4>
+          <p>Cada grupo tiene una operación matemática y un resultado que debe cumplirse.</p>
+        </div>
+        <div class="rule-item">
+          <h4><span>🔢</span> Números del 1 al N</h4>
+          <p>Usa números del 1 al tamaño del puzzle (ej: 1-6 para un 6x6).</p>
+        </div>
+        <div class="rule-item">
+          <h4><span>✅</span> Grupos de 2+ celdas</h4>
+          <p>Todos los grupos tienen al menos 2 celdas. ¡Sin grupos individuales!</p>
+        </div>
+      </div>
+    </div>
     
     <footer>
       <p>KenKen es una marca registrada de Nextoy, LLC. Este generador es solo para uso educativo.</p>
@@ -339,71 +416,35 @@
 
   <div id="helpModal" onclick="hideHelp()">
     <div id="helpContent" onclick="event.stopPropagation()">
-      <h2>❓ ¿Cómo usar el Generador de KenKen?</h2>
-      <ul>
-        <li>Selecciona el tamaño de la cuadrícula (por ejemplo, 4×4 a 9×9).</li>
-        <li>Haz clic en "Generar Nuevo" para crear un nuevo tablero de KenKen.</li>
-        <li>Puedes imprimir o guardar en PDF con el botón "Exportar PDF".</li>
-        <li>Usa el botón "Mostrar/Ocultar Solución" para ver u ocultar los números.</li>
-      </ul>
-      <p>Este generador crea tableros aleatorios con operaciones básicas (+, −, ×, ÷).</p>
-
-      <h3>📘 ¿Cómo se juega al KenKen?</h3>
-      <p><strong>Objetivo:</strong> Rellenar la cuadrícula con números del 1 al N (donde N es el tamaño de la cuadrícula) sin repetir números en ninguna fila ni columna.</p>
-      
-      <p>La cuadrícula está dividida en <strong>regiones</strong> (zonas marcadas con líneas gruesas) con una operación y un resultado objetivo.</p>
-      
-      <div style="text-align: center; margin: 20px 0;">
-        <div class="example-region">
-          <div class="example-label">6×</div>
-          <div style="position:absolute; bottom:15px; right:15px;">?</div>
-        </div>
-        <div class="example-region">
-          <div class="example-label">3</div>
-          <div style="position:absolute; bottom:15px; right:15px;">?</div>
-        </div>
-        <div class="example-region">
-          <div class="example-label">2÷</div>
-          <div style="position:absolute; bottom:15px; right:15px;">?</div>
-        </div>
-      </div>
+      <h2>❓ ¿Cómo jugar al KenKen?</h2>
+      <p>KenKen es un puzzle matemático que combina elementos del Sudoku con operaciones aritméticas. El objetivo es llenar la cuadrícula con números siguiendo estas reglas:</p>
       
       <ul>
-        <li><strong>Región con Operación:</strong> Una región puede tener un objetivo como <code>6×</code>. Esto significa que los números en esa región, cuando se multiplican, deben dar 6.</li>
-        <li><strong>Región de Celda Única:</strong> Si una región consta de una sola celda, simplemente mostrará el número que debe ir en esa celda (ej: <code>3</code>).</li>
-        <li>Para resta y división, el resultado siempre es positivo y entero. Por ejemplo, una región <code>2-</code> con dos celdas puede ser 3-1 o 4-2.</li>
-      </ul>
-
-      <h3>📝 Reglas Clave</h3>
-      <ol style="padding-left: 20px;">
-        <li>Cada fila debe contener números únicos del 1 al tamaño del puzzle.</li>
-        <li>Cada columna debe contener números únicos del 1 al tamaño del puzzle.</li>
-        <li>Cada región debe cumplir con la operación y resultado especificado.</li>
-        <li>Los números no se repiten en filas o columnas.</li>
-      </ol>
-
-      <h3>💡 Estrategias para Resolver</h3>
-      <ul>
-        <li>Comienza con regiones de una sola celda (son fijas).</li>
-        <li>Busca regiones con pocas combinaciones posibles.</li>
-        <li>Considera las restricciones de filas y columnas para eliminar posibilidades.</li>
-        <li>Para regiones de suma, considera qué números pueden combinarse para dar el resultado.</li>
+        <li><strong>Cada fila y columna</strong> debe contener números únicos del 1 al tamaño del puzzle (sin repeticiones).</li>
+        <li>La cuadrícula está dividida en <strong>grupos</strong> (regiones delineadas) con una operación matemática (+, -, ×, ÷) y un resultado.</li>
+        <li>Los números en cada grupo deben combinarse mediante la operación indicada para producir el resultado objetivo.</li>
+        <li><strong>¡Importante!</strong> Todos los grupos tienen al menos 2 celdas - ¡no hay grupos individuales!</li>
+        <li>Para resta y división, el orden de los números puede variar, pero el resultado debe ser un entero positivo.</li>
       </ul>
       
-      <h3>✏️ Ejemplo de Puzzle Resuelto (3×3)</h3>
-      <div class="example-grid">
-        <div class="example-cell">2</div>
-        <div class="example-cell">3</div>
-        <div class="example-cell">1</div>
-        <div class="example-cell">1</div>
-        <div class="example-cell">2</div>
-        <div class="example-cell">3</div>
-        <div class="example-cell">3</div>
-        <div class="example-cell">1</div>
-        <div class="example-cell">2</div>
-      </div>
-      <p style="text-align: center; margin-top: 10px;"><em>Cada fila y columna contiene números del 1 al 3 sin repeticiones</em></p>
-
+      <h3>🎯 Estrategias para resolver KenKen</h3>
+      <ul>
+        <li><strong>Comienza con grupos pequeños</strong>: Los grupos de 2 celdas suelen tener menos combinaciones posibles.</li>
+        <li><strong>Busca números forzados</strong>: En grupos de suma o multiplicación, identifica números que solo pueden ir en ciertas celdas.</li>
+        <li><strong>Usa las restricciones de fila/columna</strong>: Si un número ya está en una fila o columna, no puede repetirse.</li>
+        <li><strong>Considera múltiples operaciones</strong>: Para grupos grandes, piensa cómo se combinan las operaciones.</li>
+        <li><strong>Marca posibilidades</strong>: Usa lápiz y papel para anotar números posibles en cada celda.</li>
+      </ul>
+      
+      <h3>🧩 Ejemplo de grupo</h3>
+      <p>Un grupo marcado como <strong>8×</strong> en un puzzle 6×6 podría contener:</p>
+      <ul>
+        <li>2 y 4 (2 × 4 = 8)</li>
+        <li>1 y 8 (1 × 8 = 8)</li>
+        <li>2, 2 y 2 (2 × 2 × 2 = 8) - pero solo si tiene 3 celdas</li>
+      </ul>
+      <p>Las posibilidades reales dependen de las restricciones de fila/columna.</p>
+      
       <button onclick="hideHelp()">Cerrar</button>
     </div>
   </div>
@@ -420,7 +461,7 @@
     let currentKenKen = null;
     let showAnswers = false;
     let attempts = 0;
-    const MAX_ATTEMPTS = 50;
+    const MAX_ATTEMPTS = 100;
 
     // Difficulty mapping
     const DIFFICULTY_MAP = {
@@ -438,7 +479,15 @@
       
       document.getElementById("sizeStat").textContent = `${currentKenKen.size}×${currentKenKen.size}`;
       document.getElementById("regionsStat").textContent = currentKenKen.regions.length;
-      document.getElementById("difficultyStat").textContent = DIFFICULTY_MAP[currentKenKen.size] || "Medio";
+      
+      // Calculate min region size
+      let minRegionSize = currentKenKen.size;
+      currentKenKen.regions.forEach(region => {
+        if (region.cells.length < minRegionSize) {
+          minRegionSize = region.cells.length;
+        }
+      });
+      document.getElementById("minRegionStat").textContent = minRegionSize;
     }
 
     function generateLatinSquare(size) {
@@ -522,90 +571,101 @@
       const usedCells = Array(size).fill(0).map(() => Array(size).fill(false));
       const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]]; // Right, Down, Left, Up
       
+      // Create a list of all cells
+      const allCells = [];
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
-          if (usedCells[r][c]) continue;
+          allCells.push([r, c]);
+        }
+      }
+      shuffleArray(allCells);
+      
+      // Create regions with at least 2 cells
+      for (const [r, c] of allCells) {
+        if (usedCells[r][c]) continue;
+        
+        const regionCells = [[r, c]];
+        usedCells[r][c] = true;
+        const queue = [[r, c]];
+        
+        // Target size between 2 and 4 (minimum 2)
+        const maxRegionSize = Math.min(4, size);
+        const targetSize = Math.floor(Math.random() * (maxRegionSize - 1)) + 2;
+        
+        while (regionCells.length < targetSize && queue.length > 0) {
+          const [currR, currC] = queue.shift();
           
-          const regionCells = [[r, c]];
-          usedCells[r][c] = true;
-          const queue = [[r, c]];
+          // Shuffle directions for randomness
+          shuffleArray(directions);
           
-          // Determine target region size (1-3 for larger grids)
-          const maxRegionSize = size <= 4 ? Math.min(3, size) : 3;
-          const targetSize = Math.floor(Math.random() * maxRegionSize) + 1;
-          
-          while (regionCells.length < targetSize && queue.length > 0) {
-            const [currR, currC] = queue.shift();
+          for (const [dr, dc] of directions) {
+            const newR = currR + dr;
+            const newC = currC + dc;
             
-            // Shuffle directions for randomness
-            shuffleArray(directions);
-            
-            for (const [dr, dc] of directions) {
-              const newR = currR + dr;
-              const newC = currC + dc;
+            if (newR >= 0 && newR < size && newC >= 0 && newC < size && 
+                !usedCells[newR][newC]) {
+              regionCells.push([newR, newC]);
+              usedCells[newR][newC] = true;
+              queue.push([newR, newC]);
               
-              if (newR >= 0 && newR < size && newC >= 0 && newC < size && 
-                  !usedCells[newR][newC] && regionCells.length < targetSize) {
-                regionCells.push([newR, newC]);
-                usedCells[newR][newC] = true;
-                queue.push([newR, newC]);
-                break; // Only add one cell per iteration
-              }
+              if (regionCells.length >= targetSize) break;
             }
           }
-          
-          // Determine operation and result
-          const nums = regionCells.map(([r, c]) => solution[r][c]);
-          let op, result;
-          
-          if (regionCells.length === 1) {
-            result = nums[0];
-            op = '';
-          } else {
-            const operations = ['+', '×'];
-            
-            // For 2-cell regions, consider subtraction and division
-            if (regionCells.length === 2) {
-              const [a, b] = nums;
-              
-              // Check subtraction possibility
-              if (Math.abs(a - b) > 0) {
-                operations.push('-');
-              }
-              
-              // Check division possibility (must be integer result)
-              if ((a % b === 0 && a !== b) || (b % a === 0 && b !== a)) {
-                operations.push('÷');
-              }
-            }
-            
-            // Choose random operation
-            op = operations[Math.floor(Math.random() * operations.length)];
-            
-            // Calculate result based on operation
-            switch (op) {
-              case '+':
-                result = nums.reduce((sum, num) => sum + num, 0);
-                break;
-              case '×':
-                result = nums.reduce((product, num) => product * num, 1);
-                break;
-              case '-':
-                result = Math.abs(nums[0] - nums[1]);
-                break;
-              case '÷':
-                result = Math.max(nums[0], nums[1]) / Math.min(nums[0], nums[1]);
-                break;
-            }
-          }
-          
+        }
+        
+        // Only add regions with at least 2 cells
+        if (regionCells.length >= 2) {
           regions.push({
             cells: regionCells,
-            label: result + (op || ''),
-            operation: op,
-            target: result
           });
         }
+      }
+      
+      // Assign operations and results
+      for (const region of regions) {
+        const nums = region.cells.map(([r, c]) => solution[r][c]);
+        let op, result;
+        
+        // For regions with 2+ cells
+        const operations = ['+', '×'];
+        
+        // For 2-cell regions, consider subtraction and division
+        if (region.cells.length === 2) {
+          const [a, b] = nums;
+          
+          // Check subtraction possibility
+          if (Math.abs(a - b) > 0) {
+            operations.push('-');
+          }
+          
+          // Check division possibility (must be integer result)
+          if ((a % b === 0 && a !== b) || (b % a === 0 && b !== a)) {
+            operations.push('÷');
+          }
+        }
+        
+        // Choose random operation
+        op = operations[Math.floor(Math.random() * operations.length)];
+        
+        // Calculate result based on operation
+        switch (op) {
+          case '+':
+            result = nums.reduce((sum, num) => sum + num, 0);
+            break;
+          case '×':
+            result = nums.reduce((product, num) => product * num, 1);
+            break;
+          case '-':
+            result = Math.abs(nums[0] - nums[1]);
+            break;
+          case '÷':
+            result = Math.max(nums[0], nums[1]) / Math.min(nums[0], nums[1]);
+            break;
+        }
+        
+        region.label = result + op;
+        region.operation = op;
+        region.target = result;
       }
       
       return { solution, regions, size };
@@ -618,7 +678,7 @@
       const gridEl = document.getElementById("kenkenGrid");
       gridEl.innerHTML = '';
       gridEl.style.gridTemplateColumns = `repeat(${size}, 50px)`;
-      gridEl.style.border = '3px solid #2c3e50';
+      gridEl.style.border = '4px solid #2c3e50';
       
       const cellElements = Array(size).fill(0).map(() => Array(size).fill(null));
       
