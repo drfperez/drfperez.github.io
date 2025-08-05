@@ -3,154 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Aprèn CSS Interactiu (Responsiu)</title>
+  <title>Aprèn CSS Interactiu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    :root {
-      --primary-color: #28a745;
-      --border-color: #ccc;
-      --background-color: #f8f9fa;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    body {
+      background-color: #f8f9fa;
       font-family: system-ui, sans-serif;
-      background-color: var(--background-color);
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      background-color: white;
-      padding: 1rem;
-      border-bottom: 1px solid var(--border-color);
-      flex-shrink: 0;
-    }
-
-    #controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-
-    #exemple-selector {
-      padding: 0.5rem;
-      border-radius: 5px;
-      border: 1px solid var(--border-color);
-    }
-
-    #render-btn {
-      padding: 0.5rem 1rem;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    #render-btn:hover {
-      opacity: 0.9;
-    }
-
-    main {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: row;
-      gap: 1rem;
-      padding: 1rem;
-      box-sizing: border-box;
-      overflow: auto;
-    }
-
-    .panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background-color: white;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      min-height: 300px;
-    }
-
-    .panel-header {
-      background-color: #f1f1f1;
-      padding: 0.5rem 1rem;
-      font-weight: bold;
-      border-bottom: 1px solid var(--border-color);
     }
 
     textarea {
-      flex-grow: 1;
-      width: 100%;
-      border: none;
-      resize: none;
-      padding: 0.5rem;
       font-family: monospace;
       font-size: 14px;
-      box-sizing: border-box;
+      resize: none;
     }
 
     iframe {
-      flex-grow: 1;
       width: 100%;
+      height: 100%;
       border: none;
     }
 
-    @media (max-width: 800px) {
-      main {
-        flex-direction: column;
-      }
-      #controls {
-        flex-direction: column;
-        align-items: flex-start;
+    .panel {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel textarea {
+      flex-grow: 1;
+    }
+
+    @media (max-width: 768px) {
+      .panel {
+        margin-bottom: 1rem;
       }
     }
   </style>
 </head>
 <body>
-
-  <header>
-    <h1>Aprèn CSS de Forma Interactiva</h1>
-    <div id="controls">
-      <label for="exemple-selector"><strong>Tria un exemple:</strong></label>
-      <select id="exemple-selector">
-        <option value="color_text">1. Color del text</option>
-        <option value="fons">2. Fons personalitzat</option>
-        <option value="marges_padding">3. Marges i farciments</option>
-        <option value="borde">4. Bordes</option>
-        <option value="fonts">5. Fonts personalitzades</option>
-        <option value="hover">6. Pseudo-classe :hover</option>
-        <option value="id_class">7. Selectors per ID i classe</option>
-        <option value="display">8. Display: block, inline, none</option>
-        <option value="flex">9. Flexbox bàsic</option>
-        <option value="grid">10. Grid bàsic</option>
-        <option value="media_queries">11. Media Queries</option>
-        <option value="zindex">12. Z-index i capes</option>
-        <option value="posicio">13. Posicionament absolut i relatiu</option>
-        <option value="transicions">14. Transicions</option>
-        <option value="transformacions">15. Transformacions (rotate, scale)</option>
-        <option value="animacions">16. Animacions @keyframes</option>
-        <option value="llistes">17. Estils de llistes</option>
-        <option value="formularis">18. Estilitzar formularis</option>
-        <option value="variables">19. Variables CSS</option>
-        <option value="propi">20. Codi Propi</option>
-      </select>
-      <button id="render-btn">Renderitza el Codi</button>
+  <header class="bg-white border-bottom py-3 mb-4">
+    <div class="container">
+      <h1 class="h3 mb-3">Aprèn CSS de Forma Interactiva</h1>
+      <div class="row g-2 align-items-center">
+        <div class="col-md-auto">
+          <label for="exemple-selector" class="form-label fw-bold mb-0">Tria un exemple:</label>
+        </div>
+        <div class="col-md-4">
+          <select id="exemple-selector" class="form-select">
+            <option value="color_text">1. Color del text</option>
+            <option value="fons">2. Fons personalitzat</option>
+            <option value="marges_padding">3. Marges i farciments</option>
+            <option value="borde">4. Bordes</option>
+            <option value="fonts">5. Fonts personalitzades</option>
+            <option value="hover">6. Pseudo-classe :hover</option>
+            <option value="id_class">7. Selectors per ID i classe</option>
+            <option value="display">8. Display: block, inline, none</option>
+            <option value="flex">9. Flexbox bàsic</option>
+            <option value="grid">10. Grid bàsic</option>
+            <option value="media_queries">11. Media Queries</option>
+            <option value="zindex">12. Z-index i capes</option>
+            <option value="posicio">13. Posicionament absolut i relatiu</option>
+            <option value="transicions">14. Transicions</option>
+            <option value="transformacions">15. Transformacions (rotate, scale)</option>
+            <option value="animacions">16. Animacions @keyframes</option>
+            <option value="llistes">17. Estils de llistes</option>
+            <option value="formularis">18. Estilitzar formularis</option>
+            <option value="variables">19. Variables CSS</option>
+            <option value="propi">20. Codi Propi</option>
+          </select>
+        </div>
+        <div class="col-md-auto">
+          <button id="render-btn" class="btn btn-success">Renderitza el Codi</button>
+        </div>
+      </div>
     </div>
   </header>
 
-  <main>
-    <div class="panel">
-      <div class="panel-header">Codi CSS</div>
-      <textarea id="css-code" spellcheck="false"></textarea>
-    </div>
-    <div class="panel">
-      <div class="panel-header">Resultat Visual</div>
-      <iframe id="render-frame"></iframe>
+  <main class="container mb-5">
+    <div class="row">
+      <div class="col-md-6 panel">
+        <div class="card h-100">
+          <div class="card-header bg-light fw-bold">Codi CSS + HTML</div>
+          <div class="card-body p-2">
+            <textarea id="css-code" rows="20" class="form-control" spellcheck="false"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 panel">
+        <div class="card h-100">
+          <div class="card-header bg-light fw-bold">Resultat Visual</div>
+          <div class="card-body p-0">
+            <iframe id="render-frame"></iframe>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -199,8 +145,7 @@
 
     selector.addEventListener('change', updateCodeArea);
     renderBtn.addEventListener('click', renderCss);
-
-    updateCodeArea(); // Inicialització
+    updateCodeArea(); // Inicialitza amb el primer exemple
   </script>
 </body>
 </html>
