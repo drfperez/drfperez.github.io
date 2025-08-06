@@ -1,0 +1,479 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Joc del Número Enter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #eef;
+      padding: 10px;
+      margin: 0;
+    }
+    .box {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px #aaa;
+      max-width: 900px;
+      margin: 10px auto;
+    }
+    .btn {
+      padding: 8px 12px;
+      margin: 4px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      flex-grow: 1;
+      min-width: 45px;
+      display: flex; /* Permet alinear contingut (icona + text) */
+      align-items: center; /* Centra verticalment */
+      justify-content: center; /* Centra horitzontalment */
+      white-space: nowrap; /* Evita que el text es trenqui en varies línies */
+    }
+    .btn-num { background: #d0f0ff; }
+    .btn-op { background: #fff2b8; }
+    .btn-act { background: #d4ffd4; }
+    .expr-box {
+      font-size: 1.1em;
+      margin: 8px 0;
+      min-height: 1.5em;
+      word-wrap: break-word;
+    }
+    .result {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .small {
+      font-size: 0.85em;
+      color: #555;
+      margin-top: 15px;
+    }
+    .error { color: #b00; }
+    .success { color: #080; }
+    .panel {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .left, .right {
+      flex: 1;
+      min-width: 280px;
+      padding: 5px;
+    }
+    strong { color: #222; }
+
+    /* Ajustaments específics per a pantalles petites (mòbils) */
+    @media (max-width: 768px) {
+      .panel {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .left, .right {
+        min-width: unset;
+        width: 100%;
+      }
+      .btn {
+        font-size: 0.95em;
+        padding: 10px;
+        min-width: unset;
+      }
+
+      /* Números i Símbols (operadors) en 3 columnes */
+      .grid:nth-of-type(1) .btn, /* Botons de números */
+      .grid:nth-of-type(2) .btn { /* Botons d'operació (+-*/()) */
+        flex-basis: calc(33.33% - 8px); /* 3 columnes amb un petit espai */
+        max-width: calc(33.33% - 8px);
+      }
+
+      /* Botons d'Acció (Desfer, Esborra, Comprova, Millors, Nova) en 1 fila amb només icones */
+      .grid:nth-of-type(3) {
+        flex-wrap: nowrap; /* Forces a no embolicar */
+        overflow-x: auto; /* Permet desplaçament horitzontal si no hi ha espai */
+        -webkit-overflow-scrolling: touch; /* Suavitat al desplaçar en iOS */
+        justify-content: space-around; /* Distribueix l'espai entre els botons */
+      }
+      .grid:nth-of-type(3) .btn {
+        flex-basis: auto; /* Deixa que el contingut dicti la mida */
+        min-width: 48px; /* Mida mínima per a la icona */
+        padding: 10px 8px; /* Ajust de padding per a icona */
+      }
+      .grid:nth-of-type(3) .btn .mobile-hidden-text {
+        display: none; /* Amaga el text en mòbils */
+      }
+      /* Assegura que l'icona sigui visible i centrada */
+      .grid:nth-of-type(3) .btn .icon {
+          margin-right: 0; /* No hi ha text, no cal marge */
+      }
+    }
+    /* Regles per al text visible en PC */
+    @media (min-width: 769px) {
+        .grid:nth-of-type(3) .btn {
+            flex-basis: auto; /* En PC, els botons s'adapten al contingut */
+        }
+        .grid:nth-of-type(3) .btn .mobile-hidden-text {
+            display: inline; /* Mostra el text en PC */
+            margin-left: 5px; /* Espai entre icona i text */
+        }
+    }
+    .icon {
+        font-size: 1.2em; /* Mida de la icona */
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>🎯 Joc Visual del Número Enter</h1>
+    <div class="panel">
+      <div class="left">
+        <label><input type="checkbox" id="showCalc" checked onchange="updateExpression()"> Amb calculadora (resultat parcial)</label>
+        <p><strong>Punts:</strong> <span id="score">0</span></p>
+        <p><strong>Temps restant:</strong> <span id="timer">60</span> segons</p>
+        <p><strong>Objectiu:</strong> <span id="target"></span></p>
+        <p><strong>Números disponibles:</strong> <span id="numbers"></span></p>
+
+        <div class="grid" id="numButtons"></div>
+        <div class="grid">
+          <button class="btn btn-op" onclick="addToExpression('+')">+</button>
+          <button class="btn btn-op" onclick="addToExpression('-')">-</button>
+          <button class="btn btn-op" onclick="addToExpression('*')">*</button>
+          <button class="btn btn-op" onclick="addToExpression('/')">/</button>
+          <button class="btn btn-op" onclick="addToExpression('(')">(</button>
+          <button class="btn btn-op" onclick="addToExpression(')')}</button>
+        </div>
+        <div class="grid">
+          <button class="btn btn-act" onclick="undo()"><span class="icon">↩️</span><span class="mobile-hidden-text"> Desfer</span></button>
+          <button class="btn btn-act" onclick="clearExpr()"><span class="icon">🗑️</span><span class="mobile-hidden-text"> Esborra</span></button>
+          <button class="btn btn-act" onclick="checkExpression()"><span class="icon">✅</span><span class="mobile-hidden-text"> Comprova</span></button>
+          <button class="btn btn-act" onclick="showBestSolutions()"><span class="icon">🧠</span><span class="mobile-hidden-text"> Millors</span></button>
+          <button class="btn btn-act" onclick="startNewRound()"><span class="icon">🔁</span><span class="mobile-hidden-text"> Nova</span></button>
+        </div>
+
+        <div class="expr-box"><strong>Expressió:</strong> <span id="expressionView"></span></div>
+        <div class="result" id="feedback"></div>
+        <div class="small">Només es permeten operacions que mantinguin resultats enters a cada pas; divisió només si és exacta. No es poden reutilitzar nombres.</div>
+      </div>
+      <div class="right">
+        <div class="result" id="bestSolutions"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let target = 0, numbers = [], usedNums = [], expr = "", exprTokens = [];
+    let score = 0, time = 60, timerInterval;
+
+    function initGame() {
+      target = Math.floor(Math.random() * 1000);
+      numbers = Array.from({ length: 6 }, () => Math.floor(Math.random() * 100) + 1);
+      usedNums = [];
+      expr = ""; exprTokens = [];
+      document.getElementById("target").textContent = target;
+      document.getElementById("numbers").textContent = numbers.join(", ");
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("bestSolutions").innerHTML = "";
+      renderNumButtons();
+      updateExpression();
+      time = 60;
+      updateTimer();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(countDown, 1000);
+    }
+
+    function renderNumButtons() {
+      const container = document.getElementById("numButtons");
+      container.innerHTML = "";
+      numbers.forEach((n, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = n;
+        btn.className = "btn btn-num";
+        btn.disabled = usedNums.includes(i);
+        btn.onclick = () => {
+          if (!usedNums.includes(i)) {
+            addNumber(i);
+          }
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function countDown() {
+      time--;
+      updateTimer();
+      if (time <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById("feedback").innerHTML = '<span class="error">⏰ Temps esgotat!</span>';
+      }
+    }
+
+    function updateTimer() {
+      document.getElementById("timer").textContent = time;
+    }
+
+    function startNewRound() {
+      initGame();
+    }
+
+    function updateScore(diff) {
+      let pts = diff === 0 ? 100 : diff <= 10 ? 50 : diff <= 50 ? 25 : 0;
+      score += pts;
+      document.getElementById("score").textContent = score;
+    }
+
+    function addNumber(index) {
+      if (usedNums.includes(index)) {
+        document.getElementById("feedback").innerHTML = '<span class="error">❌ Nombre ja usat.</span>';
+        return;
+      }
+      usedNums.push(index);
+      exprTokens.push(numbers[index].toString());
+      renderNumButtons();
+      updateExpression();
+      document.getElementById("feedback").textContent = "";
+    }
+
+    function addToExpression(token) {
+      const tempTokens = exprTokens.concat(token);
+      const tempExpr = tempTokens.join(" ");
+
+      try {
+        const cleaned = tempExpr.replace(/[^0-9+\-*/().]/g, '');
+        const val = eval(cleaned);
+        if (typeof val === "number" && !Number.isInteger(val)) {
+          document.getElementById("feedback").innerHTML = '<span class="error">❌ Aquesta operació no és vàlida perquè no dóna un nombre enter.</span>';
+          return;
+        }
+      } catch {
+        // Allow incomplete parentheses or expressions that are not yet evaluable
+      }
+
+      exprTokens.push(token);
+      document.getElementById("feedback").textContent = "";
+      updateExpression();
+    }
+
+    function undo() {
+      const last = exprTokens.pop();
+      if (last === undefined) return;
+      if (!isNaN(last)) {
+        const val = parseInt(last);
+        const idx = numbers.findIndex((n, i) => n === val && usedNums.includes(i));
+        if (idx !== -1) {
+          const removePos = usedNums.indexOf(idx);
+          if (removePos !== -1) usedNums.splice(removePos, 1);
+        }
+        renderNumButtons();
+      }
+      updateExpression();
+      document.getElementById("feedback").textContent = "";
+    }
+
+    function clearExpr() {
+      exprTokens = [];
+      usedNums = [];
+      renderNumButtons();
+      updateExpression();
+      document.getElementById("feedback").textContent = "";
+    }
+
+    function updateExpression() {
+      expr = exprTokens.join(" ");
+      document.getElementById("expressionView").textContent = expr;
+
+      const showCalc = document.getElementById("showCalc").checked;
+      if (showCalc) {
+        try {
+          const cleaned = expr.replace(/[^0-9+\-*/().]/g, '');
+          const res = eval(cleaned);
+          if (Number.isFinite(res)) {
+            let feedbackMessage = `🧮 Resultat parcial: ${res}`;
+            if (Number.isInteger(res)) {
+              feedbackMessage += ' <span class="success">(És enter!)</span>';
+            } else {
+              feedbackMessage += ' <span class="error">(NO és enter!)</span>';
+            }
+            document.getElementById("feedback").innerHTML = feedbackMessage;
+          } else {
+            document.getElementById("feedback").textContent = "";
+          }
+        } catch {
+          document.getElementById("feedback").textContent = "";
+        }
+      } else {
+        document.getElementById("feedback").textContent = "";
+      }
+    }
+
+    function onlyIntegerSteps(expression) {
+      try {
+        if (expression.includes('/0')) return false;
+
+        const tokens = expression.match(/(\d+|\+|\-|\*|\/|\(|\))/g);
+        if (!tokens) return true;
+
+        let tempExpr = '';
+        for (let i = 0; i < tokens.length; i++) {
+          tempExpr += tokens[i];
+          try {
+            const val = eval(tempExpr);
+            if (Number.isFinite(val) && !Number.isInteger(val)) {
+                return false;
+            }
+          } catch (e) {
+            // Continue if sub-expression is not yet complete/valid
+          }
+        }
+
+        const finalVal = eval(expression);
+        return Number.isInteger(finalVal);
+
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function checkExpression() {
+      if (exprTokens.length === 0) {
+        document.getElementById("feedback").innerHTML = '<span class="error">❌ L\'expressió està buida.</span>';
+        return;
+      }
+      const exprStr = exprTokens.join("");
+
+      try {
+        const testEval = eval(exprStr.replace(/[^0-9+\-*/().]/g, ''));
+        if (!Number.isFinite(testEval)) {
+             document.getElementById("feedback").innerHTML = '<span class="error">❌ Expressió invàlida (p.ex., divisió per zero, sintaxi).</span>';
+             return;
+        }
+      } catch (e) {
+         document.getElementById("feedback").innerHTML = '<span class="error">❌ Expressió incorrecta o incompleta.</span>';
+         return;
+      }
+
+      if (!onlyIntegerSteps(exprStr)) {
+        document.getElementById("feedback").innerHTML = '<span class="error">❌ Operacions amb decimals no permeses o expressió invàlida.</span>';
+        return;
+      }
+
+      try {
+        const result = eval(exprStr);
+        const diff = Math.abs(target - result);
+        updateScore(diff);
+        document.getElementById("feedback").innerHTML =
+          `<span class="success">✅ Resultat: ${result} → Diferència: ${diff} → Puntuació: ${score}</span>`;
+        clearInterval(timerInterval);
+      } catch {
+        document.getElementById("feedback").innerHTML = '<span class="error">❌ Expressió incorrecta.</span>';
+      }
+    }
+
+    function showBestSolutions() {
+      const ops = ['+', '-', '*', '/'];
+      let best = [];
+
+      function solve(currentValue, currentExpr, usedNumbersIndices, steps) {
+        if (currentExpr !== "" && Number.isInteger(currentValue)) {
+          const diff = Math.abs(target - currentValue);
+          if (usedNumbersIndices.length > 0) {
+            best.push({ expr: currentExpr, val: currentValue, diff: diff, usedCount: usedNumbersIndices.length, steps: [...steps] });
+          }
+        }
+
+        if (usedNumbersIndices.length === numbers.length) return;
+
+        for (let i = 0; i < numbers.length; i++) {
+          if (!usedNumbersIndices.includes(i)) {
+            const num = numbers[i];
+            const newUsedIndices = [...usedNumbersIndices, i];
+
+            if (currentExpr === "") {
+              solve(num, num.toString(), newUsedIndices, []);
+            } else {
+              for (let op of ops) {
+                let tempNextValue;
+                let stepDescription = '';
+                let validOperation = true;
+
+                try {
+                  if (op === '/') {
+                    if (num === 0 || currentValue % num !== 0) {
+                      validOperation = false;
+                    } else {
+                      tempNextValue = currentValue / num;
+                    }
+                  } else if (op === '+') {
+                    tempNextValue = currentValue + num;
+                  } else if (op === '-') {
+                    tempNextValue = currentValue - num;
+                  } else if (op === '*') {
+                    tempNextValue = currentValue * num;
+                  }
+
+                  if (validOperation && Number.isInteger(tempNextValue)) {
+                    let newExpr;
+                    if (currentExpr.match(/[\+\-\*\/]/) && (op === '*' || op === '/') && (currentExpr.includes('+') || currentExpr.includes('-'))) {
+                        newExpr = `(${currentExpr})${op}${num}`;
+                    } else {
+                        newExpr = `${currentExpr}${op}${num}`;
+                    }
+                    
+                    stepDescription = `${currentValue} ${op} ${num} = ${tempNextValue}`;
+                    solve(tempNextValue, newExpr, newUsedIndices, [...steps, stepDescription]);
+                  }
+                } catch (e) {
+                  // Ignore invalid expressions
+                }
+              }
+            }
+          }
+        }
+      }
+
+      for (let i = 0; i < numbers.length; i++) {
+        solve(numbers[i], numbers[i].toString(), [i], []);
+      }
+
+      best.sort((a, b) => {
+        if (a.diff !== b.diff) return a.diff - b.diff;
+        return a.usedCount - b.usedCount;
+      });
+
+      const uniqueExpressions = new Set();
+      const filteredBest = [];
+      for (const sol of best) {
+          if (!uniqueExpressions.has(sol.expr)) {
+              uniqueExpressions.add(sol.expr);
+              filteredBest.push(sol);
+          }
+      }
+
+      const top = filteredBest.slice(0, 3);
+
+      if (top.length === 0) {
+        document.getElementById("bestSolutions").innerHTML = '<span class="error">❌ No hi ha cap combinació vàlida.</span>';
+        return;
+      }
+
+      const output = top.map((b, i) => {
+        const header = `<strong>${i + 1}.</strong> Objectiu: ${target} → Resultat: ${b.val} → Diferència: ${b.diff} → Números usats: ${b.usedCount}`;
+        const stepsHtml = b.steps.length > 0 ? `<div style="margin-top: 5px; font-size: 0.9em; line-height: 1.4;">${b.steps.map(s => `<div>${s}</div>`).join('')}</div>` : '';
+        return `${header}<br>Expressió completa: ${b.expr}${stepsHtml}`;
+      }).join("<br><br>");
+
+      document.getElementById("bestSolutions").innerHTML = output;
+    }
+
+    initGame();
+  </script>
+</body>
+</html>
+
