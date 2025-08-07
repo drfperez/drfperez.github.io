@@ -1,72 +1,134 @@
 <!DOCTYPE html>
-<html lang="ca" data-bs-theme="light"> <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web del professor</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    
-         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+<html lang="ca" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web del professor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
+
 <div id="navbar-placeholder"></div>
 
-  <main class="container py-4">
+<main class="container py-5">
+  <!-- Presentació -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold">Benvinguts a la meva web educativa</h1>
+    <p class="lead mt-3">Soc en <strong>Francesc Pérez</strong>, docent apassionat per la programació, les ciències i la creativitat aplicada a l’educació.</p>
+  </div>
 
- 
-
-
-    <h1>Benvinguts!</h1>
-    <p>Aquesta és la pàgina principal del professor Francesc Pérez. Aquí hi trobareu recursos sobre programació, projectes científics i molt més.</p>
-</main>
-<div class="container mt-5">
-    <h4 class="fw-bold">Més informació en altres webs meves:</h4>
-    <div class="row row-cols-1 row-cols-md-2 g-4 mt-3">
-        <div class="col">
-            <ul class="list-unstyled">
-                <li><a href="https://blocs.xtec.cat/enginyeria" target="_blank"><i class="fas fa-wrench me-2"></i>Tecnologia i Enginyeria</a></li>
-                <li><a href="http://github.com/drfperez" target="_blank"><i class="fa-brands fa-github me-2"></i>Github del professor</a></li>
-                <li><a href="https://blocs.xtec.cat/tecno" target="_blank"><i class="fas fa-blog me-2"></i>Bloc Xtec</a></li>
-                <li><a href="https://pompeu.neocities.org" target="_blank"><i class="fas fa-globe me-2"></i>Bloc de Neocities</a></li>
-
-<li><a href="https://blocs.xtec
-cat/biotecnologia" target="_blank"><i class="fas fa-dna me-2"></i>Noticies de Biotecnologia</a></li>
-            </ul>
+  <!-- GitHub -->
+  <div class="container mb-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body d-flex align-items-center">
+        <i class="fa-brands fa-github fa-3x me-3 text-dark"></i>
+        <div>
+          <h5 class="card-title mb-1">El meu GitHub</h5>
+          <p class="card-text mb-2">Explora els meus projectes de programació, codi font i activitats educatives.</p>
+          <a href="https://github.com/drfperez" class="btn btn-outline-dark btn-sm" target="_blank">
+            Visita el meu GitHub <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+          </a>
         </div>
-        <div class="col">
-            <ul class="list-unstyled">
-
-<li><a href="https://blocs.xtec.cat/python3" target="_blank"><i class="fa-brands fa-python me-2"></i>Pràctiques de Python</a></li>
-                <li><a href="https://coldplaybarcelona.github.io" target="_blank"><i class="fas fa-music me-2"></i>Musical Arts</a></li>
-                <li><a href="https://blocs.xtec.cat/arteducation" target="_blank"><i class="fas fa-palette me-2"></i>Bloc d'Art</a></li>
-                <li><a href="https://blocs.xtec.cat/5cities" target="_blank"><i class="fas fa-tree me-2"></i>Bloc de Medi Ambient</a></li>
-                <li><a href="https://blocs.xtec.cat/comeonstage/" target="_blank"><i class="fas fa-theater-masks me-2"></i>Bloc de Teatre</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-        </main>
-<div class="container mt-5">
-  <div class="card shadow-sm border-0">
-    <div class="card-body d-flex align-items-center">
-      <i class="fa-brands fa-github fa-3x me-3 text-dark"></i>
-      <div>
-        <h5 class="card-title mb-1">El meu GitHub</h5>
-        <p class="card-text mb-2">Explora els meus projectes de programació, codi font i activitats educatives.</p>
-        <a href="https://github.com/drfperez" class="btn btn-outline-dark btn-sm" target="_blank">
-          Visita el meu GitHub <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
-        </a>
       </div>
     </div>
   </div>
-</div>
 
+  <!-- Totes les altres webs agrupades en una targeta -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <h4 class="card-title text-center mb-4 fw-bold">🌐 Altres webs educatives meves</h4>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        
+        <!-- Tecnologia -->
+        <div class="col"><a href="https://blocs.xtec.cat/enginyeria" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-wrench fa-lg text-primary mt-1"></i>
+            <div><strong>Tecnologia i Enginyeria</strong><br><small>Projectes tècnics per ESO i Batxillerat.</small></div>
+          </div></a>
+        </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="navbar.js"></script>
+        <!-- Github -->
+        <div class="col"><a href="https://github.com/drfperez" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fa-brands fa-github fa-lg text-dark mt-1"></i>
+            <div><strong>Repositori GitHub</strong><br><small>Codi obert i pràctiques de programació.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Bloc Xtec -->
+        <div class="col"><a href="https://blocs.xtec.cat/tecno" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-blog fa-lg text-secondary mt-1"></i>
+            <div><strong>Bloc XTEC</strong><br><small>Recursos transversals per a l’aula.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Biotecnologia -->
+        <div class="col"><a href="https://blocs.xtec.cat/biotecnologia" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-dna fa-lg text-success mt-1"></i>
+            <div><strong>Biotecnologia</strong><br><small>Notícies i projectes científics.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Python -->
+        <div class="col"><a href="https://blocs.xtec.cat/python3" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fa-brands fa-python fa-lg text-warning mt-1"></i>
+            <div><strong>Pràctiques Python</strong><br><small>Exercicis interactius per aprendre a programar.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Neocities -->
+        <div class="col"><a href="https://pompeu.neocities.org" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-globe fa-lg text-primary mt-1"></i>
+            <div><strong>Bloc Neocities</strong><br><small>Recursos web en format lliure.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Musical Arts -->
+        <div class="col"><a href="https://coldplaybarcelona.github.io" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-music fa-lg text-info mt-1"></i>
+            <div><strong>Musical Arts</strong><br><small>Una mirada artística a la música.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Art -->
+        <div class="col"><a href="https://blocs.xtec.cat/arteducation" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-palette fa-lg text-danger mt-1"></i>
+            <div><strong>Bloc d'Art</strong><br><small>Educació visual i creativa.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Teatre -->
+        <div class="col"><a href="https://blocs.xtec.cat/comeonstage/" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-theater-masks fa-lg text-secondary mt-1"></i>
+            <div><strong>Bloc de Teatre</strong><br><small>Expressió i dramatització a l’aula.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Medi Ambient -->
+        <div class="col"><a href="https://blocs.xtec.cat/5cities" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-tree fa-lg text-success mt-1"></i>
+            <div><strong>Bloc de Medi Ambient</strong><br><small>Sostenibilitat i ciència social.</small></div>
+          </div></a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="navbar.js"></script>
 
 </body>
 </html>
