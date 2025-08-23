@@ -104,16 +104,30 @@ FUEGO:Elemento que arde
     }
 
     function loadInput() {
-      const saved = localStorage.getItem("crucigramaPalabras");
-      document.getElementById("wordInput").value = saved || 
-      `SOL:Estrella del sistema solar
+  const saved = localStorage.getItem("crucigramaPalabras");
+  document.getElementById("wordInput").value = saved || 
+`SOL:Estrella que da luz y calor a la Tierra
 LUNA:Satélite natural de la Tierra
-AGUA:Líquido vital para la vida
-FUEGO:Elemento que arde
-TIERRA:Tercer planeta del sistema solar
-MAR:Gran masa de agua salada
-AIRE:Gas invisible que respiramos`;
-    }
+PLANETA:Cuerpo celeste que orbita una estrella
+ESTRELLA:Esfera gigante de gas que emite luz
+GALAXIA:Conjunto enorme de estrellas, gas y polvo
+COMETA:Cuerpo celeste con núcleo de hielo y cola luminosa
+ASTEROIDE:Roca espacial que orbita el Sol
+METEORO:Fragmento de roca que brilla al entrar en la atmósfera
+NEBULOSA:Nube de gas y polvo en el espacio
+AGUJERO:Región del espacio de gravedad tan intensa que nada escapa
+CONSTELACION:Grupo de estrellas con forma reconocible
+TELESCOPIO:Instrumento para observar cuerpos celestes
+ORBITA:Trayectoria curva de un cuerpo celeste
+ECLIPSE:Ocultación de un astro por otro
+UNIVERSO:Conjunto de todo lo que existe
+SUPERNOVA:Explosión de una estrella masiva
+CUASAR:Núcleo galáctico extremadamente brillante
+SATELITE:Cuerpo que orbita un planeta
+EXOPLANETA:Planeta fuera del sistema solar
+COSMOS:Conjunto del espacio y los astros`;
+}
+
     window.onload = loadInput;
 
     function showHelp() {
