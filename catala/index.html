@@ -2,145 +2,68 @@
 <html lang="ca">
 <head>
   <meta charset="UTF-8" />
-  <title>Rellotge i Data en Català</title>
+  <title>Aprèn Català: Data i Hora</title>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 20px;
-    }
-    #clock {
-      width: 300px;
-      height: 300px;
-      border: 10px solid #333;
-      border-radius: 50%;
-      position: relative;
-      margin: 20px auto;
-      background: white;
-    }
-    .hand {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform-origin: 0% 50%;
-      transform: rotate(-90deg);
-      transition: transform 0.5s ease-in-out;
-    }
-    #hour-hand {
-      width: 35%;
-      height: 6px;
-      background: #000;
-    }
-    #minute-hand {
-      width: 45%;
-      height: 4px;
-      background: red;
-    }
-    #center-dot {
-      width: 12px;
-      height: 12px;
-      background: #000;
-      border-radius: 50%;
-      position: absolute;
-      top: calc(50% - 6px);
-      left: calc(50% - 6px);
-      z-index: 10;
-    }
-    .number {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      text-align: center;
-      line-height: 30px;
-      font-weight: bold;
-      transform: translate(-50%, -50%);
-    }
-    #text {
-      font-size: 1.2em;
-      margin-top: 15px;
-      min-height: 70px;
-      white-space: pre-line;
-    }
-    #inputs {
-      margin-bottom: 20px;
-    }
-    input, button, select {
-      padding: 6px;
-      margin: 4px;
-      font-size: 1em;
-    }
+    body { font-family: sans-serif; text-align: center; margin-top: 30px; }
+    #clock { width: 300px; height: 300px; border: 10px solid #333; border-radius: 50%;
+             position: relative; margin: 0 auto 20px auto; background: white; }
+    .hand { position: absolute; top: 50%; left: 50%; transform-origin: 0% 50%;
+             transform: rotate(-90deg); transition: transform 0.5s ease-in-out; }
+    #hour-hand { width: 35%; height: 6px; background: #000; }
+    #minute-hand { width: 45%; height: 4px; background: red; }
+    #center-dot { width: 12px; height: 12px; background: #000; border-radius: 50%;
+                  position: absolute; top: calc(50% - 6px); left: calc(50% - 6px); z-index: 10; }
+    .number { position: absolute; width: 30px; height: 30px; text-align: center;
+               line-height: 30px; font-weight: bold; transform: translate(-50%, -50%); }
+    #time-text, #date-text { font-size: 1.3em; margin-top: 10px; min-height: 40px; }
+    #inputs { margin-bottom: 20px; }
+    input, button, select { padding: 6px; margin: 3px; font-size: 1em; }
   </style>
 </head>
 <body>
-  <h1>Aprèn Català amb Hora i Data</h1>
-
+  <h1>📚 Aprèn Català amb la Data i l’Hora</h1>
   <div id="inputs">
-    <button onclick="setCurrent()">Ara mateix</button><br>
-    <input type="number" id="hour" min="0" max="23" placeholder="Hora (0–23)">
-    <input type="number" id="minute" min="0" max="59" placeholder="Minut"><br>
-    <input type="number" id="day" min="1" max="31" placeholder="Dia">
-    <select id="month">
-      <option value="0">Gener</option>
-      <option value="1">Febrer</option>
-      <option value="2">Març</option>
-      <option value="3">Abril</option>
-      <option value="4">Maig</option>
-      <option value="5">Juny</option>
-      <option value="6">Juliol</option>
-      <option value="7">Agost</option>
-      <option value="8">Setembre</option>
-      <option value="9">Octubre</option>
-      <option value="10">Novembre</option>
-      <option value="11">Desembre</option>
-    </select>
-    <input type="number" id="year" min="1900" max="2100" placeholder="Any"><br>
+    <button onclick="setNow()">Ara mateix</button><br>
+    <input type="number" id="hour-input" min="0" max="23" placeholder="Hora (0–23)">
+    <input type="number" id="minute-input" min="0" max="59" placeholder="Minut"><br>
+    <input type="date" id="date-input"><br>
+    <select id="day-select"></select>
+    <select id="month-select"></select>
+    <input type="number" id="year-input" min="1" max="3000" placeholder="Any"><br>
     <button onclick="setCustom()">Actualitza</button>
+    <button onclick="speakAll()">🔊 Escolta</button>
   </div>
-
   <div id="clock">
     <div id="hour-hand" class="hand"></div>
     <div id="minute-hand" class="hand"></div>
     <div id="center-dot"></div>
   </div>
-
-  <div id="text"></div>
-  <button onclick="speak()">🔊 Escolta</button>
+  <div id="date-text"></div>
+  <div id="time-text"></div>
 
   <script>
-    // ------------------------------
-    // Dibuix del rellotge analògic
-    // ------------------------------
+    // ------------------- Rellotge -------------------
     const clock = document.getElementById('clock');
     const radius = 140;
-
     for (let i = 1; i <= 12; i++) {
       const angle = (i * 30 - 90) * Math.PI / 180;
       const x = 150 + radius * Math.cos(angle);
       const y = 150 + radius * Math.sin(angle);
-      const num = document.createElement('div');
-      num.className = 'number';
-      num.innerText = i;
-      num.style.left = `${x}px`;
-      num.style.top = `${y}px`;
-      clock.appendChild(num);
+      const number = document.createElement('div');
+      number.className = 'number';
+      number.innerText = i;
+      number.style.left = `${x}px`;
+      number.style.top = `${y}px`;
+      clock.appendChild(number);
     }
 
-    // ------------------------------
-    // Funcions auxiliars
-    // ------------------------------
     function numeroEnLletres(n) {
-      const noms = [
-        'zero','una','dues','tres','quatre','cinc',
-        'sis','set','vuit','nou','deu','onze','dotze'
-      ];
-      return noms[n] || n;
+      return ['zero','una','dues','tres','quatre','cinc','sis','set','vuit','nou','deu','onze','dotze'][n];
     }
-
     function deHora(num) {
       const str = numeroEnLletres(num);
       return ['a','e','i','o','u'].includes(str[0]) ? `d’${str}` : `de ${str}`;
     }
-
     function prefixDia(h) {
       if (h >= 6 && h < 12) return 'del matí';
       if (h >= 12 && h < 18) return 'de la tarda';
@@ -148,24 +71,6 @@
       return 'de la nit';
     }
 
-    const mesos = [
-      'de gener','de febrer','de març','d’abril','de maig','de juny',
-      'de juliol','d’agost','de setembre','d’octubre','de novembre','de desembre'
-    ];
-
-    const diesSetmana = [
-      'diumenge','dilluns','dimarts','dimecres','dijous','divendres','dissabte'
-    ];
-
-    function numeroAnyLletres(num) {
-      return num.toString().split('').map(d =>
-        ['zero','un','dos','tres','quatre','cinc','sis','set','vuit','nou'][parseInt(d)]
-      ).join(' ');
-    }
-
-    // ------------------------------
-    // Format hora catalana
-    // ------------------------------
     function formatHoraCatalana(h, m) {
       const h12 = h % 12 || 12;
       const next = h12 % 12 + 1;
@@ -173,19 +78,16 @@
       const horaSeguent = numeroEnLletres(next);
       const dia = prefixDia(h);
 
-      // Casos exactes
       if (m === 0) return (h12 === 1 ? 'És la ' : 'Són les ') + baseHora + ' en punt ' + dia;
       if (m === 15) return 'És un quart ' + deHora(next) + ' ' + dia;
       if (m === 30) return 'Són dos quarts ' + deHora(next) + ' ' + dia;
       if (m === 45) return 'Són tres quarts ' + deHora(next) + ' ' + dia;
 
-      // Mig quarts
       if (m >= 7 && m <= 8) return 'És mig quart ' + deHora(next) + ' ' + dia;
       if (m >= 22 && m <= 23) return 'És un quart i mig ' + deHora(next) + ' ' + dia;
       if (m >= 37 && m <= 38) return 'Són dos quarts i mig ' + deHora(next) + ' ' + dia;
       if (m >= 52 && m <= 53) return 'Són tres quarts i mig ' + deHora(next) + ' ' + dia;
 
-      // Passen / falten
       const quarts = [
         { min: 15, text: 'un quart ' + deHora(next) },
         { min: 30, text: 'dos quarts ' + deHora(next) },
@@ -206,91 +108,115 @@
       }
     }
 
-    // ------------------------------
-    // Actualització rellotge i text
-    // ------------------------------
-    function update(h, m, d, mo, y) {
-      const h12 = h % 12 || 12;
-
-      // Moure manetes
-      document.getElementById('hour-hand').style.transform =
-        `rotate(${((h12 % 12) + m/60) * 30 - 90}deg)`;
-      document.getElementById('minute-hand').style.transform =
-        `rotate(${m * 6 - 90}deg)`;
-
-      // Text amb dia i hora
-      const diaSetmana = diesSetmana[new Date(y, mo, d).getDay()];
-      const text = `${diaSetmana}, ${numeroEnLletres(d)} ${mesos[mo]} de l’any ${numeroAnyLletres(y)}.\n` +
-                   formatHoraCatalana(h, m);
-
-      document.getElementById('text').innerText = text;
-      return text;
+    function updateClock(h, m) {
+      let h12 = h % 12 || 12;
+      const hourAngle = ((h12 % 12) + m / 60) * 30 - 90;
+      const minuteAngle = m * 6 - 90;
+      document.getElementById('hour-hand').style.transform = `rotate(${hourAngle}deg)`;
+      document.getElementById('minute-hand').style.transform = `rotate(${minuteAngle}deg)`;
+      document.getElementById('time-text').innerText = formatHoraCatalana(h, m);
     }
 
-    function setCurrent() {
+    // ------------------- Data -------------------
+    const dies = ['diumenge','dilluns','dimarts','dimecres','dijous','divendres','dissabte'];
+    const mesos = ['de gener','de febrer','de març','d’abril','de maig','de juny','de juliol','d’agost','de setembre','d’octubre','de novembre','de desembre'];
+    
+    function numeroOrdinals(n) {
+      const lletres = ['zero','un','dos','tres','quatre','cinc','sis','set','vuit','nou','deu',
+        'onze','dotze','tretze','catorze','quinze','setze','disset','divuit','dinou','vint',
+        'vint-i-un','vint-i-dos','vint-i-tres','vint-i-quatre','vint-i-cinc','vint-i-sis',
+        'vint-i-set','vint-i-vuit','vint-i-nou','trenta','trenta-u'];
+      return lletres[n];
+    }
+
+    function anyEnLletres(any) {
+      const milers = Math.floor(any / 1000);
+      const centenars = any % 1000;
+      let resultat = '';
+      if (milers === 1) resultat = 'mil';
+      else if (milers === 2) resultat = 'dos mil';
+      else if (milers === 3) resultat = 'tres mil';
+      else resultat = any; // simplificació si és més gran
+
+      if (centenars > 0) {
+        resultat += ' ' + numeroOrdinals(centenars);
+      }
+      return resultat;
+    }
+
+    function formatData(d) {
+      const diaSetmana = dies[d.getDay()];
+      const diaMes = numeroOrdinals(d.getDate());
+      const mes = mesos[d.getMonth()];
+      const any = anyEnLletres(d.getFullYear());
+      return `Avui és ${diaSetmana}, ${diaMes} ${mes} de ${any}`;
+    }
+
+    // ------------------- Control -------------------
+    function setNow() {
       const now = new Date();
-      return update(
-        now.getHours(),
-        now.getMinutes(),
-        now.getDate(),
-        now.getMonth(),
-        now.getFullYear()
-      );
+      updateClock(now.getHours(), now.getMinutes());
+      document.getElementById('date-text').innerText = formatData(now);
     }
 
     function setCustom() {
-      const h = parseInt(document.getElementById('hour').value);
-      const m = parseInt(document.getElementById('minute').value);
-      const d = parseInt(document.getElementById('day').value);
-      const mo = parseInt(document.getElementById('month').value);
-      const y = parseInt(document.getElementById('year').value);
+      const h = parseInt(document.getElementById('hour-input').value, 10);
+      const m = parseInt(document.getElementById('minute-input').value, 10);
+      const dateStr = document.getElementById('date-input').value;
+      const daySel = document.getElementById('day-select').value;
+      const monthSel = document.getElementById('month-select').value;
+      const yearVal = parseInt(document.getElementById('year-input').value, 10);
 
-      if ([h,m,d,mo,y].some(isNaN)) {
-        alert("Completa tots els camps!");
-        return;
-      }
-      update(h, m, d, mo, y);
+      if (!isNaN(h) && !isNaN(m)) updateClock(h, m);
+
+      let d;
+      if (dateStr) d = new Date(dateStr);
+      else if (daySel && monthSel && yearVal) d = new Date(yearVal, monthSel, daySel);
+      if (d) document.getElementById('date-text').innerText = formatData(d);
     }
 
-    // ------------------------------
-    // Síntesi de veu
-    // ------------------------------
+    // ------------------- Veu -------------------
     let selectedVoice = null;
-
     function loadVoices() {
       const voices = speechSynthesis.getVoices();
-
-      // Busca veu catalana
-      selectedVoice = voices.find(v => v.lang.startsWith("ca"));
-
-      // Si no hi ha, reserva en castellà
-      if (!selectedVoice) {
-        selectedVoice = voices.find(v => v.lang.startsWith("es"));
-        alert("⚠️ No s’ha trobat veu catalana al teu sistema. Es farà servir castellà com a alternativa.");
-      }
+      selectedVoice = voices.find(v => /ca/i.test(v.lang)) || voices.find(v => /es-ES/i.test(v.lang));
     }
-
-    // Quan es carreguen veus
     speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
 
-    function speak() {
-      const text = document.getElementById('text').innerText;
-      if (!selectedVoice) loadVoices();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = selectedVoice.lang;
-      utter.voice = selectedVoice;
-      speechSynthesis.speak(utter);
+    function speakAll() {
+      const text = document.getElementById('date-text').innerText + ". " + document.getElementById('time-text').innerText;
+      if (!text) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      if (selectedVoice) utterance.voice = selectedVoice;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
     }
 
-    // ------------------------------
-    // Inicialització
-    // ------------------------------
-    setCurrent();
+    // ------------------- Inicialització -------------------
+    // Omplir desplegables
+    const daySelect = document.getElementById('day-select');
+    for (let i = 1; i <= 31; i++) {
+      let opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      daySelect.appendChild(opt);
+    }
+    const monthSelect = document.getElementById('month-select');
+    mesos.forEach((m, i) => {
+      let opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = m.replace('de ','').replace('d’','');
+      monthSelect.appendChild(opt);
+    });
+
+    setNow();
     const now = new Date();
+    const msToNext = (60 - now.getSeconds()) * 1000;
     setTimeout(() => {
-      setCurrent();
-      setInterval(setCurrent, 60*1000);
-    }, (60 - now.getSeconds()) * 1000);
+      setNow();
+      setInterval(setNow, 60 * 1000);
+    }, msToNext);
   </script>
 </body>
 </html>
