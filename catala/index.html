@@ -4,59 +4,99 @@
   <meta charset="UTF-8" />
   <title>Aprèn Català: Data i Hora</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 30px; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; text-align: center; margin-top: 30px; 
+            background: linear-gradient(to bottom, #f0f8ff, #e6f2ff); color: #333; }
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    h1 { color: #0066cc; margin-bottom: 25px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
     #clock { width: 300px; height: 300px; border: 10px solid #333; border-radius: 50%;
-             position: relative; margin: 0 auto 20px auto; background: white; }
+             position: relative; margin: 0 auto 20px auto; background: white;
+             box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
     .hand { position: absolute; top: 50%; left: 50%; transform-origin: 0% 50%;
              transform: rotate(-90deg); transition: transform 0.5s ease-in-out; }
-    #hour-hand { width: 35%; height: 6px; background: #000; }
-    #minute-hand { width: 45%; height: 4px; background: red; }
-    #center-dot { width: 12px; height: 12px; background: #000; border-radius: 50%;
-                  position: absolute; top: calc(50% - 6px); left: calc(50% - 6px); z-index: 10; }
+    #hour-hand { width: 35%; height: 8px; background: #000; border-radius: 4px; }
+    #minute-hand { width: 45%; height: 5px; background: red; border-radius: 3px; }
+    #center-dot { width: 16px; height: 16px; background: #000; border-radius: 50%;
+                  position: absolute; top: calc(50% - 8px); left: calc(50% - 8px); z-index: 10;
+                  box-shadow: 0 0 5px rgba(0,0,0,0.5); }
     .number { position: absolute; width: 30px; height: 30px; text-align: center;
-               line-height: 30px; font-weight: bold; transform: translate(-50%, -50%); }
-    #time-text, #date-text { font-size: 1.3em; margin-top: 10px; min-height: 40px; }
-    #inputs { margin-bottom: 20px; }
-    input, button, select { padding: 6px; margin: 3px; font-size: 1em; }
-    #voice-info { margin-top: 10px; font-size: 0.9em; color: #555; }
+               line-height: 30px; font-weight: bold; transform: translate(-50%, -50%);
+               color: #333; font-size: 16px; }
+    #time-text, #date-text { 
+      font-size: 1.5em; margin-top: 20px; min-height: 50px; padding: 15px;
+      background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      color: #0066cc; font-weight: bold; 
+    }
+    #inputs { 
+      margin-bottom: 30px; padding: 20px; background: white; 
+      border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    input, button, select { 
+      padding: 10px; margin: 8px; font-size: 1em; border: 2px solid #ccc;
+      border-radius: 6px; transition: all 0.3s;
+    }
+    input:focus, select:focus { border-color: #0066cc; outline: none; }
+    button { 
+      background: #0066cc; color: white; cursor: pointer; 
+      font-weight: bold; min-width: 120px;
+    }
+    button:hover { background: #0055aa; transform: translateY(-2px); }
+    #voice-info { 
+      margin-top: 15px; font-size: 0.9em; color: #555; padding: 10px;
+      background: #f8f8f8; border-radius: 5px;
+    }
+    .instructions {
+      margin-top: 30px; padding: 15px; background: #eef8ff; border-radius: 10px;
+      text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .example { font-style: italic; color: #0066cc; }
   </style>
 </head>
 <body>
-  <h1>📚 Aprèn Català amb la Data i l'Hora</h1>
-  <div id="inputs">
-    <button onclick="setNow()">Ara mateix</button><br>
-    <input type="number" id="hour-input" min="0" max="23" placeholder="Hora (0–23)">
-    <input type="number" id="minute-input" min="0" max="59" placeholder="Minut"><br>
-    <input type="date" id="date-input"><br>
-    <select id="day-select"></select>
-    <select id="month-select"></select>
-    <input type="number" id="year-input" min="1" max="3000" placeholder="Any"><br>
-    <button onclick="setCustom()">Actualitza</button>
-    <button onclick="speakAll()">🔊 Escolta</button>
+  <div class="container">
+    <h1>📚 Aprèn Català amb la Data i l'Hora</h1>
+    
+    <div id="inputs">
+      <button onclick="setNow()">Ara mateix</button><br>
+      <input type="number" id="hour-input" min="0" max="23" placeholder="Hora (0–23)">
+      <input type="number" id="minute-input" min="0" max="59" placeholder="Minut"><br>
+      <input type="date" id="date-input"><br>
+      <select id="day-select"></select>
+      <select id="month-select"></select>
+      <input type="number" id="year-input" min="1" max="3000" placeholder="Any"><br>
+      <button onclick="setCustom()">Actualitza</button>
+      <button onclick="speakAll()">🔊 Escolta</button>
+    </div>
+    
+    <div id="clock">
+      <div id="hour-hand" class="hand"></div>
+      <div id="minute-hand" class="hand"></div>
+      <div id="center-dot"></div>
+    </div>
+    
+    <div id="date-text"></div>
+    <div id="time-text"></div>
+    <div id="voice-info">S'estan carregant les veus...</div>
+    
+    <div class="instructions">
+      <h3>Instruccions:</h3>
+      <p>Selecciona una data i hora per veure com es diuen en català.</p>
+      <p>Prova amb anys diferents (ex: 1999, 1492, 1789) per veure com es llegeixen correctament.</p>
+      <p class="example">Exemple: 1999 es llegeix "mil nou-cents noranta-nou"</p>
+    </div>
   </div>
-  <div id="clock">
-    <div id="hour-hand" class="hand"></div>
-    <div id="minute-hand" class="hand"></div>
-    <div id="center-dot"></div>
-  </div>
-  <div id="date-text"></div>
-  <div id="time-text"></div>
-  <div id="voice-info">S'estan carregant les veus...</div>
 
   <script>
-    // ------------------- Configuració TTS -------------------
+    /* ------------------- Configuració TTS ------------------- */
     let voices = [];
     let hasCatalanVoice = false;
     let useResponsiveVoice = false;
     
-    // Funció per carregar ResponsiveVoice des del CDN
     function loadResponsiveVoice() {
       return new Promise((resolve, reject) => {
         if (typeof responsiveVoice !== 'undefined') {
           resolve();
           return;
         }
-        
         const script = document.createElement('script');
         script.src = 'https://code.responsivevoice.org/responsivevoice.js?key=HYPef5G5';
         script.onload = resolve;
@@ -65,7 +105,6 @@
       });
     }
     
-    // Detectar veus disponibles
     function loadVoices() {
       return new Promise((resolve) => {
         const synth = window.speechSynthesis;
@@ -92,11 +131,10 @@
       const voiceInfo = document.getElementById('voice-info');
       
       if (hasCatalanVoice) {
-        voiceInfo.textContent = 'S\'ha detectat suport per a veu en català al navegador.';
+        voiceInfo.textContent = "S'ha detectat suport per a veu en català al navegador.";
       } else {
-        voiceInfo.textContent = 'No s\'ha detectat veu en català al navegador. S\'utilitzarà un servei extern.';
+        voiceInfo.textContent = "No s'ha detectat veu en català al navegador. S'utilitzarà un servei extern.";
         
-        // Carregar ResponsiveVoice com a alternativa
         loadResponsiveVoice().then(() => {
           useResponsiveVoice = true;
           voiceInfo.textContent += ' Servei extern carregat correctament.';
@@ -106,12 +144,11 @@
       }
     }
     
-    // Inicialitzar veus
     window.addEventListener('DOMContentLoaded', () => {
       loadVoices();
     });
 
-    // ------------------- Rellotge -------------------
+    /* ------------------- Rellotge ------------------- */
     const clock = document.getElementById('clock');
     const radius = 140;
     for (let i = 1; i <= 12; i++) {
@@ -129,10 +166,12 @@
     function numeroEnLletres(n) {
       return ['zero','una','dues','tres','quatre','cinc','sis','set','vuit','nou','deu','onze','dotze'][n];
     }
+    
     function deHora(num) {
       const str = numeroEnLletres(num);
       return ['a','e','i','o','u'].includes(str[0]) ? `d'${str}` : `de ${str}`;
     }
+    
     function prefixDia(h) {
       if (h >= 6 && h < 12) return 'del matí';
       if (h >= 12 && h < 18) return 'de la tarda';
@@ -140,42 +179,57 @@
       return 'de la nit';
     }
 
-    function formatHoraCatalana(h, m) {
-      const h12 = h % 12 || 12;
-      const next = h12 % 12 + 1;
-      const baseHora = numeroEnLletres(h12);
-      const horaSeguent = numeroEnLletres(next);
-      const dia = prefixDia(h);
+    function horaAmbArticle(h) {
+  if (h === 1) return "la " + numeroEnLletres(h);
+  return "les " + numeroEnLletres(h);
+}
 
-      if (m === 0) return (h12 === 1 ? 'És la ' : 'Són les ') + baseHora + ' en punt ' + dia;
-      if (m === 15) return 'És un quart ' + deHora(next) + ' ' + dia;
-      if (m === 30) return 'Són dos quarts ' + deHora(next) + ' ' + dia;
-      if (m === 45) return 'Són tres quarts ' + deHora(next) + ' ' + dia;
+function formatHoraCatalana(h, m) {
+  const h12 = h % 12 || 12;
+  const next = h12 % 12 + 1;
+  const baseHora = horaAmbArticle(h12);
+  const horaSeguent = horaAmbArticle(next);
+  const dia = prefixDia(h);
 
-      if (m >= 7 && m <= 8) return 'És mig quart ' + deHora(next) + ' ' + dia;
-      if (m >= 22 && m <= 23) return 'És un quart i mig ' + deHora(next) + ' ' + dia;
-      if (m >= 37 && m <= 38) return 'Són dos quarts i mig ' + deHora(next) + ' ' + dia;
-      if (m >= 52 && m <= 53) return 'Són tres quarts i mig ' + deHora(next) + ' ' + dia;
+  if (m === 0) return (h12 === 1 ? 'És ' : 'Són ') + baseHora + ' en punt ' + dia;
+  if (m === 15) return 'És un quart ' + deHora(next) + ' ' + dia;
+  if (m === 30) return 'Són dos quarts ' + deHora(next) + ' ' + dia;
+  if (m === 45) return 'Són tres quarts ' + deHora(next) + ' ' + dia;
 
-      const quarts = [
-        { min: 15, text: 'un quart ' + deHora(next) },
-        { min: 30, text: 'dos quarts ' + deHora(next) },
-        { min: 45, text: 'tres quarts ' + deHora(next) },
-        { min: 60, text: 'les ' + horaSeguent }
-      ];
+  if (m >= 7 && m <= 8) return 'És mig quart ' + deHora(next) + ' ' + dia;
+  if (m >= 22 && m <= 23) return 'És un quart i mig ' + deHora(next) + ' ' + dia;
+  if (m >= 37 && m <= 38) return 'Són dos quarts i mig ' + deHora(next) + ' ' + dia;
+  if (m >= 52 && m <= 53) return 'Són tres quarts i mig ' + deHora(next) + ' ' + dia;
 
-      let proper = quarts.find(q => m < q.min);
-      let anterior = quarts[quarts.indexOf(proper) - 1] || { min: 0, text: baseHora };
+  const quarts = [
+    { min: 15, text: 'un quart ' + deHora(next) },
+    { min: 30, text: 'dos quarts ' + deHora(next) },
+    { min: 45, text: 'tres quarts ' + deHora(next) },
+    { min: 60, text: horaSeguent }
+  ];
 
-      const diffNext = proper.min - m;
-      const diffPrev = m - anterior.min;
+  let proper = quarts.find(q => m < q.min);
+  let anterior = quarts[quarts.indexOf(proper) - 1] || { min: 0, text: baseHora };
 
-      if (diffNext <= 5) {
-        return `Falten ${diffNext} minut${diffNext===1?'':'s'} per a ${proper.text} ${dia}`;
-      } else {
-        return `Passen ${diffPrev} minut${diffPrev===1?'':'s'} de ${anterior.text} ${dia}`;
-      }
+  const diffNext = proper.min - m;
+  const diffPrev = m - anterior.min;
+
+  if (diffNext <= 5) {
+    if (diffNext === 1) {
+      return `Falta un minut per a ${proper.text} ${dia}`;
+    } else {
+      return `Falten ${numeroEnLletres(diffNext)} minuts per a ${proper.text} ${dia}`;
     }
+  } else {
+    if (diffPrev === 1) {
+      return `Passa un minut de ${anterior.text} ${dia}`;
+    } else {
+      return `Passen ${numeroEnLletres(diffPrev)} minuts de ${anterior.text} ${dia}`;
+    }
+  }
+}
+
+
 
     function updateClock(h, m) {
       let h12 = h % 12 || 12;
@@ -186,7 +240,7 @@
       document.getElementById('time-text').innerText = formatHoraCatalana(h, m);
     }
 
-    // ------------------- Data -------------------
+    /* ------------------- Data ------------------- */
     const dies = ['diumenge','dilluns','dimarts','dimecres','dijous','divendres','dissabte'];
     const mesos = ['de gener','de febrer','de març','d\'abril','de maig','de juny','de juliol','d\'agost','de setembre','d\'octubre','de novembre','de desembre'];
 
@@ -199,61 +253,128 @@
     }
 
     function anyEnLletres(any) {
-      const milers = Math.floor(any / 1000);
-      const centenars = any % 1000;
-      let resultat = '';
-      if (milers === 1) resultat = 'mil';
-      else if (milers === 2) resultat = 'dos mil';
-      else if (milers === 3) resultat = 'tres mil';
-      else resultat = any; // simplificació si és més gran
-
-      if (centenars > 0) {
-        resultat += ' ' + numeroOrdinals(centenars);
+      if (any < 1000) {
+        return numeroOrdinals(any);
       }
+
+      let milers = Math.floor(any / 1000);
+      let rest = any % 1000;
+
+      let partMilers = '';
+      if (milers === 1) {
+        partMilers = 'mil';
+      } else {
+        partMilers = numeroOrdinals(milers) + ' mil';
+      }
+
+      if (rest === 0) {
+        return partMilers;
+      }
+
+      let centenes = Math.floor(rest / 100);
+      rest = rest % 100;
+
+      let partCentenes = '';
+      if (centenes > 0) {
+        if (centenes === 1) {
+          partCentenes = 'cent';
+        } else {
+          partCentenes = numeroOrdinals(centenes) + '-cents';
+        }
+      }
+
+      let partResta = '';
+      if (rest > 0) {
+        partResta = rest < 31 ? numeroOrdinals(rest) : convertirNumero(rest);
+      }
+
+      let resultat = partMilers;
+      if (partCentenes) {
+        resultat += ' ' + partCentenes;
+      }
+      if (partResta) {
+        resultat += ' ' + partResta;
+      }
+
       return resultat;
+    }
+
+    function convertirNumero(n) {
+      if (n <= 30) return numeroOrdinals(n);
+      
+      const desenes = Math.floor(n / 10);
+      const unitats = n % 10;
+      const nomsDesenes = ['', '', 'vint', 'trenta', 'quaranta', 'cinquanta', 'seixanta', 'setanta', 'vuitanta', 'noranta'];
+      
+      if (unitats === 0) {
+        return nomsDesenes[desenes];
+      } else {
+        return nomsDesenes[desenes] + '-' + numeroOrdinals(unitats);
+      }
     }
 
     function formatData(d) {
       const diaSetmana = dies[d.getDay()];
-      const diaMes = numeroOrdinals(d.getDate());
+      const diaMes = d.getDate() < 31 ? numeroOrdinals(d.getDate()) : convertirNumero(d.getDate());
       const mes = mesos[d.getMonth()];
       const any = anyEnLletres(d.getFullYear());
       return `Avui és ${diaSetmana}, ${diaMes} ${mes} de ${any}`;
     }
 
-    // ------------------- Control -------------------
+    /* ------------------- Control ------------------- */
     function setNow() {
       const now = new Date();
       updateClock(now.getHours(), now.getMinutes());
       document.getElementById('date-text').innerText = formatData(now);
+      
+      document.getElementById('hour-input').value = now.getHours();
+      document.getElementById('minute-input').value = now.getMinutes();
+      document.getElementById('date-input').valueAsDate = now;
+      document.getElementById('day-select').value = now.getDate();
+      document.getElementById('month-select').value = now.getMonth();
+      document.getElementById('year-input').value = now.getFullYear();
     }
 
+    /* ✅ FUNCIO CORREGIDA */
     function setCustom() {
-      const h = parseInt(document.getElementById('hour-input').value, 10);
-      const m = parseInt(document.getElementById('minute-input').value, 10);
-      const dateStr = document.getElementById('date-input').value;
-      const daySel = document.getElementById('day-select').value;
-      const monthSel = document.getElementById('month-select').value;
-      const yearVal = parseInt(document.getElementById('year-input').value, 10);
+  const h = parseInt(document.getElementById('hour-input').value, 10);
+  const m = parseInt(document.getElementById('minute-input').value, 10);
+  const dateStr = document.getElementById('date-input').value;
+  const daySel = parseInt(document.getElementById('day-select').value, 10);
+  const monthSel = parseInt(document.getElementById('month-select').value, 10);
+  const yearVal = parseInt(document.getElementById('year-input').value, 10);
 
-      if (!isNaN(h) && !isNaN(m)) updateClock(h, m);
+  let d = null;
 
-      let d;
-      if (dateStr) d = new Date(dateStr);
-      else if (daySel && monthSel && yearVal) d = new Date(yearVal, monthSel, daySel);
-      if (d) document.getElementById('date-text').innerText = formatData(d);
-    }
+  if (dateStr) {
+    // Si l'usuari ha fet servir el <input type="date">
+    d = new Date(dateStr);
+  } else if (!isNaN(daySel) && !isNaN(monthSel) && !isNaN(yearVal)) {
+    // Si ha fet servir els desplegables + any
+    d = new Date(yearVal, monthSel, daySel);
+  } else {
+    // Si no hi ha data, agafem avui
+    d = new Date();
+  }
 
-    // ------------------- Veu -------------------
+  // Si ha posat hora i minut, els apliquem a la data
+  if (!isNaN(h)) d.setHours(h);
+  if (!isNaN(m)) d.setMinutes(m);
+
+  // Actualitzar rellotge i text
+  updateClock(d.getHours(), d.getMinutes());
+  document.getElementById('date-text').innerText = formatData(d);
+}
+
+
+    /* ------------------- Veu ------------------- */
     function speakAll() {
       const text = document.getElementById('date-text').innerText + ". " + document.getElementById('time-text').innerText;
       if (!text) return;
       
       if (useResponsiveVoice && typeof responsiveVoice !== 'undefined') {
-        // Utilitzar ResponsiveVoice com a alternativa
         responsiveVoice.speak(text, "Catalan Female", {rate: 0.9});
       } else if (hasCatalanVoice) {
-        // Utilitzar la síntesi de veu del navegador
         const utterance = new SpeechSynthesisUtterance(text);
         const catalanVoice = voices.find(voice => voice.lang.includes('ca'));
         if (catalanVoice) {
@@ -262,14 +383,12 @@
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
       } else {
-        // Si no hi ha cap opció de TTS disponible
         document.getElementById('voice-info').textContent = 
           'No s\'ha pogut carregar cap veu en català. Si us plau, actualitzi el seu navegador.';
       }
     }
 
-    // ------------------- Inicialització -------------------
-    // Omplir desplegables
+    /* ------------------- Inicialització ------------------- */
     const daySelect = document.getElementById('day-select');
     for (let i = 1; i <= 31; i++) {
       let opt = document.createElement('option');
@@ -277,6 +396,7 @@
       opt.textContent = i;
       daySelect.appendChild(opt);
     }
+    
     const monthSelect = document.getElementById('month-select');
     mesos.forEach((m, i) => {
       let opt = document.createElement('option');
@@ -286,6 +406,7 @@
     });
 
     setNow();
+    
     const now = new Date();
     const msToNext = (60 - now.getSeconds()) * 1000;
     setTimeout(() => {
