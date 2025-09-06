@@ -18,10 +18,11 @@
     #time-text, #date-text { font-size: 1.3em; margin-top: 10px; min-height: 40px; }
     #inputs { margin-bottom: 20px; }
     input, button, select { padding: 6px; margin: 3px; font-size: 1em; }
+    #voice-info { margin-top: 10px; font-size: 0.9em; color: #555; }
   </style>
 </head>
 <body>
-  <h1>📚 Aprèn Català amb la Data i l’Hora</h1>
+  <h1>📚 Aprèn Català amb la Data i l'Hora</h1>
   <div id="inputs">
     <button onclick="setNow()">Ara mateix</button><br>
     <input type="number" id="hour-input" min="0" max="23" placeholder="Hora (0–23)">
@@ -40,8 +41,76 @@
   </div>
   <div id="date-text"></div>
   <div id="time-text"></div>
+  <div id="voice-info">S'estan carregant les veus...</div>
 
   <script>
+    // ------------------- Configuració TTS -------------------
+    let voices = [];
+    let hasCatalanVoice = false;
+    let useResponsiveVoice = false;
+    
+    // Funció per carregar ResponsiveVoice des del CDN
+    function loadResponsiveVoice() {
+      return new Promise((resolve, reject) => {
+        if (typeof responsiveVoice !== 'undefined') {
+          resolve();
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://code.responsivevoice.org/responsivevoice.js?key=HYPef5G5';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    
+    // Detectar veus disponibles
+    function loadVoices() {
+      return new Promise((resolve) => {
+        const synth = window.speechSynthesis;
+        voices = synth.getVoices();
+        
+        if (voices.length !== 0) {
+          checkCatalanVoices();
+          resolve();
+        } else {
+          synth.onvoiceschanged = () => {
+            voices = synth.getVoices();
+            checkCatalanVoices();
+            resolve();
+          };
+        }
+      });
+    }
+    
+    function checkCatalanVoices() {
+      const synth = window.speechSynthesis;
+      voices = synth.getVoices();
+      hasCatalanVoice = voices.some(voice => voice.lang.includes('ca'));
+      
+      const voiceInfo = document.getElementById('voice-info');
+      
+      if (hasCatalanVoice) {
+        voiceInfo.textContent = 'S\'ha detectat suport per a veu en català al navegador.';
+      } else {
+        voiceInfo.textContent = 'No s\'ha detectat veu en català al navegador. S\'utilitzarà un servei extern.';
+        
+        // Carregar ResponsiveVoice com a alternativa
+        loadResponsiveVoice().then(() => {
+          useResponsiveVoice = true;
+          voiceInfo.textContent += ' Servei extern carregat correctament.';
+        }).catch(() => {
+          voiceInfo.textContent += ' Error en carregar el servei extern.';
+        });
+      }
+    }
+    
+    // Inicialitzar veus
+    window.addEventListener('DOMContentLoaded', () => {
+      loadVoices();
+    });
+
     // ------------------- Rellotge -------------------
     const clock = document.getElementById('clock');
     const radius = 140;
@@ -62,7 +131,7 @@
     }
     function deHora(num) {
       const str = numeroEnLletres(num);
-      return ['a','e','i','o','u'].includes(str[0]) ? `d’${str}` : `de ${str}`;
+      return ['a','e','i','o','u'].includes(str[0]) ? `d'${str}` : `de ${str}`;
     }
     function prefixDia(h) {
       if (h >= 6 && h < 12) return 'del matí';
@@ -119,8 +188,8 @@
 
     // ------------------- Data -------------------
     const dies = ['diumenge','dilluns','dimarts','dimecres','dijous','divendres','dissabte'];
-    const mesos = ['de gener','de febrer','de març','d’abril','de maig','de juny','de juliol','d’agost','de setembre','d’octubre','de novembre','de desembre'];
-    
+    const mesos = ['de gener','de febrer','de març','d\'abril','de maig','de juny','de juliol','d\'agost','de setembre','d\'octubre','de novembre','de desembre'];
+
     function numeroOrdinals(n) {
       const lletres = ['zero','un','dos','tres','quatre','cinc','sis','set','vuit','nou','deu',
         'onze','dotze','tretze','catorze','quinze','setze','disset','divuit','dinou','vint',
@@ -176,21 +245,27 @@
     }
 
     // ------------------- Veu -------------------
-    let selectedVoice = null;
-    function loadVoices() {
-      const voices = speechSynthesis.getVoices();
-      selectedVoice = voices.find(v => /ca/i.test(v.lang)) || voices.find(v => /es-ES/i.test(v.lang));
-    }
-    speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices();
-
     function speakAll() {
       const text = document.getElementById('date-text').innerText + ". " + document.getElementById('time-text').innerText;
       if (!text) return;
-      const utterance = new SpeechSynthesisUtterance(text);
-      if (selectedVoice) utterance.voice = selectedVoice;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(utterance);
+      
+      if (useResponsiveVoice && typeof responsiveVoice !== 'undefined') {
+        // Utilitzar ResponsiveVoice com a alternativa
+        responsiveVoice.speak(text, "Catalan Female", {rate: 0.9});
+      } else if (hasCatalanVoice) {
+        // Utilitzar la síntesi de veu del navegador
+        const utterance = new SpeechSynthesisUtterance(text);
+        const catalanVoice = voices.find(voice => voice.lang.includes('ca'));
+        if (catalanVoice) {
+          utterance.voice = catalanVoice;
+        }
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      } else {
+        // Si no hi ha cap opció de TTS disponible
+        document.getElementById('voice-info').textContent = 
+          'No s\'ha pogut carregar cap veu en català. Si us plau, actualitzi el seu navegador.';
+      }
     }
 
     // ------------------- Inicialització -------------------
@@ -206,7 +281,7 @@
     mesos.forEach((m, i) => {
       let opt = document.createElement('option');
       opt.value = i;
-      opt.textContent = m.replace('de ','').replace('d’','');
+      opt.textContent = m.replace('de ','').replace('d\'','');
       monthSelect.appendChild(opt);
     });
 
@@ -220,4 +295,3 @@
   </script>
 </body>
 </html>
-
