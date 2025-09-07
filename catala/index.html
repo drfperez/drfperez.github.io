@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="ca">
 <head>
   <meta charset="UTF-8" />
@@ -164,7 +164,8 @@
     }
 
     function numeroEnLletres(n) {
-      return ['zero','una','dues','tres','quatre','cinc','sis','set','vuit','nou','deu','onze','dotze'][n];
+      // ✅ CORREGIT: masculí per coherència en hores i minuts
+      return ['zero','un','dos','tres','quatre','cinc','sis','set','vuit','nou','deu','onze','dotze'][n];
     }
     
     function deHora(num) {
@@ -180,56 +181,54 @@
     }
 
     function horaAmbArticle(h) {
-  if (h === 1) return "la " + numeroEnLletres(h);
-  return "les " + numeroEnLletres(h);
-}
-
-function formatHoraCatalana(h, m) {
-  const h12 = h % 12 || 12;
-  const next = h12 % 12 + 1;
-  const baseHora = horaAmbArticle(h12);
-  const horaSeguent = horaAmbArticle(next);
-  const dia = prefixDia(h);
-
-  if (m === 0) return (h12 === 1 ? 'És ' : 'Són ') + baseHora + ' en punt ' + dia;
-  if (m === 15) return 'És un quart ' + deHora(next) + ' ' + dia;
-  if (m === 30) return 'Són dos quarts ' + deHora(next) + ' ' + dia;
-  if (m === 45) return 'Són tres quarts ' + deHora(next) + ' ' + dia;
-
-  if (m >= 7 && m <= 8) return 'És mig quart ' + deHora(next) + ' ' + dia;
-  if (m >= 22 && m <= 23) return 'És un quart i mig ' + deHora(next) + ' ' + dia;
-  if (m >= 37 && m <= 38) return 'Són dos quarts i mig ' + deHora(next) + ' ' + dia;
-  if (m >= 52 && m <= 53) return 'Són tres quarts i mig ' + deHora(next) + ' ' + dia;
-
-  const quarts = [
-    { min: 15, text: 'un quart ' + deHora(next) },
-    { min: 30, text: 'dos quarts ' + deHora(next) },
-    { min: 45, text: 'tres quarts ' + deHora(next) },
-    { min: 60, text: horaSeguent }
-  ];
-
-  let proper = quarts.find(q => m < q.min);
-  let anterior = quarts[quarts.indexOf(proper) - 1] || { min: 0, text: baseHora };
-
-  const diffNext = proper.min - m;
-  const diffPrev = m - anterior.min;
-
-  if (diffNext <= 5) {
-    if (diffNext === 1) {
-      return `Falta un minut per a ${proper.text} ${dia}`;
-    } else {
-      return `Falten ${numeroEnLletres(diffNext)} minuts per a ${proper.text} ${dia}`;
+      if (h === 1) return "la " + numeroEnLletres(h);
+      return "les " + numeroEnLletres(h);
     }
-  } else {
-    if (diffPrev === 1) {
-      return `Passa un minut de ${anterior.text} ${dia}`;
-    } else {
-      return `Passen ${numeroEnLletres(diffPrev)} minuts de ${anterior.text} ${dia}`;
+
+    function formatHoraCatalana(h, m) {
+      const h12 = h % 12 || 12;
+      const next = h12 % 12 + 1;
+      const baseHora = horaAmbArticle(h12);
+      const horaSeguent = horaAmbArticle(next);
+      const dia = prefixDia(h);
+
+      if (m === 0) return (h12 === 1 ? 'És ' : 'Són ') + baseHora + ' en punt ' + dia;
+      if (m === 15) return 'És un quart ' + deHora(next) + ' ' + dia;
+      if (m === 30) return 'Són dos quarts ' + deHora(next) + ' ' + dia;
+      if (m === 45) return 'Són tres quarts ' + deHora(next) + ' ' + dia;
+
+      if (m >= 7 && m <= 8) return 'És mig quart ' + deHora(next) + ' ' + dia;
+      if (m >= 22 && m <= 23) return 'És un quart i mig ' + deHora(next) + ' ' + dia;
+      if (m >= 37 && m <= 38) return 'Són dos quarts i mig ' + deHora(next) + ' ' + dia;
+      if (m >= 52 && m <= 53) return 'Són tres quarts i mig ' + deHora(next) + ' ' + dia;
+
+      const quarts = [
+        { min: 15, text: 'un quart ' + deHora(next) },
+        { min: 30, text: 'dos quarts ' + deHora(next) },
+        { min: 45, text: 'tres quarts ' + deHora(next) },
+        { min: 60, text: horaSeguent }
+      ];
+
+      let proper = quarts.find(q => m < q.min);
+      let anterior = quarts[quarts.indexOf(proper) - 1] || { min: 0, text: baseHora };
+
+      const diffNext = proper.min - m;
+      const diffPrev = m - anterior.min;
+
+      if (diffNext <= 5) {
+        if (diffNext === 1) {
+          return `Falta un minut per a ${proper.text} ${dia}`;
+        } else {
+          return `Falten ${numeroEnLletres(diffNext)} minuts per a ${proper.text} ${dia}`;
+        }
+      } else {
+        if (diffPrev === 1) {
+          return `Passa un minut de ${anterior.text} ${dia}`;
+        } else {
+          return `Passen ${numeroEnLletres(diffPrev)} minuts de ${anterior.text} ${dia}`;
+        }
+      }
     }
-  }
-}
-
-
 
     function updateClock(h, m) {
       let h12 = h % 12 || 12;
@@ -248,7 +247,7 @@ function formatHoraCatalana(h, m) {
       const lletres = ['zero','un','dos','tres','quatre','cinc','sis','set','vuit','nou','deu',
         'onze','dotze','tretze','catorze','quinze','setze','disset','divuit','dinou','vint',
         'vint-i-un','vint-i-dos','vint-i-tres','vint-i-quatre','vint-i-cinc','vint-i-sis',
-        'vint-i-set','vint-i-vuit','vint-i-nou','trenta','trenta-u'];
+        'vint-i-set','vint-i-vuit','vint-i-nou','trenta','trenta-un']; // ✅ CORREGIT
       return lletres[n];
     }
 
@@ -318,7 +317,7 @@ function formatHoraCatalana(h, m) {
       const diaMes = d.getDate() < 31 ? numeroOrdinals(d.getDate()) : convertirNumero(d.getDate());
       const mes = mesos[d.getMonth()];
       const any = anyEnLletres(d.getFullYear());
-      return `Avui és ${diaSetmana}, ${diaMes} ${mes} de ${any}`;
+      return `Avui és ${diaSetmana}, ${diaMes} ${mes} ${any}`; // ✅ CORREGIT
     }
 
     /* ------------------- Control ------------------- */
@@ -335,37 +334,30 @@ function formatHoraCatalana(h, m) {
       document.getElementById('year-input').value = now.getFullYear();
     }
 
-    /* ✅ FUNCIO CORREGIDA */
     function setCustom() {
-  const h = parseInt(document.getElementById('hour-input').value, 10);
-  const m = parseInt(document.getElementById('minute-input').value, 10);
-  const dateStr = document.getElementById('date-input').value;
-  const daySel = parseInt(document.getElementById('day-select').value, 10);
-  const monthSel = parseInt(document.getElementById('month-select').value, 10);
-  const yearVal = parseInt(document.getElementById('year-input').value, 10);
+      const h = parseInt(document.getElementById('hour-input').value, 10);
+      const m = parseInt(document.getElementById('minute-input').value, 10);
+      const dateStr = document.getElementById('date-input').value;
+      const daySel = parseInt(document.getElementById('day-select').value, 10);
+      const monthSel = parseInt(document.getElementById('month-select').value, 10);
+      const yearVal = parseInt(document.getElementById('year-input').value, 10);
 
-  let d = null;
+      let d = null;
 
-  if (dateStr) {
-    // Si l'usuari ha fet servir el <input type="date">
-    d = new Date(dateStr);
-  } else if (!isNaN(daySel) && !isNaN(monthSel) && !isNaN(yearVal)) {
-    // Si ha fet servir els desplegables + any
-    d = new Date(yearVal, monthSel, daySel);
-  } else {
-    // Si no hi ha data, agafem avui
-    d = new Date();
-  }
+      if (dateStr) {
+        d = new Date(dateStr);
+      } else if (!isNaN(daySel) && !isNaN(monthSel) && !isNaN(yearVal)) {
+        d = new Date(yearVal, monthSel, daySel);
+      } else {
+        d = new Date();
+      }
 
-  // Si ha posat hora i minut, els apliquem a la data
-  if (!isNaN(h)) d.setHours(h);
-  if (!isNaN(m)) d.setMinutes(m);
+      if (!isNaN(h)) d.setHours(h);
+      if (!isNaN(m)) d.setMinutes(m);
 
-  // Actualitzar rellotge i text
-  updateClock(d.getHours(), d.getMinutes());
-  document.getElementById('date-text').innerText = formatData(d);
-}
-
+      updateClock(d.getHours(), d.getMinutes());
+      document.getElementById('date-text').innerText = formatData(d);
+    }
 
     /* ------------------- Veu ------------------- */
     function speakAll() {
@@ -383,36 +375,27 @@ function formatHoraCatalana(h, m) {
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
       } else {
+        // ✅ CORREGIT: registre coherent
         document.getElementById('voice-info').textContent = 
-          'No s\'ha pogut carregar cap veu en català. Si us plau, actualitzi el seu navegador.';
+          'No s\'ha pogut carregar cap veu en català. Si us plau, actualitzeu el navegador.';
       }
     }
 
     /* ------------------- Inicialització ------------------- */
     const daySelect = document.getElementById('day-select');
     for (let i = 1; i <= 31; i++) {
-      let opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = i;
-      daySelect.appendChild(opt);
+      const option = document.createElement('option');
+      option.value = i;
+      option.text = i;
+      daySelect.appendChild(option);
     }
-    
     const monthSelect = document.getElementById('month-select');
-    mesos.forEach((m, i) => {
-      let opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = m.replace('de ','').replace('d\'','');
-      monthSelect.appendChild(opt);
-    });
-
-    setNow();
-    
-    const now = new Date();
-    const msToNext = (60 - now.getSeconds()) * 1000;
-    setTimeout(() => {
-      setNow();
-      setInterval(setNow, 60 * 1000);
-    }, msToNext);
+    for (let i = 0; i < 12; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.text = mesos[i];
+      monthSelect.appendChild(option);
+    }
   </script>
 </body>
 </html>
