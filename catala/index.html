@@ -317,7 +317,7 @@
       const diaMes = d.getDate() < 31 ? numeroOrdinals(d.getDate()) : convertirNumero(d.getDate());
       const mes = mesos[d.getMonth()];
       const any = anyEnLletres(d.getFullYear());
-      return `Avui és ${diaSetmana}, ${diaMes} ${mes} ${any}`; // ✅ CORREGIT
+      return `Avui és ${diaSetmana}, ${diaMes} ${mes} de l'any ${any}`; // ✅ CORREGIT
     }
 
     /* ------------------- Control ------------------- */
