@@ -49,6 +49,82 @@
       text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .example { font-style: italic; color: #0066cc; }
+    .instruccions {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 25px;
+  background-color: #fdf6e3;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.instruccions h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.instruccions .pas,
+.instruccions .exemples,
+.instruccions .curiositats,
+.instruccions .prova {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-left: 5px solid #3498db;
+  background-color: #ffffff;
+  border-radius: 10px;
+  transition: transform 0.2s;
+}
+
+.instruccions .pas:hover,
+.instruccions .exemples:hover,
+.instruccions .curiositats:hover,
+.instruccions .prova:hover {
+  transform: translateY(-3px);
+}
+
+.instruccions h3 {
+  margin-top: 0;
+  color: #2980b9;
+}
+
+.instruccions p {
+  line-height: 1.5;
+}
+
+.instruccions ul {
+  padding-left: 20px;
+}
+
+.instruccions ul li {
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.instruccions ul li::before {
+  content: "✅";
+  margin-right: 8px;
+}
+
+.instruccions .prova ul li::before {
+  content: "🧪";
+}
+
+.instruccions .curiositats ul li::before {
+  content: "💡";
+}
+
+.instruccions .exemples ul li::before {
+  content: "🕒";
+}
+
+.instruccions strong {
+  color: #c0392b;
+}
+
+    
   </style>
 </head>
 <body>
@@ -77,13 +153,60 @@
     <div id="time-text"></div>
     <div id="voice-info">S'estan carregant les veus...</div>
     
-    <div class="instructions">
-      <h3>Instruccions:</h3>
-      <p>Selecciona una data i hora per veure com es diuen en català.</p>
-      <p>Prova amb anys diferents (ex: 1999, 1492, 1789) per veure com es llegeixen correctament.</p>
-      <p class="example">Exemple: 1999 es llegeix "mil nou-cents noranta-nou"</p>
-    </div>
+   <div class="instruccions">
+  <h2>Com utilitzar l'eina d'hora en català</h2>
+
+  <p>Segueix aquests passos per aprendre a dir l'hora en català de manera correcta:</p>
+
+  <div class="pas">
+    <h3>1. Selecciona la data</h3>
+    <p>Fes clic al calendari i tria el dia que vols practicar.</p>
   </div>
+
+  <div class="pas">
+    <h3>2. Introdueix l'hora</h3>
+    <p>Escriu l'hora exacta que vols aprendre a dir (hores i minuts).</p>
+  </div>
+
+  <div class="pas">
+    <h3>3. Actualitza la visualització</h3>
+    <p>Prem el botó <strong>"Actualitza"</strong> per veure la data i l'hora en paraules.</p>
+  </div>
+
+  <div class="pas">
+    <h3>4. Escolta la pronunciació</h3>
+    <p>Prem <strong>"🔊 Escolta"</strong> per sentir com es pronuncia correctament.</p>
+  </div>
+
+  <div class="exemples">
+    <h3>Exemples pràctics</h3>
+    <ul>
+      <li>08:15 → "És un quart de les nou del matí"</li>
+      <li>13:30 → "Són dos quarts de dues de la tarda"</li>
+      <li>18:45 → "Són tres quarts de set de la tarda"</li>
+    </ul>
+  </div>
+
+  <div class="curiositats">
+    <h3>Curiositats</h3>
+    <ul>
+      <li>A Catalunya és habitual utilitzar quarts per expressar l'hora exacta.</li>
+      <li>Els articles i la manera de dir l'hora canvien segons si és matí, tarda o nit.</li>
+    </ul>
+  </div>
+
+  <div class="prova">
+    <h3>Prova-ho</h3>
+    <ul>
+      <li>Canvia la data i prova anys antics com 1492 o 1789.</li>
+      <li>Escolta la pronunciació diverses vegades i repeteix en veu alta.</li>
+      <li>Prova minuts irregulars (7, 22, 37, 52) i observa com canvia la frase.</li>
+    </ul>
+  </div>
+
+  <p>D'aquesta manera, no només veuràs l'hora en català, sinó que també entendràs com i per què es diu així.</p>
+</div>
+
 
   <script>
     /* ------------------- Configuració TTS ------------------- */
@@ -397,7 +520,9 @@
     }
     // Actualitza automàticament cada minut
 setNow(); // primera crida immediata
-setInterval(setNow, 60 * 1000); // després cada 60 segon      
+setInterval(setNow, 60 * 1000); // després cada 60 segons  
+    
   </script>
 </body>
 </html>
+
