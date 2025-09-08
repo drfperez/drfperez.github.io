@@ -395,7 +395,9 @@
       option.text = mesos[i];
       monthSelect.appendChild(option);
     }
+    // Actualitza automàticament cada minut
+setNow(); // primera crida immediata
+setInterval(setNow, 60 * 1000); // després cada 60 segon      
   </script>
 </body>
 </html>
-
