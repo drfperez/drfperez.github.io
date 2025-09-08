@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ca">
 <head>
   <meta charset="UTF-8" />
@@ -164,7 +164,6 @@
     }
 
     function numeroEnLletres(n) {
-      // ✅ CORREGIT: masculí per coherència en hores i minuts
       return ['zero','un','dos','tres','quatre','cinc','sis','set','vuit','nou','deu','onze','dotze'][n];
     }
     
@@ -247,7 +246,7 @@
       const lletres = ['zero','un','dos','tres','quatre','cinc','sis','set','vuit','nou','deu',
         'onze','dotze','tretze','catorze','quinze','setze','disset','divuit','dinou','vint',
         'vint-i-un','vint-i-dos','vint-i-tres','vint-i-quatre','vint-i-cinc','vint-i-sis',
-        'vint-i-set','vint-i-vuit','vint-i-nou','trenta','trenta-un']; // ✅ CORREGIT
+        'vint-i-set','vint-i-vuit','vint-i-nou','trenta','trenta-un'];
       return lletres[n];
     }
 
@@ -317,12 +316,13 @@
       const diaMes = d.getDate() < 31 ? numeroOrdinals(d.getDate()) : convertirNumero(d.getDate());
       const mes = mesos[d.getMonth()];
       const any = anyEnLletres(d.getFullYear());
-      return `Avui és ${diaSetmana}, ${diaMes} ${mes} de l'any ${any}`; // ✅ CORREGIT
+      return `Avui és ${diaSetmana}, ${diaMes} ${mes} de l'any ${any}`;
     }
 
     /* ------------------- Control ------------------- */
     function setNow() {
       const now = new Date();
+      now.setSeconds(0, 0); // ✅ forcem segons i ms a 0
       updateClock(now.getHours(), now.getMinutes());
       document.getElementById('date-text').innerText = formatData(now);
       
@@ -353,7 +353,7 @@
       }
 
       if (!isNaN(h)) d.setHours(h);
-      if (!isNaN(m)) d.setMinutes(m);
+      if (!isNaN(m)) d.setMinutes(m, 0, 0); // ✅ ara segons i ms sempre a 0
 
       updateClock(d.getHours(), d.getMinutes());
       document.getElementById('date-text').innerText = formatData(d);
@@ -375,7 +375,6 @@
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
       } else {
-        // ✅ CORREGIT: registre coherent
         document.getElementById('voice-info').textContent = 
           'No s\'ha pogut carregar cap veu en català. Si us plau, actualitzeu el navegador.';
       }
@@ -399,3 +398,4 @@
   </script>
 </body>
 </html>
+
