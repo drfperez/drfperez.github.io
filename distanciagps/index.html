@@ -3,106 +3,231 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Triangle Rectangle — Teorema de Pitàgores</title>
+  <title>Distància entre Punt A i Punt B — Pitàgores pas a pas</title>
   <style>
-    body{margin:16px;font-family:sans-serif;background:#f7fafc;color:#0f172a}
-    h1{font-size:1.4rem;margin:0 0 12px}
-    .inputs{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px}
-    .box{background:white;padding:12px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
-    label{display:block;margin-top:4px;font-size:0.9rem}
-    input{width:100px;padding:6px;margin-top:2px;border:1px solid #ccc;border-radius:6px}
-    button{margin-top:12px;background:#0369a1;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
-    #steps{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;min-height:160px;overflow:auto}
-    canvas{margin-top:16px;border:1px solid #ccc;border-radius:8px;background:#fff}
+    :root{font-family:system-ui, -apple-system, 'Segoe UI', Roboto, Arial}
+    body{margin:18px;background:#f8fafc;color:#0f172a}
+    h1{font-size:1.3rem;margin:0 0 8px}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    .card{background:#fff;padding:12px;border-radius:8px;box-shadow:0 2px 6px rgba(2,6,23,0.06)}
+    label{display:block;font-size:0.95rem;margin-top:6px}
+    input[type=number]{width:160px;padding:6px;margin-top:4px;border:1px solid #e2e8f0;border-radius:6px}
+    button{margin-top:10px;padding:8px 12px;border-radius:8px;border:0;background:#0369a1;color:#fff;cursor:pointer}
+    button.secondary{background:#64748b}
+    #steps{margin-top:12px;padding:12px;border-radius:8px;background:#0f172a;color:#e6eef8;min-height:160px;overflow:auto}
+    canvas{display:block;margin-top:12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff}
+    small.hint{color:#475569}
   </style>
   <script>
-    window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]}};
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        displayMath: [['$$','$$'], ['\\[','\\]']]
+      },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
-  <h1>Triangle Rectangle — Teorema de Pitàgores pas a pas</h1>
-  <div class="inputs">
-    <div class="box">
-      <h2>Punt A</h2>
-      <label>x₁: <input type="number" id="x1" value="0"></label>
-      <label>y₁: <input type="number" id="y1" value="0"></label>
+  <h1>Distància entre Punt A i Punt B — Pitàgores pas a pas</h1>
+  <p class="hint">Introdueix primer la longitud i latitud del <strong>Punt A</strong> i prem <em>Registra A</em>. El sistema mostrarà "Esperant el Punt B..." fins que introdueixis i registris el Punt B. A continuació prem <em>Calcula i mostra passos</em> per veure la conversió i l'aplicació del teorema de Pitàgores en metres (aproximació equirectangular).</p>
+
+  <div class="row">
+    <div class="card" style="min-width:260px">
+      <h3>Punt A</h3>
+      <label>Latitud (°) <input id="latA" type="number" step="any" value="41.3851"></label>
+      <label>Longitud (°) <input id="lonA" type="number" step="any" value="2.1734"></label>
+      <button id="btnSetA">Registra A</button>
+      <div id="showA" style="margin-top:8px;font-size:0.95rem;color:#0f172a"></div>
     </div>
-    <div class="box">
-      <h2>Punt B</h2>
-      <label>x₂: <input type="number" id="x2" value="3"></label>
-      <label>y₂: <input type="number" id="y2" value="4"></label>
+
+    <div class="card" style="min-width:260px">
+      <h3>Punt B</h3>
+      <label>Latitud (°) <input id="latB" type="number" step="any" value="41.397"> </label>
+      <label>Longitud (°) <input id="lonB" type="number" step="any" value="2.160"></label>
+      <button id="btnSetB" class="secondary" disabled>Registra B</button>
+      <div id="showB" style="margin-top:8px;font-size:0.95rem;color:#0f172a"></div>
+    </div>
+
+    <div class="card" style="flex:1">
+      <h3>Accions</h3>
+      <button id="btnCompute" disabled>Calcula i mostra passos</button>
+      <button id="btnReset" class="secondary" style="margin-left:8px">Reinicia</button>
+      <div id="steps" aria-live="polite"><em>Els passos s'hi mostraran aquí...</em></div>
     </div>
   </div>
-  <button id="btnCalc">Calcula distància</button>
-  <div id="steps"><em>Els passos es mostraran aquí...</em></div>
-  <canvas id="sketch" width="500" height="350"></canvas>
+
+  <canvas id="sketch" width="700" height="360"></canvas>
 
   <script>
-    const stepsEl=document.getElementById('steps');
-    const canvas=document.getElementById('sketch');
-    const ctx=canvas.getContext('2d');
-
-    document.getElementById('btnCalc').onclick=()=>{
-      const x1=parseFloat(document.getElementById('x1').value);
-      const y1=parseFloat(document.getElementById('y1').value);
-      const x2=parseFloat(document.getElementById('x2').value);
-      const y2=parseFloat(document.getElementById('y2').value);
-
-      const dx=x2-x1;
-      const dy=y2-y1;
-      const c=Math.sqrt(dx*dx+dy*dy);
-
-      // Steps amb LaTeX
-      stepsEl.innerHTML=`
-        <h3>1) Diferències</h3>
-        $$\\Delta x = x_2 - x_1 = ${x2} - ${x1} = ${dx}$$
-        $$\\Delta y = y_2 - y_1 = ${y2} - ${y1} = ${dy}$$
-        <h3>2) Teorema de Pitàgores</h3>
-        $$c=\\√{(\\Delta x)^2+(\\Delta y)^2}$$
-        $$c=\\√{(${dx})^2+(${dy})^2}$$
-        $$c=\\√{${(dx*dx).toFixed(2)}+${(dy*dy).toFixed(2)}}$$
-        $$c=${c.toFixed(3)}$$
-      `;
-      MathJax.typesetPromise();
-
-      drawTriangle(x1,y1,x2,y2,dx,dy,c);
+    // Constants i utilitats
+    const R = 6371000; // radi de la Terra en metres
+    const toRad = deg => deg * Math.PI / 180;
+    const fmt = (n,d=6) => (Number(n).toFixed ? Number(n).toFixed(d) : n);
+    const parseInput = id => {
+      const el = document.getElementById(id);
+      const s = (el.value+'').trim().replace(',','.');
+      const v = parseFloat(s);
+      return isNaN(v) ? null : v;
     };
 
-    function drawTriangle(x1,y1,x2,y2,dx,dy,c){
+    // Elements
+    const btnSetA = document.getElementById('btnSetA');
+    const btnSetB = document.getElementById('btnSetB');
+    const btnCompute = document.getElementById('btnCompute');
+    const btnReset = document.getElementById('btnReset');
+    const showA = document.getElementById('showA');
+    const showB = document.getElementById('showB');
+    const stepsEl = document.getElementById('steps');
+    const canvas = document.getElementById('sketch');
+    const ctx = canvas.getContext('2d');
+
+    // Estat
+    let A = null; // {lat, lon}
+    let B = null;
+
+    // Inicialitza
+    clearCanvas();
+
+    btnSetA.addEventListener('click', ()=>{
+      const lat = parseInput('latA');
+      const lon = parseInput('lonA');
+      if(lat===null || lon===null){ alert('Introdueix latitud i longitud vàlides per al Punt A.'); return; }
+      A = {lat: lat, lon: lon};
+      showA.innerHTML = `<strong>Punt A:</strong> lat = ${fmt(A.lat,6)}°, lon = ${fmt(A.lon,6)}°`;
+      // activar B
+      btnSetB.disabled = false;
+      stepsEl.innerHTML = `<p><strong>Punt A registrat:</strong> (${fmt(A.lat,6)}°, ${fmt(A.lon,6)}°)</p><p style="font-weight:700;color:#ffd966">Esperant el Punt B...</p>`;
+      MathJax.typesetPromise().catch(()=>{});
+      B = null; showB.innerHTML = '';
+      btnCompute.disabled = true;
+      clearCanvas();
+    });
+
+    btnSetB.addEventListener('click', ()=>{
+      if(!A){ alert('Primer registra el Punt A.'); return; }
+      const lat = parseInput('latB');
+      const lon = parseInput('lonB');
+      if(lat===null || lon===null){ alert('Introdueix latitud i longitud vàlides per al Punt B.'); return; }
+      B = {lat: lat, lon: lon};
+      showB.innerHTML = `<strong>Punt B:</strong> lat = ${fmt(B.lat,6)}°, lon = ${fmt(B.lon,6)}°`;
+      stepsEl.innerHTML = `<p><strong>Punt A:</strong> (${fmt(A.lat,6)}°, ${fmt(A.lon,6)}°)</p>
+                           <p><strong>Punt B:</strong> (${fmt(B.lat,6)}°, ${fmt(B.lon,6)}°)</p>
+                           <p style="font-weight:700;color:#60a5fa">Punt B registrat. Ja pots prémer <em>Calcula i mostra passos</em>.</p>`;
+      MathJax.typesetPromise().catch(()=>{});
+      btnCompute.disabled = false;
+      clearCanvas();
+    });
+
+    btnCompute.addEventListener('click', ()=>{
+      if(!A || !B){ alert('Cal registrar A i B abans de calcular.'); return; }
+
+      // Diferències en graus
+      const dLat = B.lat - A.lat; // lat_B - lat_A
+      const dLon = B.lon - A.lon; // lon_B - lon_A
+
+      // Radians
+      const dLatRad = toRad(dLat);
+      const dLonRad = toRad(dLon);
+      const meanLat = (A.lat + B.lat)/2;
+      const meanLatRad = toRad(meanLat);
+
+      // Metres (aproximació equirectangular)
+      const dy = R * dLatRad; // component nord-sud
+      const dx = R * dLonRad * Math.cos(meanLatRad); // component est-oest corregida
+
+      const c = Math.sqrt(dx*dx + dy*dy);
+
+      // Construir passos en LaTeX pas a pas
+      const steps = [];
+      steps.push('<h3>1) Coordenades registrades</h3>');
+      steps.push(`<p>\\(A=(\mathrm{lat}_A,\;\mathrm{lng}_A)=(${fmt(A.lat,6)}^\circ,\;${fmt(A.lon,6)}^\circ)\\)</p>`);
+      steps.push(`<p>\\(B=(\mathrm{lat}_B,\;\mathrm{lng}_B)=(${fmt(B.lat,6)}^\circ,\;${fmt(B.lon,6)}^\circ)\\)</p>`);
+
+      steps.push('<h3>2) Diferències en graus</h3>');
+      steps.push(`<p>\\(\\Delta\mathrm{lat}=\mathrm{lat}_B-\mathrm{lat}_A=${fmt(B.lat,6)}- ${fmt(A.lat,6)}=${fmt(dLat,6)}^\circ\\)</p>`);
+      steps.push(`<p>\\(\\Delta\mathrm{lng}=\mathrm{lng}_B-\mathrm{lng}_A=${fmt(B.lon,6)}- ${fmt(A.lon,6)}=${fmt(dLon,6)}^\circ\\)</p>`);
+
+      steps.push('<h3>3) Convertir graus a radians</h3>');
+      steps.push(`<p>\\(\\Delta\mathrm{lat}_{rad}=${fmt(dLat,6)}\\times\\dfrac{\\pi}{180}=${dLatRad.toFixed(8)}\\ \text{rad}\\)</p>`);
+      steps.push(`<p>\\(\\Delta\mathrm{lng}_{rad}=${fmt(dLon,6)}\\times\\dfrac{\\pi}{180}=${dLonRad.toFixed(8)}\\ \text{rad}\\)</p>`);
+      steps.push(`<p>\\(\text{lat\ mig}=\\dfrac{\\mathrm{lat}_A+\\mathrm{lat}_B}{2}=${fmt(meanLat,6)}^\circ=${meanLatRad.toFixed(8)}\\ \text{rad}\\)</p>`);
+
+      steps.push('<h3>4) Convertir radians a metres (aproximació equirectangular)</h3>');
+      steps.push(`<p>\\(\\Delta y = R \\times \\Delta\mathrm{lat}_{rad} = ${R} \\times ${dLatRad.toFixed(8)} = ${dy.toFixed(3)}\\ \text{m}\\)</p>`);
+      steps.push(`<p>\\(\\Delta x = R \\times \\Delta\mathrm{lng}_{rad} \\times \\cos(\text{lat\ mig}) = ${R} \\times ${dLonRad.toFixed(8)} \\times \\cos(${meanLatRad.toFixed(8)}) = ${dx.toFixed(3)}\\ \text{m}\\)</p>`);
+
+      steps.push('<h3>5) Aplicar el teorema de Pitàgores</h3>');
+      steps.push(`\\(c=\\sqrt{(\\Delta x)^2+(\\Delta y)^2}=\\sqrt{(${dx.toFixed(3)})^2+(${dy.toFixed(3)})^2}\\)`);
+      steps.push(`\\(c=\\sqrt{${(dx*dx).toFixed(6)}+${(dy*dy).toFixed(6)}}=${c.toFixed(3)}\\ \text{m}\\)`);
+
+      steps.push('<h3>Observacions</h3>');
+      steps.push('<p>Per a distàncies molt grans aquesta aproximació pot ser menys precisa; aleshores s\'hauria d\'usar l\'equació d\'Haversine o geodèsia exacta.</p>');
+
+      stepsEl.innerHTML = steps.join('\n');
+
+      // Typeset MathJax
+      MathJax.typesetPromise().catch(err=>console.error(err));
+
+      // Dibuixa triangle rectangle amb Δx i Δy (valors en metres)
+      drawTriangle(dx, dy, c);
+    });
+
+    btnReset.addEventListener('click', ()=>{
+      A = B = null;
+      showA.innerHTML = showB.innerHTML = '';
+      btnSetB.disabled = true; btnCompute.disabled = true;
+      stepsEl.innerHTML = '<em>Els passos s\'hi mostraran aquí...</em>';
+      clearCanvas();
+    });
+
+    function clearCanvas(){
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      const margin=40;
-      const W=canvas.width-margin*2;
-      const H=canvas.height-margin*2;
-      const max=Math.max(Math.abs(dx),Math.abs(dy));
-      const scale= (max===0)?1:Math.min(W/Math.abs(dx||1), H/Math.abs(dy||1))*0.8;
+      // fons clar
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
 
-      const x0=margin;
-      const y0=canvas.height-margin;
-      const Ax=x0, Ay=y0;
-      const Bx=x0+dx*scale, By=y0-dy*scale;
+    function drawTriangle(dx, dy, c){
+      clearCanvas();
+      // utilitzem valors absoluts per representar longituds
+      const dxAbs = Math.abs(dx);
+      const dyAbs = Math.abs(dy);
 
-      ctx.beginPath();
-      ctx.moveTo(Ax,Ay);
-      ctx.lineTo(Bx,Ay);
-      ctx.lineTo(Bx,By);
-      ctx.closePath();
-      ctx.strokeStyle='#0f172a';
-      ctx.lineWidth=2;
-      ctx.stroke();
+      const margin = 50;
+      const W = canvas.width - margin*2;
+      const H = canvas.height - margin*2;
 
-      ctx.beginPath();
-      ctx.moveTo(Ax,Ay); ctx.lineTo(Bx,By); ctx.stroke();
+      // Evitem divisió per zero
+      const maxLeg = Math.max(dxAbs, dyAbs, 1);
+      const scale = 0.85 * Math.min(W / maxLeg, H / maxLeg);
 
-      ctx.fillStyle='#0369a1';
-      ctx.beginPath(); ctx.arc(Ax,Ay,5,0,2*Math.PI); ctx.fill(); ctx.fillText('A',Ax-15,Ay+15);
-      ctx.fillStyle='#ef4444';
-      ctx.beginPath(); ctx.arc(Bx,By,5,0,2*Math.PI); ctx.fill(); ctx.fillText('B',Bx+10,By-10);
+      const Ax = margin;
+      const Ay = canvas.height - margin; // origen a baix-esquerra
+      const Bx = Ax + dxAbs * scale;
+      const By = Ay - dyAbs * scale;
 
-      ctx.fillStyle='#0f172a';
-      ctx.fillText(`Δx=${dx}`, (Ax+Bx)/2, Ay-5);
-      ctx.fillText(`Δy=${dy}`, Bx+5, (Ay+By)/2);
-      ctx.fillText(`c=${c.toFixed(2)}`, (Ax+Bx)/2, (Ay+By)/2);
+      // dibuixar catets i hipotenusa
+      ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2;
+      // catet horitzontal
+      ctx.beginPath(); ctx.moveTo(Ax, Ay); ctx.lineTo(Bx, Ay); ctx.stroke();
+      // catet vertical
+      ctx.beginPath(); ctx.moveTo(Bx, Ay); ctx.lineTo(Bx, By); ctx.stroke();
+      // hipotenusa
+      ctx.beginPath(); ctx.moveTo(Ax, Ay); ctx.lineTo(Bx, By); ctx.stroke();
+
+      // punts
+      ctx.fillStyle = '#0369a1'; ctx.beginPath(); ctx.arc(Ax, Ay, 5, 0, Math.PI*2); ctx.fill(); ctx.fillText('A', Ax-20, Ay+15);
+      ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(Bx, By, 5, 0, Math.PI*2); ctx.fill(); ctx.fillText('B', Bx+8, By-8);
+
+      // etiquetes metres
+      ctx.fillStyle = '#0f172a'; ctx.fillText(`Δx = ${dx.toFixed(3)} m`, (Ax+Bx)/2 - 30, Ay + 18);
+      ctx.fillText(`Δy = ${dy.toFixed(3)} m`, Bx + 8, (Ay+By)/2);
+      ctx.fillText(`c = ${c.toFixed(3)} m`, (Ax+Bx)/2 - 20, (Ay+By)/2 - 8);
+
+      // dibuixar quadrat d'angle recte
+      const small = 14;
+      ctx.beginPath(); ctx.moveTo(Bx - small, Ay); ctx.lineTo(Bx - small, Ay - small); ctx.lineTo(Bx, Ay - small); ctx.stroke();
     }
   </script>
 </body>
