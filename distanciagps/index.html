@@ -4,44 +4,30 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Distància entre Punt A i Punt B — Pitàgores pas a pas</title>
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sA+qGqQZ0g5m3m1kQqG7xv/Pw+f2k4s9V8R5cQZqJq3+e2Qf3g9y8m5z6aYb7c8b" crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <style>
-    :root{font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;}
-    body{margin:16px; background:#f7fafc; color:#0f172a}
+    body{margin:16px;font-family:sans-serif;background:#f7fafc;color:#0f172a}
     h1{font-size:1.4rem;margin:0 0 8px}
     .panel{display:grid;grid-template-columns:1fr 420px;gap:16px}
-    #map{height:480px;border-radius:8px;border:1px solid rgba(2,6,23,0.08)}
+    #map{height:480px;border-radius:8px;border:1px solid #ccc}
     .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
     button{background:#0369a1;color:white;border:none;padding:8px 10px;border-radius:6px;cursor:pointer}
     button.secondary{background:#64748b}
-    .info{background:white;padding:12px;border-radius:8px;box-shadow:0 2px 6px rgba(2,6,23,0.06)}
+    .info{background:white;padding:12px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
     .coord{display:flex;gap:6px;align-items:center;margin-bottom:6px}
     .coord input{width:180px;padding:6px;border:1px solid #e2e8f0;border-radius:6px}
     #steps{margin-top:8px;padding:10px;border-radius:6px;background:#0f172a;color:#e6eef8;min-height:160px;overflow:auto}
-    canvas{width:100%;height:220px;border-radius:8px;background:#fff;margin-top:10px;border:1px solid rgba(2,6,23,0.06)}
-    small.hint{color:#475569}
+    canvas{width:100%;height:220px;border-radius:8px;background:#fff;margin-top:10px;border:1px solid #ccc}
     footer{margin-top:12px;font-size:0.9rem;color:#475569}
     @media (max-width:980px){.panel{grid-template-columns:1fr}#map{height:360px}}
   </style>
-  <!-- MathJax v3 config -->
   <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$','$'], ['\\(','\\)']],
-        displayMath: [['$$','$$'], ['\\[','\\]']
-      },
-      options: {
-        skipHtmlTags: ['script','noscript','style','textarea','pre','code']
-      }
-    };
+    window.MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] } };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
   <h1>Distància entre Punt A i Punt B — Pitàgores pas a pas</h1>
-  <p class="hint">Feu servir el mapa per establir els punts o utilitzeu la vostra ubicació. El procés mostrarà pas a pas la conversió de graus a metres i aplicarà el teorema de Pitàgores amb MathJax.</p>
-
   <div class="controls">
     <button id="btnSetA">Posicionar A</button>
     <button id="btnSetB">Posicionar B</button>
@@ -52,47 +38,103 @@
   </div>
 
   <div class="panel">
-    <div>
-      <div id="map"></div>
-    </div>
-
+    <div><div id="map"></div></div>
     <div class="info">
       <h2>Coordenades</h2>
-      <div>
-        <strong>Punt A</strong>
-        <div class="coord">
-          <label>Lat:</label>
-          <input id="latA" readonly />
-        </div>
-        <div class="coord">
-          <label>Lng:</label>
-          <input id="lngA" readonly />
-        </div>
+      <div><strong>Punt A</strong>
+        <div class="coord"><label>Lat:</label><input id="latA" readonly /></div>
+        <div class="coord"><label>Lng:</label><input id="lngA" readonly /></div>
       </div>
-
-      <div style="margin-top:8px">
-        <strong>Punt B</strong>
-        <div class="coord">
-          <label>Lat:</label>
-          <input id="latB" readonly />
-        </div>
-        <div class="coord">
-          <label>Lng:</label>
-          <input id="lngB" readonly />
-        </div>
+      <div style="margin-top:8px"><strong>Punt B</strong>
+        <div class="coord"><label>Lat:</label><input id="latB" readonly /></div>
+        <div class="coord"><label>Lng:</label><input id="lngB" readonly /></div>
       </div>
-
-      <div id="steps" aria-live="polite">
-        <em>Els passos s'hi mostraran quan hi hagi dos punts.</em>
-      </div>
-
+      <div id="steps"><em>Els passos s'hi mostraran quan hi hagi dos punts.</em></div>
       <canvas id="sketch" width="600" height="300"></canvas>
-
-      <footer>
-        <small>R de la Terra usada: $R = 6\,371\,000\ \text{m}$. Conversió: radians $=\text{graus}\times\tfrac{\pi}{180}$.</small>
-      </footer>
+      <footer><small>R de la Terra usada: $R = 6\,371\,000\ \text{m}$.</small></footer>
     </div>
   </div>
 
-  <!-- Leaflet JS -->
-  <scr
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    const R = 6371000;
+    const toRad = deg => deg * Math.PI / 180;
+    let map = L.map('map').setView([41.3851, 2.1734], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+
+    let mode=null, markerA=null, markerB=null;
+    const latAEl=document.getElementById('latA'), lngAEl=document.getElementById('lngA');
+    const latBEl=document.getElementById('latB'), lngBEl=document.getElementById('lngB');
+    const stepsEl=document.getElementById('steps');
+    const sketch=document.getElementById('sketch');
+    const ctx=sketch.getContext('2d');
+
+    function fmt(n,d=6){return n.toFixed(d)}
+
+    map.on('click',e=>{ if(mode==='A') setPointA(e.latlng); else if(mode==='B') setPointB(e.latlng); });
+    document.getElementById('btnSetA').onclick=()=>{mode='A';alert('Clica al mapa per establir Punt A');};
+    document.getElementById('btnSetB').onclick=()=>{mode='B';alert('Clica al mapa per establir Punt B');};
+    document.getElementById('btnLocateA').onclick=()=>locateAndSet('A');
+    document.getElementById('btnLocateB').onclick=()=>locateAndSet('B');
+    document.getElementById('btnReset').onclick=resetAll;
+    document.getElementById('btnCompute').onclick=computeAndShowSteps;
+
+    function setPointA(latlng){
+      if(markerA) markerA.setLatLng(latlng); else markerA=L.marker(latlng).addTo(map).bindPopup('Punt A');
+      latAEl.value=fmt(latlng.lat); lngAEl.value=fmt(latlng.lng); mode=null; fit();
+    }
+    function setPointB(latlng){
+      if(markerB) markerB.setLatLng(latlng); else markerB=L.marker(latlng).addTo(map).bindPopup('Punt B');
+      latBEl.value=fmt(latlng.lat); lngBEl.value=fmt(latlng.lng); mode=null; fit();
+    }
+    function locateAndSet(which){
+      if(!navigator.geolocation){alert('No hi ha geolocalització');return;}
+      navigator.geolocation.getCurrentPosition(p=>{
+        const latlng={lat:p.coords.latitude,lng:p.coords.longitude};
+        if(which==='A') setPointA(latlng); else setPointB(latlng);
+      },err=>alert('Error geolocalització: '+err.message));
+    }
+    function resetAll(){
+      if(markerA) map.removeLayer(markerA); if(markerB) map.removeLayer(markerB);
+      markerA=markerB=null; latAEl.value=lngAEl.value=latBEl.value=lngBEl.value='';
+      stepsEl.innerHTML='<em>Els passos s\\'hi mostraran quan hi hagi dos punts.</em>';
+      ctx.clearRect(0,0,sketch.width,sketch.height);
+    }
+    function fit(){
+      let pts=[]; if(markerA) pts.push(markerA.getLatLng()); if(markerB) pts.push(markerB.getLatLng());
+      if(pts.length===1) map.setView(pts[0],15); else if(pts.length===2) map.fitBounds(L.latLngBounds(pts),{padding:[40,40]});
+    }
+
+    function computeAndShowSteps(){
+      if(!markerA||!markerB){alert('Cal establir A i B');return;}
+      const A=markerA.getLatLng(), B=markerB.getLatLng();
+      const dLat=B.lat-A.lat, dLon=B.lng-A.lng, meanLat=(A.lat+B.lat)/2;
+      const dLatRad=toRad(dLat), dLonRad=toRad(dLon), meanLatRad=toRad(meanLat);
+      const dy=dLatRad*R, dx=dLonRad*R*Math.cos(meanLatRad);
+      const c=Math.sqrt(dx*dx+dy*dy);
+
+      stepsEl.innerHTML=`<h3>1) Diferències</h3>
+        $$\\Delta lat=${fmt(dLat)}^\\circ,\\quad \\Delta lng=${fmt(dLon)}^\\circ$$
+        <h3>2) En radians</h3>
+        $$\\Delta lat=${dLatRad.toFixed(8)}\\ rad,\\quad \\Delta lng=${dLonRad.toFixed(8)}\\ rad$$
+        <h3>3) En metres</h3>
+        $$dy=${dy.toFixed(3)}m,\\quad dx=${dx.toFixed(3)}m$$
+        <h3>4) Pitàgores</h3>
+        $$c=\\sqrt{dx^2+dy^2}=${c.toFixed(3)}m$$`;
+      MathJax.typesetPromise();
+      draw(dx,dy,c);
+    }
+    function draw(dx,dy,c){
+      ctx.clearRect(0,0,sketch.width,sketch.height);
+      const margin=40, W=sketch.width-margin*2, H=sketch.height-margin*2;
+      const scale=0.9*Math.min(W/Math.abs(dx), H/Math.abs(dy));
+      const x0=margin, y0=sketch.height-margin;
+      const xB=x0+dx*scale, yB=y0-dy*scale;
+      ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(xB,y0); ctx.lineTo(xB,yB); ctx.closePath(); ctx.stroke();
+      ctx.fillText(`dx=${dx.toFixed(1)}m`,(x0+xB)/2,y0-5);
+      ctx.fillText(`dy=${dy.toFixed(1)}m`,xB+5,(y0+yB)/2);
+      ctx.fillText(`c=${c.toFixed(1)}m`,(x0+xB)/2,(y0+yB)/2);
+    }
+  </script>
+</body>
+</html>
