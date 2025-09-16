@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Problema de navegació — Tarifa → Ceuta (didàctic detallat)</title>
+
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$']]},
+      svg: {fontCache: 'global'}
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:20px;line-height:1.7;color:#123}
+    h1,h2,h3{color:#0b3d91}
+    .formula{background:#f7f7f9;padding:12px;border-radius:6px;margin:10px 0;text-align:center}
+    table{border-collapse:collapse;margin:10px 0}
+    td,th{padding:6px;border:1px solid #ccc}
+    .step{margin:10px 0;padding-left:15px;border-left:3px solid #0b3d91}
+    .note{margin:8px 0;padding:8px;background:#fff8dc;border-left:4px solid #ffcc00}
+   img {
+  max-width: 100%;
+  height: auto;
+  display: block; /* opcional: elimina pequeños espacios debajo de la imagen */
+}
+ 
+    
+  </style>
+</head>
+<body>
+  <h1>Problema de navegació — Tarifa → Ceuta</h1>
+
+  <h2>0) Conversió de coordenades (DMS → decimal)</h2>
+  <p>Per treballar amb fórmules trigonomètriques, necessitem les coordenades en decimal. A continuació convertim pas a pas.</p>
+
+  <h3>Tarifa</h3>
+  <table>
+    <tr><th>Latitud (DMS)</th><td>36° 0′ 45″ N</td></tr>
+    <tr><th>Longitud (DMS)</th><td>5° 36′ 20.16″ W</td></tr>
+  </table>
+  <div class="step">Per convertir a decimal: $$Lat = 36 + \frac{0}{60} + \frac{45}{3600} = 36.0125^\circ$$</div>
+  <div class="step">I la longitud: $$Lon = -(5 + \frac{36}{60} + \frac{20.16}{3600}) = -5.6056^\circ$$</div>
+
+  <h3>Ceuta</h3>
+  <table>
+    <tr><th>Latitud (DMS)</th><td>35° 53′ 17.88″ N</td></tr>
+    <tr><th>Longitud (DMS)</th><td>5° 18′ 56.16″ W</td></tr>
+  </table>
+  <div class="step">Latitud en decimal: $$Lat = 35 + \frac{53}{60} + \frac{17.88}{3600} = 35.8883^\circ$$</div>
+  <div class="step">Longitud en decimal: $$Lon = -(5 + \frac{18}{60} + \frac{56.16}{3600}) = -5.3156^\circ$$</div>
+
+  <h2>1) Diferències angulars</h2>
+  <p>Calcularem la diferència de latitud i longitud per després aplicar Haversine:</p>
+  <div class="step">$$\Delta \varphi = Lat_{Ceuta} - Lat_{Tarifa} = -0.1242^\circ$$</div>
+  <div class="step">$$\Delta \lambda = Lon_{Ceuta} - Lon_{Tarifa} = 0.2900^\circ$$</div>
+  <p>Convertim a radians, ja que trigonometria utilitza radians:</p>
+  <div class="step">$$\Delta \varphi_{rad} = -0.1242 \times \frac{\pi}{180} = -0.002166\ rad$$</div>
+  <div class="step">$$\Delta \lambda_{rad} = 0.2900 \times \frac{\pi}{180} = 0.005061\ rad$$</div>
+
+  <h2>2) Distància amb Haversine</h2>
+  <p>Haversine permet calcular distància sobre la superfície esfèrica de la Terra:</p>
+  <div class="step">$$a = \sin^2\left(\frac{\Delta \varphi}{2}\right) + \cos(Lat_{Tarifa} \frac{\pi}{180}) \cos(Lat_{Ceuta} \frac{\pi}{180}) \sin^2\left(\frac{\Delta \lambda}{2}\right)$$</div>
+  <div class="step">$$a \approx 3.39 \times 10^{-6}$$</div>
+  <div class="step">$$c = 2 \arcsin(\sqrt{a}) \approx 0.003567\ rad$$</div>
+  <div class="step">Convertim a milles nàutiques: $$d_{NM} = \frac{6371 \cdot c}{1.852} \approx 15.945\ NM$$</div>
+
+  <h2>3) Rumb inicial</h2>
+  <p>El rumb indica la direcció inicial cap a Ceuta:</p>
+  <div class="step">$$y = \sin(\Delta \lambda_{rad}) \cos(Lat_{Ceuta} \frac{\pi}{180}) \approx 0.0041$$</div>
+  <div class="step">$$x = \cos(Lat_{Tarifa} \frac{\pi}{180}) \sin(Lat_{Ceuta} \frac{\pi}{180}) - \sin(Lat_{Tarifa} \frac{\pi}{180}) \cos(Lat_{Ceuta} \frac{\pi}{180}) \cos(\Delta \lambda_{rad}) \approx 0.0019$$</div>
+  <div class="step">$$\theta = \arctan2(y,x) \approx 117.79^\circ$$</div>
+
+  <h2>4) Aproximació plana</h2>
+  <p>Per veure-ho de manera geomètrica simple:</p>
+  <div class="step">Component Nord-Sud: $$NS = |\Delta Lat| \times 60 = 0.1242 \times 60 = 7.45\ NM$$</div>
+  <h2>Analitzant longitud vs latitud</h2>
+<p class="note">Un grau de latitud és constant a tota la Terra i representa aproximadament 60 milles nàutiques (111 km) entre paral·lels, perquè les línies de latitud són paral·leles i equidistants. En canvi, un grau de longitud varia amb la latitud. A l’equador, un grau de longitud també correspon a unes 60 milles nàutiques, però a mesura que ens acostem als pols, la distància entre dos meridians consecutius disminueix, ja que les línies de longitud convergeixen cap als pols, fins a trobar-se a zero a l’extrem nord i sud. Per calcular la distància real corresponent a un canvi de longitud en qualsevol latitud, hem de multiplicar la diferència de longitud per el factor \(\cos(lat\_mitjana)\). Així, encara que la diferència angular sigui la mateixa, la distància sobre la superfície terrestre depèn de la latitud, fent que un grau de longitud no sigui equivalent a un grau de latitud fora de l’equador. Aquesta correcció és essencial per obtenir distàncies precises quan es navega o es fa cartografia.</p>
+
+  
+  
+  <div class="step">Longitud a lat mitjana: $$1^\circ lon = 60 \cos(35.95^\circ) \approx 49.2\ NM$$</div>
+  <div class="step">Component Est-Oest: $$EW = \Delta Lon \times 49.2 = 0.2900 \times 49.2 \approx 14.27\ NM$$</div>
+  <div class="step">Distància total: $$d = \sqrt{NS^2 + EW^2} \approx 16.1\ NM$$</div>
+
+  <h2>5) Temps de travessia</h2>
+  <p>Temps = distància / velocitat:</p>
+  <div class="step">$$t = \frac{d_{NM}}{V} = \frac{15.945}{6} = 2.6575\ h$$</div>
+  <p>Convertim hores decimals a h:m:s pas a pas:</p>
+  <div class="step">Hores: $$H = \lfloor 2.6575 \rfloor = 2h$$</div>
+  <div class="step">Minuts decimals: $$(2.6575-2) \times 60 = 39.45m$$</div>
+  <div class="step">Minuts sencers: $$M = \lfloor 39.45 \rfloor = 39m$$</div>
+  <div class="step">Segons: $$(39.45-39) \times 60 = 27s$$</div>
+  <div class="step">Temps final: $$t = 2h\;39m\;27s$$</div>
+  <div class="step">Hora d'arribada: $$09:42:54 + 2:39:27 = 12:22:21$$</div>
+
+  <h2>6) Consum i cost de combustible</h2>
+  <div class="step">Consum total: $$Q = 18 \times 2.6575 \approx 47.84\ L$$</div>
+  <div class="step">Cost: $$Cost = 47.84 \times 1.425 \approx 68.17\ \text{€}$$</div>
+<h2>7) Vector de velocitat, corrent i vent (detall pas a pas)</h2>
+<p>Per calcular la trajectòria real de la nau, hem de combinar el vector de velocitat de la nau amb els vectors de corrent i vent. Ho fem en components cartesianes (Est = u, Nord = v) amb cada rumb.</p>
+
+<h3>Formules generals</h3>
+<div class="formula">$$u = s \sin\theta, \quad v = s \cos\theta$$
+On $s$ és la velocitat del vector i $\theta$ el rumb en graus.</div>
+
+<h3>Pas 1: Nau</h3>
+<p>Velocitat de la nau $s = 6\ kn$, rumb $\theta = 117.8°$:</p>
+<div class="step">Calcul del component Est (u):<br>$$u_{nau} = 6 \times \sin(117.8°) \approx 5.31$$</div>
+<div class="step">Calcul del component Nord (v):<br>$$v_{nau} = 6 \times \cos(117.8°) \approx -2.80$$</div>
+
+<h3>Pas 2: Corrent</h3>
+<p>Velocitat de la corrent $s = 1.5\ kn$, rumb $\theta = 120°$:</p>
+<div class="step">$$u_{corrent} = 1.5 \times \sin(120°) \approx 1.30$$</div>
+<div class="step">$$v_{corrent} = 1.5 \times \cos(120°) \approx -0.75$$</div>
+
+<h3>Pas 3: Vent</h3>
+<p>Velocitat del vent $s = 12\ kn$, rumb $\theta = 150°$:</p>
+<div class="step">$$u_{vent} = 12 \times \sin(150°) \approx 6.00$$</div>
+<div class="step">$$v_{vent} = 12 \times \cos(150°) \approx -10.39$$</div>
+
+<h3>Pas 4: Suma de vectors</h3>
+<p>Sumem component a component per obtenir el vector resultant:</p>
+<div class="step">Component Est (u):<br>$$u_{res} = u_{nau} + u_{corrent} + u_{vent} = 5.31 + 1.30 + 6.00 \approx 12.61$$</div>
+<div class="step">Component Nord (v):<br>$$v_{res} = v_{nau} + v_{corrent} + v_{vent} = -2.80 - 0.75 - 10.39 \approx -13.94$$</div>
+
+<h3>Pas 5: Magnitud i rumb del resultant</h3>
+<div class="step">Magnitud del vector resultant (velocitat efectiva):<br>$$S = \sqrt{u_{res}^2 + v_{res}^2} = \sqrt{12.61^2 + (-13.94)^2} \approx 18.8\ kn$$</div>
+<div class="step">Rumb del vector resultant:<br>$$\theta = \arctan2(u_{res}, v_{res}) = \arctan2(12.61, -13.94) \approx 137.9°$$</div>
+
+<p>Aquesta magnitud i rumb representen la trajectòria i velocitat real de la nau tenint en compte la influència del vent i la corrent, pas essencial per la navegació precisa.</p>
+
+<img src="foto.jpg">
+  
+
+  <h2>8) Resum final</h2>
+  <ul>
+    <li>Distància: 15.945 NM</li>
+    <li>Rumb: 117.8°</li>
+    <li>Temps: 2h 39m 27s</li>
+    <li>Arribada: 12:22:21</li>
+    <li>Consum: 47.84 L</li>
+    <li>Cost: 68.17 €</li>
+  </ul>
+</body>
+</html>
