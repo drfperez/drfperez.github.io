@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simulador Navegació - Ports i Mar</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -12,11 +13,13 @@
     #controls, #debug-panel { padding:1em; max-width:600px; margin:auto }
     label,input,button,select { width:100%; margin-top:5px }
     #debug-panel { background:#f0f0f0; font-family:monospace; }
+    #status { text-align:center; padding:0.5em; font-size:0.9em; }
   </style>
 </head>
 <body>
   <h2 style="text-align:center">🧭 Simulador - Ports i Mar</h2>
   <div id="map"></div>
+  <div id="status">⌛ Carregant dades de terra...</div>
 
   <div id="controls">
     <label>Vel. vaixell (nusos): <input type="number" id="velVaixell" value="7"></label>
@@ -44,11 +47,16 @@
       attribution:'© OpenStreetMap', maxZoom:18
     }).addTo(map);
 
-    // Capa de terra real (Natural Earth)
-    let land;
-    fetch('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m_physical/ne_110m_land.geojson')
-      .then(r => r.json())
-      .then(data => land = turf.featureCollection(data.features));
+    let land = null;
+
+    // --- Polígon simplificat hardcoded (Estret de Gibraltar) ---
+    const fallbackLand = turf.featureCollection([
+      turf.polygon([[
+        [-6.3, 36.6], [-5.6, 36.6], [-5.2, 36.1],
+        [-5.3, 35.9], [-5.9, 35.7], [-6.3, 35.9],
+        [-6.3, 36.6]
+      ]])
+    ]);
 
     const ports = {
       'Algesires':[36.133,-5.45],
@@ -56,6 +64,43 @@
       'Tànger Med':[35.88,-5.5]
     };
 
+    // --- Funció fetch amb timeout ---
+    function fetchWithTimeout(resource, options = {}) {
+      const { timeout = 5000 } = options;
+      return Promise.race([
+        fetch(resource).then(r => r.json()),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("timeout")), timeout)
+        )
+      ]);
+    }
+
+    // Intent de carregar terra real
+    fetchWithTimeout('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m_physical/ne_110m_land.geojson',{timeout:5000})
+      .then(data => {
+        land = turf.featureCollection(data.features);
+        document.getElementById("status").textContent = "✅ Capa real de terra carregada.";
+        addLandLayer(land);
+      })
+      .catch(err => {
+        console.warn("⚠️ Error o timeout. Ús de fallback:", err);
+        land = fallbackLand;
+        document.getElementById("status").textContent = "⚠️ No s'ha pogut carregar la capa real. S'està usant un mapa simplificat de l'Estret.";
+        addLandLayer(land);
+      });
+
+    // --- Afegir capa terra ---
+    function addLandLayer(geojson) {
+      L.geoJSON(geojson, {
+        style: {
+          color: "#666",
+          fillColor: "#ccc",
+          fillOpacity: 0.6
+        }
+      }).addTo(map);
+    }
+
+    // --- Afegim ports ---
     const portMarkers = L.layerGroup().addTo(map);
     for (let name in ports) {
       const [lat,lng] = ports[name];
@@ -69,7 +114,9 @@
       if (punts.length >= 2) {
         punts = [];
         map.eachLayer(l => {
-          if (l instanceof L.Marker && !Object.values(ports).flat().includes(l.getLatLng().lat)) map.removeLayer(l);
+          if (l instanceof L.Marker && !Object.values(ports).some(p=>p[0]===l.getLatLng().lat && p[1]===l.getLatLng().lng)) {
+            map.removeLayer(l);
+          }
           if (l instanceof L.Polyline) map.removeLayer(l);
         });
       }
@@ -78,7 +125,7 @@
     }
 
     map.on('click', e => {
-      if (!land) return alert('Carregant dades... espera un moment');
+      if (!land) return alert('⌛ Encara carregant dades de terra...');
       const point = turf.point([e.latlng.lng,e.latlng.lat]);
       if (turf.booleanPointInPolygon(point, land)) {
         alert('⛔ Aquest punt està a terra! Només mar o ports.');
@@ -135,14 +182,14 @@
 
     function mostrarDebug(d) {
       document.getElementById('debug-content').innerHTML = `
-        📍 Distància: ${d.dist.toFixed(2)} MN<br>
+        📍 Distància: ${d.dist.toFixed(2)} MN<br>
         🧭 Rumb inicial: ${d.rumb.toFixed(1)}°<br>
-        🌊 Corrent: dir ${d.dirC}°, vel ${d.velC} n<br>
-        💨 Vent: dir ${d.dirV}°, vel ${d.velVt} n<br>
-        ↔️ Vel. sense vent: ${d.velNoVent.toFixed(2)} n<br>
+        🌊 Corrent: dir ${d.dirC}°, vel ${d.velC} n<br>
+        💨 Vent: dir ${d.dirV}°, vel ${d.velVt} n<br>
+        ↔️ Vel. sense vent: ${d.velNoVent.toFixed(2)} n<br>
         ↕️ Rumb efectiu: ${d.rumbEf.toFixed(1)}°<br>
-        ⛵ Vel. final: ${d.velEf.toFixed(2)} n<br>
-        ⏱ Temps estimat: ${d.temps.toFixed(2)} h
+        ⛵ Vel. final: ${d.velEf.toFixed(2)} n<br>
+        ⏱ Temps estimat: ${d.temps.toFixed(2)} h
       `;
     }
   </script>
