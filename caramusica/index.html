@@ -66,8 +66,8 @@
 
   <div id="info">
     El sistema analiza tus expresiones faciales en tiempo real mediante inteligencia artificial (ml5.js)
-    para identificar tu estado emocional. Cada sentimiento detectado se asocia con una canción concreta de Coldplay
-    que comenzará a sonar solo cuando detengas la detección haciendo clic en "Parar".
+    para identificar tu estado emocional. La canción asociada solo se reproducirá al hacer clic en
+    “Parar la detección en este sentimiento”.
   </div>
 
   <script>
@@ -78,6 +78,7 @@
     let musicaActual = null;
     let sonidos = {};
     let deteccionActiva = true;
+    let audioIniciado = false; // control del contexto de audio
 
     const emocionesES = {
       happy: "feliz",
@@ -109,6 +110,7 @@
       neutral: "Don’t Panic (Coldplay)"
     };
 
+    // 1. Precarga de sonidos
     function preload() {
       sonidos.happy = loadSound("happy.mp3");
       sonidos.sad = loadSound("sad.mp3");
@@ -119,6 +121,7 @@
       sonidos.neutral = loadSound("neutral.mp3");
     }
 
+    // 2. Inicialización
     function setup() {
       createCanvas(windowWidth, windowHeight);
       video = createCapture(VIDEO);
@@ -131,25 +134,32 @@
         faceapi.detect(gotResults);
       });
 
+      // Listener del botón
       document.getElementById('toggleButton').addEventListener('click', toggleDeteccion);
     }
 
+    // 3. Control del botón Parar/Reanudar
     function toggleDeteccion() {
+      // Desbloquea el AudioContext al primer clic
+      if (!audioIniciado) {
+        userStartAudio(); // necesaria interacción del usuario
+        audioIniciado = true;
+      }
+
       deteccionActiva = !deteccionActiva;
       const boton = document.getElementById('toggleButton');
 
       if (deteccionActiva) {
-        // Reanudar detección y detener música
         boton.textContent = "Parar la detección en este sentimiento";
         if (musicaActual && musicaActual.isPlaying()) musicaActual.stop();
         faceapi.detect(gotResults);
       } else {
-        // Parar detección y reproducir la música del sentimiento actual
         boton.textContent = "Continuar la detección de sentimientos";
         reproducirMusica(currentExpression.dominant);
       }
     }
 
+    // 4. Detección facial
     function gotResults(err, results) {
       if (err) { console.error(err); return; }
       if (!deteccionActiva) return;
@@ -168,26 +178,24 @@
           maxIntensidad = exp[dominante];
         }
       });
-
-      // Actualiza solo el sentimiento actual sin reproducir música aún
       emocionActual = currentExpression.dominant;
     }
 
+    // 5. Reproducción controlada
     function reproducirMusica(emocion) {
       if (musicaActual && musicaActual.isPlaying()) musicaActual.stop();
       musicaActual = sonidos[emocion];
       if (musicaActual) musicaActual.play();
     }
 
+    // 6. Dibujo visual
     function draw() {
       background(240);
       smoothIntensity = lerp(smoothIntensity, currentExpression.intensity, 0.1);
 
-      // Video pequeño
       let vW = 160, vH = 120;
       image(video, width - vW - 20, height - vH - 20, vW, vH);
 
-      // Parte superior: textos
       fill(30);
       noStroke();
       textAlign(CENTER, TOP);
@@ -198,13 +206,12 @@
 
       textSize(22);
       text(`Canción asociada: ${canciones[currentExpression.dominant]}`, width/2, 70);
-      text(`La canción sonará solo al hacer clic en "Parar"`, width/2, 100);
+      text(`Pulsa “Parar” para reproducir la canción del sentimiento actual.`, width/2, 100);
 
-      // Emoji central grande y dinámico
       textAlign(CENTER, CENTER);
       let tam = map(smoothIntensity, 0, 1, 220, 400);
       textSize(tam);
-      text(emoji, width / 2, height / 2 + 40);
+      text(emoji, width/2, height/2 + 40);
     }
   </script>
 </body>
