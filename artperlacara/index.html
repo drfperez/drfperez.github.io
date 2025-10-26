@@ -1,0 +1,2497 @@
+
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mona Lisa Sentimental</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/ml5js/Intro-ML-Arts-IMA@ml5-build-10-7-19/ml5_build/ml5.min.js"></script>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background: #f0f0f0; }
+    #loading-screen {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(255,255,255,0.95); display: flex; flex-direction: column;
+      justify-content: center; align-items: center; font-family: Arial, sans-serif; z-index: 1000;
+    }
+    .loader {
+      width: 40px; height: 40px; border: 5px solid #3498db; border-top-color: transparent;
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading-screen p { margin-top: 15px; font-size: 1.1em; color: #333; }
+  </style>
+</head>
+<body>
+  <div id="loading-screen">
+    <div class="loader"></div>
+    <p>Carregant models...</p>
+  </div>
+  <script>
+    let faceapi, detections = [], video;
+    let modelsReady = false;
+    let currentExpression = { dominant: 'neutral', intensity: 0 };
+    let smoothIntensity = 0;
+
+    // Traducció d'emocions a català
+    const emotionsCA = {
+      happy: "feliç",
+      sad: "trist",
+      angry: "enfadat",
+      surprised: "sorprès",
+      disgusted: "fastiguejat",
+      fearful: "espantat",
+      neutral: "neutral"
+    };
+
+    // Emoticones per cada emoció
+    const emotionsEmoji = {
+      happy: "😄",
+      sad: "😢",
+      angry: "😠",
+      surprised: "😲",
+      disgusted: "🤢",
+      fearful: "😱",
+      neutral: "😐"
+    };
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+
+      video = createCapture(VIDEO);
+      video.size(320, 240);
+      video.hide();
+      video.elt.muted = true;
+      video.elt.playsinline = true;
+
+      const options = { withLandmarks: false, withExpressions: true, withDescriptors: false };
+      faceapi = ml5.faceApi(video, options, () => {
+        modelsReady = true;
+        document.getElementById('loading-screen').style.display = 'none';
+        faceapi.detect(gotResults);
+      });
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+
+    function gotResults(err, results) {
+      if (err) {
+        console.error(err);
+        document.getElementById('loading-screen').innerHTML =
+          '<p style="color: red">Error! Comprova la càmera i actualitza.</p>';
+        return;
+      }
+      detections = results;
+      if (detections.length > 0) updateCurrentExpression();
+      faceapi.detect(gotResults);
+    }
+
+    function updateCurrentExpression() {
+      let maxIntensity = 0;
+      detections.forEach(face => {
+        const expr = face.expressions;
+        const dominant = Object.keys(expr).reduce((a, b) => expr[a] > expr[b] ? a : b);
+        if (expr[dominant] > maxIntensity) {
+          currentExpression = { dominant: dominant, intensity: expr[dominant] };
+          maxIntensity = expr[dominant];
+        }
+      });
+    }
+
+    function draw() {
+      background(240);
+
+      // Transició suau de la intensitat
+      smoothIntensity = lerp(smoothIntensity, currentExpression.intensity, 0.1);
+
+      // Dibuixa la figura geomètrica gran centrada segons el sentiment
+      push();
+      translate(width/2, height/2);
+      switch(currentExpression.dominant) {
+        case 'happy':
+        push();
+        translate(width/2 - 1000, height/2 - 600); // 300 i 400 són la meitat de 600x800  
+        figuraFelic(smoothIntensity);
+        pop();
+        break;
+        
+        case 'sad':
+        push();
+        translate(width/2 - 1000, height/2 - 600); // 300 i 400 són la meitat de 600x800       
+        figuraTrist(smoothIntensity); 
+        pop();
+        break;
+        
+        //Enfadat
+        case 'angry':
+        push();
+        translate(width/2 - 1000, height/2 - 600); // 300 i 400 són la meitat de 600x800      
+        figuraEnfadat(smoothIntensity); 
+        pop();
+        break;
+        
+        //Disgustat
+        case 'disgusted':  
+        push();
+        translate(width/2 - 1000, height/2 - 600); // 300 i 400 són la meitat de 600x800
+        figuraFastiguejat(smoothIntensity); 
+        pop();
+        break;
+       
+        //Sorprès
+        case 'surprised': 
+        push();
+        translate(width/2 - 1000, height/2 - 600); // 300 i 400 són la meitat de 600x800
+        figuraSorprès(smoothIntensity); 
+        pop();
+        break;
+
+        case 'fearful':    
+        push();
+        translate(width/2 - 1000, height/2 - 600); // 300 i 400 són la meitat de 600x800
+        figuraEspantat(smoothIntensity); 
+        pop();
+        break;
+
+        default:       
+        push();
+        translate(width/2 - 1000, height/2 - 600); // 300 i 400 són la meitat de 600x800    
+        figuraNeutral(smoothIntensity); 
+        pop();
+        break;
+      }
+      pop();
+
+      // Mostra el vídeo petit a la cantonada inferior dreta
+      let vW = 160, vH = 120;
+      let margin = 20;
+      imageMode(CORNER);
+      push();
+      translate(width - vW - margin, height - vH - margin);
+      stroke(255);
+      strokeWeight(2);
+      fill(0, 180);
+      rect(-5, -5, vW+10, vH+10, 12);
+      image(video, 0, 0, vW, vH);
+      pop();
+      
+
+      // Text informatiu a dalt amb emoticona
+      fill(30, 180);
+      noStroke();
+      textAlign(CENTER, TOP);
+      textSize(28);
+      let label = emotionsCA[currentExpression.dominant] || "neutral";
+      let emoji = emotionsEmoji[currentExpression.dominant] || "😐";
+      text(
+        `${emoji} Sentiment: ${label} (${(smoothIntensity*100).toFixed(0)}%)`,
+        width/2, 20
+      );
+    }
+
+    // Figures irregulars per a cada sentiment
+    function figuraFelic(intensity) {
+   r = map(intensity, 0, 1, 255, 255);
+   g = map(intensity, 0, 1, 255, 255);
+   b = map(intensity, 0, 1, 255, 0);
+   r2 = map(intensity, 1, 0, 255, 255);
+   g2 = map(intensity, 1, 0, 255, 255);
+   b2 = map(intensity, 1, 0, 255, 0);
+   s = map(intensity, 0.5,1, 0, 7)
+
+
+  background(r2, g2, b2);
+
+// Cos
+  stroke(0);
+beginShape();
+  fill(r, g, b)
+curveVertex(277, 201.1875);
+curveVertex(282, 239.1875);
+curveVertex(282, 244.1875);
+curveVertex(275, 248.1875);
+curveVertex(252, 266.1875);
+curveVertex(223, 288.1875);
+curveVertex(211, 298.1875);
+curveVertex(202, 309.1875);
+curveVertex(206, 331.1875);
+curveVertex(226, 354.1875);
+curveVertex(264, 369.1875);
+curveVertex(316, 372.1875);
+curveVertex(397, 328.1875);
+curveVertex(400, 290.1875);
+curveVertex(385, 222.1875);
+curveVertex(364, 192.1875);
+curveVertex(337, 179.1875);
+curveVertex(306, 189.1875);
+curveVertex(287, 195.1875);
+endShape(CLOSE);
+  
+// Cara
+beginShape();
+curveVertex(239, 64.1875);
+curveVertex(235, 93.1875);
+curveVertex(233, 115.1875);
+curveVertex(234, 135.1875);
+curveVertex(236, 157.1875);
+curveVertex(242, 176.1875);
+curveVertex(249, 191.1875);
+curveVertex(261, 204.1875);
+curveVertex(277, 215.1875);
+curveVertex(305, 215.1875);
+curveVertex(332, 205.1875);
+curveVertex(346, 194.1875);
+curveVertex(371, 159.1875);
+curveVertex(373, 98.1875);
+curveVertex(358, 54.1875);
+curveVertex(327, 34.1875);
+curveVertex(299, 30.1875);
+curveVertex(271, 34.1875);
+curveVertex(253, 41.1875);
+curveVertex(237, 61.1875);
+endShape(CLOSE);
+
+// Ropa exterior
+beginShape();
+curveVertex(408, 285.1875);
+curveVertex(380, 294.1875);
+curveVertex(362, 310.1875);
+curveVertex(349, 323.1875);
+curveVertex(332, 342.1875);
+curveVertex(329, 349.1875);
+curveVertex(328, 352.1875);
+curveVertex(323, 352.1875);
+curveVertex(296, 353.1875);
+curveVertex(275, 351.1875);
+curveVertex(255, 345.1875);
+curveVertex(240, 338.1875);
+curveVertex(226, 326.1875);
+curveVertex(220, 314.1875);
+curveVertex(216, 303.1875);
+curveVertex(212, 295.1875);
+curveVertex(212, 286.1875);
+curveVertex(208, 285.1875);
+curveVertex(203, 288.1875);
+curveVertex(187, 302.1875);
+curveVertex(176, 313.1875);
+curveVertex(170, 321.1875);
+curveVertex(169, 329.1875);
+curveVertex(168, 331.1875);
+curveVertex(164, 334.1875);
+curveVertex(153, 339.1875);
+curveVertex(149, 347.1875);
+curveVertex(146, 356.1875);
+curveVertex(145, 370.1875);
+curveVertex(144, 380.1875);
+curveVertex(144, 390.1875);
+curveVertex(143, 393.1875);
+curveVertex(140, 395.1875);
+curveVertex(132, 398.1875);
+curveVertex(127, 404.1875);
+curveVertex(124, 411.1875);
+curveVertex(123, 419.1875);
+curveVertex(122, 424.1875);
+curveVertex(119, 425.1875);
+curveVertex(113, 427.1875);
+curveVertex(102, 433.1875);
+curveVertex(92, 443.1875);
+curveVertex(86, 453.1875);
+curveVertex(79, 468.1875);
+curveVertex(75, 480.1875);
+curveVertex(72, 494.1875);
+curveVertex(69, 508.1875);
+curveVertex(65, 523.1875);
+curveVertex(65, 538.1875);
+curveVertex(69, 546.1875);
+curveVertex(72, 555.1875);
+curveVertex(68, 565.1875);
+curveVertex(59, 579.1875);
+curveVertex(49, 592.1875);
+curveVertex(46, 599.1875);
+curveVertex(46, 599.1875);
+curveVertex(543, 599.1875);
+curveVertex(542, 598.1875);
+curveVertex(542, 572.1875);
+curveVertex(540, 549.1875);
+curveVertex(535, 526.1875);
+curveVertex(530, 498.1875);
+curveVertex(529, 470.1875);
+curveVertex(526, 444.1875);
+curveVertex(517, 422.1875);
+curveVertex(506, 399.1875);
+curveVertex(506, 395.1875);
+curveVertex(508, 370.1875);
+curveVertex(505, 357.1875);
+curveVertex(492, 334.1875);
+curveVertex(481, 317.1875);
+curveVertex(467, 302.1875);
+curveVertex(449, 289.1875);
+curveVertex(427, 284.1875);
+curveVertex(416, 284.1875);
+endShape(CLOSE);
+  
+// Pelo
+beginShape();
+curveVertex(239, 77.1875);
+curveVertex(237, 92.1875);
+curveVertex(237, 104.1875);
+curveVertex(236, 117.1875);
+curveVertex(236, 131.1875);
+curveVertex(237, 142.1875);
+curveVertex(238, 154.1875);
+curveVertex(243, 171.1875);
+curveVertex(248, 181.1875);
+curveVertex(255, 193.1875);
+curveVertex(263, 203.1875);
+curveVertex(266, 217.1875);
+curveVertex(265, 227.1875);
+curveVertex(260, 235.1875);
+curveVertex(267, 241.1875);
+curveVertex(268, 252.1875);
+curveVertex(256, 263.1875);
+curveVertex(248, 272.1875);
+curveVertex(249, 282.1875);
+curveVertex(244, 289.1875);
+curveVertex(237, 292.1875);
+curveVertex(235, 298.1875);
+curveVertex(238, 304.1875);
+curveVertex(239, 311.1875);
+curveVertex(236, 317.1875);
+curveVertex(229, 318.1875);
+curveVertex(228, 313.1875);
+curveVertex(227, 309.1875);
+curveVertex(220, 306.1875);
+curveVertex(213, 304.1875);
+curveVertex(210, 296.1875);
+curveVertex(211, 288.1875);
+curveVertex(207, 282.1875);
+curveVertex(206, 275.1875);
+curveVertex(213, 266.1875);
+curveVertex(210, 258.1875);
+curveVertex(214, 247.1875);
+curveVertex(210, 237.1875);
+curveVertex(217, 225.1875);
+curveVertex(212, 214.1875);
+curveVertex(219, 198.1875);
+curveVertex(212, 189.1875);
+curveVertex(218, 171.1875);
+curveVertex(208, 156.1875);
+curveVertex(218, 144.1875);
+curveVertex(216, 136.1875);
+curveVertex(213, 124.1875);
+curveVertex(219, 110.1875);
+curveVertex(215, 93.1875);
+curveVertex(226, 81.1875);
+curveVertex(224, 67.1875);
+curveVertex(231, 54.1875);
+curveVertex(244, 39.1875);
+curveVertex(260, 23.1875);
+curveVertex(274, 15.1875);
+curveVertex(293, 9.1875);
+curveVertex(315, 9.1875);
+curveVertex(338, 14.1875);
+curveVertex(350, 19.1875);
+curveVertex(360, 25.1875);
+curveVertex(368, 33.1875);
+curveVertex(377, 41.1875);
+curveVertex(383, 52.1875);
+curveVertex(387, 62.1875);
+curveVertex(391, 74.1875);
+curveVertex(394, 90.1875);
+curveVertex(395, 105.1875);
+curveVertex(396, 118.1875);
+curveVertex(401, 130.1875);
+curveVertex(405, 141.1875);
+curveVertex(401, 156.1875);
+curveVertex(412, 172.1875);
+curveVertex(415, 179.1875);
+curveVertex(410, 201.1875);
+curveVertex(410, 208.1875);
+curveVertex(418, 225.1875);
+curveVertex(420, 238.1875);
+curveVertex(434, 247.1875);
+curveVertex(436, 258.1875);
+curveVertex(435, 266.1875);
+curveVertex(437, 274.1875);
+curveVertex(441, 281.1875);
+curveVertex(436, 284.1875);
+curveVertex(419, 284.1875);
+curveVertex(401, 286.1875);
+curveVertex(386, 292.1875);
+curveVertex(373, 303.1875);
+curveVertex(360, 314.1875);
+curveVertex(351, 320.1875);
+curveVertex(350, 307.1875);
+curveVertex(344, 294.1875);
+curveVertex(354, 278.1875);
+curveVertex(348, 264.1875);
+curveVertex(356, 246.1875);
+curveVertex(345, 235.1875);
+curveVertex(352, 214.1875);
+curveVertex(342, 193.1875);
+curveVertex(350, 176.1875);
+curveVertex(350, 167.1875);
+curveVertex(339, 152.1875);
+curveVertex(337, 142.1875);
+curveVertex(350, 116.1875);
+curveVertex(344, 108.1875);
+curveVertex(343, 99.1875);
+curveVertex(347, 83.1875);
+curveVertex(341, 70.1875);
+curveVertex(332, 60.1875);
+curveVertex(320, 55.1875);
+curveVertex(305, 50.1875);
+curveVertex(288, 47.1875);
+curveVertex(273, 48.1875);
+curveVertex(259, 51.1875);
+curveVertex(249, 56.1875);
+curveVertex(242, 64.1875);
+endShape(CLOSE);
+  
+// NARIZ
+beginShape();
+vertex(264.01171875, 155.69921875);
+bezierVertex(264.01171875, 158.69921875, 266.01171875, 160.69921875, 268.01171875, 162.69921875);
+bezierVertex(272.01171875, 163.69921875, 275.01171875, 164.69921875, 277.01171875, 164.69921875);
+bezierVertex(280.01171875, 163.69921875, 282.01171875, 162.69921875, 283.01171875, 162.69921875);
+bezierVertex(285.01171875, 162.69921875, 286.01171875, 162.69921875, 287.01171875, 162.69921875);
+bezierVertex(288.01171875, 161.69921875, 288.01171875, 160.69921875, 288.01171875, 158.69921875);
+endShape();
+  
+  // OJO izquierdo
+  fill(255);
+beginShape();
+vertex(244, 119.1875);//Extremo izquierdo
+vertex(248, 122.1875);
+vertex(254, 123.1875);
+vertex(261, 122.1875);
+vertex(265, 119.1875);//Extremo derecho
+vertex(261, 115.1875+(s/2));
+vertex(255, 113.1875+s);
+vertex(247, 115.1875+(s/2));
+endShape(CLOSE);
+  
+// OJO derecha
+beginShape();
+vertex(318, 118.1875);//Extremo derecho
+vertex(313, 122.1875);
+vertex(304, 123.1875);
+vertex(296, 122.1875);
+vertex(293, 120.1875);//Extremo izquierdo
+vertex(298, 115.1875+(s/2));
+vertex(305, 112.1875+s);
+vertex(313, 113.1875+s);
+endShape(CLOSE);
+
+// Boca
+beginShape();
+vertex(261, 176.1875-s);
+vertex(270, 177.1875);
+vertex(279, 177.1875);
+vertex(295, 176.1875-s);
+endShape(CLOSE);
+  
+//ceja izquierda
+  beginShape();
+vertex(264, 104.1875);
+vertex(245, 104.1875+s);
+endShape();
+  
+//ceja derecha
+  beginShape();
+vertex(293, 103.1875);
+vertex(316, 103.1875+s);
+endShape();
+  
+    }
+
+    function figuraTrist(intensity) {
+      r = map(intensity, 0, 1, 255, 0);
+      g = map(intensity, 0, 1, 255, 0);
+      b = map(intensity, 0, 1, 255, 255);
+      r2 = map(intensity, 1, 0, 255, 0);
+      g2 = map(intensity, 1, 0, 255, 0);
+      b2 = map(intensity, 1, 0, 255, 255);
+      ll = map(intensity, 0.6, 1, 0, 15);
+      c = map(intensity, 0.6, 1, 0, 8)
+
+
+  background(r2, g2, b2);
+
+// Cos
+  stroke(0);
+beginShape();
+  fill(r, g, b)
+curveVertex(277, 201.1875);
+curveVertex(282, 239.1875);
+curveVertex(282, 244.1875);
+curveVertex(275, 248.1875);
+curveVertex(252, 266.1875);
+curveVertex(223, 288.1875);
+curveVertex(211, 298.1875);
+curveVertex(202, 309.1875);
+curveVertex(206, 331.1875);
+curveVertex(226, 354.1875);
+curveVertex(264, 369.1875);
+curveVertex(316, 372.1875);
+curveVertex(397, 328.1875);
+curveVertex(400, 290.1875);
+curveVertex(385, 222.1875);
+curveVertex(364, 192.1875);
+curveVertex(337, 179.1875);
+curveVertex(306, 189.1875);
+curveVertex(287, 195.1875);
+endShape(CLOSE);
+  
+// Cara
+beginShape();
+curveVertex(239, 64.1875);
+curveVertex(235, 93.1875);
+curveVertex(233, 115.1875);
+curveVertex(234, 135.1875);
+curveVertex(236, 157.1875);
+curveVertex(242, 176.1875);
+curveVertex(249, 191.1875);
+curveVertex(261, 204.1875);
+curveVertex(277, 215.1875);
+curveVertex(305, 215.1875);
+curveVertex(332, 205.1875);
+curveVertex(346, 194.1875);
+curveVertex(371, 159.1875);
+curveVertex(373, 98.1875);
+curveVertex(358, 54.1875);
+curveVertex(327, 34.1875);
+curveVertex(299, 30.1875);
+curveVertex(271, 34.1875);
+curveVertex(253, 41.1875);
+curveVertex(237, 61.1875);
+endShape(CLOSE);
+
+// Ropa exterior
+beginShape();
+curveVertex(408, 285.1875);
+curveVertex(380, 294.1875);
+curveVertex(362, 310.1875);
+curveVertex(349, 323.1875);
+curveVertex(332, 342.1875);
+curveVertex(329, 349.1875);
+curveVertex(328, 352.1875);
+curveVertex(323, 352.1875);
+curveVertex(296, 353.1875);
+curveVertex(275, 351.1875);
+curveVertex(255, 345.1875);
+curveVertex(240, 338.1875);
+curveVertex(226, 326.1875);
+curveVertex(220, 314.1875);
+curveVertex(216, 303.1875);
+curveVertex(212, 295.1875);
+curveVertex(212, 286.1875);
+curveVertex(208, 285.1875);
+curveVertex(203, 288.1875);
+curveVertex(187, 302.1875);
+curveVertex(176, 313.1875);
+curveVertex(170, 321.1875);
+curveVertex(169, 329.1875);
+curveVertex(168, 331.1875);
+curveVertex(164, 334.1875);
+curveVertex(153, 339.1875);
+curveVertex(149, 347.1875);
+curveVertex(146, 356.1875);
+curveVertex(145, 370.1875);
+curveVertex(144, 380.1875);
+curveVertex(144, 390.1875);
+curveVertex(143, 393.1875);
+curveVertex(140, 395.1875);
+curveVertex(132, 398.1875);
+curveVertex(127, 404.1875);
+curveVertex(124, 411.1875);
+curveVertex(123, 419.1875);
+curveVertex(122, 424.1875);
+curveVertex(119, 425.1875);
+curveVertex(113, 427.1875);
+curveVertex(102, 433.1875);
+curveVertex(92, 443.1875);
+curveVertex(86, 453.1875);
+curveVertex(79, 468.1875);
+curveVertex(75, 480.1875);
+curveVertex(72, 494.1875);
+curveVertex(69, 508.1875);
+curveVertex(65, 523.1875);
+curveVertex(65, 538.1875);
+curveVertex(69, 546.1875);
+curveVertex(72, 555.1875);
+curveVertex(68, 565.1875);
+curveVertex(59, 579.1875);
+curveVertex(49, 592.1875);
+curveVertex(46, 599.1875);
+curveVertex(46, 599.1875);
+curveVertex(543, 599.1875);
+curveVertex(542, 598.1875);
+curveVertex(542, 572.1875);
+curveVertex(540, 549.1875);
+curveVertex(535, 526.1875);
+curveVertex(530, 498.1875);
+curveVertex(529, 470.1875);
+curveVertex(526, 444.1875);
+curveVertex(517, 422.1875);
+curveVertex(506, 399.1875);
+curveVertex(506, 395.1875);
+curveVertex(508, 370.1875);
+curveVertex(505, 357.1875);
+curveVertex(492, 334.1875);
+curveVertex(481, 317.1875);
+curveVertex(467, 302.1875);
+curveVertex(449, 289.1875);
+curveVertex(427, 284.1875);
+curveVertex(416, 284.1875);
+endShape(CLOSE);
+  
+// Pelo
+beginShape();
+curveVertex(239, 77.1875);
+curveVertex(237, 92.1875);
+curveVertex(237, 104.1875);
+curveVertex(236, 117.1875);
+curveVertex(236, 131.1875);
+curveVertex(237, 142.1875);
+curveVertex(238, 154.1875);
+curveVertex(243, 171.1875);
+curveVertex(248, 181.1875);
+curveVertex(255, 193.1875);
+curveVertex(263, 203.1875);
+curveVertex(266, 217.1875);
+curveVertex(265, 227.1875);
+curveVertex(260, 235.1875);
+curveVertex(267, 241.1875);
+curveVertex(268, 252.1875);
+curveVertex(256, 263.1875);
+curveVertex(248, 272.1875);
+curveVertex(249, 282.1875);
+curveVertex(244, 289.1875);
+curveVertex(237, 292.1875);
+curveVertex(235, 298.1875);
+curveVertex(238, 304.1875);
+curveVertex(239, 311.1875);
+curveVertex(236, 317.1875);
+curveVertex(229, 318.1875);
+curveVertex(228, 313.1875);
+curveVertex(227, 309.1875);
+curveVertex(220, 306.1875);
+curveVertex(213, 304.1875);
+curveVertex(210, 296.1875);
+curveVertex(211, 288.1875);
+curveVertex(207, 282.1875);
+curveVertex(206, 275.1875);
+curveVertex(213, 266.1875);
+curveVertex(210, 258.1875);
+curveVertex(214, 247.1875);
+curveVertex(210, 237.1875);
+curveVertex(217, 225.1875);
+curveVertex(212, 214.1875);
+curveVertex(219, 198.1875);
+curveVertex(212, 189.1875);
+curveVertex(218, 171.1875);
+curveVertex(208, 156.1875);
+curveVertex(218, 144.1875);
+curveVertex(216, 136.1875);
+curveVertex(213, 124.1875);
+curveVertex(219, 110.1875);
+curveVertex(215, 93.1875);
+curveVertex(226, 81.1875);
+curveVertex(224, 67.1875);
+curveVertex(231, 54.1875);
+curveVertex(244, 39.1875);
+curveVertex(260, 23.1875);
+curveVertex(274, 15.1875);
+curveVertex(293, 9.1875);
+curveVertex(315, 9.1875);
+curveVertex(338, 14.1875);
+curveVertex(350, 19.1875);
+curveVertex(360, 25.1875);
+curveVertex(368, 33.1875);
+curveVertex(377, 41.1875);
+curveVertex(383, 52.1875);
+curveVertex(387, 62.1875);
+curveVertex(391, 74.1875);
+curveVertex(394, 90.1875);
+curveVertex(395, 105.1875);
+curveVertex(396, 118.1875);
+curveVertex(401, 130.1875);
+curveVertex(405, 141.1875);
+curveVertex(401, 156.1875);
+curveVertex(412, 172.1875);
+curveVertex(415, 179.1875);
+curveVertex(410, 201.1875);
+curveVertex(410, 208.1875);
+curveVertex(418, 225.1875);
+curveVertex(420, 238.1875);
+curveVertex(434, 247.1875);
+curveVertex(436, 258.1875);
+curveVertex(435, 266.1875);
+curveVertex(437, 274.1875);
+curveVertex(441, 281.1875);
+curveVertex(436, 284.1875);
+curveVertex(419, 284.1875);
+curveVertex(401, 286.1875);
+curveVertex(386, 292.1875);
+curveVertex(373, 303.1875);
+curveVertex(360, 314.1875);
+curveVertex(351, 320.1875);
+curveVertex(350, 307.1875);
+curveVertex(344, 294.1875);
+curveVertex(354, 278.1875);
+curveVertex(348, 264.1875);
+curveVertex(356, 246.1875);
+curveVertex(345, 235.1875);
+curveVertex(352, 214.1875);
+curveVertex(342, 193.1875);
+curveVertex(350, 176.1875);
+curveVertex(350, 167.1875);
+curveVertex(339, 152.1875);
+curveVertex(337, 142.1875);
+curveVertex(350, 116.1875);
+curveVertex(344, 108.1875);
+curveVertex(343, 99.1875);
+curveVertex(347, 83.1875);
+curveVertex(341, 70.1875);
+curveVertex(332, 60.1875);
+curveVertex(320, 55.1875);
+curveVertex(305, 50.1875);
+curveVertex(288, 47.1875);
+curveVertex(273, 48.1875);
+curveVertex(259, 51.1875);
+curveVertex(249, 56.1875);
+curveVertex(242, 64.1875);
+endShape(CLOSE);
+  
+// OJO izquierdo
+  beginShape();
+vertex(266, 118.83333587646484);
+bezierVertex(262, 115.83333587646484, 256, 113.83333587646484, 249, 114.83333587646484);
+bezierVertex(245, 117.83333587646484, 244, 120.83333587646484, 247, 122.83333587646484);
+bezierVertex(250, 123.83333587646484, 254, 124.83333587646484, 258, 123.83333587646484);
+bezierVertex(262, 122.83333587646484, 265, 121.83333587646484, 267, 120.83333587646484);
+endShape(CLOSE);
+  
+// OJO derecha
+
+  beginShape();
+vertex(293, 119.36249542236328);
+bezierVertex(296, 122.36249542236328, 301, 123.36249542236328, 306, 123.36249542236328);
+bezierVertex(311, 122.36249542236328, 315, 120.36249542236328, 318, 117.36249542236328);
+bezierVertex(312, 114.36249542236328, 306, 113.36249542236328, 299, 114.36249542236328);
+endShape(CLOSE);
+  
+// NARIZ
+beginShape();
+vertex(264.01171875, 155.69921875);
+bezierVertex(264.01171875, 158.69921875, 266.01171875, 160.69921875, 268.01171875, 162.69921875);
+bezierVertex(272.01171875, 163.69921875, 275.01171875, 164.69921875, 277.01171875, 164.69921875);
+bezierVertex(280.01171875, 163.69921875, 282.01171875, 162.69921875, 283.01171875, 162.69921875);
+bezierVertex(285.01171875, 162.69921875, 286.01171875, 162.69921875, 287.01171875, 162.69921875);
+bezierVertex(288.01171875, 161.69921875, 288.01171875, 160.69921875, 288.01171875, 158.69921875);
+endShape();
+
+// Boca
+  beginShape();
+curveVertex(260.01171875, 200);
+curveVertex(269.01171875, 176.94921875);
+curveVertex(277.01171875, 177.94921875);
+curveVertex(294.01171875, 200);
+endShape();
+  
+//ceja izquierda
+  beginShape();
+vertex(264, 100.1875);
+vertex(245, c+107.1875);
+endShape();
+  
+//ceja derecha
+  beginShape();
+vertex(293, 100.1875);
+vertex(316, c+105.1875);
+endShape();
+  
+//lagrima1
+fill(255);
+  beginShape();
+vertex(265, ll+130.1875);
+vertex(263, ll+135.1875);
+vertex(263, ll+137.1875);
+vertex(264, ll+138.1875);
+vertex(265, ll+138.1875);
+vertex(266, ll+137.1875);
+vertex(266, ll+135.1875);
+vertex(266, ll+133.1875);
+endShape(CLOSE);
+  
+//lagrima2
+  beginShape();
+vertex(297, ll+144.1875);
+vertex(295, ll+147.1875);
+vertex(295, ll+150.1875);
+vertex(295, ll+152.1875);
+vertex(297, ll+153.1875);
+vertex(299, ll+153.1875);
+vertex(300, ll+152.1875);
+vertex(301, ll+150.1875);
+vertex(300, ll+148.1875);
+vertex(299, ll+146.1875);
+vertex(297, ll+144.1875);
+endShape(CLOSE);
+    }
+
+    function figuraEnfadat(intensity) {
+
+    r = map(intensity, 0, 1, 255, 255);
+    g = map(intensity, 0, 1, 255, 0);
+    b = map(intensity, 0, 1, 255, 0);
+    r2 = map(intensity, 1, 0, 255, 255);
+    g2 = map(intensity, 1, 0, 255, 0);
+    b2 = map(intensity, 1, 0, 255, 0);
+
+
+
+// Cos
+  stroke(0);
+beginShape();
+    background(r2, g2, b2);
+  fill(r, g, b)
+curveVertex(277, 201.1875);
+curveVertex(282, 239.1875);
+curveVertex(282, 244.1875);
+curveVertex(275, 248.1875);
+curveVertex(252, 266.1875);
+curveVertex(223, 288.1875);
+curveVertex(211, 298.1875);
+curveVertex(202, 309.1875);
+curveVertex(206, 331.1875);
+curveVertex(226, 354.1875);
+curveVertex(264, 369.1875);
+curveVertex(316, 372.1875);
+curveVertex(397, 328.1875);
+curveVertex(400, 290.1875);
+curveVertex(385, 222.1875);
+curveVertex(364, 192.1875);
+curveVertex(337, 179.1875);
+curveVertex(306, 189.1875);
+curveVertex(287, 195.1875);
+endShape(CLOSE);
+  
+// Cara
+beginShape();
+curveVertex(239, 64.1875);
+curveVertex(235, 93.1875);
+curveVertex(233, 115.1875);
+curveVertex(234, 135.1875);
+curveVertex(236, 157.1875);
+curveVertex(242, 176.1875);
+curveVertex(249, 191.1875);
+curveVertex(261, 204.1875);
+curveVertex(277, 215.1875);
+curveVertex(305, 215.1875);
+curveVertex(332, 205.1875);
+curveVertex(346, 194.1875);
+curveVertex(371, 159.1875);
+curveVertex(373, 98.1875);
+curveVertex(358, 54.1875);
+curveVertex(327, 34.1875);
+curveVertex(299, 30.1875);
+curveVertex(271, 34.1875);
+curveVertex(253, 41.1875);
+curveVertex(237, 61.1875);
+endShape(CLOSE);
+
+// Ropa exterior
+beginShape();
+curveVertex(408, 285.1875);
+curveVertex(380, 294.1875);
+curveVertex(362, 310.1875);
+curveVertex(349, 323.1875);
+curveVertex(332, 342.1875);
+curveVertex(329, 349.1875);
+curveVertex(328, 352.1875);
+curveVertex(323, 352.1875);
+curveVertex(296, 353.1875);
+curveVertex(275, 351.1875);
+curveVertex(255, 345.1875);
+curveVertex(240, 338.1875);
+curveVertex(226, 326.1875);
+curveVertex(220, 314.1875);
+curveVertex(216, 303.1875);
+curveVertex(212, 295.1875);
+curveVertex(212, 286.1875);
+curveVertex(208, 285.1875);
+curveVertex(203, 288.1875);
+curveVertex(187, 302.1875);
+curveVertex(176, 313.1875);
+curveVertex(170, 321.1875);
+curveVertex(169, 329.1875);
+curveVertex(168, 331.1875);
+curveVertex(164, 334.1875);
+curveVertex(153, 339.1875);
+curveVertex(149, 347.1875);
+curveVertex(146, 356.1875);
+curveVertex(145, 370.1875);
+curveVertex(144, 380.1875);
+curveVertex(144, 390.1875);
+curveVertex(143, 393.1875);
+curveVertex(140, 395.1875);
+curveVertex(132, 398.1875);
+curveVertex(127, 404.1875);
+curveVertex(124, 411.1875);
+curveVertex(123, 419.1875);
+curveVertex(122, 424.1875);
+curveVertex(119, 425.1875);
+curveVertex(113, 427.1875);
+curveVertex(102, 433.1875);
+curveVertex(92, 443.1875);
+curveVertex(86, 453.1875);
+curveVertex(79, 468.1875);
+curveVertex(75, 480.1875);
+curveVertex(72, 494.1875);
+curveVertex(69, 508.1875);
+curveVertex(65, 523.1875);
+curveVertex(65, 538.1875);
+curveVertex(69, 546.1875);
+curveVertex(72, 555.1875);
+curveVertex(68, 565.1875);
+curveVertex(59, 579.1875);
+curveVertex(49, 592.1875);
+curveVertex(46, 599.1875);
+curveVertex(46, 599.1875);
+curveVertex(543, 599.1875);
+curveVertex(542, 598.1875);
+curveVertex(542, 572.1875);
+curveVertex(540, 549.1875);
+curveVertex(535, 526.1875);
+curveVertex(530, 498.1875);
+curveVertex(529, 470.1875);
+curveVertex(526, 444.1875);
+curveVertex(517, 422.1875);
+curveVertex(506, 399.1875);
+curveVertex(506, 395.1875);
+curveVertex(508, 370.1875);
+curveVertex(505, 357.1875);
+curveVertex(492, 334.1875);
+curveVertex(481, 317.1875);
+curveVertex(467, 302.1875);
+curveVertex(449, 289.1875);
+curveVertex(427, 284.1875);
+curveVertex(416, 284.1875);
+endShape(CLOSE);
+  
+// Pelo
+beginShape();
+curveVertex(239, 77.1875);
+curveVertex(237, 92.1875);
+curveVertex(237, 104.1875);
+curveVertex(236, 117.1875);
+curveVertex(236, 131.1875);
+curveVertex(237, 142.1875);
+curveVertex(238, 154.1875);
+curveVertex(243, 171.1875);
+curveVertex(248, 181.1875);
+curveVertex(255, 193.1875);
+curveVertex(263, 203.1875);
+curveVertex(266, 217.1875);
+curveVertex(265, 227.1875);
+curveVertex(260, 235.1875);
+curveVertex(267, 241.1875);
+curveVertex(268, 252.1875);
+curveVertex(256, 263.1875);
+curveVertex(248, 272.1875);
+curveVertex(249, 282.1875);
+curveVertex(244, 289.1875);
+curveVertex(237, 292.1875);
+curveVertex(235, 298.1875);
+curveVertex(238, 304.1875);
+curveVertex(239, 311.1875);
+curveVertex(236, 317.1875);
+curveVertex(229, 318.1875);
+curveVertex(228, 313.1875);
+curveVertex(227, 309.1875);
+curveVertex(220, 306.1875);
+curveVertex(213, 304.1875);
+curveVertex(210, 296.1875);
+curveVertex(211, 288.1875);
+curveVertex(207, 282.1875);
+curveVertex(206, 275.1875);
+curveVertex(213, 266.1875);
+curveVertex(210, 258.1875);
+curveVertex(214, 247.1875);
+curveVertex(210, 237.1875);
+curveVertex(217, 225.1875);
+curveVertex(212, 214.1875);
+curveVertex(219, 198.1875);
+curveVertex(212, 189.1875);
+curveVertex(218, 171.1875);
+curveVertex(208, 156.1875);
+curveVertex(218, 144.1875);
+curveVertex(216, 136.1875);
+curveVertex(213, 124.1875);
+curveVertex(219, 110.1875);
+curveVertex(215, 93.1875);
+curveVertex(226, 81.1875);
+curveVertex(224, 67.1875);
+curveVertex(231, 54.1875);
+curveVertex(244, 39.1875);
+curveVertex(260, 23.1875);
+curveVertex(274, 15.1875);
+curveVertex(293, 9.1875);
+curveVertex(315, 9.1875);
+curveVertex(338, 14.1875);
+curveVertex(350, 19.1875);
+curveVertex(360, 25.1875);
+curveVertex(368, 33.1875);
+curveVertex(377, 41.1875);
+curveVertex(383, 52.1875);
+curveVertex(387, 62.1875);
+curveVertex(391, 74.1875);
+curveVertex(394, 90.1875);
+curveVertex(395, 105.1875);
+curveVertex(396, 118.1875);
+curveVertex(401, 130.1875);
+curveVertex(405, 141.1875);
+curveVertex(401, 156.1875);
+curveVertex(412, 172.1875);
+curveVertex(415, 179.1875);
+curveVertex(410, 201.1875);
+curveVertex(410, 208.1875);
+curveVertex(418, 225.1875);
+curveVertex(420, 238.1875);
+curveVertex(434, 247.1875);
+curveVertex(436, 258.1875);
+curveVertex(435, 266.1875);
+curveVertex(437, 274.1875);
+curveVertex(441, 281.1875);
+curveVertex(436, 284.1875);
+curveVertex(419, 284.1875);
+curveVertex(401, 286.1875);
+curveVertex(386, 292.1875);
+curveVertex(373, 303.1875);
+curveVertex(360, 314.1875);
+curveVertex(351, 320.1875);
+curveVertex(350, 307.1875);
+curveVertex(344, 294.1875);
+curveVertex(354, 278.1875);
+curveVertex(348, 264.1875);
+curveVertex(356, 246.1875);
+curveVertex(345, 235.1875);
+curveVertex(352, 214.1875);
+curveVertex(342, 193.1875);
+curveVertex(350, 176.1875);
+curveVertex(350, 167.1875);
+curveVertex(339, 152.1875);
+curveVertex(337, 142.1875);
+curveVertex(350, 116.1875);
+curveVertex(344, 108.1875);
+curveVertex(343, 99.1875);
+curveVertex(347, 83.1875);
+curveVertex(341, 70.1875);
+curveVertex(332, 60.1875);
+curveVertex(320, 55.1875);
+curveVertex(305, 50.1875);
+curveVertex(288, 47.1875);
+curveVertex(273, 48.1875);
+curveVertex(259, 51.1875);
+curveVertex(249, 56.1875);
+curveVertex(242, 64.1875);
+endShape(CLOSE);
+  
+// OJO izquierdo
+  beginShape();
+vertex(266, 118.83333587646484);
+bezierVertex(262, 115.83333587646484, 256, 113.83333587646484, 249, 114.83333587646484);
+bezierVertex(245, 117.83333587646484, 244, 120.83333587646484, 247, 122.83333587646484);
+bezierVertex(250, 123.83333587646484, 254, 124.83333587646484, 258, 123.83333587646484);
+bezierVertex(262, 122.83333587646484, 265, 121.83333587646484, 267, 120.83333587646484);
+endShape(CLOSE);
+  
+// OJO derecha
+
+  beginShape();
+vertex(293, 119.36249542236328);
+bezierVertex(296, 122.36249542236328, 301, 123.36249542236328, 306, 123.36249542236328);
+bezierVertex(311, 122.36249542236328, 315, 120.36249542236328, 318, 117.36249542236328);
+bezierVertex(312, 114.36249542236328, 306, 113.36249542236328, 299, 114.36249542236328);
+endShape(CLOSE);
+  
+// NARIZ
+beginShape();
+vertex(264.01171875, 155.69921875);
+bezierVertex(264.01171875, 158.69921875, 266.01171875, 160.69921875, 268.01171875, 162.69921875);
+bezierVertex(272.01171875, 163.69921875, 275.01171875, 164.69921875, 277.01171875, 164.69921875);
+bezierVertex(280.01171875, 163.69921875, 282.01171875, 162.69921875, 283.01171875, 162.69921875);
+bezierVertex(285.01171875, 162.69921875, 286.01171875, 162.69921875, 287.01171875, 162.69921875);
+bezierVertex(288.01171875, 161.69921875, 288.01171875, 160.69921875, 288.01171875, 158.69921875);
+endShape();
+
+// Boca
+  beginShape();
+curveVertex(260.01171875, 200);
+curveVertex(269.01171875, 176.94921875);
+curveVertex(277.01171875, 177.94921875);
+curveVertex(294.01171875, 200);
+endShape();
+  
+//ceja izquierda
+  beginShape();
+vertex(264, 104.1875);
+vertex(245, map(intensity, 1, 0.5, 0, 10) + 95.1875);
+endShape();
+  
+//ceja derecha
+  beginShape();
+vertex(293, 103.1875);
+vertex(316, map(intensity, 1, 0.5, 0, 10) + 90.1875);
+endShape();
+
+    }
+
+    function figuraFastiguejat(intensity) {
+    r = map(intensity, 0, 1, 255, 0);
+    g = map(intensity, 0, 1, 255, 255);
+    b = map(intensity, 0, 1, 255, 0);
+    r2 = map(intensity, 1, 0, 255, 0);
+    g2 = map(intensity, 1, 0, 255, 255);
+    b2 = map(intensity, 1, 0, 255, 0);
+
+    background(r2, g2, b2);
+
+
+// Cos
+  stroke(0);
+beginShape();
+  fill(r, g, b)
+curveVertex(277, 201.1875);
+curveVertex(282, 239.1875);
+curveVertex(282, 244.1875);
+curveVertex(275, 248.1875);
+curveVertex(252, 266.1875);
+curveVertex(223, 288.1875);
+curveVertex(211, 298.1875);
+curveVertex(202, 309.1875);
+curveVertex(206, 331.1875);
+curveVertex(226, 354.1875);
+curveVertex(264, 369.1875);
+curveVertex(316, 372.1875);
+curveVertex(397, 328.1875);
+curveVertex(400, 290.1875);
+curveVertex(385, 222.1875);
+curveVertex(364, 192.1875);
+curveVertex(337, 179.1875);
+curveVertex(306, 189.1875);
+curveVertex(287, 195.1875);
+endShape(CLOSE);
+  
+// Cara
+beginShape();
+curveVertex(239, 64.1875);
+curveVertex(235, 93.1875);
+curveVertex(233, 115.1875);
+curveVertex(234, 135.1875);
+curveVertex(236, 157.1875);
+curveVertex(242, 176.1875);
+curveVertex(249, 191.1875);
+curveVertex(261, 204.1875);
+curveVertex(277, 215.1875);
+curveVertex(305, 215.1875);
+curveVertex(332, 205.1875);
+curveVertex(346, 194.1875);
+curveVertex(371, 159.1875);
+curveVertex(373, 98.1875);
+curveVertex(358, 54.1875);
+curveVertex(327, 34.1875);
+curveVertex(299, 30.1875);
+curveVertex(271, 34.1875);
+curveVertex(253, 41.1875);
+curveVertex(237, 61.1875);
+endShape(CLOSE);
+
+// Ropa exterior
+beginShape();
+curveVertex(408, 285.1875);
+curveVertex(380, 294.1875);
+curveVertex(362, 310.1875);
+curveVertex(349, 323.1875);
+curveVertex(332, 342.1875);
+curveVertex(329, 349.1875);
+curveVertex(328, 352.1875);
+curveVertex(323, 352.1875);
+curveVertex(296, 353.1875);
+curveVertex(275, 351.1875);
+curveVertex(255, 345.1875);
+curveVertex(240, 338.1875);
+curveVertex(226, 326.1875);
+curveVertex(220, 314.1875);
+curveVertex(216, 303.1875);
+curveVertex(212, 295.1875);
+curveVertex(212, 286.1875);
+curveVertex(208, 285.1875);
+curveVertex(203, 288.1875);
+curveVertex(187, 302.1875);
+curveVertex(176, 313.1875);
+curveVertex(170, 321.1875);
+curveVertex(169, 329.1875);
+curveVertex(168, 331.1875);
+curveVertex(164, 334.1875);
+curveVertex(153, 339.1875);
+curveVertex(149, 347.1875);
+curveVertex(146, 356.1875);
+curveVertex(145, 370.1875);
+curveVertex(144, 380.1875);
+curveVertex(144, 390.1875);
+curveVertex(143, 393.1875);
+curveVertex(140, 395.1875);
+curveVertex(132, 398.1875);
+curveVertex(127, 404.1875);
+curveVertex(124, 411.1875);
+curveVertex(123, 419.1875);
+curveVertex(122, 424.1875);
+curveVertex(119, 425.1875);
+curveVertex(113, 427.1875);
+curveVertex(102, 433.1875);
+curveVertex(92, 443.1875);
+curveVertex(86, 453.1875);
+curveVertex(79, 468.1875);
+curveVertex(75, 480.1875);
+curveVertex(72, 494.1875);
+curveVertex(69, 508.1875);
+curveVertex(65, 523.1875);
+curveVertex(65, 538.1875);
+curveVertex(69, 546.1875);
+curveVertex(72, 555.1875);
+curveVertex(68, 565.1875);
+curveVertex(59, 579.1875);
+curveVertex(49, 592.1875);
+curveVertex(46, 599.1875);
+curveVertex(46, 599.1875);
+curveVertex(543, 599.1875);
+curveVertex(542, 598.1875);
+curveVertex(542, 572.1875);
+curveVertex(540, 549.1875);
+curveVertex(535, 526.1875);
+curveVertex(530, 498.1875);
+curveVertex(529, 470.1875);
+curveVertex(526, 444.1875);
+curveVertex(517, 422.1875);
+curveVertex(506, 399.1875);
+curveVertex(506, 395.1875);
+curveVertex(508, 370.1875);
+curveVertex(505, 357.1875);
+curveVertex(492, 334.1875);
+curveVertex(481, 317.1875);
+curveVertex(467, 302.1875);
+curveVertex(449, 289.1875);
+curveVertex(427, 284.1875);
+curveVertex(416, 284.1875);
+endShape(CLOSE);
+  
+// Pelo
+beginShape();
+curveVertex(239, 77.1875);
+curveVertex(237, 92.1875);
+curveVertex(237, 104.1875);
+curveVertex(236, 117.1875);
+curveVertex(236, 131.1875);
+curveVertex(237, 142.1875);
+curveVertex(238, 154.1875);
+curveVertex(243, 171.1875);
+curveVertex(248, 181.1875);
+curveVertex(255, 193.1875);
+curveVertex(263, 203.1875);
+curveVertex(266, 217.1875);
+curveVertex(265, 227.1875);
+curveVertex(260, 235.1875);
+curveVertex(267, 241.1875);
+curveVertex(268, 252.1875);
+curveVertex(256, 263.1875);
+curveVertex(248, 272.1875);
+curveVertex(249, 282.1875);
+curveVertex(244, 289.1875);
+curveVertex(237, 292.1875);
+curveVertex(235, 298.1875);
+curveVertex(238, 304.1875);
+curveVertex(239, 311.1875);
+curveVertex(236, 317.1875);
+curveVertex(229, 318.1875);
+curveVertex(228, 313.1875);
+curveVertex(227, 309.1875);
+curveVertex(220, 306.1875);
+curveVertex(213, 304.1875);
+curveVertex(210, 296.1875);
+curveVertex(211, 288.1875);
+curveVertex(207, 282.1875);
+curveVertex(206, 275.1875);
+curveVertex(213, 266.1875);
+curveVertex(210, 258.1875);
+curveVertex(214, 247.1875);
+curveVertex(210, 237.1875);
+curveVertex(217, 225.1875);
+curveVertex(212, 214.1875);
+curveVertex(219, 198.1875);
+curveVertex(212, 189.1875);
+curveVertex(218, 171.1875);
+curveVertex(208, 156.1875);
+curveVertex(218, 144.1875);
+curveVertex(216, 136.1875);
+curveVertex(213, 124.1875);
+curveVertex(219, 110.1875);
+curveVertex(215, 93.1875);
+curveVertex(226, 81.1875);
+curveVertex(224, 67.1875);
+curveVertex(231, 54.1875);
+curveVertex(244, 39.1875);
+curveVertex(260, 23.1875);
+curveVertex(274, 15.1875);
+curveVertex(293, 9.1875);
+curveVertex(315, 9.1875);
+curveVertex(338, 14.1875);
+curveVertex(350, 19.1875);
+curveVertex(360, 25.1875);
+curveVertex(368, 33.1875);
+curveVertex(377, 41.1875);
+curveVertex(383, 52.1875);
+curveVertex(387, 62.1875);
+curveVertex(391, 74.1875);
+curveVertex(394, 90.1875);
+curveVertex(395, 105.1875);
+curveVertex(396, 118.1875);
+curveVertex(401, 130.1875);
+curveVertex(405, 141.1875);
+curveVertex(401, 156.1875);
+curveVertex(412, 172.1875);
+curveVertex(415, 179.1875);
+curveVertex(410, 201.1875);
+curveVertex(410, 208.1875);
+curveVertex(418, 225.1875);
+curveVertex(420, 238.1875);
+curveVertex(434, 247.1875);
+curveVertex(436, 258.1875);
+curveVertex(435, 266.1875);
+curveVertex(437, 274.1875);
+curveVertex(441, 281.1875);
+curveVertex(436, 284.1875);
+curveVertex(419, 284.1875);
+curveVertex(401, 286.1875);
+curveVertex(386, 292.1875);
+curveVertex(373, 303.1875);
+curveVertex(360, 314.1875);
+curveVertex(351, 320.1875);
+curveVertex(350, 307.1875);
+curveVertex(344, 294.1875);
+curveVertex(354, 278.1875);
+curveVertex(348, 264.1875);
+curveVertex(356, 246.1875);
+curveVertex(345, 235.1875);
+curveVertex(352, 214.1875);
+curveVertex(342, 193.1875);
+curveVertex(350, 176.1875);
+curveVertex(350, 167.1875);
+curveVertex(339, 152.1875);
+curveVertex(337, 142.1875);
+curveVertex(350, 116.1875);
+curveVertex(344, 108.1875);
+curveVertex(343, 99.1875);
+curveVertex(347, 83.1875);
+curveVertex(341, 70.1875);
+curveVertex(332, 60.1875);
+curveVertex(320, 55.1875);
+curveVertex(305, 50.1875);
+curveVertex(288, 47.1875);
+curveVertex(273, 48.1875);
+curveVertex(259, 51.1875);
+curveVertex(249, 56.1875);
+curveVertex(242, 64.1875);
+endShape(CLOSE);
+  
+// OJO izquierdo
+  beginShape();
+vertex(266, 118.83333587646484);
+bezierVertex(262, 115.83333587646484, 256, 113.83333587646484, 249, 114.83333587646484);
+bezierVertex(245, 117.83333587646484, 244, 120.83333587646484, 247, 122.83333587646484);
+bezierVertex(250, 123.83333587646484, 254, 124.83333587646484, 258, 123.83333587646484);
+bezierVertex(262, 122.83333587646484, 265, 121.83333587646484, 267, 120.83333587646484);
+endShape(CLOSE);
+  
+// OJO derecha
+
+  beginShape();
+vertex(293, 119.36249542236328);
+bezierVertex(296, 122.36249542236328, 301, 123.36249542236328, 306, 123.36249542236328);
+bezierVertex(311, 122.36249542236328, 315, 120.36249542236328, 318, 117.36249542236328);
+bezierVertex(312, 114.36249542236328, 306, 113.36249542236328, 299, 114.36249542236328);
+endShape(CLOSE);
+  
+// NARIZ
+beginShape();
+vertex(264.01171875, 155.69921875);
+bezierVertex(264.01171875, 158.69921875, 266.01171875, 160.69921875, 268.01171875, 162.69921875);
+bezierVertex(272.01171875, 163.69921875, 275.01171875, 164.69921875, 277.01171875, 164.69921875);
+bezierVertex(280.01171875, 163.69921875, 282.01171875, 162.69921875, 283.01171875, 162.69921875);
+bezierVertex(285.01171875, 162.69921875, 286.01171875, 162.69921875, 287.01171875, 162.69921875);
+bezierVertex(288.01171875, 161.69921875, 288.01171875, 160.69921875, 288.01171875, 158.69921875);
+endShape();
+
+// Boca
+  beginShape();
+curveVertex(260.01171875, 200);
+curveVertex(269.01171875, 176.94921875);
+curveVertex(277.01171875, 177.94921875);
+curveVertex(294.01171875, 200);
+endShape();
+  
+//ceja izquierda
+  beginShape();
+vertex(264, 104.1875);
+vertex(245, 95.1875);
+endShape();
+  
+//ceja derecha
+  beginShape();
+vertex(293, 103.1875);
+vertex(316, 100.1875);
+endShape();
+        
+    }
+
+    function figuraSorprès(intensity) {
+
+    r = map(intensity, 0, 1, 255, 255);
+    g = map(intensity, 0, 1, 255, 128);
+    b = map(intensity, 0, 1, 255, 0);
+    r2 = map(intensity, 1, 0, 255, 255);
+    g2 = map(intensity, 1, 0, 255, 128);
+    b2 = map(intensity, 1, 0, 255, 0);
+
+    background(r2, g2, b2);
+
+
+// Cos
+stroke(0);
+beginShape();
+fill(r,g,b);
+curveVertex(277, 201.1875);
+curveVertex(282, 239.1875);
+curveVertex(282, 244.1875);
+curveVertex(275, 248.1875);
+curveVertex(252, 266.1875);
+curveVertex(223, 288.1875);
+curveVertex(211, 298.1875);
+curveVertex(202, 309.1875);
+curveVertex(206, 331.1875);
+curveVertex(226, 354.1875);
+curveVertex(264, 369.1875);
+curveVertex(316, 372.1875);
+curveVertex(397, 328.1875);
+curveVertex(400, 290.1875);
+curveVertex(385, 222.1875);
+curveVertex(364, 192.1875);
+curveVertex(337, 179.1875);
+curveVertex(306, 189.1875);
+curveVertex(287, 195.1875);
+endShape(CLOSE);
+  
+// Cara
+beginShape();
+curveVertex(239, 64.1875);
+curveVertex(235, 93.1875);
+curveVertex(233, 115.1875);
+curveVertex(234, 135.1875);
+curveVertex(236, 157.1875);
+curveVertex(242, 176.1875);
+curveVertex(249, 191.1875);
+curveVertex(261, 204.1875);
+curveVertex(277, 215.1875);
+curveVertex(305, 215.1875);
+curveVertex(332, 205.1875);
+curveVertex(346, 194.1875);
+curveVertex(371, 159.1875);
+curveVertex(373, 98.1875);
+curveVertex(358, 54.1875);
+curveVertex(327, 34.1875);
+curveVertex(299, 30.1875);
+curveVertex(271, 34.1875);
+curveVertex(253, 41.1875);
+curveVertex(237, 61.1875);
+endShape(CLOSE);
+
+// Ropa exterior
+beginShape();
+curveVertex(408, 285.1875);
+curveVertex(380, 294.1875);
+curveVertex(362, 310.1875);
+curveVertex(349, 323.1875);
+curveVertex(332, 342.1875);
+curveVertex(329, 349.1875);
+curveVertex(328, 352.1875);
+curveVertex(323, 352.1875);
+curveVertex(296, 353.1875);
+curveVertex(275, 351.1875);
+curveVertex(255, 345.1875);
+curveVertex(240, 338.1875);
+curveVertex(226, 326.1875);
+curveVertex(220, 314.1875);
+curveVertex(216, 303.1875);
+curveVertex(212, 295.1875);
+curveVertex(212, 286.1875);
+curveVertex(208, 285.1875);
+curveVertex(203, 288.1875);
+curveVertex(187, 302.1875);
+curveVertex(176, 313.1875);
+curveVertex(170, 321.1875);
+curveVertex(169, 329.1875);
+curveVertex(168, 331.1875);
+curveVertex(164, 334.1875);
+curveVertex(153, 339.1875);
+curveVertex(149, 347.1875);
+curveVertex(146, 356.1875);
+curveVertex(145, 370.1875);
+curveVertex(144, 380.1875);
+curveVertex(144, 390.1875);
+curveVertex(143, 393.1875);
+curveVertex(140, 395.1875);
+curveVertex(132, 398.1875);
+curveVertex(127, 404.1875);
+curveVertex(124, 411.1875);
+curveVertex(123, 419.1875);
+curveVertex(122, 424.1875);
+curveVertex(119, 425.1875);
+curveVertex(113, 427.1875);
+curveVertex(102, 433.1875);
+curveVertex(92, 443.1875);
+curveVertex(86, 453.1875);
+curveVertex(79, 468.1875);
+curveVertex(75, 480.1875);
+curveVertex(72, 494.1875);
+curveVertex(69, 508.1875);
+curveVertex(65, 523.1875);
+curveVertex(65, 538.1875);
+curveVertex(69, 546.1875);
+curveVertex(72, 555.1875);
+curveVertex(68, 565.1875);
+curveVertex(59, 579.1875);
+curveVertex(49, 592.1875);
+curveVertex(46, 599.1875);
+curveVertex(46, 599.1875);
+curveVertex(543, 599.1875);
+curveVertex(542, 598.1875);
+curveVertex(542, 572.1875);
+curveVertex(540, 549.1875);
+curveVertex(535, 526.1875);
+curveVertex(530, 498.1875);
+curveVertex(529, 470.1875);
+curveVertex(526, 444.1875);
+curveVertex(517, 422.1875);
+curveVertex(506, 399.1875);
+curveVertex(506, 395.1875);
+curveVertex(508, 370.1875);
+curveVertex(505, 357.1875);
+curveVertex(492, 334.1875);
+curveVertex(481, 317.1875);
+curveVertex(467, 302.1875);
+curveVertex(449, 289.1875);
+curveVertex(427, 284.1875);
+curveVertex(416, 284.1875);
+endShape(CLOSE);
+  
+// Pelo
+beginShape();
+curveVertex(239, 77.1875);
+curveVertex(237, 92.1875);
+curveVertex(237, 104.1875);
+curveVertex(236, 117.1875);
+curveVertex(236, 131.1875);
+curveVertex(237, 142.1875);
+curveVertex(238, 154.1875);
+curveVertex(243, 171.1875);
+curveVertex(248, 181.1875);
+curveVertex(255, 193.1875);
+curveVertex(263, 203.1875);
+curveVertex(266, 217.1875);
+curveVertex(265, 227.1875);
+curveVertex(260, 235.1875);
+curveVertex(267, 241.1875);
+curveVertex(268, 252.1875);
+curveVertex(256, 263.1875);
+curveVertex(248, 272.1875);
+curveVertex(249, 282.1875);
+curveVertex(244, 289.1875);
+curveVertex(237, 292.1875);
+curveVertex(235, 298.1875);
+curveVertex(238, 304.1875);
+curveVertex(239, 311.1875);
+curveVertex(236, 317.1875);
+curveVertex(229, 318.1875);
+curveVertex(228, 313.1875);
+curveVertex(227, 309.1875);
+curveVertex(220, 306.1875);
+curveVertex(213, 304.1875);
+curveVertex(210, 296.1875);
+curveVertex(211, 288.1875);
+curveVertex(207, 282.1875);
+curveVertex(206, 275.1875);
+curveVertex(213, 266.1875);
+curveVertex(210, 258.1875);
+curveVertex(214, 247.1875);
+curveVertex(210, 237.1875);
+curveVertex(217, 225.1875);
+curveVertex(212, 214.1875);
+curveVertex(219, 198.1875);
+curveVertex(212, 189.1875);
+curveVertex(218, 171.1875);
+curveVertex(208, 156.1875);
+curveVertex(218, 144.1875);
+curveVertex(216, 136.1875);
+curveVertex(213, 124.1875);
+curveVertex(219, 110.1875);
+curveVertex(215, 93.1875);
+curveVertex(226, 81.1875);
+curveVertex(224, 67.1875);
+curveVertex(231, 54.1875);
+curveVertex(244, 39.1875);
+curveVertex(260, 23.1875);
+curveVertex(274, 15.1875);
+curveVertex(293, 9.1875);
+curveVertex(315, 9.1875);
+curveVertex(338, 14.1875);
+curveVertex(350, 19.1875);
+curveVertex(360, 25.1875);
+curveVertex(368, 33.1875);
+curveVertex(377, 41.1875);
+curveVertex(383, 52.1875);
+curveVertex(387, 62.1875);
+curveVertex(391, 74.1875);
+curveVertex(394, 90.1875);
+curveVertex(395, 105.1875);
+curveVertex(396, 118.1875);
+curveVertex(401, 130.1875);
+curveVertex(405, 141.1875);
+curveVertex(401, 156.1875);
+curveVertex(412, 172.1875);
+curveVertex(415, 179.1875);
+curveVertex(410, 201.1875);
+curveVertex(410, 208.1875);
+curveVertex(418, 225.1875);
+curveVertex(420, 238.1875);
+curveVertex(434, 247.1875);
+curveVertex(436, 258.1875);
+curveVertex(435, 266.1875);
+curveVertex(437, 274.1875);
+curveVertex(441, 281.1875);
+curveVertex(436, 284.1875);
+curveVertex(419, 284.1875);
+curveVertex(401, 286.1875);
+curveVertex(386, 292.1875);
+curveVertex(373, 303.1875);
+curveVertex(360, 314.1875);
+curveVertex(351, 320.1875);
+curveVertex(350, 307.1875);
+curveVertex(344, 294.1875);
+curveVertex(354, 278.1875);
+curveVertex(348, 264.1875);
+curveVertex(356, 246.1875);
+curveVertex(345, 235.1875);
+curveVertex(352, 214.1875);
+curveVertex(342, 193.1875);
+curveVertex(350, 176.1875);
+curveVertex(350, 167.1875);
+curveVertex(339, 152.1875);
+curveVertex(337, 142.1875);
+curveVertex(350, 116.1875);
+curveVertex(344, 108.1875);
+curveVertex(343, 99.1875);
+curveVertex(347, 83.1875);
+curveVertex(341, 70.1875);
+curveVertex(332, 60.1875);
+curveVertex(320, 55.1875);
+curveVertex(305, 50.1875);
+curveVertex(288, 47.1875);
+curveVertex(273, 48.1875);
+curveVertex(259, 51.1875);
+curveVertex(249, 56.1875);
+curveVertex(242, 64.1875);
+endShape(CLOSE);
+  
+// OJO izquierdo
+  beginShape();
+vertex(266, 118.83333587646484);
+bezierVertex(262, 115.83333587646484, 256, 113.83333587646484, 249, 114.83333587646484);
+bezierVertex(245, 117.83333587646484, 244, 120.83333587646484, 247, 122.83333587646484);
+bezierVertex(250, 123.83333587646484, 254, 124.83333587646484, 258, 123.83333587646484);
+bezierVertex(262, 122.83333587646484, 265, 121.83333587646484, 267, 120.83333587646484);
+endShape(CLOSE);
+  
+// OJO derecha
+
+  beginShape();
+vertex(293, 119.36249542236328);
+bezierVertex(296, 122.36249542236328, 301, 123.36249542236328, 306, 123.36249542236328);
+bezierVertex(311, 122.36249542236328, 315, 120.36249542236328, 318, 117.36249542236328);
+bezierVertex(312, 114.36249542236328, 306, 113.36249542236328, 299, 114.36249542236328);
+endShape(CLOSE);
+  
+// NARIZ
+beginShape();
+vertex(264.01171875, 155.69921875);
+bezierVertex(264.01171875, 158.69921875, 266.01171875, 160.69921875, 268.01171875, 162.69921875);
+bezierVertex(272.01171875, 163.69921875, 275.01171875, 164.69921875, 277.01171875, 164.69921875);
+bezierVertex(280.01171875, 163.69921875, 282.01171875, 162.69921875, 283.01171875, 162.69921875);
+bezierVertex(285.01171875, 162.69921875, 286.01171875, 162.69921875, 287.01171875, 162.69921875);
+bezierVertex(288.01171875, 161.69921875, 288.01171875, 160.69921875, 288.01171875, 158.69921875);
+endShape();
+
+// Boca
+  beginShape();
+curveVertex(260.01171875, 200);
+curveVertex(269.01171875, 176.94921875);
+curveVertex(277.01171875, 177.94921875);
+curveVertex(294.01171875, 200);
+endShape(CLOSE);
+    }
+
+    function figuraEspantat(intensity) {
+   r = map(intensity, 0, 1, 255, 155);
+   g = map(intensity, 0, 1, 255, 0);
+   b = map(intensity, 0, 1, 255, 255);
+   r2 = map(intensity, 1, 0, 255, 155);
+   g2 = map(intensity, 1, 0, 255, 0);
+   b2 = map(intensity, 1, 0, 255, 255);
+   s = map(intensity, 0.5,1, 0, 7)
+   m = map(intensity, 1, 0.5, 0, 300)
+
+
+  background(r2, g2, b2);
+
+// Cos
+  stroke(0);
+beginShape();
+  fill(r, g, b)
+curveVertex(277, 201.1875);
+curveVertex(282, 239.1875);
+curveVertex(282, 244.1875);
+curveVertex(275, 248.1875);
+curveVertex(252, 266.1875);
+curveVertex(223, 288.1875);
+curveVertex(211, 298.1875);
+curveVertex(202, 309.1875);
+curveVertex(206, 331.1875);
+curveVertex(226, 354.1875);
+curveVertex(264, 369.1875);
+curveVertex(316, 372.1875);
+curveVertex(397, 328.1875);
+curveVertex(400, 290.1875);
+curveVertex(385, 222.1875);
+curveVertex(364, 192.1875);
+curveVertex(337, 179.1875);
+curveVertex(306, 189.1875);
+curveVertex(287, 195.1875);
+endShape(CLOSE);
+  
+// Cara
+beginShape();
+curveVertex(239, 64.1875);
+curveVertex(235, 93.1875);
+curveVertex(233, 115.1875);
+curveVertex(234, 135.1875);
+curveVertex(236, 157.1875);
+curveVertex(242, 176.1875);
+curveVertex(249, 191.1875);
+curveVertex(261, 204.1875);
+curveVertex(277, 215.1875);
+curveVertex(305, 215.1875);
+curveVertex(332, 205.1875);
+curveVertex(346, 194.1875);
+curveVertex(371, 159.1875);
+curveVertex(373, 98.1875);
+curveVertex(358, 54.1875);
+curveVertex(327, 34.1875);
+curveVertex(299, 30.1875);
+curveVertex(271, 34.1875);
+curveVertex(253, 41.1875);
+curveVertex(237, 61.1875);
+endShape(CLOSE);
+
+// Ropa exterior
+beginShape();
+curveVertex(408, 285.1875);
+curveVertex(380, 294.1875);
+curveVertex(362, 310.1875);
+curveVertex(349, 323.1875);
+curveVertex(332, 342.1875);
+curveVertex(329, 349.1875);
+curveVertex(328, 352.1875);
+curveVertex(323, 352.1875);
+curveVertex(296, 353.1875);
+curveVertex(275, 351.1875);
+curveVertex(255, 345.1875);
+curveVertex(240, 338.1875);
+curveVertex(226, 326.1875);
+curveVertex(220, 314.1875);
+curveVertex(216, 303.1875);
+curveVertex(212, 295.1875);
+curveVertex(212, 286.1875);
+curveVertex(208, 285.1875);
+curveVertex(203, 288.1875);
+curveVertex(187, 302.1875);
+curveVertex(176, 313.1875);
+curveVertex(170, 321.1875);
+curveVertex(169, 329.1875);
+curveVertex(168, 331.1875);
+curveVertex(164, 334.1875);
+curveVertex(153, 339.1875);
+curveVertex(149, 347.1875);
+curveVertex(146, 356.1875);
+curveVertex(145, 370.1875);
+curveVertex(144, 380.1875);
+curveVertex(144, 390.1875);
+curveVertex(143, 393.1875);
+curveVertex(140, 395.1875);
+curveVertex(132, 398.1875);
+curveVertex(127, 404.1875);
+curveVertex(124, 411.1875);
+curveVertex(123, 419.1875);
+curveVertex(122, 424.1875);
+curveVertex(119, 425.1875);
+curveVertex(113, 427.1875);
+curveVertex(102, 433.1875);
+curveVertex(92, 443.1875);
+curveVertex(86, 453.1875);
+curveVertex(79, 468.1875);
+curveVertex(75, 480.1875);
+curveVertex(72, 494.1875);
+curveVertex(69, 508.1875);
+curveVertex(65, 523.1875);
+curveVertex(65, 538.1875);
+curveVertex(69, 546.1875);
+curveVertex(72, 555.1875);
+curveVertex(68, 565.1875);
+curveVertex(59, 579.1875);
+curveVertex(49, 592.1875);
+curveVertex(46, 599.1875);
+curveVertex(46, 599.1875);
+curveVertex(543, 599.1875);
+curveVertex(542, 598.1875);
+curveVertex(542, 572.1875);
+curveVertex(540, 549.1875);
+curveVertex(535, 526.1875);
+curveVertex(530, 498.1875);
+curveVertex(529, 470.1875);
+curveVertex(526, 444.1875);
+curveVertex(517, 422.1875);
+curveVertex(506, 399.1875);
+curveVertex(506, 395.1875);
+curveVertex(508, 370.1875);
+curveVertex(505, 357.1875);
+curveVertex(492, 334.1875);
+curveVertex(481, 317.1875);
+curveVertex(467, 302.1875);
+curveVertex(449, 289.1875);
+curveVertex(427, 284.1875);
+curveVertex(416, 284.1875);
+endShape(CLOSE);
+  
+// Pelo
+beginShape();
+curveVertex(239, 77.1875);
+curveVertex(237, 92.1875);
+curveVertex(237, 104.1875);
+curveVertex(236, 117.1875);
+curveVertex(236, 131.1875);
+curveVertex(237, 142.1875);
+curveVertex(238, 154.1875);
+curveVertex(243, 171.1875);
+curveVertex(248, 181.1875);
+curveVertex(255, 193.1875);
+curveVertex(263, 203.1875);
+curveVertex(266, 217.1875);
+curveVertex(265, 227.1875);
+curveVertex(260, 235.1875);
+curveVertex(267, 241.1875);
+curveVertex(268, 252.1875);
+curveVertex(256, 263.1875);
+curveVertex(248, 272.1875);
+curveVertex(249, 282.1875);
+curveVertex(244, 289.1875);
+curveVertex(237, 292.1875);
+curveVertex(235, 298.1875);
+curveVertex(238, 304.1875);
+curveVertex(239, 311.1875);
+curveVertex(236, 317.1875);
+curveVertex(229, 318.1875);
+curveVertex(228, 313.1875);
+curveVertex(227, 309.1875);
+curveVertex(220, 306.1875);
+curveVertex(213, 304.1875);
+curveVertex(210, 296.1875);
+curveVertex(211, 288.1875);
+curveVertex(207, 282.1875);
+curveVertex(206, 275.1875);
+curveVertex(213, 266.1875);
+curveVertex(210, 258.1875);
+curveVertex(214, 247.1875);
+curveVertex(210, 237.1875);
+curveVertex(217, 225.1875);
+curveVertex(212, 214.1875);
+curveVertex(219, 198.1875);
+curveVertex(212, 189.1875);
+curveVertex(218, 171.1875);
+curveVertex(208, 156.1875);
+curveVertex(218, 144.1875);
+curveVertex(216, 136.1875);
+curveVertex(213, 124.1875);
+curveVertex(219, 110.1875);
+curveVertex(215, 93.1875);
+curveVertex(226, 81.1875);
+curveVertex(224, 67.1875);
+curveVertex(231, 54.1875);
+curveVertex(244, 39.1875);
+curveVertex(260, 23.1875);
+curveVertex(274, 15.1875);
+curveVertex(293, 9.1875);
+curveVertex(315, 9.1875);
+curveVertex(338, 14.1875);
+curveVertex(350, 19.1875);
+curveVertex(360, 25.1875);
+curveVertex(368, 33.1875);
+curveVertex(377, 41.1875);
+curveVertex(383, 52.1875);
+curveVertex(387, 62.1875);
+curveVertex(391, 74.1875);
+curveVertex(394, 90.1875);
+curveVertex(395, 105.1875);
+curveVertex(396, 118.1875);
+curveVertex(401, 130.1875);
+curveVertex(405, 141.1875);
+curveVertex(401, 156.1875);
+curveVertex(412, 172.1875);
+curveVertex(415, 179.1875);
+curveVertex(410, 201.1875);
+curveVertex(410, 208.1875);
+curveVertex(418, 225.1875);
+curveVertex(420, 238.1875);
+curveVertex(434, 247.1875);
+curveVertex(436, 258.1875);
+curveVertex(435, 266.1875);
+curveVertex(437, 274.1875);
+curveVertex(441, 281.1875);
+curveVertex(436, 284.1875);
+curveVertex(419, 284.1875);
+curveVertex(401, 286.1875);
+curveVertex(386, 292.1875);
+curveVertex(373, 303.1875);
+curveVertex(360, 314.1875);
+curveVertex(351, 320.1875);
+curveVertex(350, 307.1875);
+curveVertex(344, 294.1875);
+curveVertex(354, 278.1875);
+curveVertex(348, 264.1875);
+curveVertex(356, 246.1875);
+curveVertex(345, 235.1875);
+curveVertex(352, 214.1875);
+curveVertex(342, 193.1875);
+curveVertex(350, 176.1875);
+curveVertex(350, 167.1875);
+curveVertex(339, 152.1875);
+curveVertex(337, 142.1875);
+curveVertex(350, 116.1875);
+curveVertex(344, 108.1875);
+curveVertex(343, 99.1875);
+curveVertex(347, 83.1875);
+curveVertex(341, 70.1875);
+curveVertex(332, 60.1875);
+curveVertex(320, 55.1875);
+curveVertex(305, 50.1875);
+curveVertex(288, 47.1875);
+curveVertex(273, 48.1875);
+curveVertex(259, 51.1875);
+curveVertex(249, 56.1875);
+curveVertex(242, 64.1875);
+endShape(CLOSE);
+  
+// NARIZ
+beginShape();
+vertex(264.01171875, 155.69921875);
+bezierVertex(264.01171875, 158.69921875, 266.01171875, 160.69921875, 268.01171875, 162.69921875);
+bezierVertex(272.01171875, 163.69921875, 275.01171875, 164.69921875, 277.01171875, 164.69921875);
+bezierVertex(280.01171875, 163.69921875, 282.01171875, 162.69921875, 283.01171875, 162.69921875);
+bezierVertex(285.01171875, 162.69921875, 286.01171875, 162.69921875, 287.01171875, 162.69921875);
+bezierVertex(288.01171875, 161.69921875, 288.01171875, 160.69921875, 288.01171875, 158.69921875);
+endShape();
+  
+  // OJO izquierdo
+  fill(255);
+beginShape();
+vertex(244, 119.1875);//Extremo izquierdo
+vertex(248, 122.1875);
+vertex(254, 123.1875);
+vertex(261, 122.1875);
+vertex(265, 119.1875);//Extremo derecho
+vertex(261, 115.1875+(s/2));
+vertex(255, 113.1875+s);
+vertex(247, 115.1875+(s/2));
+endShape(CLOSE);
+  
+// OJO derecha
+beginShape();
+vertex(318, 118.1875);//Extremo derecho
+vertex(313, 122.1875);
+vertex(304, 123.1875);
+vertex(296, 122.1875);
+vertex(293, 120.1875);//Extremo izquierdo
+vertex(298, 115.1875+(s/2));
+vertex(305, 112.1875+s);
+vertex(313, 113.1875+s);
+endShape(CLOSE);
+
+// Boca
+beginShape();
+vertex(262, 175.1875);
+vertex(264, 182.1875);
+vertex(268, 184.1875);
+vertex(274, 187.1875);
+vertex(280, 187.1875);
+vertex(288, 185.1875);
+vertex(294, 180.1875);
+vertex(296, 175.1875);
+vertex(293, 169.1875);
+vertex(282, 167.1875);
+vertex(275, 167.1875);
+vertex(269, 168.1875);
+vertex(263, 170.1875);
+endShape(CLOSE);
+  
+//ceja izquierda
+  beginShape();
+vertex(264, 104.1875);
+vertex(245, 111.1875);
+endShape();
+  
+//ceja derecha
+  beginShape();
+vertex(293, 103.1875);
+vertex(316, 110.1875);
+endShape();
+  
+
+  //mano
+beginShape();
+  fill(r, g, b);
+  vertex(272, 143.1875+m);
+vertex(269, 141.1875+m);
+vertex(266, 142.1875+m);
+vertex(263, 144.1875+m);
+vertex(262, 147.1875+m);
+vertex(261, 151.1875+m);
+vertex(260, 155.1875+m);
+vertex(259, 160.1875+m);
+vertex(258, 165.1875+m);
+vertex(256, 170.1875+m);
+vertex(254, 176.1875+m);
+vertex(253, 180.1875+m);
+vertex(253, 184.1875+m);
+vertex(252, 189.1875+m);
+vertex(251, 196.1875+m);
+vertex(248, 193.1875+m);
+vertex(245, 192.1875+m);
+vertex(243, 193.1875+m);
+vertex(241, 196.1875+m);
+vertex(239, 199.1875+m);
+vertex(237, 202.1875+m);
+vertex(235, 208.1875+m);
+vertex(232, 212.1875+m);
+vertex(232, 216.1875+m);
+vertex(233, 219.1875+m);
+vertex(233, 224.1875+m);
+vertex(233, 227.1875+m);
+vertex(234, 230.1875+m);
+vertex(234, 234.1875+m);
+vertex(233, 237.1875+m);
+vertex(233, 240.1875+m);
+vertex(234, 242.1875+m);
+vertex(236, 244.1875+m);
+vertex(237, 247.1875+m);
+vertex(239, 250.1875+m);
+vertex(240, 251.1875+m);
+vertex(243, 255.1875+m);
+vertex(246, 259.1875+m);
+vertex(249, 262.1875+m);
+vertex(254, 266.1875+m);
+vertex(258, 274.1875+m);
+vertex(261, 280.1875+m);
+vertex(264, 288.1875+m);
+vertex(269, 299.1875+m);
+vertex(275, 309.1875+m);
+vertex(278, 314.1875+m);
+vertex(280, 318.1875+m);
+vertex(281, 322.1875+m);
+vertex(283, 328.1875+m);
+vertex(285, 334.1875+m);
+vertex(291, 345.1875+m);
+vertex(297, 359.1875+m);
+vertex(301, 368.1875+m);
+vertex(305, 375.1875+m);
+vertex(312, 385.1875+m);
+vertex(317, 396.1875+m);
+vertex(321, 408.1875+m);
+vertex(324, 418.1875+m);
+vertex(325, 431.1875+m);
+vertex(329, 446.1875+m);
+vertex(332, 462.1875+m);
+vertex(340, 522.1875+m);
+vertex(347, 598.1875+m);
+vertex(426, 598.1875+m);
+vertex(422, 538.1875+m);
+vertex(415, 491.1875+m);
+vertex(412, 466.1875+m);
+vertex(407, 444.1875+m);
+vertex(404, 427.1875+m);
+vertex(395, 408.1875+m);
+vertex(382, 382.1875+m);
+vertex(369, 362.1875+m);
+vertex(347, 331.1875+m);
+vertex(325, 296.1875+m);
+vertex(309, 266.1875+m);
+vertex(307, 262.1875+m);
+vertex(308, 257.1875+m);
+vertex(310, 250.1875+m);
+vertex(312, 242.1875+m);
+vertex(315, 230.1875+m);
+vertex(317, 223.1875+m);
+vertex(314, 209.1875+m);
+vertex(310, 198.1875+m);
+vertex(308, 187.1875+m);
+vertex(304, 178.1875+m);
+vertex(300, 171.1875+m);
+vertex(296, 166.1875+m);
+vertex(294, 165.1875+m);
+vertex(298, 181.1875+m);
+vertex(300, 204.1875+m);
+vertex(298, 181.1875+m);
+vertex(294, 165.1875+m);
+vertex(291, 154.1875+m);
+vertex(289, 149.1875+m);
+vertex(286, 146.1875+m);
+vertex(284, 146.1875+m);
+vertex(285, 156.1875+m);
+vertex(285, 169.1875+m);
+vertex(287, 205.1875+m);
+vertex(285, 169.1875+m);
+vertex(285, 156.1875+m);
+vertex(284, 146.1875+m);
+vertex(281, 142.1875+m);
+vertex(278, 140.1875+m);
+vertex(274, 141.1875+m);
+vertex(272, 144.1875+m);
+vertex(271, 168.1875+m);
+vertex(269, 206.1875+m);
+vertex(271, 168.1875+m);
+endShape();
+    }
+
+    function figuraNeutral(intensity) {
+   r = map(intensity, 0, 1, 255, 205);
+   g = map(intensity, 0, 1, 255, 205);
+   b = map(intensity, 0, 1, 255, 205);
+   r2 = map(intensity, 1, 0, 255, 205);
+   g2 = map(intensity, 1, 0, 255, 205);
+   b2 = map(intensity, 1, 0, 255, 205);
+
+
+  background(r2, g2, b2);
+
+// Cos
+  stroke(0);
+beginShape();
+  fill(r, g, b)
+curveVertex(277, 201.1875);
+curveVertex(282, 239.1875);
+curveVertex(282, 244.1875);
+curveVertex(275, 248.1875);
+curveVertex(252, 266.1875);
+curveVertex(223, 288.1875);
+curveVertex(211, 298.1875);
+curveVertex(202, 309.1875);
+curveVertex(206, 331.1875);
+curveVertex(226, 354.1875);
+curveVertex(264, 369.1875);
+curveVertex(316, 372.1875);
+curveVertex(397, 328.1875);
+curveVertex(400, 290.1875);
+curveVertex(385, 222.1875);
+curveVertex(364, 192.1875);
+curveVertex(337, 179.1875);
+curveVertex(306, 189.1875);
+curveVertex(287, 195.1875);
+endShape(CLOSE);
+  
+// Cara
+beginShape();
+curveVertex(239, 64.1875);
+curveVertex(235, 93.1875);
+curveVertex(233, 115.1875);
+curveVertex(234, 135.1875);
+curveVertex(236, 157.1875);
+curveVertex(242, 176.1875);
+curveVertex(249, 191.1875);
+curveVertex(261, 204.1875);
+curveVertex(277, 215.1875);
+curveVertex(305, 215.1875);
+curveVertex(332, 205.1875);
+curveVertex(346, 194.1875);
+curveVertex(371, 159.1875);
+curveVertex(373, 98.1875);
+curveVertex(358, 54.1875);
+curveVertex(327, 34.1875);
+curveVertex(299, 30.1875);
+curveVertex(271, 34.1875);
+curveVertex(253, 41.1875);
+curveVertex(237, 61.1875);
+endShape(CLOSE);
+
+// Ropa exterior
+beginShape();
+curveVertex(408, 285.1875);
+curveVertex(380, 294.1875);
+curveVertex(362, 310.1875);
+curveVertex(349, 323.1875);
+curveVertex(332, 342.1875);
+curveVertex(329, 349.1875);
+curveVertex(328, 352.1875);
+curveVertex(323, 352.1875);
+curveVertex(296, 353.1875);
+curveVertex(275, 351.1875);
+curveVertex(255, 345.1875);
+curveVertex(240, 338.1875);
+curveVertex(226, 326.1875);
+curveVertex(220, 314.1875);
+curveVertex(216, 303.1875);
+curveVertex(212, 295.1875);
+curveVertex(212, 286.1875);
+curveVertex(208, 285.1875);
+curveVertex(203, 288.1875);
+curveVertex(187, 302.1875);
+curveVertex(176, 313.1875);
+curveVertex(170, 321.1875);
+curveVertex(169, 329.1875);
+curveVertex(168, 331.1875);
+curveVertex(164, 334.1875);
+curveVertex(153, 339.1875);
+curveVertex(149, 347.1875);
+curveVertex(146, 356.1875);
+curveVertex(145, 370.1875);
+curveVertex(144, 380.1875);
+curveVertex(144, 390.1875);
+curveVertex(143, 393.1875);
+curveVertex(140, 395.1875);
+curveVertex(132, 398.1875);
+curveVertex(127, 404.1875);
+curveVertex(124, 411.1875);
+curveVertex(123, 419.1875);
+curveVertex(122, 424.1875);
+curveVertex(119, 425.1875);
+curveVertex(113, 427.1875);
+curveVertex(102, 433.1875);
+curveVertex(92, 443.1875);
+curveVertex(86, 453.1875);
+curveVertex(79, 468.1875);
+curveVertex(75, 480.1875);
+curveVertex(72, 494.1875);
+curveVertex(69, 508.1875);
+curveVertex(65, 523.1875);
+curveVertex(65, 538.1875);
+curveVertex(69, 546.1875);
+curveVertex(72, 555.1875);
+curveVertex(68, 565.1875);
+curveVertex(59, 579.1875);
+curveVertex(49, 592.1875);
+curveVertex(46, 599.1875);
+curveVertex(46, 599.1875);
+curveVertex(543, 599.1875);
+curveVertex(542, 598.1875);
+curveVertex(542, 572.1875);
+curveVertex(540, 549.1875);
+curveVertex(535, 526.1875);
+curveVertex(530, 498.1875);
+curveVertex(529, 470.1875);
+curveVertex(526, 444.1875);
+curveVertex(517, 422.1875);
+curveVertex(506, 399.1875);
+curveVertex(506, 395.1875);
+curveVertex(508, 370.1875);
+curveVertex(505, 357.1875);
+curveVertex(492, 334.1875);
+curveVertex(481, 317.1875);
+curveVertex(467, 302.1875);
+curveVertex(449, 289.1875);
+curveVertex(427, 284.1875);
+curveVertex(416, 284.1875);
+endShape(CLOSE);
+  
+// Pelo
+beginShape();
+curveVertex(239, 77.1875);
+curveVertex(237, 92.1875);
+curveVertex(237, 104.1875);
+curveVertex(236, 117.1875);
+curveVertex(236, 131.1875);
+curveVertex(237, 142.1875);
+curveVertex(238, 154.1875);
+curveVertex(243, 171.1875);
+curveVertex(248, 181.1875);
+curveVertex(255, 193.1875);
+curveVertex(263, 203.1875);
+curveVertex(266, 217.1875);
+curveVertex(265, 227.1875);
+curveVertex(260, 235.1875);
+curveVertex(267, 241.1875);
+curveVertex(268, 252.1875);
+curveVertex(256, 263.1875);
+curveVertex(248, 272.1875);
+curveVertex(249, 282.1875);
+curveVertex(244, 289.1875);
+curveVertex(237, 292.1875);
+curveVertex(235, 298.1875);
+curveVertex(238, 304.1875);
+curveVertex(239, 311.1875);
+curveVertex(236, 317.1875);
+curveVertex(229, 318.1875);
+curveVertex(228, 313.1875);
+curveVertex(227, 309.1875);
+curveVertex(220, 306.1875);
+curveVertex(213, 304.1875);
+curveVertex(210, 296.1875);
+curveVertex(211, 288.1875);
+curveVertex(207, 282.1875);
+curveVertex(206, 275.1875);
+curveVertex(213, 266.1875);
+curveVertex(210, 258.1875);
+curveVertex(214, 247.1875);
+curveVertex(210, 237.1875);
+curveVertex(217, 225.1875);
+curveVertex(212, 214.1875);
+curveVertex(219, 198.1875);
+curveVertex(212, 189.1875);
+curveVertex(218, 171.1875);
+curveVertex(208, 156.1875);
+curveVertex(218, 144.1875);
+curveVertex(216, 136.1875);
+curveVertex(213, 124.1875);
+curveVertex(219, 110.1875);
+curveVertex(215, 93.1875);
+curveVertex(226, 81.1875);
+curveVertex(224, 67.1875);
+curveVertex(231, 54.1875);
+curveVertex(244, 39.1875);
+curveVertex(260, 23.1875);
+curveVertex(274, 15.1875);
+curveVertex(293, 9.1875);
+curveVertex(315, 9.1875);
+curveVertex(338, 14.1875);
+curveVertex(350, 19.1875);
+curveVertex(360, 25.1875);
+curveVertex(368, 33.1875);
+curveVertex(377, 41.1875);
+curveVertex(383, 52.1875);
+curveVertex(387, 62.1875);
+curveVertex(391, 74.1875);
+curveVertex(394, 90.1875);
+curveVertex(395, 105.1875);
+curveVertex(396, 118.1875);
+curveVertex(401, 130.1875);
+curveVertex(405, 141.1875);
+curveVertex(401, 156.1875);
+curveVertex(412, 172.1875);
+curveVertex(415, 179.1875);
+curveVertex(410, 201.1875);
+curveVertex(410, 208.1875);
+curveVertex(418, 225.1875);
+curveVertex(420, 238.1875);
+curveVertex(434, 247.1875);
+curveVertex(436, 258.1875);
+curveVertex(435, 266.1875);
+curveVertex(437, 274.1875);
+curveVertex(441, 281.1875);
+curveVertex(436, 284.1875);
+curveVertex(419, 284.1875);
+curveVertex(401, 286.1875);
+curveVertex(386, 292.1875);
+curveVertex(373, 303.1875);
+curveVertex(360, 314.1875);
+curveVertex(351, 320.1875);
+curveVertex(350, 307.1875);
+curveVertex(344, 294.1875);
+curveVertex(354, 278.1875);
+curveVertex(348, 264.1875);
+curveVertex(356, 246.1875);
+curveVertex(345, 235.1875);
+curveVertex(352, 214.1875);
+curveVertex(342, 193.1875);
+curveVertex(350, 176.1875);
+curveVertex(350, 167.1875);
+curveVertex(339, 152.1875);
+curveVertex(337, 142.1875);
+curveVertex(350, 116.1875);
+curveVertex(344, 108.1875);
+curveVertex(343, 99.1875);
+curveVertex(347, 83.1875);
+curveVertex(341, 70.1875);
+curveVertex(332, 60.1875);
+curveVertex(320, 55.1875);
+curveVertex(305, 50.1875);
+curveVertex(288, 47.1875);
+curveVertex(273, 48.1875);
+curveVertex(259, 51.1875);
+curveVertex(249, 56.1875);
+curveVertex(242, 64.1875);
+endShape(CLOSE);
+  
+// NARIZ
+beginShape();
+vertex(264.01171875, 155.69921875);
+bezierVertex(264.01171875, 158.69921875, 266.01171875, 160.69921875, 268.01171875, 162.69921875);
+bezierVertex(272.01171875, 163.69921875, 275.01171875, 164.69921875, 277.01171875, 164.69921875);
+bezierVertex(280.01171875, 163.69921875, 282.01171875, 162.69921875, 283.01171875, 162.69921875);
+bezierVertex(285.01171875, 162.69921875, 286.01171875, 162.69921875, 287.01171875, 162.69921875);
+bezierVertex(288.01171875, 161.69921875, 288.01171875, 160.69921875, 288.01171875, 158.69921875);
+endShape();
+  
+  // OJO izquierdo
+  fill(255);
+beginShape();
+vertex(244, 119);//Extremo izquierdo
+vertex(265, 119);//Extremo derecho
+endShape();
+  
+// OJO derecha
+beginShape();
+vertex(318, 119);//Extremo derecho
+vertex(293, 119);//Extremo izquierdo
+endShape();
+
+// Boca
+beginShape();
+vertex(262, 175);
+vertex(296, 175);
+
+endShape();
+  
+//ceja izquierda
+  beginShape();
+vertex(264, 103);
+vertex(245, 103);
+endShape();
+  
+//ceja derecha
+  beginShape();
+vertex(293, 103);
+vertex(316, 103);
+endShape();
+    }
+  </script>
+</body>
+</html>
