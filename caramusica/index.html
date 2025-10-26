@@ -67,7 +67,7 @@
   <div id="info">
     El sistema analiza tus expresiones faciales en tiempo real mediante inteligencia artificial (ml5.js)
     para identificar tu estado emocional. Cada sentimiento detectado se asocia con una canción concreta de Coldplay
-    que empieza a sonar automáticamente al cambiar la emoción. El emoji central refleja gráficamente tu estado actual.
+    que comenzará a sonar solo cuando detengas la detección haciendo clic en "Parar".
   </div>
 
   <script>
@@ -137,11 +137,16 @@
     function toggleDeteccion() {
       deteccionActiva = !deteccionActiva;
       const boton = document.getElementById('toggleButton');
+
       if (deteccionActiva) {
+        // Reanudar detección y detener música
         boton.textContent = "Parar la detección en este sentimiento";
+        if (musicaActual && musicaActual.isPlaying()) musicaActual.stop();
         faceapi.detect(gotResults);
       } else {
+        // Parar detección y reproducir la música del sentimiento actual
         boton.textContent = "Continuar la detección de sentimientos";
+        reproducirMusica(currentExpression.dominant);
       }
     }
 
@@ -164,13 +169,11 @@
         }
       });
 
-      if (currentExpression.dominant !== emocionActual) {
-        emocionActual = currentExpression.dominant;
-        cambiarMusica(emocionActual);
-      }
+      // Actualiza solo el sentimiento actual sin reproducir música aún
+      emocionActual = currentExpression.dominant;
     }
 
-    function cambiarMusica(emocion) {
+    function reproducirMusica(emocion) {
       if (musicaActual && musicaActual.isPlaying()) musicaActual.stop();
       musicaActual = sonidos[emocion];
       if (musicaActual) musicaActual.play();
@@ -195,6 +198,7 @@
 
       textSize(22);
       text(`Canción asociada: ${canciones[currentExpression.dominant]}`, width/2, 70);
+      text(`La canción sonará solo al hacer clic en "Parar"`, width/2, 100);
 
       // Emoji central grande y dinámico
       textAlign(CENTER, CENTER);
