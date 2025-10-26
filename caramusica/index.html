@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detección de Sentimientos</title>
+
+  <!-- Librerías -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/2.0.5/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/addons/p5.sound.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/ml5js/Intro-ML-Arts-IMA@ml5-build-10-7-19/ml5_build/ml5.min.js"></script>
+
+  <style>
+    body {
+      margin: 0; padding: 0; overflow: hidden; background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    #loading-screen {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(255,255,255,0.95); display: flex; flex-direction: column;
+      justify-content: center; align-items: center; z-index: 1000;
+    }
+    .loader {
+      width: 40px; height: 40px; border: 5px solid #3498db; border-top-color: transparent;
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #info {
+      position: absolute;
+      bottom: 70px;
+      width: 100%;
+      text-align: center;
+      font-size: 18px;
+      color: #333;
+      padding: 0 20px;
+    }
+
+    #toggleButton {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      cursor: pointer;
+    }
+
+    #toggleButton:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loading-screen">
+    <div class="loader"></div>
+    <p>Cargando modelos de detección facial...</p>
+  </div>
+
+  <button id="toggleButton">Parar la detección en este sentimiento</button>
+
+  <div id="info">
+    El sistema analiza tus expresiones faciales en tiempo real mediante inteligencia artificial (ml5.js)
+    para identificar tu estado emocional. Cada sentimiento detectado se asocia con una canción concreta de Coldplay
+    que empieza a sonar automáticamente al cambiar la emoción. El emoji central refleja gráficamente tu estado actual.
+  </div>
+
+  <script>
+    let faceapi, detections = [], video;
+    let currentExpression = { dominant: 'neutral', intensity: 0 };
+    let smoothIntensity = 0;
+    let emocionActual = 'neutral';
+    let musicaActual = null;
+    let sonidos = {};
+    let deteccionActiva = true;
+
+    const emocionesES = {
+      happy: "feliz",
+      sad: "triste",
+      angry: "enfadado",
+      surprised: "sorprendido",
+      disgusted: "disgustado",
+      fearful: "asustado",
+      neutral: "neutral"
+    };
+
+    const emocionesEmoji = {
+      happy: "😄",
+      sad: "😢",
+      angry: "😠",
+      surprised: "😲",
+      disgusted: "🤢",
+      fearful: "😱",
+      neutral: "😐"
+    };
+
+    const canciones = {
+      happy: "Adventure of a Lifetime (Coldplay)",
+      sad: "Fix You (Coldplay)",
+      angry: "People of the Pride (Coldplay)",
+      surprised: "Viva La Vida (Coldplay)",
+      disgusted: "Violet Hill (Coldplay)",
+      fearful: "Spies (Coldplay)",
+      neutral: "Don’t Panic (Coldplay)"
+    };
+
+    function preload() {
+      sonidos.happy = loadSound("happy.mp3");
+      sonidos.sad = loadSound("sad.mp3");
+      sonidos.angry = loadSound("angry.mp3");
+      sonidos.surprised = loadSound("surprised.mp3");
+      sonidos.disgusted = loadSound("disgusted.mp3");
+      sonidos.fearful = loadSound("fearful.mp3");
+      sonidos.neutral = loadSound("neutral.mp3");
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      video = createCapture(VIDEO);
+      video.size(320, 240);
+      video.hide();
+
+      const options = { withLandmarks: false, withExpressions: true, withDescriptors: false };
+      faceapi = ml5.faceApi(video, options, () => {
+        document.getElementById('loading-screen').style.display = 'none';
+        faceapi.detect(gotResults);
+      });
+
+      document.getElementById('toggleButton').addEventListener('click', toggleDeteccion);
+    }
+
+    function toggleDeteccion() {
+      deteccionActiva = !deteccionActiva;
+      const boton = document.getElementById('toggleButton');
+      if (deteccionActiva) {
+        boton.textContent = "Parar la detección en este sentimiento";
+        faceapi.detect(gotResults);
+      } else {
+        boton.textContent = "Continuar la detección de sentimientos";
+      }
+    }
+
+    function gotResults(err, results) {
+      if (err) { console.error(err); return; }
+      if (!deteccionActiva) return;
+      detections = results;
+      if (detections.length > 0) updateEmocion();
+      faceapi.detect(gotResults);
+    }
+
+    function updateEmocion() {
+      let maxIntensidad = 0;
+      detections.forEach(cara => {
+        const exp = cara.expressions;
+        const dominante = Object.keys(exp).reduce((a, b) => exp[a] > exp[b] ? a : b);
+        if (exp[dominante] > maxIntensidad) {
+          currentExpression = { dominant: dominante, intensity: exp[dominante] };
+          maxIntensidad = exp[dominante];
+        }
+      });
+
+      if (currentExpression.dominant !== emocionActual) {
+        emocionActual = currentExpression.dominant;
+        cambiarMusica(emocionActual);
+      }
+    }
+
+    function cambiarMusica(emocion) {
+      if (musicaActual && musicaActual.isPlaying()) musicaActual.stop();
+      musicaActual = sonidos[emocion];
+      if (musicaActual) musicaActual.play();
+    }
+
+    function draw() {
+      background(240);
+      smoothIntensity = lerp(smoothIntensity, currentExpression.intensity, 0.1);
+
+      // Video pequeño
+      let vW = 160, vH = 120;
+      image(video, width - vW - 20, height - vH - 20, vW, vH);
+
+      // Parte superior: textos
+      fill(30);
+      noStroke();
+      textAlign(CENTER, TOP);
+      textSize(32);
+      let texto = emocionesES[currentExpression.dominant];
+      let emoji = emocionesEmoji[currentExpression.dominant];
+      text(`Sentimiento detectado: ${texto} (${(smoothIntensity*100).toFixed(0)}%)`, width/2, 30);
+
+      textSize(22);
+      text(`Canción asociada: ${canciones[currentExpression.dominant]}`, width/2, 70);
+
+      // Emoji central grande y dinámico
+      textAlign(CENTER, CENTER);
+      let tam = map(smoothIntensity, 0, 1, 220, 400);
+      textSize(tam);
+      text(emoji, width / 2, height / 2 + 40);
+    }
+  </script>
+</body>
+</html>
