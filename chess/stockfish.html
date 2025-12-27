@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>Escacs amb Stockfish (Funciona Localment!)</title>
+    <title>Escacs amb Stockfish (Funciona a GitHub Pages!)</title>
 
     <!-- Chessboard.js CSS -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
@@ -19,15 +19,15 @@
         #status { font-weight: bold; font-size: 1.3em; color: #0066cc; margin: 20px 0; }
         #info { max-width: 600px; margin: 20px auto; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         #debug { max-width: 600px; margin: 20px auto; padding: 10px; background: #222; color: #0f0; font-family: monospace; height: 200px; overflow-y: auto; border-radius: 6px; }
-        button { padding: 12px 24px; font-size: 1.1em; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; }
-        button:hover { background: #0055aa; }
-        select { padding: 8px 12px; font-size: 1em; margin: 0 10px; }
+        button, select { padding: 12px 24px; font-size: 1.1em; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 10px; }
+        button:hover, select:hover { background: #0055aa; }
+        select { background: white; color: #333; }
     </style>
 </head>
 <body>
 
-    <h1>Escacs amb Stockfish 17 (NNUE)</h1>
-    <p>Funciona obrint l'HTML directament · Tu jugues blanques</p>
+    <h1>Escacs amb Stockfish 17</h1>
+    <p>Funciona localment i a GitHub Pages · Tu jugues blanques</p>
     
     <div id="board"></div>
     <div id="status">Torn de les blanques</div>
@@ -35,13 +35,13 @@
     <div>
         <label>Dificultat:</label>
         <select id="difficulty">
-            <option value="6">Fàcil</option>
+            <option value="6">Fàcil (ràpid)</option>
             <option value="10" selected>Mitjana</option>
-            <option value="14">Difícil</option>
+            <option value="14">Difícil (més fort)</option>
         </select>
     </div>
 
-    <div id="info">Carregant Stockfish...</div>
+    <div id="info">Carregant Stockfish 17...</div>
     <div id="debug">Iniciant motor...</div>
 
     <button id="resetBtn">Nova partida</button>
@@ -74,7 +74,7 @@
                 onDrop: onDrop
             });
 
-            // Versió compatible amb local (single-threaded, sense problemes CORS)
+            // Versió compatible amb GitHub Pages (sense problemes CORS ni headers especials)
             const engine = new Worker('https://cdn.jsdelivr.net/npm/stockfish@17.1.0/src/stockfish-nnue-17-single.js');
 
             let engineReady = false;
@@ -83,15 +83,21 @@
                 const line = event.data;
                 logDebug(line);
 
-                if (line === "uciok") engine.postMessage("isready");
+                if (line === "uciok") {
+                    engine.postMessage("isready");
+                }
                 if (line === "readyok") {
                     engineReady = true;
-                    infoEl.innerHTML = "<strong>Stockfish 17 carregat i llest!</strong><br>Pots començar a jugar.";
+                    infoEl.innerHTML = "<strong>Stockfish 17 carregat correctament!</strong><br>Pots començar la partida.";
                 }
                 if (line.startsWith("bestmove")) {
                     const bestMove = line.split(" ")[1];
                     if (bestMove && bestMove !== "(none)") {
-                        game.move({ from: bestMove.substr(0,2), to: bestMove.substr(2,4), promotion: bestMove[5] || 'q' });
+                        game.move({
+                            from: bestMove.substr(0,2),
+                            to: bestMove.substr(2,4),
+                            promotion: bestMove[4] || 'q'
+                        });
                         board.position(game.fen());
                         updateStatus();
                         infoEl.innerHTML = `Stockfish ha mogut: <strong>${bestMove}</strong>`;
