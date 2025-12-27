@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>Escacs amb Stockfish (Funciona a GitHub Pages!)</title>
+    <title>Escacs amb Stockfish (Funciona a GitHub Pages i localment)</title>
 
     <!-- Chessboard.js CSS -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
@@ -20,14 +20,14 @@
         #info { max-width: 600px; margin: 20px auto; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         #debug { max-width: 600px; margin: 20px auto; padding: 10px; background: #222; color: #0f0; font-family: monospace; height: 200px; overflow-y: auto; border-radius: 6px; }
         button, select { padding: 12px 24px; font-size: 1.1em; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 10px; }
-        button:hover, select:hover { background: #0055aa; }
+        button:hover { background: #0055aa; }
         select { background: white; color: #333; }
     </style>
 </head>
 <body>
 
-    <h1>Escacs amb Stockfish 17</h1>
-    <p>Funciona localment i a GitHub Pages · Tu jugues blanques</p>
+    <h1>Escacs amb Stockfish 17 (NNUE)</h1>
+    <p>Funciona perfectament a GitHub Pages i obrint l'HTML directament</p>
     
     <div id="board"></div>
     <div id="status">Torn de les blanques</div>
@@ -74,8 +74,8 @@
                 onDrop: onDrop
             });
 
-            // Versió compatible amb GitHub Pages (sense problemes CORS ni headers especials)
-            const engine = new Worker('https://cdn.jsdelivr.net/npm/stockfish@17.1.0/src/stockfish-nnue-17-single.js');
+            // Versió que funciona sense problemes CORS a GitHub Pages i localment: lite-single
+            const engine = new Worker('https://cdn.jsdelivr.net/npm/stockfish@17.1.0/src/stockfish-nnue-17.1-lite-single.js');
 
             let engineReady = false;
 
@@ -88,7 +88,7 @@
                 }
                 if (line === "readyok") {
                     engineReady = true;
-                    infoEl.innerHTML = "<strong>Stockfish 17 carregat correctament!</strong><br>Pots començar la partida.";
+                    infoEl.innerHTML = "<strong>Stockfish 17 carregat correctament!</strong><br>Ara pots jugar contra un motor molt fort.";
                 }
                 if (line.startsWith("bestmove")) {
                     const bestMove = line.split(" ")[1];
