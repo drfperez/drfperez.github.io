@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Escacs amb Stockfish (Funciona Localment!)</title>
+
+    <!-- Chessboard.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+
+    <!-- Llibreries -->
+    <script src="https://unpkg.com/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.12.1/chess.min.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f0f0f0; padding: 20px; }
+        h1 { color: #333; }
+        #board { width: 480px; margin: 30px auto; box-shadow: 0 8px 20px rgba(0,0,0,0.25); border-radius: 8px; }
+        #status { font-weight: bold; font-size: 1.3em; color: #0066cc; margin: 20px 0; }
+        #info { max-width: 600px; margin: 20px auto; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #debug { max-width: 600px; margin: 20px auto; padding: 10px; background: #222; color: #0f0; font-family: monospace; height: 200px; overflow-y: auto; border-radius: 6px; }
+        button { padding: 12px 24px; font-size: 1.1em; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #0055aa; }
+        select { padding: 8px 12px; font-size: 1em; margin: 0 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Escacs amb Stockfish 17 (NNUE)</h1>
+    <p>Funciona obrint l'HTML directament · Tu jugues blanques</p>
+    
+    <div id="board"></div>
+    <div id="status">Torn de les blanques</div>
+
+    <div>
+        <label>Dificultat:</label>
+        <select id="difficulty">
+            <option value="6">Fàcil</option>
+            <option value="10" selected>Mitjana</option>
+            <option value="14">Difícil</option>
+        </select>
+    </div>
+
+    <div id="info">Carregant Stockfish...</div>
+    <div id="debug">Iniciant motor...</div>
+
+    <button id="resetBtn">Nova partida</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const game = new Chess();
+            const statusEl = document.getElementById("status");
+            const infoEl = document.getElementById("info");
+            const debugEl = document.getElementById("debug");
+            const difficultySelect = document.getElementById("difficulty");
+
+            let currentDepth = 10;
+
+            difficultySelect.addEventListener("change", () => {
+                currentDepth = parseInt(difficultySelect.value);
+                infoEl.innerHTML = `Dificultat canviada a depth ${currentDepth}`;
+            });
+
+            function logDebug(msg) {
+                debugEl.innerHTML += `${new Date().toLocaleTimeString()} ${msg}<br>`;
+                debugEl.scrollTop = debugEl.scrollHeight;
+            }
+
+            const board = Chessboard('board', {
+                draggable: true,
+                position: 'start',
+                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+                onDrop: onDrop
+            });
+
+            // Versió compatible amb local (single-threaded, sense problemes CORS)
+            const engine = new Worker('https://cdn.jsdelivr.net/npm/stockfish@17.1.0/src/stockfish-nnue-17-single.js');
+
+            let engineReady = false;
+
+            engine.onmessage = function(event) {
+                const line = event.data;
+                logDebug(line);
+
+                if (line === "uciok") engine.postMessage("isready");
+                if (line === "readyok") {
+                    engineReady = true;
+                    infoEl.innerHTML = "<strong>Stockfish 17 carregat i llest!</strong><br>Pots començar a jugar.";
+                }
+                if (line.startsWith("bestmove")) {
+                    const bestMove = line.split(" ")[1];
+                    if (bestMove && bestMove !== "(none)") {
+                        game.move({ from: bestMove.substr(0,2), to: bestMove.substr(2,4), promotion: bestMove[5] || 'q' });
+                        board.position(game.fen());
+                        updateStatus();
+                        infoEl.innerHTML = `Stockfish ha mogut: <strong>${bestMove}</strong>`;
+                    }
+                }
+            };
+
+            engine.postMessage("uci");
+            engine.postMessage("ucinewgame");
+            engine.postMessage("isready");
+
+            function onDrop(source, target) {
+                const move = game.move({ from: source, to: target, promotion: 'q' });
+                if (move === null) return 'snapback';
+
+                board.position(game.fen());
+                updateStatus();
+
+                if (!game.game_over()) {
+                    statusEl.innerText = "Stockfish està pensant...";
+                    infoEl.innerHTML = `Analitzant (depth ${currentDepth})...`;
+                    setTimeout(() => {
+                        if (engineReady) {
+                            engine.postMessage("position fen " + game.fen());
+                            engine.postMessage(`go depth ${currentDepth}`);
+                        }
+                    }, 300);
+                }
+            }
+
+            function updateStatus() {
+                if (game.game_over()) {
+                    statusEl.innerText = game.in_checkmate() 
+                        ? "Escac i mat! " + (game.turn() === 'w' ? "Negres guanyen" : "Blancs guanyen")
+                        : "Partida acabada (taules)";
+                } else {
+                    statusEl.innerText = "Torn de " + (game.turn() === 'w' ? "les blanques" : "les negres");
+                }
+            }
+
+            document.getElementById("resetBtn").onclick = () => {
+                game.reset();
+                board.position('start');
+                updateStatus();
+                infoEl.innerHTML = "Nova partida";
+                engine.postMessage("ucinewgame");
+                engine.postMessage("isready");
+            };
+
+            updateStatus();
+        });
+    </script>
+
+</body>
+</html>
