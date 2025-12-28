@@ -1,26 +1,87 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>Escacs Incorruptibles - Neocities</title>
+    <title>Escacs Lozza.js</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
-        body { background: #1a1a1a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        #board { width: 400px; max-width: 90vw; border: 2px solid #555; }
-        .panel { width: 400px; background: #222; padding: 15px; border-radius: 0 0 8px 8px; box-sizing: border-box; }
-        .status { color: #2ecc71; text-align: center; font-weight: bold; margin-bottom: 10px; }
-        #error-log { background: #fee; color: #b71c1c; padding: 10px; border-radius: 4px; display: none; margin-top: 10px; font-size: 13px; }
+        /* Estil general */
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+        }
+
+        /* Tauler d'escacs responsiu i quadrat */
+        #board {
+            width: 90vw;       /* 90% de l'amplada de la finestra */
+            max-width: 600px;  /* màxim 600px en PC */
+            aspect-ratio: 1;   /* manté quadrat */
+            border: 2px solid #555;
+            margin-top: 10px;
+        }
+
+        /* Panel amb botons i estat del joc */
+        .panel {
+            width: 90vw;
+            max-width: 600px;
+            background: #222;
+            padding: 15px;
+            border-radius: 0 0 8px 8px;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        .status {
+            color: #2ecc71;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #error-log {
+            background: #fee;
+            color: #b71c1c;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        button {
+            width: 100%;
+            padding: 8px;
+            cursor: pointer;
+            background: #2ecc71;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        button:hover {
+            background: #27ae60;
+        }
     </style>
 </head>
 <body>
 
     <div id="board"></div>
+
     <div class="panel">
         <div id="status" class="status">Carregant motor intern...</div>
         <div id="error-log"></div>
-        <button onclick="location.reload()" style="width:100%; padding:8px; cursor:pointer;">Reiniciar Joc</button>
+        <button onclick="location.reload()">Reiniciar Joc</button>
     </div>
 
+    <!-- Llibreries necessàries -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
@@ -30,20 +91,18 @@
         let board = null;
         let engineWorker = null;
 
-        // ERROR HANDLING
+        /* Funció per mostrar errors */
         function showError(msg) {
             const el = document.getElementById('error-log');
             el.innerText = msg;
             el.style.display = 'block';
         }
 
-        // MOTOR INTEGRAT (Lozza - un motor petit però fort en JS)
-        // En lloc de carregar un fitxer, creem el Worker des d'una URL de script externa directa que Neocities accepti millor
-        const engineUrl = "lozza.js"; 
+        /* Inicialitza el motor Lozza (o qualsevol motor JS que tinguis) */
+        const engineUrl = "lozza.js"; // Assegura't de tenir aquest fitxer
 
         function initEngine() {
             try {
-                // Truc: Carreguem Lozza des d'un repositori de GitHub Pages (molt més estable que CDNJS per a Neocities)
                 engineWorker = new Worker(engineUrl);
 
                 engineWorker.onmessage = function(e) {
@@ -66,18 +125,20 @@
             }
         }
 
+        /* Funció quan es mou una peça */
         function onDrop(source, target) {
             const move = game.move({ from: source, to: target, promotion: 'q' });
             if (move === null) return 'snapback';
 
             document.getElementById('status').innerText = "L'ordinador està pensant...";
-            
+
             setTimeout(() => {
                 engineWorker.postMessage('position fen ' + game.fen());
                 engineWorker.postMessage('go depth 10');
             }, 250);
         }
 
+        /* Inicialitza el tauler */
         board = ChessBoard('board', {
             draggable: true,
             position: 'start',
@@ -88,6 +149,17 @@
 
         initEngine();
 
+        /* Funció per fer el tauler responsiu */
+        function resizeBoard() {
+            const boardEl = document.getElementById('board');
+            const size = Math.min(window.innerWidth * 0.9, 600);
+            boardEl.style.width = size + 'px';
+            boardEl.style.height = size + 'px';
+            if (board) board.resize();
+        }
+
+        window.addEventListener('resize', resizeBoard);
+        resizeBoard(); // Inicialitza la mida al carregar
     </script>
 </body>
 </html>
