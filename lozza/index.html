@@ -116,7 +116,9 @@
             font-weight: bold;
             margin: 6px 0 4px;
             color: #2ecc71;
-            font-size: 14px;
+            font-size: 16px;
+            min-height: 24px;
+            padding: 0 10px;
         }
     </style>
 </head>
@@ -137,12 +139,13 @@
                     <option value="3" selected>3</option>
                     <option value="4">4</option>
                 </select>
+                <button class="icon-btn" id="flip-btn" title="Girar tauler">↔️</button>
                 <button class="icon-btn" id="new-game-btn" title="Nova partida">↺</button>
                 <button class="icon-btn" id="save-pgn-btn" title="Desar">💾</button>
                 <label class="file-label" title="Carregar">📂
                     <input type="file" id="load-pgn-file" accept=".pgn,text/plain">
                 </label>
-                <button class="icon-btn" id="load-example-btn" title="Exemple">★</button>
+                <button class="icon-btn" id="load-example-btn" title="Immortal Game comentada">★</button>
             </div>
 
             <div class="compact-row navigation">
@@ -153,7 +156,7 @@
                 <button class="nav-btn" id="end-btn" title="Final">⏭</button>
             </div>
 
-            <div id="status" class="status">Prem ↺ per començar</div>
+            <div id="status" class="status">Prem ↺ per nova partida o ★ per la Immortal Game comentada</div>
         </div>
     </div>
 
@@ -167,8 +170,103 @@
         let playerSide = 'w';
         let difficulty = 3;
         let thinking = false;
-        let history = [];        // [fen0 (inici), fen1, fen2, ..., fenN]
-        let currentIndex = 0;    // Índex actual dins history
+        let history = [];
+        let currentIndex = 0;
+        let isImmortalGame = false;
+
+        const immortalComments = [
+            "Posició inicial. Les blanques comencen.",
+            "1.e4 – Obertura estàndard.",
+            "1...e5 – Resposta simètrica.",
+            "2.f4 – Gambit de rei! Anderssen ofereix un peó per atac ràpid.",
+            "2...exf4 – Kieseritzky accepta el gambit.",
+            "3.Bc4 – Desenvolupament ràpid apuntant a f7.",
+            "3...Qh4+ – Xeic agressiu molt aviat.",
+            "4.Kf1 – El rei es mou per no perdre temps.",
+            "4...b5!? – Contraatac arriscat oferint un peó.",
+            "5.Bxb5 – Anderssen accepta i guanya material.",
+            "5...Nf6 – Desenvolupa i amenaça e4.",
+            "6.Nf3 – Ataca la dama negra.",
+            "6...Qh6 – La dama es retira.",
+            "7.d3 – Protegeix el peó central.",
+            "7...Nh5 – Amenaça el cavall blanc.",
+            "8.Nh4 – Nova amenaça a la dama.",
+            "8...Qg5",
+            "9.Nf5 – Cavall al centre.",
+            "9...c6 – Ataca l'alfil blanc.",
+            "10.g4!? – Sacrifici espectacular: ofereix una torre!",
+            "10...Nf6",
+            "11.Rg1 – La torre es posa en joc i es continua oferint.",
+            "11...cxb5 – Acceptat el sacrifici.",
+            "12.h4 – Atac directe a la dama.",
+            "12...Qg6",
+            "13.h5 – Força la dama a moure's de nou.",
+            "13...Qg5",
+            "14.Qf3 – Desenvolupa la dama amb amenaça.",
+            "14...Ng8 – Defensa passiva.",
+            "15.Bxf4 – Recupera el peó amb bon desenvolupament.",
+            "15...Qf6",
+            "16.Nc3 – L'altre cavall entra en joc.",
+            "16...Bc5",
+            "17.Nd5!? – Sacrifici de cavall brillant.",
+            "17...Qxb2 – Acceptat.",
+            "18.Bd6! – Sacrifici de les dues torres!",
+            "18...Bxg1",
+            "19.e5 – Obra línies centrals.",
+            "19...Qxa1+",
+            "20.Ke2 – El rei camina cap al centre sense por.",
+            "20...Na6",
+            "21.Nxg7+! – Xeic descobert amb el cavall.",
+            "21...Kd8",
+            "22.Qf6+! – Sacrifici de dama!",
+            "22...Nxf6",
+            "23.Be7# – Mat immortal! Una de les partides més belles de la història."
+        ];
+
+        function getCurrentComment() {
+            if (isImmortalGame && currentIndex < immortalComments.length) {
+                return immortalComments[currentIndex];
+            }
+            return null;
+        }
+
+        function getLastMoveSAN() {
+            const moves = game.history();
+            if (moves.length === 0) return "";
+            return moves[moves.length - 1];
+        }
+
+        function updateStatus() {
+            if (thinking) {
+                document.getElementById('status').innerText = "Pensant...";
+                return;
+            }
+
+            const comment = getCurrentComment();
+            if (comment) {
+                document.getElementById('status').innerText = comment;
+                return;
+            }
+
+            const lastMove = getLastMoveSAN();
+            if (lastMove) {
+                document.getElementById('status').innerText = lastMove;
+                return;
+            }
+
+            if (game.in_checkmate()) {
+                const winner = game.turn() === 'w' ? 'Negres' : 'Blanques';
+                document.getElementById('status').innerText = `Mat! ${winner} guanyen`;
+            } else if (game.in_draw()) {
+                document.getElementById('status').innerText = "Taules";
+            } else if (game.in_check()) {
+                document.getElementById('status').innerText = "Escac!";
+            } else if (game.turn() === playerSide) {
+                document.getElementById('status').innerText = "El teu torn";
+            } else {
+                document.getElementById('status').innerText = "";
+            }
+        }
 
         function updateMoveNumber() {
             document.getElementById('move-number').innerText = currentIndex;
@@ -191,10 +289,16 @@
             updateStatus();
         }
 
+        function flipBoard() {
+            if (board) {
+                board.flip();
+            }
+        }
+
         function makeAIMove() {
             if (thinking || game.game_over() || game.turn() === playerSide) return;
             thinking = true;
-            document.getElementById('status').innerText = "Pensant...";
+            updateStatus();
 
             setTimeout(() => {
                 const bestMove = findBestMove(game);
@@ -250,6 +354,7 @@
             game = new Chess();
             history = [game.fen()];
             currentIndex = 0;
+            isImmortalGame = false;
             playerSide = document.getElementById('side-select').value;
             difficulty = parseInt(document.getElementById('difficulty-select').value);
 
@@ -260,32 +365,43 @@
             if (playerSide !== 'w') makeAIMove();
         }
 
-        function updateStatus() {
-            if (game.in_checkmate()) {
-                const winner = game.turn() === 'w' ? 'Negres' : 'Blanques';
-                document.getElementById('status').innerText = `Mat! ${winner}`;
-            } else if (game.in_draw()) {
-                document.getElementById('status').innerText = "Taules";
-            } else if (game.in_check()) {
-                document.getElementById('status').innerText = "Escac!";
-            } else {
-                document.getElementById('status').innerText = "El teu torn";
-            }
-        }
+        // Botó Flip – ara amb emoji més visible ↔️
+        document.getElementById('flip-btn').addEventListener('click', flipBoard);
 
-        // Navegació
-        document.getElementById('start-btn').addEventListener('click', () => goToIndex(0));
-        document.getElementById('prev-btn').addEventListener('click', () => goToIndex(currentIndex - 1));
-        document.getElementById('next-btn').addEventListener('click', () => {
-            if (currentIndex < history.length - 1) {
-                goToIndex(currentIndex + 1);
-            } else if (!game.game_over() && game.turn() !== playerSide) {
-                makeAIMove();
+        // Botó ★ Immortal Game
+        document.getElementById('load-example-btn').addEventListener('click', () => {
+            const pgn = `[Event "La Partida Immortal"]
+[Site "London 1851"]
+[White "Adolf Anderssen"]
+[Black "Lionel Kieseritzky"]
+[Result "1-0"]
+
+1. e4 e5 2. f4 exf4 3. Bc4 Qh4+ 4. Kf1 b5 5. Bxb5 Nf6 6. Nf3 Qh6 7. d3 Nh5 8. Nh4 Qg5
+9. Nf5 c6 10. g4 Nf6 11. Rg1 cxb5 12. h4 Qg6 13. h5 Qg5 14. Qf3 Ng8 15. Bxf4 Qf6
+16. Nc3 Bc5 17. Nd5 Qxb2 18. Bd6 Bxg1 19. e5 Qxa1+ 20. Ke2 Na6 21. Nxg7+ Kd8
+22. Qf6+ Nxf6 23. Be7# 1-0`;
+
+            const temp = new Chess();
+            if (temp.load_pgn(pgn)) {
+                game = temp;
+                isImmortalGame = true;
+                history = [];
+                const rebuild = new Chess();
+                history.push(rebuild.fen());
+                game.history().forEach(m => {
+                    rebuild.move(m);
+                    history.push(rebuild.fen());
+                });
+                currentIndex = history.length - 1;
+                playerSide = document.getElementById('side-select').value;
+                difficulty = parseInt(document.getElementById('difficulty-select').value);
+                initBoard(playerSide === 'w' ? 'white' : 'black');
+                updateNavButtons();
+                updateStatus();
             }
         });
-        document.getElementById('end-btn').addEventListener('click', () => goToIndex(history.length - 1));
 
-        // Resta de funcionalitats (desar, carregar, exemple, AI...)
+        // Resta de funcions (AI, desar, carregar)
         const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 
         function evaluateBoard(g) {
@@ -368,6 +484,7 @@
                 const temp = new Chess();
                 if (temp.load_pgn(ev.target.result)) {
                     game = temp;
+                    isImmortalGame = false;
                     history = [];
                     const rebuild = new Chess();
                     history.push(rebuild.fen());
@@ -382,39 +499,24 @@
                     updateNavButtons();
                     updateStatus();
                     if (game.turn() !== playerSide && !game.game_over()) makeAIMove();
-                } else alert('Error PGN');
+                } else alert('Error carregant PGN');
             };
             reader.readAsText(file);
         });
 
-        document.getElementById('load-example-btn').addEventListener('click', () => {
-            const pgn = `[Event "Immortal Game"]
-[White "Adolf Anderssen"]
-[Black "Lionel Kieseritzky"]
-[Result "1-0"]
+        document.getElementById('new-game-btn').addEventListener('click', startNewGame);
 
-1. e4 e5 2. f4 exf4 3. Bc4 Qh4+ 4. Kf1 b5 5. Bxb5 Nf6 6. Nf3 Qh6 7. d3 Nh5 8. Nh4 Qg5
-9. Nf5 c6 10. g4 Nf6 11. Rg1 cxb5 12. h4 Qg6 13. h5 Qg5 14. Qf3 Ng8 15. Bxf4 Qf6
-16. Nc3 Bc5 17. Nd5 Qxb2 18. Bd6 Bxg1 19. e5 Qxa1+ 20. Ke2 Na6 21. Nxg7+ Kd8
-22. Qf6+ Nxf6 23. Be7# 1-0`;
-
-            const temp = new Chess();
-            if (temp.load_pgn(pgn)) {
-                game = temp;
-                history = [];
-                const rebuild = new Chess();
-                history.push(rebuild.fen());
-                game.history().forEach(m => { rebuild.move(m); history.push(rebuild.fen()); });
-                currentIndex = history.length - 1;
-                playerSide = document.getElementById('side-select').value;
-                difficulty = parseInt(document.getElementById('difficulty-select').value);
-                initBoard(playerSide === 'w' ? 'white' : 'black');
-                updateNavButtons();
-                updateStatus();
+        // Navegació
+        document.getElementById('start-btn').addEventListener('click', () => goToIndex(0));
+        document.getElementById('prev-btn').addEventListener('click', () => goToIndex(currentIndex - 1));
+        document.getElementById('next-btn').addEventListener('click', () => {
+            if (currentIndex < history.length - 1) {
+                goToIndex(currentIndex + 1);
+            } else if (!game.game_over() && game.turn() !== playerSide) {
+                makeAIMove();
             }
         });
-
-        document.getElementById('new-game-btn').addEventListener('click', startNewGame);
+        document.getElementById('end-btn').addEventListener('click', () => goToIndex(history.length - 1));
 
         function resizeBoard() { if (board) board.resize(); }
         window.addEventListener('resize', resizeBoard);
