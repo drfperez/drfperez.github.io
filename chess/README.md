@@ -18,6 +18,4 @@ The application is optimized for both mobile and desktop devices, with a dark-th
 - **Navigation Controls:** Go to start, previous, next, or end of the game.
 
 ## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/playchess.git
+1. Copy the file: lozza.html
