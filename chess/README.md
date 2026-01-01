@@ -1,4 +1,4 @@
-# Escacs Incorruptibles
+# Play Chess
 ♔ ♚
 
 An interactive web application for playing chess against an advanced AI using Stockfish, featuring a modern and responsive interface. Built with HTML, CSS, and JavaScript, this app allows users to play games, load/save PGN files, navigate moves, and more.
