@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ca">
 <head>
@@ -14,6 +15,10 @@
             overflow: hidden;
             font-family: sans-serif;
             touch-action: manipulation;
+        }
+
+        body.thinking {
+            cursor: progress;
         }
 
         #board-container {
@@ -50,9 +55,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 2px;
             flex-wrap: wrap;
-            padding: 0 8px;
+            padding: 0 1px;
         }
 
         select, button, .nav-btn, .icon-btn {
@@ -90,7 +95,7 @@
         .icon-btn {
             background: #3498db;
             color: white;
-            font-size: 20px;
+            font-size: 30px;
         }
 
         .file-label {
@@ -112,13 +117,46 @@
             opacity: 0.9;
         }
 
+        button:active, .nav-btn:active:not(:disabled), .icon-btn:active {
+            transform: scale(0.95);
+        }
+
         .status {
             font-weight: bold;
             margin: 6px 0 4px;
-            color: #2ecc71;
+            color: #aaffaa;
+            text-shadow: 0 0 4px #000;
             font-size: 16px;
             min-height: 24px;
             padding: 0 10px;
+        }
+
+        /* Promotion modal */
+        #promotion-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .promotion-choice {
+            display: flex;
+            gap: 15px;
+        }
+
+        .promotion-piece {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -138,8 +176,10 @@
                     <option value="2">2</option>
                     <option value="3" selected>3</option>
                     <option value="4">4</option>
+                    <option value="5">5</option>
                 </select>
                 <button class="icon-btn" id="flip-btn" title="Girar tauler">↔️</button>
+                <button class="icon-btn" id="undo-btn" title="Desfer moviment">↶</button>
                 <button class="icon-btn" id="new-game-btn" title="Nova partida">↺</button>
                 <button class="icon-btn" id="save-pgn-btn" title="Desar">💾</button>
                 <label class="file-label" title="Carregar">📂
@@ -160,6 +200,16 @@
         </div>
     </div>
 
+    <!-- Promotion modal -->
+    <div id="promotion-modal">
+        <div class="promotion-choice">
+            <div class="promotion-piece" data-piece="q">♕</div>
+            <div class="promotion-piece" data-piece="r">♖</div>
+            <div class="promotion-piece" data-piece="b">♗</div>
+            <div class="promotion-piece" data-piece="n">♘</div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
@@ -173,6 +223,9 @@
         let history = [];
         let currentIndex = 0;
         let isImmortalGame = false;
+        let pendingPromotion = null; // {source, target}
+
+        const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 
         const immortalComments = [
             "Posició inicial. Les blanques comencen.",
@@ -264,12 +317,12 @@
             } else if (game.turn() === playerSide) {
                 document.getElementById('status').innerText = "El teu torn";
             } else {
-                document.getElementById('status').innerText = "";
+                document.getElementById('status').innerText = "Torn de la IA";
             }
         }
 
         function updateMoveNumber() {
-            document.getElementById('move-number').innerText = currentIndex;
+            document.getElementById('move-number').innerText = Math.floor(currentIndex / 2) + (currentIndex % 2 === 1 && game.turn() === 'b' ? '...' : '');
         }
 
         function updateNavButtons() {
@@ -277,6 +330,7 @@
             document.getElementById('prev-btn').disabled = currentIndex <= 0;
             document.getElementById('next-btn').disabled = currentIndex >= history.length - 1;
             document.getElementById('end-btn').disabled = currentIndex >= history.length - 1;
+            document.getElementById('undo-btn').disabled = currentIndex === 0 || game.turn() !== playerSide || thinking;
             updateMoveNumber();
         }
 
@@ -284,57 +338,185 @@
             if (index < 0 || index >= history.length) return;
             currentIndex = index;
             game.load(history[currentIndex]);
-            board.position(game.fen(), false);
+            board.position(game.fen(), true); // true = highlight last move
             updateNavButtons();
             updateStatus();
         }
 
         function flipBoard() {
-            if (board) {
-                board.flip();
+            if (board) board.flip();
+        }
+
+        function undoMove() {
+            if (currentIndex < 2 || thinking) return;
+            // Undo two half-moves (player + AI)
+            goToIndex(currentIndex - 2);
+        }
+
+        function evaluateBoard(g) {
+            if (g.in_checkmate()) return g.turn() === 'w' ? -Infinity : Infinity;
+            if (g.in_draw()) return 0;
+
+            let total = 0;
+            const board = g.board();
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    const p = board[i][j];
+                    if (p) {
+                        let v = pieceValues[p.type];
+                        if (p.color === 'b') v = -v;
+                        total += v;
+                    }
+                }
             }
+
+            // Simple mobility bonus
+            total += g.moves().length * (g.turn() === 'w' ? 10 : -10);
+
+            return total;
+        }
+
+        function quiescence(g, alpha, beta, color) {
+            let stand_pat = evaluateBoard(g);
+            if (color === 'b') stand_pat = -stand_pat;
+
+            if (stand_pat >= beta) return beta;
+            if (alpha < stand_pat) alpha = stand_pat;
+
+            const captures = g.moves({ verbose: true }).filter(m => m.captured);
+            for (const move of captures) {
+                g.move(move);
+                const score = -quiescence(g, -beta, -alpha, color === 'w' ? 'b' : 'w');
+                g.undo();
+                if (score >= beta) return beta;
+                if (score > alpha) alpha = score;
+            }
+            return alpha;
+        }
+
+        function minimax(g, depth, alpha, beta, maximizing) {
+            if (depth === 0 || g.game_over()) {
+                let score = evaluateBoard(g);
+                if (!g.game_over() && depth === 0) {
+                    score += quiescence(g, -Infinity, Infinity, g.turn()) * (g.turn() === 'w' ? 1 : -1);
+                }
+                return score;
+            }
+
+            const moves = g.moves({ verbose: true });
+            // Move ordering: captures first (MVV-LVA approximation)
+            moves.sort((a, b) => {
+                const aVal = a.captured ? pieceValues[a.captured] : 0;
+                const bVal = b.captured ? pieceValues[b.captured] : 0;
+                return bVal - aVal;
+            });
+
+            if (maximizing) {
+                let maxEval = -Infinity;
+                for (const move of moves) {
+                    g.move(move);
+                    const eval = minimax(g, depth - 1, alpha, beta, false);
+                    g.undo();
+                    maxEval = Math.max(maxEval, eval);
+                    alpha = Math.max(alpha, maxEval);
+                    if (beta <= alpha) break;
+                }
+                return maxEval;
+            } else {
+                let minEval = Infinity;
+                for (const move of moves) {
+                    g.move(move);
+                    const eval = minimax(g, depth - 1, alpha, beta, true);
+                    g.undo();
+                    minEval = Math.min(minEval, eval);
+                    beta = Math.min(beta, minEval);
+                    if (beta <= alpha) break;
+                }
+                return minEval;
+            }
+        }
+
+        function findBestMove(g) {
+            const moves = g.moves({ verbose: true });
+            if (moves.length === 0) return null;
+
+            // Move ordering
+            moves.sort((a, b) => {
+                const aVal = a.captured ? pieceValues[a.captured] : 0;
+                const bVal = b.captured ? pieceValues[b.captured] : 0;
+                return bVal - aVal;
+            });
+
+            let bestMove = moves[0];
+            let bestValue = g.turn() === 'w' ? -Infinity : Infinity;
+
+            for (const move of moves) {
+                g.move(move);
+                const value = minimax(g, difficulty - 1, -Infinity, Infinity, g.turn() === 'w');
+                g.undo();
+
+                if ((g.turn() === 'w' && value > bestValue) || (g.turn() === 'b' && value < bestValue)) {
+                    bestValue = value;
+                    bestMove = move;
+                }
+            }
+            return bestMove.san;
         }
 
         function makeAIMove() {
             if (thinking || game.game_over() || game.turn() === playerSide) return;
+
             thinking = true;
+            document.body.classList.add('thinking');
             updateStatus();
 
             setTimeout(() => {
-                const bestMove = findBestMove(game);
-                if (bestMove) {
-                    game.move(bestMove);
+                const move = findBestMove(game);
+                if (move) {
+                    game.move(move);
                     history.push(game.fen());
                     currentIndex = history.length - 1;
-                    board.position(game.fen(), false);
+                    board.position(game.fen(), true);
                 }
                 thinking = false;
+                document.body.classList.remove('thinking');
                 updateStatus();
                 updateNavButtons();
-            }, 100);
+            }, 200);
         }
 
         function onDrop(source, target) {
             if (thinking || game.turn() !== playerSide) return 'snapback';
 
+            // Check for promotion
+            const piece = game.get(source);
+            const isPawn = piece && piece.type === 'p';
+            const isPromotionRank = (piece.color === 'w' && target[1] === '8') || (piece.color === 'b' && target[1] === '1');
+
+            if (isPawn && isPromotionRank) {
+                pendingPromotion = { source, target };
+                document.getElementById('promotion-modal').style.display = 'flex';
+                return 'snapback'; // Wait for choice
+            }
+
             const move = game.move({
                 from: source,
                 to: target,
-                promotion: 'q'
+                promotion: 'q' // temporary for validation
             });
 
             if (move === null) return 'snapback';
 
             history.push(game.fen());
             currentIndex = history.length - 1;
-            board.position(game.fen(), false);
+            board.position(game.fen(), true);
             updateNavButtons();
             updateStatus();
             makeAIMove();
         }
 
         function onSnapEnd() {
-            board.position(game.fen());
+            board.position(game.fen(), true);
         }
 
         function initBoard(orientation) {
@@ -365,10 +547,11 @@
             if (playerSide !== 'w') makeAIMove();
         }
 
-        // Botó Flip – ara amb emoji més visible ↔️
+        // Event listeners
         document.getElementById('flip-btn').addEventListener('click', flipBoard);
+        document.getElementById('undo-btn').addEventListener('click', undoMove);
+        document.getElementById('new-game-btn').addEventListener('click', startNewGame);
 
-        // Botó ★ Immortal Game
         document.getElementById('load-example-btn').addEventListener('click', () => {
             const pgn = `[Event "La Partida Immortal"]
 [Site "London 1851"]
@@ -394,74 +577,11 @@
                 });
                 currentIndex = history.length - 1;
                 playerSide = document.getElementById('side-select').value;
-                difficulty = parseInt(document.getElementById('difficulty-select').value);
                 initBoard(playerSide === 'w' ? 'white' : 'black');
                 updateNavButtons();
                 updateStatus();
             }
         });
-
-        // Resta de funcions (AI, desar, carregar)
-        const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-
-        function evaluateBoard(g) {
-            if (g.in_checkmate()) return g.turn() === 'w' ? -Infinity : Infinity;
-            if (g.in_draw()) return 0;
-            let total = 0;
-            const b = g.board();
-            for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
-                const p = b[i][j];
-                if (p) {
-                    let v = pieceValues[p.type];
-                    if (p.color === 'b') v = -v;
-                    total += v;
-                }
-            }
-            return total;
-        }
-
-        function minimax(g, depth, alpha, beta, max) {
-            if (depth === 0 || g.game_over()) return evaluateBoard(g);
-            const moves = g.moves();
-            if (max) {
-                let best = -Infinity;
-                for (const m of moves) {
-                    g.move(m);
-                    best = Math.max(best, minimax(g, depth - 1, alpha, beta, false));
-                    g.undo();
-                    alpha = Math.max(alpha, best);
-                    if (beta <= alpha) break;
-                }
-                return best;
-            } else {
-                let best = Infinity;
-                for (const m of moves) {
-                    g.move(m);
-                    best = Math.min(best, minimax(g, depth - 1, alpha, beta, true));
-                    g.undo();
-                    beta = Math.min(beta, best);
-                    if (beta <= alpha) break;
-                }
-                return best;
-            }
-        }
-
-        function findBestMove(g) {
-            const moves = g.moves();
-            if (!moves.length) return null;
-            let bestMove = moves[0];
-            let bestValue = g.turn() === 'w' ? -Infinity : Infinity;
-            for (const m of moves) {
-                g.move(m);
-                const val = minimax(g, difficulty - 1, -Infinity, Infinity, g.turn() === 'w');
-                g.undo();
-                if ((g.turn() === 'w' && val > bestValue) || (g.turn() === 'b' && val < bestValue)) {
-                    bestValue = val;
-                    bestMove = m;
-                }
-            }
-            return bestMove;
-        }
 
         document.getElementById('save-pgn-btn').addEventListener('click', () => {
             const temp = new Chess();
@@ -494,19 +614,18 @@
                     });
                     currentIndex = history.length - 1;
                     playerSide = document.getElementById('side-select').value;
-                    difficulty = parseInt(document.getElementById('difficulty-select').value);
                     initBoard(playerSide === 'w' ? 'white' : 'black');
                     updateNavButtons();
                     updateStatus();
                     if (game.turn() !== playerSide && !game.game_over()) makeAIMove();
-                } else alert('Error carregant PGN');
+                } else {
+                    alert('Error carregant PGN');
+                }
             };
             reader.readAsText(file);
         });
 
-        document.getElementById('new-game-btn').addEventListener('click', startNewGame);
-
-        // Navegació
+        // Navigation
         document.getElementById('start-btn').addEventListener('click', () => goToIndex(0));
         document.getElementById('prev-btn').addEventListener('click', () => goToIndex(currentIndex - 1));
         document.getElementById('next-btn').addEventListener('click', () => {
@@ -518,9 +637,50 @@
         });
         document.getElementById('end-btn').addEventListener('click', () => goToIndex(history.length - 1));
 
+        // Promotion choice
+        document.querySelectorAll('.promotion-piece').forEach(el => {
+            el.addEventListener('click', () => {
+                if (!pendingPromotion) return;
+                const { source, target } = pendingPromotion;
+                const promotion = el.dataset.piece;
+
+                const move = game.move({
+                    from: source,
+                    to: target,
+                    promotion: promotion
+                });
+
+                if (move) {
+                    history.push(game.fen());
+                    currentIndex = history.length - 1;
+                    board.position(game.fen(), true);
+                    updateNavButtons();
+                    updateStatus();
+                    makeAIMove();
+                }
+
+                document.getElementById('promotion-modal').style.display = 'none';
+                pendingPromotion = null;
+            });
+        });
+
+        // Resize handling
         function resizeBoard() { if (board) board.resize(); }
         window.addEventListener('resize', resizeBoard);
         window.addEventListener('orientationchange', resizeBoard);
+
+        // Initial start
+        startNewGame();
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
