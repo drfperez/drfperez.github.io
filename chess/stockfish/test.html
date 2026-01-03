@@ -1,1 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess with Stockfish 17.1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/css/chessboard-1.0.0.min.css">
+    <style>
+        .highlight-white { box-shadow: inset 0 0 3px 3px rgb(181, 243, 181); }
+        .highlight-black { box-shadow: inset 0 0 3px 3px rgb(62, 177, 192); }
+        #myBoard { width: min(90vw, 90vh); margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <div id="myBoard"></div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/js/chessboard-1.0.0.min.js"></script>
+    <script src="https://unpkg.com/chess.js@1.0.0-beta.3/dist/chess.min.js"></script>
+    <script>
+        var board = null;
+        var $board = $('#myBoard');
+        var game = new Chess();
+        var squareToHighlight = null;
+        var squareClass = 'square-55d63';
+        var stockfish = new Worker('https://unpkg.com/stockfish@17.1.0/dist/stockfish.js');
+
+        function removeHighlights(color) {
+            $board.find('.' + squareClass).removeClass('highlight-' + color);
+        }
+
+        function onDragStart(source, piece, position, orientation) {
+            if (game.game_over()) return false;
+            if (piece.search(/^b/) !== -1) return false;
+        }
+
+        stockfish.postMessage('uci');
+        stockfish.postMessage('isready');
+        stockfish.postMessage('ucinewgame');
+
+        function makeStockfishMove() {
+            stockfish.postMessage('position fen ' + game.fen());
+            stockfish.postMessage('go depth 10');  // Adjust depth for difficulty
+        }
+
+        stockfish.onmessage = function(event) {
+            var line = event.data;
+            if (line.startsWith('bestmove')) {
+                var move = line.match(/bestmove (.*?)(\s|$)/)[1];
+                var from = move.substring(0, 2);
+                var to = move.substring(2, 4);
+                var promotion = move.substring(4, 5) || undefined;
+                game.move({ from: from, to: to, promotion: promotion });
+                board.position(game.fen());
+                removeHighlights('black');
+                squareToHighlight = from;
+                $board.find('.square-' + squareToHighlight).addClass('highlight-black');
+                if (game.game_over()) alert('Game over');
+            }
+        };
+
+        function onDrop(source, target) {
+            var move = game.move({ from: source, to: target, promotion: 'q' });
+            if (move === null) return 'snapback';
+            removeHighlights('white');
+            $board.find('.square-' + source).addClass('highlight-white');
+            $board.find('.square-' + target).addClass('highlight-white');
+            window.setTimeout(makeStockfishMove, 250);
+        }
+
+        function onMoveEnd() {
+            $board.find('.square-' + squareToHighlight).addClass('highlight-black');
+        }
+
+        function onSnapEnd() {
+            board.position(game.fen());
+        }
+
+        var config = {
+            draggable: true,
+            position: 'start',
+            onDragStart: onDragStart,
+            onDrop: onDrop,
+            onMoveEnd: onMoveEnd,
+            onSnapEnd: onSnapEnd
+        };
+        board = Chessboard('myBoard', config);
+    </script>
+</body>
+</html>
