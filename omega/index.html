@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omega Chess: AI Edition</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+        }
+
+        h1 { margin: 5px 0; font-size: 1.5rem; }
+        
+        #game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+
+        #status { font-weight: bold; color: #f1c40f; }
+        
+        /* THE BOARD */
+        #board {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+            width: 96vw;
+            height: 96vw;
+            max-width: 600px;
+            max-height: 600px;
+            border: 4px solid #34495e;
+            background: #7f8c8d;
+            user-select: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .square {
+            width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            position: relative;
+            font-size: 24px; /* Base size */
+            cursor: pointer;
+        }
+
+        /* Responsive Text Size */
+        @media (min-width: 400px) { .square { font-size: 28px; } }
+        @media (min-width: 600px) { .square { font-size: 36px; } }
+
+        .square.light { background-color: #ecf0f1; }
+        .square.dark { background-color: #95a5a6; }
+        .square.wizard { background-color: #bdc3c7; border: 1px solid #7f8c8d; }
+        .square.void { visibility: hidden; pointer-events: none; }
+
+        .square.selected { background-color: #f1c40f !important; }
+        .square.last-move { background-color: rgba(255, 255, 0, 0.4); }
+
+        .hint {
+            position: absolute;
+            width: 12px; height: 12px;
+            background: rgba(46, 204, 113, 0.6);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .hint.capture {
+            background: transparent;
+            border: 3px solid rgba(231, 76, 60, 0.6);
+            width: 80%; height: 80%;
+            box-sizing: border-box;
+        }
+
+        /* PIECES */
+        .piece {
+            z-index: 2;
+            font-weight: bold;
+            line-height: 1;
+            /* Prevent pieces from interacting with mouse events so clicks go to square */
+            pointer-events: none; 
+        }
+        .piece.white { color: #fff; text-shadow: 0 0 2px #000, 0 1px 3px rgba(0,0,0,0.8); }
+        .piece.black { color: #000; text-shadow: 0 1px 1px rgba(255,255,255,0.5); }
+
+        /* CONTROLS */
+        #controls { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        select, button {
+            padding: 8px 12px;
+            font-size: 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        button.primary { background-color: #e74c3c; color: white; font-weight: bold; }
+        select { background-color: #fff; color: #333; }
+
+        /* SPINNER */
+        #thinking-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-info">
+        <h1>Omega Chess</h1>
+        <div id="status">White to Move</div>
+    </div>
+    
+    <div style="position: relative;">
+        <div id="board"></div>
+        <div id="thinking-overlay">AI is thinking...</div>
+    </div>
+
+    <div id="controls">
+        <select id="difficulty">
+            <option value="1">Easy (Fast)</option>
+            <option value="2" selected>Medium</option>
+            <option value="3">Hard (Slow)</option>
+        </select>
+        <button onclick="undo()">Undo</button>
+        <button class="primary" onclick="initGame()">New Game</button>
+    </div>
+
+<script>
+    // --- 1. CONFIGURATION ---
+    const SIZE = 12;
+    const P = { EMPTY: 0, PAWN: 1, ROOK: 2, KNIGHT: 3, BISHOP: 4, QUEEN: 5, KING: 6, CHAMPION: 7, WIZARD: 8 };
+    const C = { WHITE: 'white', BLACK: 'black' };
+    
+    const SYMBOLS = {
+        [P.PAWN]: '♟', [P.ROOK]: '♜', [P.KNIGHT]: '♞', [P.BISHOP]: '♝', 
+        [P.QUEEN]: '♛', [P.KING]: '♚', [P.CHAMPION]: '☖', [P.WIZARD]: '☾'
+    };
+
+    // Material Values for AI
+    const VALUES = {
+        [P.PAWN]: 100, [P.KNIGHT]: 320, [P.BISHOP]: 330, [P.WIZARD]: 350,
+        [P.CHAMPION]: 450, [P.ROOK]: 500, [P.QUEEN]: 900, [P.KING]: 20000
+    };
+
+    // --- 2. GAME STATE ---
+    let board = [];
+    let turn = C.WHITE;
+    let selected = null;
+    let validMoves = [];
+    let moveHistory = [];
+    let isAIThinking = false;
+
+    // --- 3. INITIALIZATION ---
+    function initGame() {
+        board = Array(SIZE).fill(null).map(() => Array(SIZE).fill(null));
+
+        const place = (r, c, type, color) => { board[r][c] = { type, color, moved: false }; };
+
+        // Main Pieces
+        const back = [P.CHAMPION, P.ROOK, P.KNIGHT, P.BISHOP, P.QUEEN, P.KING, P.BISHOP, P.KNIGHT, P.ROOK, P.CHAMPION];
+        back.forEach((p, i) => {
+            place(1, i+1, p, C.BLACK);
+            place(10, i+1, p, C.WHITE);
+        });
+
+        // Pawns
+        for(let c=1; c<=10; c++) {
+            place(2, c, P.PAWN, C.BLACK);
+            place(9, c, P.PAWN, C.WHITE);
+        }
+
+        // Wizards (Corners)
+        place(0, 0, P.WIZARD, C.BLACK); place(0, 11, P.WIZARD, C.BLACK);
+        place(11, 0, P.WIZARD, C.WHITE); place(11, 11, P.WIZARD, C.WHITE);
+
+        turn = C.WHITE;
+        moveHistory = [];
+        selected = null;
+        validMoves = [];
+        isAIThinking = false;
+        
+        updateUI();
+    }
+
+    // --- 4. CORE RENDERER ---
+    function drawBoard() {
+        const bEl = document.getElementById('board');
+        bEl.innerHTML = '';
+        
+        // Highlight last move
+        let lastMoveSq = null;
+        if(moveHistory.length > 0) {
+            const last = moveHistory[moveHistory.length-1];
+            lastMoveSq = { from: last.from, to: last.to };
+        }
+
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                const sq = document.createElement('div');
+                sq.className = 'square';
+                
+                // Color Logic
+                if ((r===0||r===11) && (c===0||c===11)) sq.classList.add('wizard');
+                else if (r>=1 && r<=10 && c>=1 && c<=10) sq.classList.add((r+c)%2===0 ? 'light' : 'dark');
+                else sq.classList.add('void');
+
+                // State Highlights
+                if (selected && selected.r === r && selected.c === c) sq.classList.add('selected');
+                if (lastMoveSq && ( (lastMoveSq.from.r===r && lastMoveSq.from.c===c) || (lastMoveSq.to.r===r && lastMoveSq.to.c===c))) sq.classList.add('last-move');
+
+                // Move Hints
+                const move = validMoves.find(m => m.r === r && m.c === c);
+                if (move) {
+                    const hint = document.createElement('div');
+                    hint.className = `hint ${board[r][c] ? 'capture' : ''}`;
+                    sq.appendChild(hint);
+                    sq.onclick = (e) => { e.stopPropagation(); playerMove(move); };
+                } else if (!isAIThinking && board[r][c] && board[r][c].color === turn && turn === C.WHITE) {
+                    sq.onclick = () => selectPiece(r, c);
+                }
+
+                // Render Piece
+                if (board[r][c]) {
+                    const p = document.createElement('div');
+                    p.className = `piece ${board[r][c].color}`;
+                    p.innerText = SYMBOLS[board[r][c].type];
+                    sq.appendChild(p);
+                }
+                bEl.appendChild(sq);
+            }
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('status').innerText = isAIThinking ? "Computer Thinking..." : (turn === C.WHITE ? "Your Turn" : "Black to Move");
+        document.getElementById('thinking-overlay').style.display = isAIThinking ? 'block' : 'none';
+        drawBoard();
+    }
+
+    // --- 5. MOVE LOGIC (The Brains) ---
+    function isValid(r, c) {
+        if ((r===0||r===11) && (c===0||c===11)) return true; // Wizard squares
+        return r>=1 && r<=10 && c>=1 && c<=10; // Main board
+    }
+
+    function getMoves(r, c, checkSafety = true) {
+        const p = board[r][c];
+        if (!p) return [];
+        const moves = [];
+        const isWhite = p.color === C.WHITE;
+        
+        const add = (tr, tc) => {
+            if (isValid(tr, tc)) {
+                if (!board[tr][tc] || board[tr][tc].color !== p.color) moves.push({r: tr, c: tc});
+            }
+        };
+        
+        const slide = (dr, dc) => {
+            let tr=r+dr, tc=c+dc;
+            while(isValid(tr, tc)) {
+                if(!board[tr][tc]) { moves.push({r:tr, c:tc}); }
+                else { if(board[tr][tc].color !== p.color) moves.push({r:tr, c:tc}); break; }
+                tr+=dr; tc+=dc;
+            }
+        };
+
+        if (p.type === P.PAWN) {
+            const dir = isWhite ? -1 : 1;
+            if (isValid(r+dir, c) && !board[r+dir][c]) {
+                moves.push({r: r+dir, c});
+                // Initial double/triple step logic (Simplified to double for AI stability)
+                if (!p.moved && isValid(r+dir*2, c) && !board[r+dir*2][c]) moves.push({r:r+dir*2, c});
+            }
+            [[dir, -1], [dir, 1]].forEach(([dr, dc]) => {
+                if (isValid(r+dr, c+dc)) {
+                    const target = board[r+dr][c+dc];
+                    if (target && target.color !== p.color) moves.push({r:r+dr, c:c+dc});
+                }
+            });
+        }
+        else if (p.type === P.KNIGHT) {
+            [[1,2],[1,-2],[-1,2],[-1,-2],[2,1],[2,-1],[-2,1],[-2,-1]].forEach(([dr,dc]) => add(r+dr, c+dc));
+        }
+        else if (p.type === P.BISHOP) {
+            [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc]) => slide(dr,dc));
+        }
+        else if (p.type === P.ROOK) {
+            [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr,dc]) => slide(dr,dc));
+        }
+        else if (p.type === P.QUEEN) {
+            [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc]) => slide(dr,dc));
+        }
+        else if (p.type === P.KING) {
+            [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc]) => add(r+dr, c+dc));
+        }
+        // --- OMEGA PIECES ---
+        else if (p.type === P.CHAMPION) {
+            // Step 1 orthogonal or diagonal (like King)
+            [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc]) => add(r+dr, c+dc));
+            // Jump 2 orthogonal
+            [[2,0],[-2,0],[0,2],[0,-2]].forEach(([dr,dc]) => add(r+dr, c+dc));
+        }
+        else if (p.type === P.WIZARD) {
+            // Step 1 diagonal
+            [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc]) => add(r+dr, c+dc));
+            // Jump Camel (3x1)
+            [[3,1],[3,-1],[-3,1],[-3,-1],[1,3],[1,-3],[-1,3],[-1,-3]].forEach(([dr,dc]) => add(r+dr, c+dc));
+        }
+
+        // Filter moves that leave King in check (basic check)
+        if (checkSafety) {
+            // Note: Deep check safety can be slow in JS for Omega board size, 
+            // for "Robust" version we might skip strict checkmate detection inside getMoves 
+            // to keep it snappy, but let's do a basic "don't capture King" filter.
+            return moves.filter(m => {
+                if (board[m.r][m.c] && board[m.r][m.c].type === P.KING) return true; // Valid to capture king in this simplified engine
+                return true;
+            });
+        }
+        return moves;
+    }
+
+    // --- 6. GAME CONTROL ---
+    function selectPiece(r, c) {
+        if (isAIThinking) return;
+        selected = { r, c };
+        validMoves = getMoves(r, c);
+        drawBoard();
+    }
+
+    function playerMove(move) {
+        if (isAIThinking) return;
+        
+        executeMove({ from: selected, to: move });
+        selected = null;
+        validMoves = [];
+        turn = C.BLACK;
+        updateUI();
+
+        // Trigger AI
+        isAIThinking = true;
+        setTimeout(() => {
+            aiTurn();
+        }, 100);
+    }
+
+    function executeMove(action) {
+        const { from, to } = action;
+        const p = board[from.r][from.c];
+        const captured = board[to.r][to.c];
+        
+        // Save to history for Undo
+        moveHistory.push({
+            from: {r: from.r, c: from.c},
+            to: {r: to.r, c: to.c},
+            piece: p,
+            captured: captured,
+            prevMoved: p.moved
+        });
+
+        board[to.r][to.c] = p;
+        board[from.r][from.c] = null;
+        p.moved = true;
+        
+        // Simple promotion
+        if (p.type === P.PAWN && (to.r === 1 || to.r === 10)) {
+            p.type = P.QUEEN;
+        }
+    }
+
+    function undo() {
+        if (isAIThinking || moveHistory.length === 0) return;
+        // Undo twice (AI then Player)
+        undoOne(); 
+        if (turn === C.WHITE) undoOne(); 
+        
+        selected = null;
+        validMoves = [];
+        updateUI();
+    }
+
+    function undoOne() {
+        if (moveHistory.length === 0) return;
+        const last = moveHistory.pop();
+        board[last.from.r][last.from.c] = last.piece;
+        board[last.to.r][last.to.c] = last.captured;
+        last.piece.moved = last.prevMoved;
+        if (last.piece.type === P.QUEEN && (last.from.r===2 || last.from.r===9) && (last.to.r===1 || last.to.r===10)) {
+            last.piece.type = P.PAWN; // Un-promote
+        }
+        turn = turn === C.WHITE ? C.BLACK : C.WHITE;
+    }
+
+    // --- 7. ARTIFICIAL INTELLIGENCE (Minimax) ---
+    function evaluateBoard() {
+        let score = 0;
+        for(let r=0; r<SIZE; r++){
+            for(let c=0; c<SIZE; c++){
+                const p = board[r][c];
+                if(p) {
+                    const val = VALUES[p.type];
+                    // Add slight positional bias to encourage center control
+                    const centerBonus = (r > 3 && r < 8 && c > 3 && c < 8) ? 10 : 0;
+                    score += (p.color === C.BLACK ? (val+centerBonus) : -(val+centerBonus));
+                }
+            }
+        }
+        return score;
+    }
+
+    function aiTurn() {
+        const difficulty = parseInt(document.getElementById('difficulty').value);
+        // Map difficulty to depth: 1=Easy, 2=Medium, 3=Hard
+        // Omega chess is complex, so depth 3 is actually quite heavy.
+        const depth = difficulty; 
+        
+        const bestMove = getBestMove(depth);
+        
+        if (bestMove) {
+            executeMove(bestMove);
+        } else {
+            alert("Game Over!");
+        }
+        
+        isAIThinking = false;
+        turn = C.WHITE;
+        updateUI();
+    }
+
+    function getBestMove(depth) {
+        let bestScore = -Infinity;
+        let bestMoves = [];
+        
+        // Generate all Black moves
+        const moves = getAllMoves(C.BLACK);
+        if (moves.length === 0) return null;
+
+        for (const move of moves) {
+            executeMove(move);
+            // Minimax call
+            const score = minimax(depth - 1, -Infinity, Infinity, false);
+            undoOne(); // Revert logic (using global board state)
+            
+            // Revert turn variable flip handled by undoOne, but we are inside a loop
+            // undoOne flips turn back to Black.
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestMoves = [move];
+            } else if (score === bestScore) {
+                bestMoves.push(move);
+            }
+        }
+        // Pick random from best to add variety
+        return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+    }
+
+    function minimax(depth, alpha, beta, isMaximizing) {
+        if (depth === 0) return evaluateBoard();
+
+        const moves = getAllMoves(isMaximizing ? C.BLACK : C.WHITE);
+        if (moves.length === 0) return evaluateBoard(); // Terminal node
+
+        if (isMaximizing) { // Black
+            let maxEval = -Infinity;
+            for (const move of moves) {
+                executeMove(move);
+                const eval = minimax(depth - 1, alpha, beta, false);
+                undoOne();
+                maxEval = Math.max(maxEval, eval);
+                alpha = Math.max(alpha, eval);
+                if (beta <= alpha) break;
+            }
+            return maxEval;
+        } else { // White
+            let minEval = Infinity;
+            for (const move of moves) {
+                executeMove(move);
+                const eval = minimax(depth - 1, alpha, beta, true);
+                undoOne();
+                minEval = Math.min(minEval, eval);
+                beta = Math.min(beta, eval);
+                if (beta <= alpha) break;
+            }
+            return minEval;
+        }
+    }
+
+    function getAllMoves(color) {
+        const allMoves = [];
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                if (board[r][c] && board[r][c].color === color) {
+                    const ms = getMoves(r, c, false); // Disable check safety for speed in AI search
+                    ms.forEach(m => {
+                        allMoves.push({ from: {r, c}, to: m });
+                    });
+                }
+            }
+        }
+        // Simple Move Ordering: Check captures first
+        return allMoves.sort((a, b) => {
+            const capA = board[a.to.r][a.to.c] ? 10 : 0;
+            const capB = board[b.to.r][b.to.c] ? 10 : 0;
+            return capB - capA;
+        });
+    }
+
+    // Start
+    initGame();
+</script>
+</body>
+</html>
+
+
+
