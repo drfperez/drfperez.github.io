@@ -1,109 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Young Photonics 2025</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
+    <title>Young Photonics: 2025-2026 Research Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        :root {
+            --photonics-blue: #0056b3;
+            --photonics-dark: #1a1a1a;
         }
-        .pdf-container {
-            width: 100%;
-            height: 100vh; /* Ocupa tota l'altura de la pantalla */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, var(--photonics-dark) 0%, var(--photonics-blue) 100%);
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+        }
+        .year-badge {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .project-tag {
+            font-size: 0.8rem;
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        footer {
+            background-color: var(--photonics-dark);
+            color: white;
+            padding: 30px 0;
+            margin-top: 60px;
         }
     </style>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-<div id="navbar-placeholder"></div>
 
-  <main class="container py-4">
+    <header class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Young Photonics Research</h1>
+            <p class="lead">Exploring the Frontiers of Light and the Universe</p>
+            <p>Collaborative Projects from Institut Pompeu Fabra</p>
+        </div>
+    </header>
 
- 
+    <main class="container">
 
-    <div class="container my-5">
-        <header class="text-center mb-4">
-            <h1>Young Photonics 2025</h1>
-            <p>Projects from <a href="https://agora.xtec.cat/ies-pompeu-fabra-martorell/" target="_blank">Institut Pompeu Fabra</a></p>
-        </header>
+        <section class="mb-5">
+            <div class="d-flex align-items-center mb-4">
+                <h2 class="me-3">2026 Research Topics</h2>
+                <span class="badge bg-primary year-badge">New: Student Pairs</span>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h4 class="text-primary">Illuminating Infancy: Decoding V1298 Tau</h4>
+                        <p class="text-muted small">Livingston et al. (2026) | Young Star Progenitor Research</p>
+                        <p>Analysis of four uncommonly large sub-Neptunes in a resonant chain using precision photometry and TTV (Transit Timing Variation). A rare look at how planetary systems evolve in their earliest stages.</p>
+                        <div class="mt-auto">
+                            <span class="project-tag">Astro-Photonics</span>
+                            <span class="project-tag">Exoplanets</span>
+                        </div>
+                    </div>
+                </div>
 
-        <section>
-            <h3 class="mb-3">Welcome</h3>
-            <p>The presented projects aim to participate in the <a href="https://outreach.icfo.eu/es/ypc25/" target="_blank">Young Photonics 2025</a> congress, along with other related works.</p>
-            <p>These projects were created using HTML and Python code and can be accessed via the following links:</p>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h4 class="text-primary">Nature’s Dark Lens: Saturn-Mass Rogue Planet</h4>
+                        <p class="text-muted small">Project: KMT-2024-BLG-0792 Microlensing Event</p>
+                        <p>Simulating ground and space-based photometry (Gaia L2) using Python to resolve mass-parallax degeneracy. Results confirm a Saturn-mass free-floating planet (0.22 Mj).</p>
+                        <div class="mt-auto">
+                            <span class="project-tag">Python Modeling</span>
+                            <span class="project-tag">Gravitational Lensing</span>
+                        </div>
+                    </div>
+                </div>
 
-            <ul class="list-group mb-4">
-                
-                <li class="list-group-item">
-                    <strong>Photonic Quantum Computer Simulator</strong> – 3 students
-                    (<a href="https://pompeu.neocities.org/quantic/" target="_blank">More information</a>)
-                                        <br>
-                    <em>Abstract:</em>
-                  An interactive web tool demonstrating quantum computing principles have been created. It uses 3D Bloch Sphere visualization with Three.js to simulate photonic qubits. Users can apply quantum gates (Hadamard, Pauli-X, Pauli-Z), observe state transitions, and measure qubit probabilities. Educational platform simplifying quantum mechanics concepts for researchers and students.
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h4 class="text-primary">Decoding Alien Skies: WASP-39b with JWST</h4>
+                        <p class="text-muted small">Photonic Fingerprints & Transmission Spectroscopy</p>
+                        <p>Using forward atmospheric modeling to quantify wavelength-dependent photon attenuation. Detected high-precision molecular signatures of H₂O and CO₂.</p>
+                        <div class="mt-auto">
+                            <span class="project-tag">JWST Data</span>
+                            <span class="project-tag">Spectroscopy</span>
+                        </div>
+                    </div>
+                </div>
 
-
-                    
-                </li>
-                <li class="list-group-item">
-                    <strong>Simulator of light bending with Gravitational Lenses</strong> – 3 students
-                    (<a href="https://pompeu.neocities.org/anellEinstein/" target="_blank">More information</a>)
-                    <br>
-                    <em>Abstract:</em>
-                    Eddington's 1919 expedition confirmed Einstein's theory of general relativity by observing light bending around the Sun. This phenomenon, gravitational lensing, distorts spacetime and bends light paths. Our created lens simulation allows to change Sun size and it is available online.
-                </li>
-                <li class="list-group-item">
-                    <strong>Analyzing the Mysterious Light of KIC 8462852</strong> – 3 students
-                    (<a href="https://pompeu.neocities.org/tabby/" target="_blank">More information</a>)
-                                       <br>
-                    <em>Abstract:</em> 
-                   Study of Tabby's Star (KIC 8462852) using Python's Lightkurve to analyze photometric data from Kepler satellite telescope. Key steps include downloading and visualizing light curves, studying dips via Fourier transforms, and detecting periodicities. This approach aids in exploring anomalies like dust or exoplanet transits. 
-                    
-                    
-                </li>
-                <li class="list-group-item">
-                    <strong>Photonic Visualization of Dark Matter and Dark Energy</strong> – 3 students
-                    (<a href="https://pompeu.neocities.org/0ciencia/darkanimacio" target="_blank">More information</a>)
-                    <br>
-                    <em>Abstract:</em> This interactive simulation leverages photonic effects to visualize the invisible dynamics of dark matter and dark energy. By adjusting key parameters through intuitive controls, users explore cosmic phenomena through light-based visualizations, making complex astrophysical concepts more accessible and engaging.
-                </li>
-            </ul>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h4 class="text-primary">Beyond the Barrier: Optical Tunneling</h4>
+                        <p class="text-muted small">Interactive Photonics Exhibition | Quantum Waveform Analysis</p>
+                        <p>Interactive visualization of wave-particle duality. Demonstrates exponential decay of evanescent waves and transmission probabilities through classical barriers.</p>
+                        <div class="mt-auto">
+                            <span class="project-tag">Quantum Optics</span>
+                            <span class="project-tag">Interactive Simulation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
+        <hr class="my-5">
+
         <section>
-            <h4>Key Dates</h4>
-            <ul>
-                <li><strong>Summary:</strong> January 28</li>
-                <li><strong>Graphic Abstract and Poster:</strong> February 18</li>
-            </ul>
-            <p><strong>Congress Venue:</strong> <a href="https://www.icfo.eu">ICFO</a>, Castelldefels, 14 March 2025, 10:00-13:15</p>
+            <div class="d-flex align-items-center mb-4">
+                <h2 class="me-3">2025 Archive</h2>
+                <span class="badge bg-secondary year-badge">Groups of 3</span>
+            </div>
+
+            <div class="list-group">
+                <a href="https://pompeu.neocities.org/quantic/" class="list-group-item list-group-item-action p-4">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 fw-bold">Photonic Quantum Computer Simulator</h5>
+                        <small class="text-primary">View Project <i class="fas fa-external-link-alt"></i></small>
+                    </div>
+                    <p class="mb-1">Interactive 3D Bloch Sphere visualization using Three.js to simulate photonic qubits and quantum gates (Hadamard, Pauli-X, Pauli-Z).</p>
+                </a>
+
+                <a href="https://pompeu.neocities.org/anellEinstein/" class="list-group-item list-group-item-action p-4">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 fw-bold">Gravitational Lens Simulator</h5>
+                        <small class="text-primary">View Project <i class="fas fa-external-link-alt"></i></small>
+                    </div>
+                    <p class="mb-1">An online tool modeling the bending of light paths around massive objects, inspired by Eddington's 1919 solar eclipse observation.</p>
+                </a>
+
+                <a href="https://pompeu.neocities.org/tabby/" class="list-group-item list-group-item-action p-4">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 fw-bold">Analyzing the Mysterious Light of KIC 8462852</h5>
+                        <small class="text-primary">View Project <i class="fas fa-external-link-alt"></i></small>
+                    </div>
+                    <p class="mb-1">Using Python's Lightkurve to analyze Kepler satellite data of Tabby's Star, searching for dips caused by dust or planetary transits.</p>
+                </a>
+
+                <a href="https://pompeu.neocities.org/0ciencia/darkanimacio" class="list-group-item list-group-item-action p-4">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 fw-bold">Photonic Visualization of Dark Matter & Energy</h5>
+                        <small class="text-primary">View Project <i class="fas fa-external-link-alt"></i></small>
+                    </div>
+                    <p class="mb-1">Interactive photonic effects used to visualize the invisible dynamics of dark energy and cosmic expansion.</p>
+                </a>
+            </div>
         </section>
-    </div>
 
-<h2>Additional info</h2>
-<p><a href="https://pompeu.neocities.org/0ciencia/dark">Dark Universe</a></p>
-<p><a href="https://pompeu.neocities.org/0ciencia/0darksimulation">Dark simulation</a></p>
-<p><a href="https://pompeu.neocities.org/0ciencia/simulador2">Photonic Circuit Simulator</a></p>
-<p><a href="https://pompeu.neocities.org/0ciencia/0gravitational">Gravitational lens simulator</a></p>
+    </main>
 
-    <!-- Required Scripts -->
+    <footer class="text-center">
+        <div class="container">
+            <p class="mb-2"><strong>Congress Venue:</strong> ICFO, Castelldefels | 14 March 2025</p>
+            <p class="small text-muted mb-0">&copy; 2026 Young Photonics Research - Institut Pompeu Fabra</p>
+        </div>
+    </footer>
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-<iframe class="pdf-container" src="icfo1.pdf"></iframe>
-    <iframe class="pdf-container" src="icfo2.pdf"></iframe>
-    <iframe class="pdf-container" src="icfo3.pdf"></iframe>
-    <iframe class="pdf-container" src="icfo4.pdf"></iframe>
-</main>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../navbar.js"></script>
 </html>
