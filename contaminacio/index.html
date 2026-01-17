@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="utf-8">
+    <title>Anàlisi Aire Catalunya - Exportació</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; color: #333; }
+        .controls { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
+        .chart-container { background: white; padding: 20px; border-radius: 12px; height: 60vh; position: relative; margin-bottom: 15px; }
+        .export-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+        select, input, button { padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
+        button { cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-update { background: #0052cc; color: white; border: none; }
+        .btn-update:hover { background: #003d99; }
+        .btn-export { background: #28a745; color: white; border: none; }
+        .btn-export:hover { background: #218838; }
+        .btn-image { background: #6c757d; color: white; border: none; }
+        .btn-image:hover { background: #5a6268; }
+        label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 5px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <div>
+            <label>Estació</label>
+            <select id="estacio">
+                     <option value="Agullana">Agullana</option>
+        <option value="Alcanar">Alcanar</option>
+      <option value="Alcover">Alcover</option>
+      <option value="Amposta">Amposta</option>
+      <option value="Badalona">Badalona</option>
+      <option value="Barberà del Vallès">Barberà del Vallès</option>
+      <option value="Barcelona (Ciutadella)">Barcelona (Ciutadella)</option>
+      <option value="Barcelona (Eixample)">Barcelona (Eixample)</option>
+      <option value="Barcelona (Gràcia - Sant Gervasi)">Barcelona (Gràcia - Sant Gervasi)</option>
+      <option value="Barcelona (Observatori Fabra)">Barcelona (Observatori Fabra)</option>
+      <option value="Barcelona (Palau Reial)">Barcelona (Palau Reial)</option>
+      <option value="Barcelona (Parc Vall Hebron)">Barcelona (Parc Vall Hebron)</option>
+      <option value="Barcelona (Poblenou)">Barcelona (Poblenou)</option>
+      <option value="Barcelona (Sants)">Barcelona (Sants)</option>
+      <option value="Begur">Begur</option>
+      <option value="Bellver de Cerdanya">Bellver de Cerdanya</option>
+      <option value="Berga">Berga</option>
+      <option value="Constantí">Constantí</option>
+      <option value="Cubelles (Poliesportiu)">Cubelles (Poliesportiu)</option>
+      <option value="El Prat de Llobregat (Jardins de la Pau)">El Prat de Llobregat (Jardins de la Pau)</option>
+      <option value="El Prat de Llobregat (Sagnier)">El Prat de Llobregat (Sagnier)</option>
+      <option value="Els Guiamets">Els Guiamets</option>
+      <option value="Flix">Flix</option>
+      <option value="Gandesa">Gandesa</option>
+      <option value="Gavà">Gavà</option>
+      <option value="Girona (Escola de Música)">Girona (Escola de Música)</option>
+      <option value="Granollers">Granollers</option>
+      <option value="Igualada">Igualada</option>
+      <option value="Juneda (Pla del Molí)">Juneda (Pla del Molí)</option>
+      <option value="L'Ametlla de Mar">L'Ametlla de Mar</option>
+      <option value="L'Hospitalet de Llobregat">L'Hospitalet de Llobregat</option>
+      <option value="La Sénia">La Sénia</option>
+      <option value="Lleida">Lleida</option>
+      <option value="Manlleu">Manlleu</option>
+      <option value="Manresa">Manresa</option>
+      <option value="Martorell" selected>Martorell</option>
+      <option value="Mataró">Mataró</option>
+      <option value="Mollet del Vallès">Mollet del Vallès</option>
+      <option value="Montcada i Reixac">Montcada i Reixac</option>
+      <option value="Montcada i Reixac (Can Sant Joan)">Montcada i Reixac (Can Sant Joan)</option>
+      <option value="Montsec">Montsec</option>
+      <option value="Montseny (La Castanya)">Montseny (La Castanya)</option>
+      <option value="Pallejà (Roca de Vilana)">Pallejà (Roca de Vilana)</option>
+      <option value="Pardines">Pardines</option>
+      <option value="Perafort (Puigdelfí)">Perafort (Puigdelfí)</option>
+      <option value="Ponts">Ponts</option>
+      <option value="Reus">Reus</option>
+      <option value="Rubí">Rubí</option>
+      <option value="Sabadell">Sabadell</option>
+      <option value="Sant Adrià de Besòs">Sant Adrià de Besòs</option>
+      <option value="Sant Andreu de la Barca">Sant Andreu de la Barca</option>
+      <option value="Sant Celoni">Sant Celoni</option>
+      <option value="Sant Cugat del Vallès">Sant Cugat del Vallès</option>
+      <option value="Sant Vicenç dels Horts">Sant Vicenç dels Horts</option>
+      <option value="Sant Vicenç dels Horts (Ribot)">Sant Vicenç dels Horts (Ribot)</option>
+      <option value="Santa Coloma de Gramenet">Santa Coloma de Gramenet</option>
+      <option value="Santa Maria de Palautordera">Santa Maria de Palautordera</option>
+      <option value="Santa Pau">Santa Pau</option>
+      <option value="Santa Perpètua de Mogoda">Santa Perpètua de Mogoda</option>
+      <option value="Sort">Sort</option>
+      <option value="Sta. Margarida i els Monjos (La Ràpita)">Sta. Margarida i els Monjos (La Ràpita)</option>
+      <option value="Tarragona (Bonavista)">Tarragona (Bonavista)</option>
+      <option value="Tarragona (Parc de la Ciutat)">Tarragona (Parc de la Ciutat)</option>
+      
+
+      <option value="Tarragona (Sant Salvador)">Tarragona (Sant Salvador)</option>
+      <option value="Tarragona (Universitat Laboral)">Tarragona (Universitat Laboral)</option>
+      <option value="Terrassa">Terrassa</option>
+      <option value="Tona (Zona Esportiva)">Tona (Zona Esportiva)</option>
+      <option value="Vandellòs (Barranc del Terme)">Vandellòs (Barranc del Terme)</option>
+      <option value="Vandellòs (Els Dedalts)">Vandellòs (Els Dedalts)</option>
+      <option value="Vandellòs (Viver)">Vandellòs (Viver)</option>
+      <option value="Vic">Vic</option>
+      <option value="Vila-seca (IES Vila-seca)">Vila-seca (IES Vila-seca)</option>
+      <option value="Viladecans - Atrium">Viladecans - Atrium</option>
+      <option value="Vilafranca del Penedès">Vilafranca del Penedès</option>
+      <option value="Vilanova i la Geltrú">Vilanova i la Geltrú</option>
+            </select>
+        </div>
+        <div>
+            <label>Vista</label>
+            <select id="tipusVista" onchange="toggleVista()">
+                <option value="diaria">Vista Diària</option>
+                <option value="anual">Vista Anual</option>
+            </select>
+        </div>
+        <div id="wrapperData">
+            <label>Data</label>
+            <input type="date" id="fecha">
+        </div>
+        <div id="wrapperAny" style="display:none">
+            <label>Any</label>
+            <input type="number" id="any" value="2024" min="1991" max="2026">
+        </div>
+        <button class="btn-update" onclick="carregarDades()">Actualitzar</button>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <div class="export-buttons">
+        <button class="btn-image" onclick="exportarImatge()">Baixar PNG</button>
+        <button class="btn-export" onclick="exportarExcel()">Baixar Excel (.xlsx)</button>
+    </div>
+
+    <script>
+        let myChart = null;
+        const configCont = [
+            { id: "PM10", color: "#e63946" },
+            { id: "O3", color: "#457b9d" },
+            { id: "NO2", color: "#1d3557" },
+            { id: "PM2.5", color: "#2a9d8f" }
+        ];
+
+        // Configuració data inicial
+        const inputData = document.getElementById('fecha');
+        const ahir = new Date();
+        ahir.setDate(ahir.getDate() - 1);
+        inputData.value = ahir.toISOString().split('T')[0];
+
+        function toggleVista() {
+            const esAnual = document.getElementById('tipusVista').value === 'anual';
+            document.getElementById('wrapperData').style.display = esAnual ? 'none' : 'block';
+            document.getElementById('wrapperAny').style.display = esAnual ? 'block' : 'none';
+        }
+
+        async function carregarDades() {
+            const estacio = document.getElementById('estacio').value;
+            const vista = document.getElementById('tipusVista').value;
+            let labels = [];
+            let datasets = [];
+
+            if (vista === 'diaria') {
+                const data = document.getElementById('fecha').value;
+                labels = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00h`);
+                
+                datasets = await Promise.all(configCont.map(async c => {
+                    const url = `https://analisi.transparenciacatalunya.cat/resource/tasf-thgu.json?nom_estacio=${estacio}&data=${data}&contaminant=${c.id}`;
+                    const res = await fetch(url).then(r => r.json());
+                    const valors = res.length ? Array.from({length: 24}, (_, i) => parseFloat(res[0][`h${(i+1).toString().padStart(2,'0')}`]) || 0) : Array(24).fill(0);
+                    return { label: c.id, data: valors, borderColor: c.color, backgroundColor: c.color, tension: 0.3 };
+                }));
+            } else {
+                const any = document.getElementById('any').value;
+                datasets = await Promise.all(configCont.map(async c => {
+                    const url = `https://analisi.transparenciacatalunya.cat/resource/tasf-thgu.json?nom_estacio=${estacio}&contaminant=${c.id}&$where=data between '${any}-01-01T00:00:00' and '${any}-12-31T23:59:59'&$limit=5000&$order=data ASC`;
+                    const res = await fetch(url).then(r => r.json());
+                    const mitjanes = res.map(row => {
+                        const hores = Array.from({length: 24}, (_, i) => parseFloat(row[`h${(i+1).toString().padStart(2,'0')}`]) || 0);
+                        const suma = hores.reduce((a, b) => a + b, 0);
+                        return { x: row.data.split('T')[0], y: (suma / 24).toFixed(2) };
+                    });
+                    if (labels.length === 0) labels = mitjanes.map(d => d.x);
+                    return { label: c.id, data: mitjanes.map(d => d.y), borderColor: c.color, backgroundColor: c.color, pointRadius: 0, borderWidth: 2 };
+                }));
+            }
+            renderChart(labels, datasets);
+        }
+
+        function renderChart(labels, datasets) {
+            const ctx = document.getElementById('myChart');
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y} µg/m³` } }
+                    },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'µg/m³' } } }
+                }
+            });
+        }
+
+        // FUNCIONS D'EXPORTACIÓ
+        function exportarImatge() {
+            const link = document.createElement('a');
+            link.download = `grafic_contaminacio_${new Date().getTime()}.png`;
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+
+        function exportarExcel() {
+            if (!myChart) return;
+            const labels = myChart.data.labels;
+            const datasets = myChart.data.datasets;
+
+            // Preparar les dades formatades: [ ['Data/Hora', 'PM10', 'O3'...], ['01:00h', 12.5, 30...], ... ]
+            const rows = labels.map((label, index) => {
+                const row = { "Moment": label };
+                datasets.forEach(ds => {
+                    row[ds.label] = ds.data[index];
+                });
+                return row;
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(rows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Dades Contaminació");
+            XLSX.writeFile(workbook, `dades_aire_${document.getElementById('estacio').value}.xlsx`);
+        }
+
+        carregarDades();
+    </script>
+</body>
+</html>
