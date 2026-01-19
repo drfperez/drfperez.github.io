@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espectre Visible ↔ RGB (PRO)</title>
+
+<style>
+body{
+    margin:0;
+    padding:15px;
+    font-family:Arial,sans-serif;
+    background:#f0f0f0;
+}
+.container{
+    max-width:800px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+h2,h3{text-align:center;}
+canvas{
+    width:100%;
+    height:110px;
+    border-radius:10px;
+    border:2px solid #000;
+    touch-action:none;
+}
+.axis{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    margin-bottom:10px;
+}
+.color-box{
+    width:100%;
+    height:160px;
+    border-radius:12px;
+    border:2px solid #000;
+    margin:15px 0;
+}
+.channel{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px;
+    margin-bottom:10px;
+}
+.channel strong{width:35px;}
+.channel input{
+    width:80px;
+    font-size:16px;
+    text-align:center;
+}
+button{
+    font-size:16px;
+    padding:6px 10px;
+}
+.values{
+    margin-top:15px;
+    text-align:center;
+    font-weight:bold;
+}
+.export{
+    text-align:center;
+    margin-top:10px;
+    font-size:14px;
+}
+@media(max-width:480px){
+    .channel strong{width:100%;text-align:center;}
+    .channel{justify-content:center;}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>Espectre Visible ↔ RGB</h2>
+
+<h3>Espectre (toca, clica o arrossega)</h3>
+<canvas id="spectrum"></canvas>
+<div class="axis">
+<span>380</span><span>450</span><span>500</span><span>550</span><span>600</span><span>650</span><span>750 nm</span>
+</div>
+
+<h3>Color seleccionat</h3>
+<div class="color-box" id="colorBox"></div>
+
+<h3>RGB</h3>
+<div class="channel">
+<strong>R</strong>
+<button onclick="change('r',-10)">⏪</button>
+<button onclick="change('r',-1)">◀</button>
+<input id="r" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
+<button onclick="change('r',1)">▶</button>
+<button onclick="change('r',10)">⏩</button>
+</div>
+
+<div class="channel">
+<strong>G</strong>
+<button onclick="change('g',-10)">⏪</button>
+<button onclick="change('g',-1)">◀</button>
+<input id="g" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
+<button onclick="change('g',1)">▶</button>
+<button onclick="change('g',10)">⏩</button>
+</div>
+
+<div class="channel">
+<strong>B</strong>
+<button onclick="change('b',-10)">⏪</button>
+<button onclick="change('b',-1)">◀</button>
+<input id="b" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
+<button onclick="change('b',1)">▶</button>
+<button onclick="change('b',10)">⏩</button>
+</div>
+
+<h3>Longitud d’ona</h3>
+<div class="channel">
+<strong>nm</strong>
+<button onclick="changeNM(-10)">⏪</button>
+<button onclick="changeNM(-1)">◀</button>
+<input id="nm" type="number" min="380" max="750" value="550" oninput="updateFromNM()">
+<button onclick="changeNM(1)">▶</button>
+<button onclick="changeNM(10)">⏩</button>
+</div>
+
+<div class="values">
+RGB: <span id="rgbText"></span><br>
+HEX: <span id="hexText"></span><br>
+nm: <span id="nmText"></span>
+</div>
+
+<div class="export">
+✔ Ideal per educació, òptica i colorimetria
+</div>
+</div>
+
+<script>
+const rI=r,gI=g,bI=b,nmI=nm;
+const box=colorBox,canvas=spectrum;
+const ctx=canvas.getContext("2d");
+const rgbT=rgbText,nmT=nmText,hexT=hexText;
+let dragging=false;
+
+function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+
+function wavelengthToRGB(nm){
+    let r=0,g=0,b=0;
+    if(nm<440){r=-(nm-440)/60;b=1}
+    else if(nm<490){g=(nm-440)/50;b=1}
+    else if(nm<510){g=1;b=-(nm-510)/20}
+    else if(nm<580){r=(nm-510)/70;g=1}
+    else if(nm<645){r=1;g=-(nm-645)/65}
+    else r=1;
+    let f=nm<420?0.3+0.7*(nm-380)/40:nm>645?0.3+0.7*(750-nm)/105:1;
+    return {r:Math.round(255*r*f),g:Math.round(255*g*f),b:Math.round(255*b*f)};
+}
+
+function rgbToWavelength(r,g,b){
+    if(r>=g&&r>=b) return clamp(620-(g+b)*0.25,380,750);
+    if(g>=r&&g>=b) return clamp(530-(r+b)*0.2,380,750);
+    return clamp(460-(r+g)*0.15,380,750);
+}
+
+function drawSpectrum(nm){
+    canvas.width=canvas.offsetWidth;
+    canvas.height=canvas.offsetHeight;
+    for(let x=0;x<canvas.width;x++){
+        let wl=380+(x/canvas.width)*(750-380);
+        let c=wavelengthToRGB(wl);
+        ctx.fillStyle=`rgb(${c.r},${c.g},${c.b})`;
+        ctx.fillRect(x,0,1,canvas.height);
+    }
+    let m=(nm-380)/(750-380)*canvas.width;
+    ctx.strokeStyle="#000";
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.moveTo(m,0);ctx.lineTo(m,canvas.height);ctx.stroke();
+}
+
+function render(r,g,b,nm){
+    box.style.backgroundColor=`rgb(${r},${g},${b})`;
+    rgbT.textContent=`${r}, ${g}, ${b}`;
+    nmT.textContent=nm;
+    hexT.textContent="#" + [r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();
+    drawSpectrum(nm);
+}
+
+function updateFromRGB(){
+    let r=+rI.value,g=+gI.value,b=+bI.value;
+    let nm=rgbToWavelength(r,g,b);
+    nmI.value=Math.round(nm);
+    render(r,g,b,nm);
+}
+
+function updateFromNM(){
+    let nm=+nmI.value;
+    let c=wavelengthToRGB(nm);
+    rI.value=c.r;gI.value=c.g;bI.value=c.b;
+    render(c.r,c.g,c.b,nm);
+}
+
+function change(ch,a){
+    let e=document.getElementById(ch);
+    e.value=clamp(+e.value+a,0,255);
+    updateFromRGB();
+}
+function changeNM(a){
+    nmI.value=clamp(+nmI.value+a,380,750);
+    updateFromNM();
+}
+
+function pick(x){
+    let rect=canvas.getBoundingClientRect();
+    let pos=clamp(x-rect.left,0,rect.width);
+    nmI.value=Math.round(380+(pos/rect.width)*(750-380));
+    updateFromNM();
+}
+
+canvas.addEventListener("mousedown",e=>{dragging=true;pick(e.clientX)});
+canvas.addEventListener("mousemove",e=>{if(dragging)pick(e.clientX)});
+window.addEventListener("mouseup",()=>dragging=false);
+
+canvas.addEventListener("touchstart",e=>pick(e.touches[0].clientX),{passive:true});
+canvas.addEventListener("touchmove",e=>pick(e.touches[0].clientX),{passive:true});
+
+updateFromNM();
+</script>
+</body>
+</html>
