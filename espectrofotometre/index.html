@@ -3,145 +3,244 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Espectre Visible ↔ RGB (PRO)</title>
+<title>Laboratori Virtual: Espectre i Lowry</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{
-    margin:0;
-    padding:15px;
-    font-family:Arial,sans-serif;
-    background:#f0f0f0;
+/* --- ESTILS GENERALS --- */
+body {
+    margin: 0;
+    padding: 15px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: #f3f4f6;
+    color: #333;
 }
-.container{
-    max-width:800px;
-    margin:auto;
-    background:#fff;
-    padding:20px;
-    border-radius:16px;
-    box-shadow:0 8px 20px rgba(0,0,0,.18);
+.main-container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.15);
 }
-h2,h3{text-align:center;}
-canvas{
-    width:100%;
-    height:110px;
-    border-radius:10px;
-    border:2px solid #000;
-    touch-action:none;
+h1 { text-align: center; color: #111; margin-bottom: 30px; font-size: 1.8rem; }
+h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 40px; color: #444; }
+h3 { text-align: center; margin-top: 20px; font-size: 1.1rem; color: #666; }
+
+/* --- ESTILS PART 1 (ESPECTRE) --- */
+canvas.spectrum-canvas {
+    width: 100%;
+    height: 110px;
+    border-radius: 10px;
+    border: 2px solid #000;
+    touch-action: none;
+    cursor: crosshair;
 }
-.axis{
-    display:flex;
-    justify-content:space-between;
-    font-size:12px;
-    margin-bottom:10px;
+.axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 10px;
+    color: #555;
 }
-.color-box{
-    width:100%;
-    height:160px;
-    border-radius:12px;
-    border:2px solid #000;
-    margin:15px 0;
+.color-box {
+    width: 100%;
+    height: 120px;
+    border-radius: 12px;
+    border: 2px solid #000;
+    margin: 15px 0;
+    transition: background-color 0.1s;
 }
-.channel{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:6px;
-    margin-bottom:10px;
+.channel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    justify-content: center;
 }
-.channel strong{width:35px;}
-.channel input{
-    width:80px;
-    font-size:16px;
-    text-align:center;
+.channel strong { width: 30px; text-align: right; margin-right: 5px; }
+.channel input {
+    width: 70px;
+    font-size: 16px;
+    text-align: center;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
-button{
-    font-size:16px;
-    padding:6px 10px;
+button.ctrl-btn {
+    font-size: 14px;
+    padding: 4px 8px;
+    cursor: pointer;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
-.values{
-    margin-top:15px;
-    text-align:center;
-    font-weight:bold;
+button.ctrl-btn:active { background: #ddd; }
+.values {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    background: #eee;
+    padding: 10px;
+    border-radius: 8px;
 }
-.export{
-    text-align:center;
-    margin-top:10px;
-    font-size:14px;
+
+/* --- ESTILS PART 2 (LOWRY) --- */
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 15px 0; }
+label { font-weight: 600; }
+input[type=range] { flex: 1; cursor: pointer; }
+.result { background: #eef2ff; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #c7d2fe; }
+#chartWrap { position: relative; height: 350px; margin-top: 20px; }
+
+/* Cubeta Lowry */
+#cuvetteWrap {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+    justify-content: center;
+    background: #fafafa;
+    padding: 10px;
+    border-radius: 8px;
 }
-@media(max-width:480px){
-    .channel strong{width:100%;text-align:center;}
-    .channel{justify-content:center;}
+#cuvette {
+    width: 100px;
+    height: 60px;
+    border: 3px solid #555;
+    border-top: none; /* Simulació obertura */
+    border-radius: 0 0 6px 6px;
+    background: rgba(30,144,255,0.2);
+    transition: background 0.2s linear;
+}
+#cuvetteLabel { font-size: 0.9rem; color: #444; font-style: italic; }
+
+/* Scan Canvas */
+#scanCanvas { width: 100%; height: 200px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
+#scanBox { margin-bottom: 16px; text-align: center; }
+button.action-btn {
+    background: #007bff; color: white; border: none; padding: 10px 20px;
+    border-radius: 6px; font-size: 1rem; cursor: pointer;
+}
+button.action-btn:hover { background: #0056b3; }
+
+@media(max-width: 480px) {
+    .channel strong { width: 100%; text-align: center; margin-bottom: 5px; }
+    .channel { justify-content: center; }
 }
 </style>
 </head>
 
 <body>
-<div class="container">
-<h2>Espectre Visible ↔ RGB</h2>
 
-<h3>Espectre (toca, clica o arrossega)</h3>
-<canvas id="spectrum"></canvas>
-<div class="axis">
-<span>380</span><span>450</span><span>500</span><span>550</span><span>600</span><span>650</span><span>750 nm</span>
-</div>
+<div class="main-container">
+    <h1>Laboratori Virtual Integrat</h1>
 
-<h3>Color seleccionat</h3>
-<div class="color-box" id="colorBox"></div>
+    <h2>1. Espectre Visible ↔ RGB</h2>
+    
+    <h3>Espectre (toca, clica o arrossega)</h3>
+    <canvas id="spectrum" class="spectrum-canvas"></canvas>
+    <div class="axis">
+        <span>380</span><span>450</span><span>500</span><span>550</span><span>600</span><span>650</span><span>750 nm</span>
+    </div>
 
-<h3>RGB</h3>
-<div class="channel">
-<strong>R</strong>
-<button onclick="change('r',-10)">⏪</button>
-<button onclick="change('r',-1)">◀</button>
-<input id="r" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
-<button onclick="change('r',1)">▶</button>
-<button onclick="change('r',10)">⏩</button>
-</div>
+    <h3>Color seleccionat</h3>
+    <div class="color-box" id="colorBox"></div>
 
-<div class="channel">
-<strong>G</strong>
-<button onclick="change('g',-10)">⏪</button>
-<button onclick="change('g',-1)">◀</button>
-<input id="g" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
-<button onclick="change('g',1)">▶</button>
-<button onclick="change('g',10)">⏩</button>
-</div>
+    <div class="values">
+        RGB: <span id="rgbText"></span> &nbsp;|&nbsp; 
+        HEX: <span id="hexText"></span> &nbsp;|&nbsp; 
+        nm: <span id="nmText"></span>
+    </div>
 
-<div class="channel">
-<strong>B</strong>
-<button onclick="change('b',-10)">⏪</button>
-<button onclick="change('b',-1)">◀</button>
-<input id="b" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
-<button onclick="change('b',1)">▶</button>
-<button onclick="change('b',10)">⏩</button>
-</div>
+    <h3>Controls RGB</h3>
+    <div class="channel">
+        <strong>R</strong>
+        <button class="ctrl-btn" onclick="change('r',-10)">⏪</button>
+        <button class="ctrl-btn" onclick="change('r',-1)">◀</button>
+        <input id="r" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
+        <button class="ctrl-btn" onclick="change('r',1)">▶</button>
+        <button class="ctrl-btn" onclick="change('r',10)">⏩</button>
+    </div>
 
-<h3>Longitud d’ona</h3>
-<div class="channel">
-<strong>nm</strong>
-<button onclick="changeNM(-10)">⏪</button>
-<button onclick="changeNM(-1)">◀</button>
-<input id="nm" type="number" min="380" max="750" value="550" oninput="updateFromNM()">
-<button onclick="changeNM(1)">▶</button>
-<button onclick="changeNM(10)">⏩</button>
-</div>
+    <div class="channel">
+        <strong>G</strong>
+        <button class="ctrl-btn" onclick="change('g',-10)">⏪</button>
+        <button class="ctrl-btn" onclick="change('g',-1)">◀</button>
+        <input id="g" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
+        <button class="ctrl-btn" onclick="change('g',1)">▶</button>
+        <button class="ctrl-btn" onclick="change('g',10)">⏩</button>
+    </div>
 
-<div class="values">
-RGB: <span id="rgbText"></span><br>
-HEX: <span id="hexText"></span><br>
-nm: <span id="nmText"></span>
-</div>
+    <div class="channel">
+        <strong>B</strong>
+        <button class="ctrl-btn" onclick="change('b',-10)">⏪</button>
+        <button class="ctrl-btn" onclick="change('b',-1)">◀</button>
+        <input id="b" type="number" min="0" max="255" value="128" oninput="updateFromRGB()">
+        <button class="ctrl-btn" onclick="change('b',1)">▶</button>
+        <button class="ctrl-btn" onclick="change('b',10)">⏩</button>
+    </div>
 
-<div class="export">
-✔ Ideal per educació, òptica i colorimetria
-</div>
+    <h3>Longitud d’ona (nm)</h3>
+    <div class="channel">
+        <strong>nm</strong>
+        <button class="ctrl-btn" onclick="changeNM(-10)">⏪</button>
+        <button class="ctrl-btn" onclick="changeNM(-1)">◀</button>
+        <input id="nm" type="number" min="380" max="750" value="550" oninput="updateFromNM()">
+        <button class="ctrl-btn" onclick="changeNM(1)">▶</button>
+        <button class="ctrl-btn" onclick="changeNM(10)">⏩</button>
+    </div>
+
+    <h2 style="margin-top:60px;">2. Mètode Lowry (Simulació)</h2>
+
+    <h3>A) Cerca del màxim d’absorbància</h3>
+    <p style="text-align:center; font-size:0.9rem; color:#666;">Simulació d'un escombrat espectral per trobar el pic de proteïnes (Lowry).</p>
+    
+    <div id="scanBox">
+        <button class="action-btn" onclick="simulateScan()">🔍 Iniciar Scan</button>
+        <br><br>
+        <canvas id="scanCanvas" width="900" height="200"></canvas>
+        <div id="scanResult" style="margin-top:10px; font-weight:bold; color:#0056b3;"></div>
+    </div>
+
+    <h3>B) Recta patró i Lectura LDR</h3>
+    <p style="text-align:center; font-size:0.9rem; color:#666;">Lectura del sensor LDR (0–1023) → Concentració (mg/L)</p>
+
+    <div class="row">
+        <label for="ldr">Lectura LDR:</label>
+        <input id="ldr" type="range" min="0" max="1023" value="400" oninput="updateFromInput()" />
+        <input id="ldrNum" type="number" min="0" max="1023" value="400" style="width:70px; text-align:center;" oninput="updateFromInput()" />
+    </div>
+
+    <div id="cuvetteWrap">
+        <div id="cuvette"></div>
+        <div id="cuvetteLabel">Visualització intensitat color (Blau de Lowry)</div>
+    </div>
+
+    <div class="result">
+        <div id="out"></div>
+    </div>
+
+    <div id="chartWrap">
+        <canvas id="calibChart"></canvas>
+    </div>
+
 </div>
 
 <script>
-const rI=r,gI=g,bI=b,nmI=nm;
-const box=colorBox,canvas=spectrum;
-const ctx=canvas.getContext("2d");
-const rgbT=rgbText,nmT=nmText,hexT=hexText;
+/* ==========================================================================
+   PART 1: LOGICA ESPECTRE VISIBLE
+   ========================================================================== */
+const rI=document.getElementById('r');
+const gI=document.getElementById('g');
+const bI=document.getElementById('b');
+const nmI=document.getElementById('nm');
+const box=document.getElementById('colorBox');
+const canvasSpec=document.getElementById('spectrum');
+const ctxSpec=canvasSpec.getContext("2d");
+const rgbT=document.getElementById('rgbText');
+const nmT=document.getElementById('nmText');
+const hexT=document.getElementById('hexText');
 let dragging=false;
 
 function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
@@ -165,19 +264,19 @@ function rgbToWavelength(r,g,b){
 }
 
 function drawSpectrum(nm){
-    canvas.width=canvas.offsetWidth;
-    canvas.height=canvas.offsetHeight;
-    for(let x=0;x<canvas.width;x++){
-        let wl=380+(x/canvas.width)*(750-380);
+    canvasSpec.width=canvasSpec.offsetWidth;
+    canvasSpec.height=canvasSpec.offsetHeight;
+    for(let x=0;x<canvasSpec.width;x++){
+        let wl=380+(x/canvasSpec.width)*(750-380);
         let c=wavelengthToRGB(wl);
-        ctx.fillStyle=`rgb(${c.r},${c.g},${c.b})`;
-        ctx.fillRect(x,0,1,canvas.height);
+        ctxSpec.fillStyle=`rgb(${c.r},${c.g},${c.b})`;
+        ctxSpec.fillRect(x,0,1,canvasSpec.height);
     }
-    let m=(nm-380)/(750-380)*canvas.width;
-    ctx.strokeStyle="#000";
-    ctx.lineWidth=3;
-    ctx.beginPath();
-    ctx.moveTo(m,0);ctx.lineTo(m,canvas.height);ctx.stroke();
+    let m=(nm-380)/(750-380)*canvasSpec.width;
+    ctxSpec.strokeStyle="#000";
+    ctxSpec.lineWidth=3;
+    ctxSpec.beginPath();
+    ctxSpec.moveTo(m,0);ctxSpec.lineTo(m,canvasSpec.height);ctxSpec.stroke();
 }
 
 function render(r,g,b,nm){
@@ -213,20 +312,164 @@ function changeNM(a){
 }
 
 function pick(x){
-    let rect=canvas.getBoundingClientRect();
+    let rect=canvasSpec.getBoundingClientRect();
     let pos=clamp(x-rect.left,0,rect.width);
     nmI.value=Math.round(380+(pos/rect.width)*(750-380));
     updateFromNM();
 }
 
-canvas.addEventListener("mousedown",e=>{dragging=true;pick(e.clientX)});
-canvas.addEventListener("mousemove",e=>{if(dragging)pick(e.clientX)});
+canvasSpec.addEventListener("mousedown",e=>{dragging=true;pick(e.clientX)});
+canvasSpec.addEventListener("mousemove",e=>{if(dragging)pick(e.clientX)});
 window.addEventListener("mouseup",()=>dragging=false);
 
-canvas.addEventListener("touchstart",e=>pick(e.touches[0].clientX),{passive:true});
-canvas.addEventListener("touchmove",e=>pick(e.touches[0].clientX),{passive:true});
+canvasSpec.addEventListener("touchstart",e=>pick(e.touches[0].clientX),{passive:true});
+canvasSpec.addEventListener("touchmove",e=>pick(e.touches[0].clientX),{passive:true});
 
+// Iniciar Part 1
 updateFromNM();
+
+/* ==========================================================================
+   PART 2: LOGICA LOWRY & CHART.JS
+   ========================================================================== */
+const scanCanvas = document.getElementById('scanCanvas');
+const sctx = scanCanvas.getContext('2d');
+const scanResult = document.getElementById('scanResult');
+
+function drawEmptySpectrum(){
+  sctx.clearRect(0,0,scanCanvas.width,scanCanvas.height);
+  sctx.strokeStyle = '#ccc'; sctx.lineWidth = 1;
+  sctx.beginPath();
+  sctx.moveTo(40,10); sctx.lineTo(40,scanCanvas.height-30);
+  sctx.lineTo(scanCanvas.width-10,scanCanvas.height-30);
+  sctx.stroke();
+  sctx.fillStyle='#666'; sctx.font='12px system-ui';
+  sctx.fillText('380 nm',40,scanCanvas.height-10);
+  sctx.fillText('740 nm',scanCanvas.width-70,scanCanvas.height-10);
+}
+
+drawEmptySpectrum();
+
+function simulatedAbsorbance(w){
+  // Pic real prop de 660 nm (Lowry)
+  const peak = 660;
+  const width = 35;
+  const amp = Math.exp(-0.5*Math.pow((w-peak)/width,2));
+  const noise = 0.02*Math.sin(w/20);
+  return amp*0.95 + noise;
+}
+
+function simulateScan(){
+  scanResult.textContent = 'Escanejant...';
+  sctx.clearRect(0,0,scanCanvas.width,scanCanvas.height);
+  drawEmptySpectrum();
+
+  const wmin=380, wmax=740;
+  const steps = 180;
+  const padL=40, padR=10, padT=10, padB=30;
+  const W=scanCanvas.width, H=scanCanvas.height;
+  const plotW = W-padL-padR;
+  const plotH = H-padT-padB;
+
+  let maxA = -1;
+  let maxW = 0;
+
+  sctx.beginPath();
+  for(let i=0;i<=steps;i++){
+    const w = wmin + (wmax-wmin)*i/steps;
+    const A = simulatedAbsorbance(w);
+    if(A>maxA){ maxA=A; maxW=w; }
+    const x = padL + plotW*(i/steps);
+    const y = padT + plotH*(1-A);
+    if(i===0) sctx.moveTo(x,y); else sctx.lineTo(x,y);
+  }
+  sctx.strokeStyle = '#1e90ff'; sctx.lineWidth = 2;
+  sctx.stroke();
+
+  // Marcar el màxim trobat
+  const tx = padL + plotW*((maxW-wmin)/(wmax-wmin));
+  const ty = padT + plotH*(1-maxA);
+  sctx.fillStyle='red';
+  sctx.beginPath(); sctx.arc(tx,ty,5,0,2*Math.PI); sctx.fill();
+
+  scanResult.textContent = `Màxim estimat ≈ ${Math.round(maxW)} nm (esperat ~660 nm)`;
+}
+
+// --- DADES DE CALIBRATGE ---
+const calib = [
+  [0, 0],
+  [200, 5],
+  [400, 12],
+  [600, 18],
+  [800, 25]
+];
+
+// Regressió lineal simple
+const a = calib.map(p=>p[0]);
+const b = calib.map(p=>p[1]);
+const n = a.length;
+const sumX = a.reduce((s,v)=>s+v,0);
+const sumY = b.reduce((s,v)=>s+v,0);
+const sumXY = a.reduce((s,v,i)=>s+v*b[i],0);
+const sumX2 = a.reduce((s,v)=>s+v*v,0);
+const m = (n*sumXY - sumX*sumY)/(n*sumX2 - sumX*sumX);
+const b0 = (sumY - m*sumX)/n;
+
+// R^2 calculation
+const yMean = sumY/n;
+const ssTot = b.reduce((s,yi)=>s+(yi-yMean)**2,0);
+const ssRes = a.reduce((s,xi,i)=>s+(b[i]-(m*xi+b0))**2,0);
+const R2 = 1 - ssRes/ssTot;
+
+const linePts = [];
+for(let x=0;x<=1023;x+=102){ linePts.push({x, y:m*x + b0}); }
+
+const ctxChart = document.getElementById('calibChart').getContext('2d');
+const chart = new Chart(ctxChart,{
+  type:'scatter',
+  data:{
+    datasets:[
+      {label:'Patrons', data:calib.map(p=>({x:p[0],y:p[1]})), pointRadius:5, backgroundColor:'blue'},
+      {label:'Recta patró', data:linePts, type:'line', fill:false, pointRadius:0, borderColor:'#888', borderDash:[5,5]},
+      {label:'Mostra Actual', data:[{x:400,y:m*400+b0}], pointRadius:8, backgroundColor:'red', pointBorderColor:'black', pointBorderWidth:2}
+    ]
+  },
+  options:{
+    animation:false,
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{
+        title:{display:true, text:`y = ${m.toFixed(4)}·x + ${b0.toFixed(2)}  |  R² = ${R2.toFixed(4)}`},
+        legend:{position:'bottom'}
+    },
+    scales:{
+      x:{title:{display:true,text:'Lectura LDR (0–1023)'}, min:0, max:1023},
+      y:{title:{display:true,text:'Concentració (mg/L)'}, beginAtZero:true}
+    }
+  }
+});
+
+function updateFromInput(){
+  const slider = document.getElementById('ldr');
+  const num = document.getElementById('ldrNum');
+  let x = Math.max(0, Math.min(1023, Number(slider.value)));
+  num.value = x;
+  slider.value = x; // Sync reverse if input manually
+
+  const y = m*x + b0;
+  chart.data.datasets[2].data = [{x, y}];
+  chart.update();
+
+  document.getElementById('out').innerHTML = `LDR = <b>${x}</b> → mg/L ≈ <b>${y.toFixed(2)}</b>`;
+
+  // --- Canvi d'intensitat del blau de la cubeta ---
+  const frac = x/1023; 
+  const cuv = document.getElementById('cuvette');
+  // Lowry es torna blau fosc a més concentració (més LDR suposant proporcionalitat directa absorció/lectura en aquest simulador simplificat)
+  cuv.style.background = `rgba(30,144,255,${(0.1 + 0.9*frac).toFixed(3)})`;
+}
+
+// Iniciar Part 2
+updateFromInput();
 </script>
 </body>
 </html>
