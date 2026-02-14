@@ -1,395 +1,429 @@
 <!DOCTYPE html>
 <html lang="ca">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solucionador K-Map 4 Variables</title>
+    <title>K-Map Visual amb Colors</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-         /*   background: #f0f2f5;*/
-         /*   color: #333;*/
+        :root {
+            --cell-size: 70px; /* Cel·les més grans per veure bé els marcadors */
         }
 
-        h2 {
-            text-align: center;
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; }
+        
+        .kmap-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-bottom: 20px;
         }
 
-        .kmap-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-          /*  background: #fff;*/
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        /* Estils SVG */
+        text { font-family: sans-serif; font-weight: bold; pointer-events: none; }
+        
+        .cell-rect { 
+            stroke: #dee2e6; 
+            stroke-width: 2; 
+            fill: white;
+            cursor: pointer; 
+            transition: fill 0.2s; 
         }
+        .cell-rect:hover { fill: #e9ecef; }
+        
+        /* Textos 0, 1, X */
+        .cell-value { font-size: 24px; transition: opacity 0.2s; }
 
-        .cell {
+        /* Targetes */
+        .explanation-card {
+            border-left: 8px solid #ccc;
+            transition: all 0.3s ease;
             cursor: pointer;
-            user-select: none;
-            transition: background-color 0.2s, transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .explanation-card:hover {
+            transform: translateX(10px);
+            background-color: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* El puntet de color dins la targeta */
+        .color-dot {
+            height: 15px; width: 15px; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 8px;
         }
 
-        .cell:hover {
-            background-color: #e0f7fa;
-            transform: scale(1.03);
-        }
-
-        .controls {
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        button {
-            padding: 10px 20px;
-            margin: 0 5px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background: #009879;
-            color: #fff;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #007f66;
-        }
-
-        .result {
-            padding: 15px;
-          /*  background: #fff;*/
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            margin-top: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .labels {
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-p {
-  text-align: justify;
-}
- 
     </style>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-<div id="navbar-placeholder"></div>
 
-  <main class="container py-4">
+<div class="container py-5">
+    <h2 class="text-center mb-4"><i class="fas fa-project-diagram"></i> Solucionador K-Map Visual</h2>
 
- </main>
-  
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow border-0 h-100">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Mapa Interactiu</span>
+                    <small>Clic: 0 → 1 → X</small>
+                </div>
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <div class="kmap-wrapper">
+                        <div id="kmap-container"></div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-danger btn-sm px-4 rounded-pill" onclick="resetCells()"><i class="fas fa-trash"></i> Netejar</button>
+                        <button class="btn btn-outline-dark btn-sm px-4 rounded-pill" onclick="randomize()"><i class="fas fa-random"></i> Aleatori</button>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <span class="me-3 text-muted text-uppercase small fw-bold">Resultat:</span>
+                        <div id="simplified-expr" class="fs-3 fw-bold font-monospace text-primary">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-
-    <h2>Solucionador de Mapa de Karnaugh - 4 Variables</h2>
-    <p><b>Funcionament</b>: A la taula inferior, en clicar sobre una cel·la amb valor 0, es transforma en 1; si es clica de nou, es canvia a X; i un tercer clic la retorna a 0. El cicle continua seguint l'ordre: 0 → 1 → X → 0...</p>
-
-    <div class="kmap-container">
-        <div class="labels">AB \ CD</div>
-        <div id="kmap"></div>
+        <div class="col-lg-6">
+            <div class="card shadow border-0 h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="m-0"><i class="fas fa-list-ol me-2"></i>Pas a Pas (Colors)</h5>
+                </div>
+                <div class="card-body bg-light" id="step-by-step" style="max-height: 600px; overflow-y: auto;">
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-mouse-pointer fa-2x mb-3"></i>
+                        <p>Marca uns (1) al mapa per veure com s'agrupen.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="controls">
-        <button onclick="resetCells()">Netejar Tot</button>
-        <button onclick="randomize()">Aleatori</button>
-    </div>
-
-    <div class="result">
-        <div><strong>Expressió Original:</strong> <span id="original-expr"></span></div>
-        <div><strong>Expressió Simplificada:</strong> <span id="simplified-expr"></span></div>
-    </div>
-
-    <script>
+<script>
     const variables = ['A', 'B', 'C', 'D'];
     let cells = Array(16).fill(0);
-    const grayCode = [0, 1, 3, 2, 4, 5, 7, 6, 12, 13, 15, 14, 8, 9, 11, 10];
+    
+    // Ordre Gray per dibuixar
+    const rowGray = [0, 1, 3, 2];
+    const colGray = [0, 1, 3, 2];
+    
+    // Paleta de colors vibrants per als grups
+    const palette = [
+        { color: '#FF0055', bg: 'rgba(255, 0, 85, 0.1)' },   // Vermell/Rosa
+        { color: '#0099FF', bg: 'rgba(0, 153, 255, 0.1)' },  // Blau
+        { color: '#00CC66', bg: 'rgba(0, 204, 102, 0.1)' },  // Verd
+        { color: '#FFAA00', bg: 'rgba(255, 170, 0, 0.1)' },  // Taronja
+        { color: '#9933FF', bg: 'rgba(153, 51, 255, 0.1)' }, // Lila
+        { color: '#333333', bg: 'rgba(50, 50, 50, 0.1)' }    // Negre (extra)
+    ];
 
-    // Funcions auxiliars per al Quine–McCluskey
-    function toBinary(n) {
-        return n.toString(2).padStart(4, '0');
-    }
-
-    function countOnes(str) {
-        return str.split('').filter(bit => bit === '1').length;
-    }
-
+    // --- Lògica Quine-McCluskey (Simplificada) ---
+    function toBinary(n) { return n.toString(2).padStart(4, '0'); }
+    function countOnes(str) { return str.split('').filter(bit => bit === '1').length; }
     function combineTerms(term1, term2) {
         let diffCount = 0;
         let combined = '';
         for (let i = 0; i < term1.length; i++) {
-            if (term1[i] === term2[i]) {
-                combined += term1[i];
-            } else {
-                diffCount++;
-                combined += '-';
-            }
+            if (term1[i] === term2[i]) combined += term1[i];
+            else { diffCount++; combined += '-'; }
         }
         return diffCount === 1 ? combined : null;
     }
-
-    // Retorna true si el terme cobreix el minterm (tenint en compte els guions)
     function covers(term, minterm) {
         const bin = toBinary(minterm);
         for (let i = 0; i < term.length; i++) {
-            if (term[i] !== '-' && term[i] !== bin[i]) {
-                return false;
-            }
+            if (term[i] !== '-' && term[i] !== bin[i]) return false;
         }
         return true;
     }
 
-    // Funció principal de simplificació amb Quine–McCluskey
-    function quineMcCluskey(ones, dontCares) {
-        const terms = ones.concat(dontCares);
-        // Crea implicants inicials
-        let implicants = terms.map(m => ({
-            term: toBinary(m),
-            minterms: [m],
-            used: false
-        }));
+    function solveKMap(ones, dontCares) {
+        if (ones.length === 0) return [];
+        // Cas especial: Tot ple
+        if (ones.length + dontCares.length === 16) {
+            return [{ term: '----', minterms: Array.from({length:16}, (_,i)=>i) }];
+        }
 
-        let newImplicants;
-        do {
-            const groups = {};
-            // Agrupa segons el nombre de 1's
-            implicants.forEach(imp => {
-                const onesCount = countOnes(imp.term);
-                if (!groups[onesCount]) groups[onesCount] = [];
-                groups[onesCount].push(imp);
+        // 1. Generar Implicants Primers
+        let terms = ones.concat(dontCares).map(m => ({ term: toBinary(m), minterms: [m], used: false }));
+        let primes = [];
+        
+        // Cicles de combinació (bàsic)
+        for(let cycle=0; cycle<4; cycle++){
+            let nextTerms = [];
+            let groups = {};
+            terms.forEach(t => {
+                let c = countOnes(t.term);
+                if(!groups[c]) groups[c]=[];
+                groups[c].push(t);
             });
-
-            newImplicants = [];
-            const marked = new Set();
-            const groupKeys = Object.keys(groups).map(Number).sort((a, b) => a - b);
-
-            for (let i = 0; i < groupKeys.length - 1; i++) {
-                const group1 = groups[groupKeys[i]];
-                const group2 = groups[groupKeys[i + 1]];
-                for (const imp1 of group1) {
-                    for (const imp2 of group2) {
-                        const combined = combineTerms(imp1.term, imp2.term);
-                        if (combined !== null) {
-                            imp1.used = true;
-                            imp2.used = true;
-                            // Evitar duplicats
-                            if (!newImplicants.some(imp => imp.term === combined)) {
-                                newImplicants.push({
-                                    term: combined,
-                                    minterms: imp1.minterms.concat(imp2.minterms).sort((a,b)=>a-b),
-                                    used: false
-                                });
+            
+            let keys = Object.keys(groups).map(Number).sort((a,b)=>a-b);
+            for(let i=0; i<keys.length-1; i++){
+                let g1 = groups[keys[i]];
+                let g2 = groups[keys[i+1]];
+                g1.forEach(t1 => {
+                    g2.forEach(t2 => {
+                        let comb = combineTerms(t1.term, t2.term);
+                        if(comb){
+                            t1.used = true; t2.used = true;
+                            if(!nextTerms.some(nt => nt.term === comb)){
+                                // Fusionar llistes de minterms
+                                let allMinterms = [...new Set([...t1.minterms, ...t2.minterms])];
+                                nextTerms.push({ term: comb, minterms: allMinterms, used: false });
                             }
                         }
-                    }
-                }
+                    });
+                });
             }
-            // Afegim els que no es van combinar (implicants primers)
-            const primeImplicants = implicants.filter(imp => !imp.used);
-            implicants = newImplicants;
-            // Guardem els primers implicants en una llista acumulativa
-            if (!quineMcCluskey.primeList) {
-                quineMcCluskey.primeList = [];
-            }
-            quineMcCluskey.primeList.push(...primeImplicants);
-        } while (newImplicants.length > 0);
-
-        // Eliminar duplicats en la llista de primers implicants
-        let primeImplicants = [];
-        const seen = new Set();
-        quineMcCluskey.primeList.forEach(imp => {
-            if (!seen.has(imp.term)) {
-                seen.add(imp.term);
-                primeImplicants.push(imp);
-            }
-        });
-        quineMcCluskey.primeList = []; // Neteja la variable estàtica per a futures crides
-
-        // Taula de cobertura: per cada minterm real (ones) indicar quins implicants el cobreixen
-        const chart = {};
-        ones.forEach(m => {
-            chart[m] = [];
-            primeImplicants.forEach((imp, idx) => {
-                if (covers(imp.term, m)) {
-                    chart[m].push(idx);
-                }
-            });
-        });
-
-        // Selecció dels implicants primers essencials
-        const essential = new Set();
-        const covered = new Set();
-        // Cerca minterms amb única cobertura
-        ones.forEach(m => {
-            if (chart[m].length === 1) {
-                essential.add(chart[m][0]);
-            }
-        });
-
-        // Marcar els minterms coberts per implicants essencials
-        essential.forEach(idx => {
-            ones.forEach(m => {
-                if (covers(primeImplicants[idx].term, m)) {
-                    covered.add(m);
-                }
-            });
-        });
-
-        // Per minterms no coberts, afegeix implicants addicionals (selecció simple)
-        const remaining = ones.filter(m => !covered.has(m));
-        const selected = new Set(essential);
-        remaining.forEach(m => {
-            if (chart[m].length > 0) {
-                selected.add(chart[m][0]);
-            }
-        });
-
-        // Converteix els implicants seleccionats en termes booleans
-        const termsResult = Array.from(selected).map(idx => {
-            const termStr = primeImplicants[idx].term;
-            let expr = '';
-            for (let i = 0; i < termStr.length; i++) {
-                if (termStr[i] !== '-') {
-                    expr += variables[i] + (termStr[i] === '0' ? "'" : '');
-                }
-            }
-            return expr || '1';
-        });
-
-        return termsResult.join(' + ');
-    }
-
-    // Nova funció de simplificació que utilitza el Quine–McCluskey
-    function simplifyKMap(onesIndices) {
-        // Separa els minterms (1) dels don't cares (2)
-        let ones = [];
-        let dontCares = [];
-        for (let i = 0; i < cells.length; i++) {
-            if (cells[i] === 1) ones.push(i);
-            else if (cells[i] === 2) dontCares.push(i);
+            primes.push(...terms.filter(t => !t.used));
+            terms = nextTerms;
+            if(terms.length === 0) break;
         }
-        if (ones.length === 0) return '0';
-        if (ones.length + dontCares.length === 16) return '1';
-        return quineMcCluskey(ones, dontCares);
-    }
+        primes.push(...terms); // Afegir els últims
 
-    function createKMap() {
-    const container = document.getElementById('kmap');
-    const isMobile = window.innerWidth < 600;
-    const cellSize = isMobile ? 40 : 60;
-    const fontSize = isMobile ? 14 : 20;
+        // Eliminar duplicats
+        let uniquePrimes = [];
+        let seen = new Set();
+        primes.forEach(p => {
+            if(!seen.has(p.term)) { seen.add(p.term); uniquePrimes.push(p); }
+        });
 
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute('width', cellSize * 5);
-    svg.setAttribute('height', cellSize * 5);
+        // Selecció Greedy (per simplificar UI)
+        let solution = [];
+        let covered = new Set();
+        
+        // Prioritat: agafar els que cobreixen més 1s NO coberts encara
+        while(true) {
+            // Filtrar només els 1s reals (no X) que falten per cobrir
+            let remainingOnes = ones.filter(x => !covered.has(x));
+            if(remainingOnes.length === 0) break;
 
-    // Array d'etiquetes per a files i columnes (ordre Gray: 00, 01, 11, 10)
-    const labels = ["00", "01", "11", "10"];
+            let bestTerm = null;
+            let maxCover = -1;
 
-    // Afegim etiquetes de columnes (a la part superior)
-    for (let j = 0; j < 4; j++) {
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", (j + 1) * cellSize + cellSize / 2);
-        text.setAttribute("y", cellSize / 2);
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("font-size", fontSize);
-        text.textContent = labels[j];
-        svg.appendChild(text);
-    }
+            uniquePrimes.forEach(p => {
+                let count = 0;
+                p.minterms.forEach(m => {
+                    if(remainingOnes.includes(m)) count++;
+                });
+                if(count > maxCover) { maxCover = count; bestTerm = p; }
+            });
 
-    // Afegim etiquetes de files (a l'esquerra)
-    for (let i = 0; i < 4; i++) {
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", cellSize / 2);
-        text.setAttribute("y", (i + 1) * cellSize + cellSize / 2 + fontSize / 3);
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("font-size", fontSize);
-        text.textContent = labels[i];
-        svg.appendChild(text);
-    }
-
-    // Dibuixem les cel·les del K-Map
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-            const pos = grayCode[i * 4 + j];
-            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            // Mantenim l'offset perquè les etiquetes ocupen la primera fila i columna
-            g.setAttribute('transform', `translate(${(j + 1) * cellSize}, ${(i + 1) * cellSize})`);
-
-            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            rect.setAttribute('width', cellSize);
-            rect.setAttribute('height', cellSize);
-            rect.setAttribute('fill', '#fff');
-            rect.setAttribute('stroke', '#ccc');
-            rect.setAttribute('stroke-width', '1');
-            rect.classList.add('cell');
-            rect.addEventListener('click', () => toggleCell(pos));
-
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute('x', cellSize / 2);
-            text.setAttribute('y', cellSize / 2 + fontSize / 3);
-            text.setAttribute('text-anchor', 'middle');
-            text.setAttribute('font-size', fontSize);
-            text.textContent = ['0', '1', 'X'][cells[pos]];
-
-            g.appendChild(rect);
-            g.appendChild(text);
-            svg.appendChild(g);
+            if(bestTerm && maxCover > 0) {
+                solution.push(bestTerm);
+                bestTerm.minterms.forEach(m => covered.add(m));
+            } else {
+                break; // Seguretat
+            }
         }
+        return solution;
     }
 
-    container.innerHTML = '';
-    container.appendChild(svg);
-    updateResults();
-}
-
-
-    function toggleCell(pos) {
-        cells[pos] = (cells[pos] + 1) % 3;
-        createKMap();
+    function termToString(termStr) {
+        if(termStr === '----') return '1';
+        let s = '';
+        for(let i=0; i<4; i++) {
+            if(termStr[i] !== '-') s += variables[i] + (termStr[i] === '0' ? "'" : '');
+        }
+        return s;
     }
 
-    function resetCells() {
-        cells = Array(16).fill(0);
-        createKMap();
+    // --- GUI ---
+
+    let currentSolution = [];
+
+    function update() {
+        const ones = cells.map((v, i) => v === 1 ? i : -1).filter(i => i !== -1);
+        const dontCares = cells.map((v, i) => v === 2 ? i : -1).filter(i => i !== -1);
+
+        // Calcular solució
+        currentSolution = solveKMap(ones, dontCares);
+        
+        // 1. Text Resultat
+        const exprEl = document.getElementById('simplified-expr');
+        if(ones.length === 0) exprEl.textContent = '0';
+        else exprEl.textContent = currentSolution.map(s => termToString(s.term)).join(' + ');
+
+        // 2. Dibuixar Mapa (amb els nous colors)
+        drawMap();
+
+        // 3. Generar Targetes Explicatives
+        renderCards(ones);
     }
 
-    function randomize() {
-        cells = cells.map(() => Math.floor(Math.random() * 3));
-        createKMap();
+    function drawMap() {
+        const container = document.getElementById('kmap-container');
+        container.innerHTML = '';
+        const cellSize = 60;
+        const width = cellSize * 5;
+        const height = cellSize * 5;
+
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        
+        // Etiquetes
+        const labels = ["00", "01", "11", "10"];
+        
+        // Text diagonal
+        const diag = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        diag.setAttribute("x", 25); diag.setAttribute("y", 35);
+        diag.textContent = "AB\\CD";
+        diag.setAttribute("font-size", "12");
+        svg.appendChild(diag);
+
+        // Capçaleres
+        labels.forEach((l, i) => {
+            // Top
+            let t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            t.setAttribute("x", (i+1.5)*cellSize); t.setAttribute("y", 35);
+            t.setAttribute("text-anchor", "middle"); t.textContent = l;
+            svg.appendChild(t);
+            // Left
+            t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            t.setAttribute("x", 30); t.setAttribute("y", (i+1.6)*cellSize);
+            t.setAttribute("text-anchor", "middle"); t.textContent = l;
+            svg.appendChild(t);
+        });
+
+        // Dibuixar Cel·les
+        for(let r=0; r<4; r++) {
+            for(let c=0; c<4; c++) {
+                const cellIndex = (rowGray[r] << 2) | colGray[c];
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute('transform', `translate(${(c+1)*cellSize}, ${(r+1)*cellSize})`);
+                
+                // Rect
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute('width', cellSize); rect.setAttribute('height', cellSize);
+                rect.setAttribute('class', 'cell-rect');
+                rect.setAttribute('id', `cell-bg-${cellIndex}`);
+                rect.addEventListener('click', () => toggleCell(cellIndex));
+                g.appendChild(rect);
+
+                // Valor (0, 1, X)
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute('x', cellSize/2); text.setAttribute('y', cellSize/2 + 8);
+                text.setAttribute('text-anchor', "middle");
+                text.setAttribute('class', 'cell-value');
+                const val = cells[cellIndex];
+                text.textContent = val === 2 ? 'X' : val;
+                text.setAttribute('fill', val === 1 ? '#000' : '#ccc');
+                g.appendChild(text);
+
+                // --- SISTEMA DE MARCATGE PER COLORS ---
+                // Mirem a quins grups pertany aquesta cel·la
+                let dotOffset = 0;
+                const dotSize = 8;
+                const gap = 4;
+                
+                // Centrar els punts horitzontalment: Calculem quants n'hi ha primer
+                const activeGroups = currentSolution.filter(sol => sol.minterms.includes(cellIndex));
+                const totalWidth = activeGroups.length * (dotSize + gap) - gap;
+                let startX = (cellSize - totalWidth) / 2;
+
+                activeGroups.forEach((sol, solIdx) => {
+                    // Trobem l'index global de la solució per assignar color consistent
+                    const colorIdx = currentSolution.indexOf(sol) % palette.length;
+                    const color = palette[colorIdx].color;
+
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.setAttribute('cx', startX + dotSize/2);
+                    circle.setAttribute('cy', cellSize - 12); // A la part inferior
+                    circle.setAttribute('r', dotSize/2);
+                    circle.setAttribute('fill', color);
+                    g.appendChild(circle);
+
+                    startX += dotSize + gap;
+                });
+
+                svg.appendChild(g);
+            }
+        }
+        container.appendChild(svg);
     }
 
-    function minTerm(index) {
-        const bits = index.toString(2).padStart(4, '0').split('');
-        return bits.map((b, i) => variables[i] + (b === '0' ? "'" : '')).join('');
+    function renderCards(ones) {
+        const container = document.getElementById('step-by-step');
+        container.innerHTML = '';
+
+        if(ones.length === 0) {
+            container.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-mouse-pointer fa-2x mb-3"></i><p>Afegeix 1s al mapa.</p></div>';
+            return;
+        }
+
+        currentSolution.forEach((sol, idx) => {
+            const p = palette[idx % palette.length];
+            const termText = termToString(sol.term);
+            
+            // Analisi del canvi
+            let analysis = '';
+            ['A','B','C','D'].forEach((v, i) => {
+                if(sol.term[i] === '-') analysis += `<span class="badge bg-light text-secondary border me-1" style="text-decoration: line-through">${v}</span>`;
+                else analysis += `<span class="badge bg-white text-dark border me-1 fw-bold">${v}${sol.term[i]==='0'?"'":""}</span>`;
+            });
+
+            const div = document.createElement('div');
+            div.className = 'explanation-card p-3 mb-3 bg-white rounded shadow-sm';
+            div.style.borderLeftColor = p.color;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0 font-monospace" style="color:${p.color}">${termText}</h5>
+                    <span class="badge rounded-pill bg-light text-dark border">Grup de ${sol.minterms.length}</span>
+                </div>
+                <div class="small mb-2">
+                    Variables: ${analysis}
+                </div>
+                <div class="text-muted extra-small" style="font-size: 0.85rem">
+                    <i class="fas fa-info-circle text-primary"></i> 
+                    Les cel·les d'aquest grup tenen un <strong>punt de color ${getColorName(idx)}</strong>.
+                </div>
+            `;
+            
+            // Events hover
+            div.addEventListener('mouseenter', () => highlightGroup(sol.minterms, p.bg));
+            div.addEventListener('mouseleave', () => clearHighlights());
+
+            container.appendChild(div);
+        });
     }
 
-    function updateResults() {
-        const ones = cells.map((val, idx) => val === 1 ? idx : -1).filter(i => i !== -1);
-        document.getElementById('original-expr').textContent = ones.length ? ones.map(minTerm).join(' + ') : '0';
-        document.getElementById('simplified-expr').textContent = ones.length ? simplifyKMap(ones) : '0';
+    function getColorName(i) {
+        const names = ['Vermell', 'Blau', 'Verd', 'Taronja', 'Lila'];
+        return names[i % names.length];
     }
 
-    createKMap();
-    window.addEventListener('resize', createKMap);
+    function highlightGroup(indices, colorBg) {
+        indices.forEach(idx => {
+            const rect = document.getElementById(`cell-bg-${idx}`);
+            if(rect) rect.setAttribute('fill', colorBg);
+        });
+    }
+
+    function clearHighlights() {
+        document.querySelectorAll('.cell-rect').forEach(r => r.setAttribute('fill', 'white'));
+    }
+
+    function toggleCell(idx) {
+        cells[idx] = (cells[idx] + 1) % 3;
+        update();
+    }
+    function resetCells() { cells.fill(0); update(); }
+    function randomize() { cells = cells.map(() => Math.floor(Math.random()*3)); update(); }
+
+    // Init
+    drawMap();
+    update();
+
 </script>
-
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../navbar.js"></script>
-  
-    
-    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
