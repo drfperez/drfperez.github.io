@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Portes lògiques: clica la porta per canviar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background-color: #f0f0f0;
+      touch-action: pan-y pinch-zoom; /* permet desplaçament vertical si cal */
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      touch-action: none; /* evita arrossegaments per defecte, nosaltres controlem */
+    }
+    .info {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(255,255,255,0.9);
+      padding: 8px 14px;
+      border-radius: 40px;
+      font-size: 15px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(0,0,0,0.05);
+      pointer-events: none;
+      z-index: 10;
+    }
+    .tip {
+      position: absolute;
+      bottom: 12px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      color: #2c3e50;
+      font-size: 15px;
+      font-weight: 500;
+      text-shadow: 0 1px 3px rgba(255,255,255,0.5);
+      pointer-events: none;
+      z-index: 15;
+    }
+    @media (max-width: 600px) {
+      .info { font-size: 13px; padding: 6px 12px; }
+      .tip { font-size: 14px; bottom: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="info">👆 Toca les entrades (gris/groc) per canviar 0/1</div>
+  <div class="tip">🔵 Toca la porta blava per canviar de tipus (AND → OR → XOR → NAND → NOR → XNOR → NOT)</div>
+  <script>
+    let input1, input2, gate, output;
+    let pressedInput = null; // per a ressaltat visual
+    let pressedGate = false;  // per a ressaltar la porta quan es prem
+
+    // Llista ordenada de portes
+    const gateTypes = ['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT'];
+    let currentGateIndex = 0; // comença per AND
+
+    class Input {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.value = false;
+        this.size = 70;
+        this.id = null;
+      }
+
+      show() {
+        fill(this.value ? '#f1c40f' : '#bdc3c7');
+        if (pressedInput === this.id) {
+          stroke('#f39c12');
+          strokeWeight(6);
+        } else {
+          stroke(80);
+          strokeWeight(2);
+        }
+        square(this.x, this.y, this.size, 12);
+        noStroke();
+        fill(30);
+        textAlign(CENTER, CENTER);
+        textSize(28);
+        text(this.value ? '1' : '0', this.x + this.size/2, this.y + this.size/2);
+        textSize(13);
+        fill(60);
+        text('ENTRADA', this.x + this.size/2, this.y - 12);
+      }
+
+      toggle() {
+        this.value = !this.value;
+      }
+
+      clicked(mx, my) {
+        return mx > this.x && mx < this.x + this.size && my > this.y && my < this.y + this.size;
+      }
+    }
+
+    class Gate {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = 80;
+        this.input1 = null;
+        this.input2 = null;
+        this.type = gateTypes[currentGateIndex];
+      }
+
+      get value() {
+        let v1 = this.input1 ? this.input1.value : false;
+        let v2 = this.input2 ? this.input2.value : false;
+        switch (this.type) {
+          case 'AND':   return v1 && v2;
+          case 'OR':    return v1 || v2;
+          case 'XOR':   return v1 !== v2;
+          case 'NAND':  return !(v1 && v2);
+          case 'NOR':   return !(v1 || v2);
+          case 'XNOR':  return v1 === v2;
+          case 'NOT':   return !v1;
+          default:      return false;
+        }
+      }
+
+      show() {
+        // Color base blau, si s'està premant es fa més fosc
+        if (pressedGate) {
+          fill('#1f618d'); // blau fosc
+        } else {
+          fill('#3498db');
+        }
+        stroke(30);
+        strokeWeight(2);
+        square(this.x, this.y, this.size, 12);
+        fill(255);
+        noStroke();
+        textSize(20);
+        text(this.type, this.x + this.size/2, this.y + this.size/2);
+      }
+
+      // Canvia al següent tipus de porta
+      nextType() {
+        currentGateIndex = (currentGateIndex + 1) % gateTypes.length;
+        this.type = gateTypes[currentGateIndex];
+      }
+
+      clicked(mx, my) {
+        return mx > this.x && mx < this.x + this.size && my > this.y && my < this.y + this.size;
+      }
+    }
+
+    class Output {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = 70;
+        this.input = null;
+      }
+
+      get value() {
+        return this.input ? this.input.value : false;
+      }
+
+      show() {
+        fill(this.value ? '#2ecc71' : '#e74c3c');
+        stroke(30);
+        strokeWeight(2);
+        square(this.x, this.y, this.size, 12);
+        noStroke();
+        fill(30);
+        textSize(28);
+        text(this.value ? '1' : '0', this.x + this.size/2, this.y + this.size/2);
+        textSize(13);
+        fill(60);
+        text('SORTIDA', this.x + this.size/2, this.y - 12);
+      }
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      
+      input1 = new Input(width * 0.15, height * 0.25);
+      input2 = new Input(width * 0.15, height * 0.6);
+      gate = new Gate(width * 0.45, height * 0.4);
+      output = new Output(width * 0.75, height * 0.4);
+      
+      input1.id = 1;
+      input2.id = 2;
+      
+      gate.input1 = input1;
+      gate.input2 = input2;
+      output.input = gate;
+    }
+
+    function draw() {
+      background(235);
+      
+      // Actualitzar tipus (ja es fa en clicar, però aquí es manté)
+      // No cal fer res, el tipus es guarda a gate.type
+
+      input1.show();
+      if (gate.type !== 'NOT') {
+        input2.show();
+      } else {
+        // mostrar segona entrada desactivada
+        fill(200, 100);
+        stroke(150);
+        strokeWeight(2);
+        square(input2.x, input2.y, input2.size, 12);
+        fill(100);
+        noStroke();
+        textSize(28);
+        text('✖', input2.x + input2.size/2, input2.y + input2.size/2);
+        textSize(13);
+        fill(80);
+        text('no usada', input2.x + input2.size/2, input2.y - 12);
+      }
+      
+      gate.show();
+      output.show();
+
+      // connexions
+      stroke(50);
+      strokeWeight(4);
+      line(input1.x + input1.size, input1.y + input1.size/2, gate.x, gate.y + gate.size/4);
+      if (gate.type !== 'NOT') {
+        line(input2.x + input2.size, input2.y + input2.size/2, gate.x, gate.y + gate.size * 3/4);
+      }
+      line(gate.x + gate.size, gate.y + gate.size/2, output.x, output.y + output.size/2);
+      strokeWeight(1);
+
+      // actualitzar ressaltat visual per entrades (si el ratolí està premut)
+      if (mouseIsPressed) {
+        if (input1.clicked(mouseX, mouseY)) {
+          pressedInput = 1;
+        } else if (gate.type !== 'NOT' && input2.clicked(mouseX, mouseY)) {
+          pressedInput = 2;
+        } else {
+          pressedInput = null;
+        }
+      } else {
+        pressedInput = null;
+      }
+
+      // Si el ratolí se solta, desactivar pressedGate
+      if (!mouseIsPressed) {
+        pressedGate = false;
+      }
+    }
+
+    // Funció per a ratolí
+    function mousePressed() {
+      // Prioritat: clic a entrada
+      if (input1.clicked(mouseX, mouseY)) {
+        input1.toggle();
+        pressedInput = 1;
+        return false;
+      }
+      if (gate.type !== 'NOT' && input2.clicked(mouseX, mouseY)) {
+        input2.toggle();
+        pressedInput = 2;
+        return false;
+      }
+      // Clic a la porta? Canviar tipus
+      if (gate.clicked(mouseX, mouseY)) {
+        gate.nextType();
+        pressedGate = true; // per a feedback visual
+        return false;
+      }
+      // Si es clica fora, no fer res
+      return true;
+    }
+
+    // Funció per a tàctil (mòbil)
+    function touchStarted() {
+      let touchedSomething = false;
+      for (let i = 0; i < touches.length; i++) {
+        let t = touches[i];
+        if (input1.clicked(t.x, t.y)) {
+          input1.toggle();
+          pressedInput = 1;
+          touchedSomething = true;
+        }
+        if (gate.type !== 'NOT' && input2.clicked(t.x, t.y)) {
+          input2.toggle();
+          pressedInput = 2;
+          touchedSomething = true;
+        }
+        if (gate.clicked(t.x, t.y)) {
+          gate.nextType();
+          pressedGate = true;
+          touchedSomething = true;
+        }
+      }
+      // Si hem tocat qualsevol element actiu, evitem comportaments per defecte
+      if (touchedSomething) {
+        return false;
+      }
+      // Si no, permetem que el navegador faci scroll (per si de cas)
+      return true;
+    }
+
+    // En moure el dit, prevenir arrossegament si estem sobre un element interactiu
+    function touchMoved() {
+      for (let i = 0; i < touches.length; i++) {
+        let t = touches[i];
+        if (input1.clicked(t.x, t.y) || 
+            (gate.type !== 'NOT' && input2.clicked(t.x, t.y)) || 
+            gate.clicked(t.x, t.y)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function touchEnded() {
+      pressedInput = null;
+      pressedGate = false;
+      return false;
+    }
+
+    function mouseReleased() {
+      pressedInput = null;
+      pressedGate = false;
+    }
+
+    // Reajustar posicions en canviar de mida
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+      input1.x = width * 0.15;
+      input1.y = height * 0.25;
+      input2.x = width * 0.15;
+      input2.y = height * 0.6;
+      gate.x = width * 0.45;
+      gate.y = height * 0.4;
+      output.x = width * 0.75;
+      output.y = height * 0.4;
+    }
+  </script>
+</body>
+</html>
