@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplificador Lògic – 4 variables (pas a pas didàctic)</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background:#f9fafb; margin:0; padding:20px; }
+        .card { max-width:1000px; margin:auto; background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.08); padding:2rem; }
+        h1 { margin-top:0; color:#1e293b; }
+        .input-group { display:flex; flex-wrap:wrap; gap:12px; margin:1.5rem 0; }
+        input { flex:1; min-width:320px; padding:12px 16px; font-family:monospace; font-size:1.1rem; border:2px solid #cbd5e1; border-radius:10px; }
+        input:focus { border-color:#7c3aed; outline:none; box-shadow:0 0 0 3px rgba(124,58,237,0.15); }
+        button { padding:10px 20px; border:none; border-radius:10px; font-weight:600; cursor:pointer; color:white; }
+        #simplify { background:#7c3aed; }
+        #simplify:hover { background:#6d28d9; }
+        #random { background:#10b981; }
+        #clear   { background:#ef4444; }
+        #output { margin-top:2rem; }
+        #steps { background:#f1f5f9; padding:1.5rem; border-radius:10px; line-height:1.6; white-space: pre-wrap; overflow-x: auto; font-size:0.95rem; }
+        #result { margin-top:1.5rem; padding:1.2rem; background:#111827; color:#e5e7eb; border-radius:10px; font-size:1.6rem; font-family:monospace; text-align:center; }
+        .error  { color:#dc2626; background:#fee2e2; padding:1rem; border-radius:8px; }
+        .step-title { font-weight:700; color:#2d3748; margin-top:1.5rem; font-size:1.15rem; border-bottom:1px solid #cbd5e1; padding-bottom:0.3rem; display:block; }
+        .explain { color:#4a5568; font-style:italic; margin:0.5rem 0; font-size:0.9rem; }
+        table { border-collapse: collapse; width:100%; margin:1rem 0; }
+        th, td { border:1px solid #cbd5e1; padding:8px; text-align:left; }
+        th { background:#e2e8f0; }
+        .success { color:#059669; font-weight:bold; }
+        .fail { color:#e53e3e; font-weight:bold; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>📘 Simplificador Lògic – Aprèn Quine-McCluskey pas a pas</h1>
+    <p style="color:#64748b;">Introdueix una expressió amb variables a, b, c, d (ex: a'bcd + ab' + a'bc'd').</p>
+
+    <div class="input-group">
+      <input id="expr" placeholder="Ex: a'b'c'd' + a'b'c'd + a'b'cd' + a'b'cd" value="a'b'c'd' + a'b'c'd + a'b'cd' + a'b'cd">
+        <button id="random">🎲 Aleatòria</button>
+        <button id="simplify">⚡ Simplifica</button>
+        <button id="clear">🗑️ Neteja</button>
+    </div>
+
+    <div id="output">
+        <div id="steps">Prem «Simplifica» per començar la classe interactiva…</div>
+        <div id="result">—</div>
+    </div>
+</div>
+
+<script>
+// ------------------------------------------------------------
+// Funcions auxiliars (mateixes que abans)
+// ------------------------------------------------------------
+const product = (s1, s2) => s1.flatMap(elt1 => s2.map(elt2 => [...elt1, ...elt2]));
+const power = (s, p) => new Array(p).fill(s).reduce(product, );
+const bool = 0], [1;
+
+// ------------------------------------------------------------
+// Format d'un terme (ex: "101-" -> "ab'c")
+// ------------------------------------------------------------
+function format_term(term, var_names) {
+    if (!term) return '';
+    let result = '';
+    for (let i = 0; i < term.length; i++) {
+        const c = term[i];
+        if (c === '1') {
+            result += var_names[i];
+        } else if (c === '0') {
+            result += var_names[i] + "'";
+        }
+        // '-' no s'escriu
+    }
+    return result || '1';   // si tot són '-', és sempre cert
+}
+
+// ------------------------------------------------------------
+// Funció per dibuixar taula d'agrupació com HTML
+// ------------------------------------------------------------
+function formatGroupTable(grouped, var_names) {
+    let html = '<table><tr><th>Grup (nº uns)</th><th>Termes (binari i expressió)</th></tr>';
+    grouped.forEach((g, i) => {
+        if (g.length > 0) {
+            let termsStr = g.map(t => `\( {t} ( \){format_term(t, var_names)})`).join('<br>');
+            html += `<tr><td>\( {i}</td><td> \){termsStr}</td></tr>`;
+        }
+    });
+    html += '</table>';
+    return html;
+}
+
+// ------------------------------------------------------------
+// Quine-McCluskey amb passos hiperdidàctics
+// ------------------------------------------------------------
+function Quine_McCluskey_with_steps(f, n_vars, var_names) {
+    const steps = [];
+    const fmt = (term) => format_term(term, var_names);
+
+    // ---------- PAS 1: MINTERMS ----------
+    steps.push(`<span class="step-title">Pas 1: Identificació dels minterms</span>`);
+    steps.push(`<div class="explain">Un minterm és una combinació específica on la funció és 1. Aquí extreiem tots els minterms de l'expressió.</div>`);
+
+    const min_terms = power(bool, n_vars)
+        .filter(e => f(...e) === 1)
+        .map(e => e.join(''));
+
+    steps.push(`En binari (a b c d): ${min_terms.join(', ')}`);
+    steps.push(`En decimal: ${min_terms.map(b => parseInt(b,2)).join(', ')}`);
+
+    // ---------- PAS 2: TROBAR IMPLICANTS PRIMOS ----------
+    const get_prime_implicants = (minterms) => {
+        const number_of_1s = (s) => s.split('').reduce((acc, c) => acc + (c === '1' ? 1 : 0), 0);
+        const hamming_distance = (s1, s2) => s1.split('').reduce((acc, c, i) => acc + (c !== s2.charAt(i) ? 1 : 0), 0);
+        const different_index = (s1, s2) => s1.split('').findIndex((c, i) => c !== s2.charAt(i));
+        const replace_at = (s, i, r) => s.substring(0, i) + r + s.substring(i + r.length);
+
+        const primes = new Set();
+        let terms = new Set(minterms);
+        let iteration = 1;
+
+        steps.push(`<span class="step-title">Pas 2: Combinacions iteratives per trobar implicants primos</span>`);
+        steps.push(`<div class="explain">Agrupem termes per nombre d'1s. Combina parelles que difereixin en exactament 1 bit (distància Hamming=1), substituint el bit diferent per '-'. Repetim fins que no es pugui combinar més. Els no combinats són implicants primos.</div>`);
+
+        while (terms.size > 0) {
+            steps.push(`<span class="step-title">Iteració ${iteration}:</span>`);
+            const grouped_terms = new Array(n_vars + 1).fill(null).map(_ => []);
+            terms.forEach(t => grouped_terms[number_of_1s(t)].push(t));
+
+            steps.push(`<div class="explain">Agrupació per nombre d'1s en binari (facilita trobar parelles combinables):</div>`);
+            steps.push(formatGroupTable(grouped_terms, var_names));
+
+            const next_terms = new Set();
+            const combined = new Set();
+
+            for (let i = 0; i < grouped_terms.length - 1; i++) {
+                const groupA = grouped_terms[i];
+                const groupB = grouped_terms[i+1];
+                if (groupA.length === 0 || groupB.length === 0) continue;
+
+                steps.push(`<div class="explain">Comparant grup ${i} (amb ${i} uns) i grup ${i+1} (amb ${i+1} uns):</div>`);
+
+                groupA.forEach(t1 => groupB.forEach(t2 => {
+                    const dist = hamming_distance(t1, t2);
+                    if (dist === 1) {
+                        const idx = different_index(t1, t2);
+                        const newTerm = replace_at(t1, idx, '-');
+                        steps.push(`<span class="success">✅ Combinació vàlida:</span> \( {t1} ( \){fmt(t1)}) + \( {t2} ( \){fmt(t2)}) → \( {newTerm} ( \){fmt(newTerm)}) (eliminem la variable diferent)`);
+                        combined.add(t1);
+                        combined.add(t2);
+                        next_terms.add(newTerm);
+                    } else {
+                        steps.push(`<span class="fail">❌ No combinable:</span> ${t1} i ${t2} (distància Hamming = ${dist} > 1)`);
+                    }
+                }));
+            }
+
+            const newPrimes = Array.from(terms).filter(t => !combined.has(t));
+            if (newPrimes.length > 0) {
+                steps.push(`<div class="explain">Termes no combinats en aquesta iteració són implicants primos (no es poden simplificar més).</div>`);
+                steps.push(`Implicants primos nous: \( {newPrimes.map(p => ` \){p} (${fmt(p)})`).join(', ')}`);
+                newPrimes.forEach(p => primes.add(p));
+            }
+
+            if (next_terms.size > 0) {
+                steps.push(`Termes combinats per a la següent iteració: \( {Array.from(next_terms).map(t => ` \){t} (${fmt(t)})`).join(', ')}`);
+            } else {
+                steps.push(`<div class="explain">No hi ha més combinacions possibles. Hem acabat les iteracions.</div>`);
+            }
+
+            terms = next_terms;
+            iteration++;
+        }
+
+        steps.push(`<span class="step-title">Implicants primos finals:</span>`);
+        Array.from(primes).forEach(p => steps.push(`- \( {p} ( \){fmt(p)})`));
+
+        return primes;
+    };
+
+    const prime_implicants = get_prime_implicants(min_terms);
+
+    // ---------- PAS 3: TAULA DE COBERTURA ----------
+    const implicant_to_function = i => (...x) => i.split('').reduce((acc, c, j) => acc * (c === '-' ? 1 : Number(c) === x[j] ? 1 : 0), 1);
+
+    steps.push(`<span class="step-title">Pas 3: Taula de cobertura</span>`);
+    steps.push(`<div class="explain">Mostrem quins implicants primos cobreixen quins minterms originals. Això ajuda a identificar els essencials.</div>`);
+
+    let coverTableHtml = '<table><tr><th>Minterm (binari)</th><th>Coberts per implicants</th></tr>';
+    min_terms.forEach(mt => {
+        const bits = mt.split('').map(Number);
+        const covering = Array.from(prime_implicants).filter(imp => implicant_to_function(imp)(...bits) === 1);
+        coverTableHtml += `<tr><td>\( {mt} ( \){fmt(mt)})</td><td>${covering.map(c => fmt(c)).join(', ') || 'cap'}</td></tr>`;
+    });
+    coverTableHtml += '</table>';
+    steps.push(coverTableHtml);
+
+    // ---------- PAS 4: IMPLICANTS ESSENCIALS ----------
+    steps.push(`<span class="step-title">Pas 4: Identificació d'implicants essencials</span>`);
+    steps.push(`<div class="explain">Un implicant és essencial si cobreix almenys un minterm que cap altre implicant cobreix. Aquests s'han d'incloure obligatòriament en l'expressió final.</div>`);
+
+    const essential_prime_implicants = new Set();
+    min_terms.forEach(mt => {
+        const bits = mt.split('').map(Number);
+        const covering = Array.from(prime_implicants).filter(imp => implicant_to_function(imp)(...bits) === 1);
+        if (covering.length === 1) {
+            essential_prime_implicants.add(covering[0]);
+            steps.push(`<span class="success">✅ Essencial:</span> Minterm \( {mt} ( \){fmt(mt)}) només cobert per ${fmt(covering[0])}`);
+        } else if (covering.length > 1) {
+            steps.push(`🔸 Minterm ${mt} cobert per múltiples: ${covering.map(c => fmt(c)).join(', ')}`);
+        } else {
+            steps.push(`<span class="fail">❌</span> Minterm ${mt} no cobert! (Error)`);
+        }
+    });
+
+    if (essential_prime_implicants.size > 0) {
+        steps.push(`Essencials finals: ${Array.from(essential_prime_implicants).map(i => fmt(i)).join(', ')}`);
+    } else {
+        steps.push(`No hi ha implicants essencials. Tots els minterms tenen cobertures múltiples.`);
+    }
+
+    // ---------- PAS 5: MINTERMS RESTANTS ----------
+    const remaining_min_terms = min_terms.filter(mt => {
+        const bits = mt.split('').map(Number);
+        return !Array.from(essential_prime_implicants).some(imp => implicant_to_function(imp)(...bits) === 1);
+    });
+
+    const remaining_implicants = Array.from(prime_implicants).filter(i => !essential_prime_implicants.has(i));
+
+    if (remaining_min_terms.length > 0) {
+        steps.push(`<span class="step-title">Pas 5: Minterms encara no coberts pels essencials</span>`);
+        steps.push(`<div class="explain">Ara hem de cobrir aquests minterms restants amb la combinació mínima d'implicants no essencials.</div>`);
+        steps.push(`Minterms restants: ${remaining_min_terms.join(', ')}`);
+        steps.push(`Implicants disponibles: ${remaining_implicants.map(i => fmt(i)).join(', ')}`);
+
+        // ---------- PAS 6: MÈTODE DE PETRICK SIMPLIFICAT ----------
+        steps.push(`<span class="step-title">Pas 6: Cobertura mínima amb mètode de Petrick (simplificat)</span>`);
+        steps.push(`<div class="explain">Generem combinacions d'implicants restants i triem la que cobreixi tots els minterms restants amb el menor nombre d'elements (brute force, eficient per 4 vars).</div>`);
+
+        const coversAll = (implicantsSet) => remaining_min_terms.every(mt => {
+            const bits = mt.split('').map(Number);
+            return implicantsSet.some(imp => implicant_to_function(imp)(...bits) === 1);
+        });
+
+        const allCombinations = [];
+        const k = remaining_implicants.length;
+        for (let mask = 1; mask < (1 << k); mask++) {
+            const comb = [];
+            for (let i = 0; i < k; i++) {
+                if (mask & (1 << i)) comb.push(remaining_implicants[i]);
+            }
+            allCombinations.push(comb);
+            steps.push(`Combinació provada: ${comb.map(c => fmt(c)).join(' + ')} (cobreix tots? ${coversAll(comb) ? '<span class="success">Sí</span>' : '<span class="fail">No</span>'})`);
+        }
+
+        allCombinations.sort((a, b) => a.length - b.length);
+
+        let bestCover = null;
+        for (let comb of allCombinations) {
+            if (coversAll(comb)) {
+                bestCover = comb;
+                steps.push(`<span class="success">✅ Millor combinació trobada:</span> ${bestCover.map(i => fmt(i)).join(' + ')} (amb ${bestCover.length} implicants)`);
+                break;
+            }
+        }
+
+        const finalImplicants = [...essential_prime_implicants, ...(bestCover || [])];
+
+        steps.push(`<span class="step-title">Pas 7: Expressió final simplificada</span>`);
+        steps.push(`<div class="explain">Combinem els essencials amb la cobertura mínima dels restants.</div>`);
+        steps.push(`${finalImplicants.map(i => fmt(i)).join(' + ') || '0'}`);
+
+        return { steps, solutions: [finalImplicants] };
+    } else {
+        steps.push(`<span class="step-title">Pas 5: Tots els minterms ja coberts</span>`);
+        steps.push(`<div class="explain">No cal mètode de Petrick, ja que els essencials cobreixen tot.</div>`);
+
+        steps.push(`<span class="step-title">Pas 6: Expressió final simplificada</span>`);
+        steps.push(`${Array.from(essential_prime_implicants).map(i => fmt(i)).join(' + ') || '0'}`);
+
+        return { steps, solutions: ...essential_prime_implicants };
+    }
+}
+
+// ------------------------------------------------------------
+// Parser, defineF, events (mateixos que abans)
+// ------------------------------------------------------------
+function parseToMinterms(str) {
+    str = str.replace(/\s+/g, '').trim();
+    if (!str) throw new Error("Expressió buida");
+
+    const vars = ['a', 'b', 'c', 'd'];
+    const terms = str.split('+').filter(Boolean);
+    const minterms = new Set();
+
+    for (let term of terms) {
+        let mask = 0, care = 0;
+        let i = 0;
+        while (i < term.length) {
+            let ch = term[i++];
+            let idx = vars.indexOf(ch);
+            if (idx === -1) throw new Error(`Variable invàlida: ${ch}`);
+            let negated = (i < term.length && term[i] === "'");
+            if (negated) i++;
+            let bit = negated ? 0 : 1;
+            mask |= (bit << (3 - idx));
+            care |= (1 << (3 - idx));
+        }
+        for (let val = 0; val < 16; val++) {
+            if ((val & care) === mask) minterms.add(val);
+        }
+    }
+    return [...minterms].sort((a, b) => a - b);
+}
+
+function defineF(minterms) {
+    return (...bits) => {
+        const val = bits.reduce((acc, b, i) => acc | (b << (3 - i)), 0);
+        return minterms.includes(val) ? 1 : 0;
+    };
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const exprEl = document.getElementById('expr');
+    const stepsEl = document.getElementById('steps');
+    const resEl = document.getElementById('result');
+
+    document.getElementById('simplify').onclick = () => {
+        try {
+            const minterms = parseToMinterms(exprEl.value);
+            const f = defineF(minterms);
+            const var_names = ['a', 'b', 'c', 'd'];
+
+            const { steps, solutions } = Quine_McCluskey_with_steps(f, 4, var_names);
+
+            stepsEl.innerHTML = steps.join('<br>');
+
+            const simplified = solutions[0].map(i => format_term(i, var_names)).join(' + ') || '0';
+            resEl.textContent = simplified;
+            resEl.style.background = '#065f46';
+        } catch (e) {
+            stepsEl.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+            resEl.textContent = '—';
+            resEl.style.background = '#991b1b';
+        }
+    };
+
+    document.getElementById('clear').onclick = () => {
+        exprEl.value = '';
+        stepsEl.innerHTML = 'Prem «Simplifica» per començar la classe interactiva…';
+        resEl.textContent = '—';
+        resEl.style.background = '#111827';
+    };
+
+    document.getElementById('random').onclick = () => {
+        const n = Math.floor(Math.random() * 4) + 3;
+        let terms = [];
+        for (let i = 0; i < n; i++) {
+            let t = '';
+            for (let v of ['a', 'b', 'c', 'd']) {
+                if (Math.random() > 0.35) {
+                    t += v;
+                    if (Math.random() > 0.5) t += "'";
+                }
+            }
+            if (t) terms.push(t);
+        }
+        exprEl.value = terms.join(' + ') || "a'b + ab";
+    };
+
+    // Executa l'exemple inicial
+    document.getElementById('simplify').click();
+});
+</script>
+</body>
+</html>
