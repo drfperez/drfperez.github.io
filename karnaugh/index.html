@@ -1,66 +1,26 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-Map Visual amb Colors</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>K-Map Visual — SOP / POS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --cell-size: 70px; /* Cel·les més grans per veure bé els marcadors */
-        }
-
+        :root { --cell-size: 70px; }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; }
-        
-        .kmap-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        /* Estils SVG */
+        .kmap-wrapper { display:flex; justify-content:center; align-items:center; margin-bottom:20px; }
         text { font-family: sans-serif; font-weight: bold; pointer-events: none; }
-        
-        .cell-rect { 
-            stroke: #dee2e6; 
-            stroke-width: 2; 
-            fill: white;
-            cursor: pointer; 
-            transition: fill 0.2s; 
-        }
+        .cell-rect { stroke: #dee2e6; stroke-width:2; fill:white; cursor:pointer; transition: fill 0.15s; }
         .cell-rect:hover { fill: #e9ecef; }
-        
-        /* Textos 0, 1, X */
-        .cell-value { font-size: 24px; transition: opacity 0.2s; }
-
-        /* Targetes */
-        .explanation-card {
-            border-left: 8px solid #ccc;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .explanation-card:hover {
-            transform: translateX(10px);
-            background-color: #fff;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        /* El puntet de color dins la targeta */
-        .color-dot {
-            height: 15px; width: 15px; 
-            border-radius: 50%; 
-            display: inline-block; 
-            margin-right: 8px;
-        }
-
+        .cell-value { font-size: 24px; transition: opacity 0.15s; }
+        .explanation-card { border-left: 8px solid #ccc; transition: all 0.25s ease; cursor: pointer; position: relative; overflow: hidden; }
+        .explanation-card:hover { transform: translateX(8px); background:#fff; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+        .color-dot { height:15px; width:15px; border-radius:50%; display:inline-block; margin-right:8px; }
+        .mode-toggle .btn { min-width: 80px; }
     </style>
 </head>
 <body>
-
 <div class="container py-5">
     <h2 class="text-center mb-4"><i class="fas fa-project-diagram"></i> Solucionador K-Map Visual</h2>
 
@@ -68,23 +28,38 @@
         <div class="col-lg-6">
             <div class="card shadow border-0 h-100">
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                    <span class="fw-bold">Mapa Interactiu</span>
-                    <small>Clic: 0 → 1 → X</small>
+                    <div>
+                        <span class="fw-bold">Mapa Interactiu</span>
+                        <small class="ms-2 text-muted">Clic: 0 → 1 → X</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="mode-toggle btn-group" role="group" aria-label="Mode SOP/POS">
+                            <input type="radio" class="btn-check" name="mode" id="mode-sop" autocomplete="off" checked>
+                            <label class="btn btn-outline-light btn-sm" for="mode-sop" onclick="setMode('SOP')">SOP</label>
+
+                            <input type="radio" class="btn-check" name="mode" id="mode-pos" autocomplete="off">
+                            <label class="btn btn-outline-light btn-sm" for="mode-pos" onclick="setMode('POS')">POS</label>
+                        </div>
+                        <small class="text-muted">Mode</small>
+                    </div>
                 </div>
+
                 <div class="card-body text-center d-flex flex-column justify-content-center">
                     <div class="kmap-wrapper">
                         <div id="kmap-container"></div>
                     </div>
-                    
+
                     <div class="mt-3">
                         <button class="btn btn-danger btn-sm px-4 rounded-pill" onclick="resetCells()"><i class="fas fa-trash"></i> Netejar</button>
                         <button class="btn btn-outline-dark btn-sm px-4 rounded-pill" onclick="randomize()"><i class="fas fa-random"></i> Aleatori</button>
                     </div>
                 </div>
+
                 <div class="card-footer bg-light">
-                    <div class="d-flex align-items-center justify-content-center">
+                    <div class="d-flex align-items-center justify-content-center gap-3">
                         <span class="me-3 text-muted text-uppercase small fw-bold">Resultat:</span>
-                        <div id="simplified-expr" class="fs-3 fw-bold font-monospace text-primary">0</div>
+                        <div id="mode-label" class="fs-6 text-secondary">SOP</div>
+                        <div id="simplified-expr" class="fs-4 fw-bold font-monospace text-primary">0</div>
                     </div>
                 </div>
             </div>
@@ -93,12 +68,12 @@
         <div class="col-lg-6">
             <div class="card shadow border-0 h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="m-0"><i class="fas fa-list-ol me-2"></i>Pas a Pas (Colors)</h5>
+                    <h5 class="m-0"><i class="fas fa-list-ol me-2"></i> Pas a Pas (Colors)</h5>
                 </div>
-                <div class="card-body bg-light" id="step-by-step" style="max-height: 600px; overflow-y: auto;">
+                <div class="card-body bg-light" id="step-by-step" style="max-height:600px; overflow-y:auto;">
                     <div class="text-center text-muted py-5">
                         <i class="fas fa-mouse-pointer fa-2x mb-3"></i>
-                        <p>Marca uns (1) al mapa per veure com s'agrupen.</p>
+                        <p>Marca uns (1) al mapa per veure com s'agrupen. Canvia a <strong>POS</strong> per agrupar zeros.</p>
                     </div>
                 </div>
             </div>
@@ -107,158 +82,195 @@
 </div>
 
 <script>
-    const variables = ['A', 'B', 'C', 'D'];
-    let cells = Array(16).fill(0);
-    
-    // Ordre Gray per dibuixar
-    const rowGray = [0, 1, 3, 2];
-    const colGray = [0, 1, 3, 2];
-    
-    // Paleta de colors vibrants per als grups
+    // Variables
+    const variables = ['A','B','C','D'];
+    let cells = Array(16).fill(0); // 0,1,2 (2 = X)
+    const rowGray = [0,1,3,2];
+    const colGray = [0,1,3,2];
+
     const palette = [
-        { color: '#FF0055', bg: 'rgba(255, 0, 85, 0.1)' },   // Vermell/Rosa
-        { color: '#0099FF', bg: 'rgba(0, 153, 255, 0.1)' },  // Blau
-        { color: '#00CC66', bg: 'rgba(0, 204, 102, 0.1)' },  // Verd
-        { color: '#FFAA00', bg: 'rgba(255, 170, 0, 0.1)' },  // Taronja
-        { color: '#9933FF', bg: 'rgba(153, 51, 255, 0.1)' }, // Lila
-        { color: '#333333', bg: 'rgba(50, 50, 50, 0.1)' }    // Negre (extra)
+        { color: '#FF0055', bg: 'rgba(255, 0, 85, 0.12)' },
+        { color: '#0099FF', bg: 'rgba(0, 153, 255, 0.12)' },
+        { color: '#00CC66', bg: 'rgba(0, 204, 102, 0.12)' },
+        { color: '#FFAA00', bg: 'rgba(255, 170, 0, 0.12)' },
+        { color: '#9933FF', bg: 'rgba(153, 51, 255, 0.12)' },
+        { color: '#333333', bg: 'rgba(50,50,50,0.12)' }
     ];
 
-    // --- Lògica Quine-McCluskey (Simplificada) ---
-    function toBinary(n) { return n.toString(2).padStart(4, '0'); }
-    function countOnes(str) { return str.split('').filter(bit => bit === '1').length; }
-    function combineTerms(term1, term2) {
-        let diffCount = 0;
-        let combined = '';
-        for (let i = 0; i < term1.length; i++) {
-            if (term1[i] === term2[i]) combined += term1[i];
-            else { diffCount++; combined += '-'; }
+    // Mode: 'SOP' or 'POS'
+    let mode = 'SOP';
+
+    function setMode(m) {
+        mode = m;
+        document.getElementById('mode-label').textContent = mode;
+        update();
+    }
+
+    // --- Quine-McCluskey (bàsic) ---
+    function toBinary(n) { return n.toString(2).padStart(4,'0'); }
+    function countOnes(str) { return str.split('').filter(b=>b==='1').length; }
+    function combineTerms(t1,t2) {
+        let diff=0, comb='';
+        for(let i=0;i<t1.length;i++){
+            if(t1[i]===t2[i]) comb+=t1[i];
+            else { diff++; comb+='-'; }
         }
-        return diffCount === 1 ? combined : null;
+        return diff===1 ? comb : null;
     }
     function covers(term, minterm) {
         const bin = toBinary(minterm);
-        for (let i = 0; i < term.length; i++) {
-            if (term[i] !== '-' && term[i] !== bin[i]) return false;
+        for(let i=0;i<term.length;i++){
+            if(term[i] !== '-' && term[i] !== bin[i]) return false;
         }
         return true;
     }
 
     function solveKMap(ones, dontCares) {
-        if (ones.length === 0) return [];
-        // Cas especial: Tot ple
-        if (ones.length + dontCares.length === 16) {
-            return [{ term: '----', minterms: Array.from({length:16}, (_,i)=>i) }];
+        // ones: array of minterm indices to cover (can be zeros when computing POS)
+        if(ones.length === 0) return [];
+        if(ones.length + dontCares.length === 16) {
+            return [{ term: '----', minterms: Array.from({length:16},(_,i)=>i) }];
         }
 
-        // 1. Generar Implicants Primers
-        let terms = ones.concat(dontCares).map(m => ({ term: toBinary(m), minterms: [m], used: false }));
+        // Inicial: implicants primers a partir d'ones + dontCares
+        let terms = ones.concat(dontCares).map(m => ({ term: toBinary(m), minterms: [m], used:false }));
         let primes = [];
-        
-        // Cicles de combinació (bàsic)
+
         for(let cycle=0; cycle<4; cycle++){
-            let nextTerms = [];
             let groups = {};
             terms.forEach(t => {
-                let c = countOnes(t.term);
-                if(!groups[c]) groups[c]=[];
+                const c = countOnes(t.term);
+                groups[c] = groups[c] || [];
                 groups[c].push(t);
             });
-            
+
             let keys = Object.keys(groups).map(Number).sort((a,b)=>a-b);
-            for(let i=0; i<keys.length-1; i++){
-                let g1 = groups[keys[i]];
-                let g2 = groups[keys[i+1]];
-                g1.forEach(t1 => {
-                    g2.forEach(t2 => {
-                        let comb = combineTerms(t1.term, t2.term);
+            let next = [];
+
+            for(let i=0;i<keys.length-1;i++){
+                const g1 = groups[keys[i]] || [];
+                const g2 = groups[keys[i+1]] || [];
+                g1.forEach(a => {
+                    g2.forEach(b => {
+                        const comb = combineTerms(a.term, b.term);
                         if(comb){
-                            t1.used = true; t2.used = true;
-                            if(!nextTerms.some(nt => nt.term === comb)){
-                                // Fusionar llistes de minterms
-                                let allMinterms = [...new Set([...t1.minterms, ...t2.minterms])];
-                                nextTerms.push({ term: comb, minterms: allMinterms, used: false });
+                            a.used = true; b.used = true;
+                            if(!next.some(n => n.term === comb)){
+                                let all = [...new Set([...a.minterms, ...b.minterms])];
+                                next.push({ term: comb, minterms: all, used:false });
                             }
                         }
                     });
                 });
             }
+
             primes.push(...terms.filter(t => !t.used));
-            terms = nextTerms;
+            terms = next;
             if(terms.length === 0) break;
         }
-        primes.push(...terms); // Afegir els últims
+        primes.push(...terms);
 
-        // Eliminar duplicats
-        let uniquePrimes = [];
-        let seen = new Set();
-        primes.forEach(p => {
-            if(!seen.has(p.term)) { seen.add(p.term); uniquePrimes.push(p); }
-        });
+        // Unic per term
+        const uniq = [];
+        const seen = new Set();
+        primes.forEach(p => { if(!seen.has(p.term)){ seen.add(p.term); uniq.push(p); } });
 
-        // Selecció Greedy (per simplificar UI)
-        let solution = [];
-        let covered = new Set();
-        
-        // Prioritat: agafar els que cobreixen més 1s NO coberts encara
-        while(true) {
-            // Filtrar només els 1s reals (no X) que falten per cobrir
-            let remainingOnes = ones.filter(x => !covered.has(x));
-            if(remainingOnes.length === 0) break;
+        // Selecció greedy per cobrir tots els "ones" (minterms que volem)
+        const solution = [];
+        const covered = new Set();
 
-            let bestTerm = null;
-            let maxCover = -1;
+        while(true){
+            const remaining = ones.filter(x => !covered.has(x));
+            if(remaining.length === 0) break;
 
-            uniquePrimes.forEach(p => {
-                let count = 0;
-                p.minterms.forEach(m => {
-                    if(remainingOnes.includes(m)) count++;
-                });
-                if(count > maxCover) { maxCover = count; bestTerm = p; }
+            let best = null, bestCount = -1;
+            uniq.forEach(p => {
+                let cnt = 0;
+                p.minterms.forEach(m => { if(remaining.includes(m)) cnt++; });
+                if(cnt > bestCount){ bestCount = cnt; best = p; }
             });
 
-            if(bestTerm && maxCover > 0) {
-                solution.push(bestTerm);
-                bestTerm.minterms.forEach(m => covered.add(m));
-            } else {
-                break; // Seguretat
-            }
+            if(best && bestCount > 0){
+                solution.push(best);
+                best.minterms.forEach(m => covered.add(m));
+            } else break;
         }
+
         return solution;
     }
 
-    function termToString(termStr) {
+    // Convertidors a text
+    function termToSOPString(termStr) {
         if(termStr === '----') return '1';
         let s = '';
-        for(let i=0; i<4; i++) {
-            if(termStr[i] !== '-') s += variables[i] + (termStr[i] === '0' ? "'" : '');
+        for(let i=0;i<termStr.length;i++){
+            if(termStr[i] === '-') continue;
+            s += variables[i] + (termStr[i] === '0' ? "'" : "");
         }
-        return s;
+        return s || '1';
     }
 
-    // --- GUI ---
+    // POS: a partir d'un term que cobreix zeros, crear una clausula (suma) on
+    // bit '0' -> variable (no negada), bit '1' -> variable negada. Exemple: '10-0' -> (A' + B + D)
+    function termToPOSString(termStr) {
+    if (termStr === '----') return '0'; // funció constant 0
 
+    let lits = [];
+    for (let i = 0; i < termStr.length; i++) {
+        if (termStr[i] === '-') continue;
+
+        // POS:
+        // bit 0 → variable
+        // bit 1 → variable negada
+        lits.push(termStr[i] === '0'
+            ? variables[i]
+            : variables[i] + "'"
+        );
+    }
+
+    
+    if (lits.length === 1) {
+        return lits[0];           // ← sense parèntesis
+    }
+
+    return '(' + lits.join(' + ') + ')';
+}
+
+
+    // Global solució actual (grups per colorejar)
     let currentSolution = [];
 
     function update() {
-        const ones = cells.map((v, i) => v === 1 ? i : -1).filter(i => i !== -1);
-        const dontCares = cells.map((v, i) => v === 2 ? i : -1).filter(i => i !== -1);
+        const ones = cells.map((v,i)=> v===1 ? i : -1).filter(i=>i!==-1);
+        const zeros = cells.map((v,i)=> v===0 ? i : -1).filter(i=>i!==-1);
+        const dontCares = cells.map((v,i)=> v===2 ? i : -1).filter(i=>i!==-1);
 
-        // Calcular solució
-        currentSolution = solveKMap(ones, dontCares);
-        
-        // 1. Text Resultat
-        const exprEl = document.getElementById('simplified-expr');
-        if(ones.length === 0) exprEl.textContent = '0';
-        else exprEl.textContent = currentSolution.map(s => termToString(s.term)).join(' + ');
+        let exprEl = document.getElementById('simplified-expr');
+        const modeLabel = document.getElementById('mode-label');
+        modeLabel.textContent = mode;
 
-        // 2. Dibuixar Mapa (amb els nous colors)
+        // Select mode
+        if(mode === 'SOP'){
+            // Calcula implicants sobre uns
+            currentSolution = solveKMap(ones, dontCares);
+            if(ones.length === 0) exprEl.textContent = '0';
+            else exprEl.textContent = currentSolution.map(s => termToSOPString(s.term)).join(' + ');
+        } else {
+            // POS: calcularem grups sobre zeros i construirem clausules POS
+            currentSolution = solveKMap(zeros, dontCares);
+            if(zeros.length === 0) {
+                exprEl.textContent = '1'; // funció constant 1
+            } else {
+                const clauses = currentSolution.map(s => termToPOSString(s.term));
+                exprEl.textContent = clauses.join(' · ');
+            }
+        }
+
         drawMap();
-
-        // 3. Generar Targetes Explicatives
-        renderCards(ones);
+        renderCards();
     }
 
+    // Dibuixar mapa
     function drawMap() {
         const container = document.getElementById('kmap-container');
         container.innerHTML = '';
@@ -269,111 +281,117 @@
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute('width', width);
         svg.setAttribute('height', height);
-        
-        // Etiquetes
-        const labels = ["00", "01", "11", "10"];
-        
-        // Text diagonal
-        const diag = document.createElementNS("http://www.w3.org/2000/svg", "text");
+
+        const labels = ["00","01","11","10"];
+
+        const diag = document.createElementNS("http://www.w3.org/2000/svg","text");
         diag.setAttribute("x", 25); diag.setAttribute("y", 35);
-        diag.textContent = "AB\\CD";
-        diag.setAttribute("font-size", "12");
+        diag.textContent = "AB\\CD"; diag.setAttribute("font-size","12");
         svg.appendChild(diag);
 
-        // Capçaleres
-        labels.forEach((l, i) => {
-            // Top
-            let t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        labels.forEach((l,i) => {
+            let t = document.createElementNS("http://www.w3.org/2000/svg","text");
             t.setAttribute("x", (i+1.5)*cellSize); t.setAttribute("y", 35);
-            t.setAttribute("text-anchor", "middle"); t.textContent = l;
+            t.setAttribute("text-anchor","middle"); t.textContent = l;
             svg.appendChild(t);
-            // Left
-            t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+
+            t = document.createElementNS("http://www.w3.org/2000/svg","text");
             t.setAttribute("x", 30); t.setAttribute("y", (i+1.6)*cellSize);
-            t.setAttribute("text-anchor", "middle"); t.textContent = l;
+            t.setAttribute("text-anchor","middle"); t.textContent = l;
             svg.appendChild(t);
         });
 
-        // Dibuixar Cel·les
-        for(let r=0; r<4; r++) {
-            for(let c=0; c<4; c++) {
+        for(let r=0;r<4;r++){
+            for(let c=0;c<4;c++){
                 const cellIndex = (rowGray[r] << 2) | colGray[c];
-                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                const g = document.createElementNS("http://www.w3.org/2000/svg","g");
                 g.setAttribute('transform', `translate(${(c+1)*cellSize}, ${(r+1)*cellSize})`);
-                
-                // Rect
-                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+
+                const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
                 rect.setAttribute('width', cellSize); rect.setAttribute('height', cellSize);
-                rect.setAttribute('class', 'cell-rect');
+                rect.setAttribute('class','cell-rect');
                 rect.setAttribute('id', `cell-bg-${cellIndex}`);
                 rect.addEventListener('click', () => toggleCell(cellIndex));
                 g.appendChild(rect);
 
-                // Valor (0, 1, X)
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                const text = document.createElementNS("http://www.w3.org/2000/svg","text");
                 text.setAttribute('x', cellSize/2); text.setAttribute('y', cellSize/2 + 8);
-                text.setAttribute('text-anchor', "middle");
-                text.setAttribute('class', 'cell-value');
+                text.setAttribute('text-anchor','middle'); text.setAttribute('class','cell-value');
                 const val = cells[cellIndex];
                 text.textContent = val === 2 ? 'X' : val;
-                text.setAttribute('fill', val === 1 ? '#000' : '#ccc');
+                text.setAttribute('fill', val === 1 ? '#000' : (val === 2 ? '#6c757d' : '#ccc'));
                 g.appendChild(text);
 
-                // --- SISTEMA DE MARCATGE PER COLORS ---
-                // Mirem a quins grups pertany aquesta cel·la
-                let dotOffset = 0;
-                const dotSize = 8;
-                const gap = 4;
-                
-                // Centrar els punts horitzontalment: Calculem quants n'hi ha primer
+                // Dots / punts per grups (utilitzem currentSolution enfocat segons mode)
                 const activeGroups = currentSolution.filter(sol => sol.minterms.includes(cellIndex));
+                const dotSize = 8, gap = 4;
                 const totalWidth = activeGroups.length * (dotSize + gap) - gap;
                 let startX = (cellSize - totalWidth) / 2;
 
                 activeGroups.forEach((sol, solIdx) => {
-                    // Trobem l'index global de la solució per assignar color consistent
                     const colorIdx = currentSolution.indexOf(sol) % palette.length;
                     const color = palette[colorIdx].color;
-
-                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
                     circle.setAttribute('cx', startX + dotSize/2);
-                    circle.setAttribute('cy', cellSize - 12); // A la part inferior
+                    circle.setAttribute('cy', cellSize - 12);
                     circle.setAttribute('r', dotSize/2);
                     circle.setAttribute('fill', color);
                     g.appendChild(circle);
-
                     startX += dotSize + gap;
                 });
 
                 svg.appendChild(g);
             }
         }
+
         container.appendChild(svg);
+        // Aplicar highlights segons mode: si mode POS, potser volem marcar zeros amb X... però deixem com schematic.
     }
 
-    function renderCards(ones) {
+    // Render targetes explicatives
+    function renderCards() {
         const container = document.getElementById('step-by-step');
         container.innerHTML = '';
 
-        if(ones.length === 0) {
-            container.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-mouse-pointer fa-2x mb-3"></i><p>Afegeix 1s al mapa.</p></div>';
+        const ones = cells.map((v,i)=> v===1 ? i : -1).filter(i=>i!==-1);
+        const zeros = cells.map((v,i)=> v===0 ? i : -1).filter(i=>i!==-1);
+        const dontCares = cells.map((v,i)=> v===2 ? i : -1).filter(i=>i!==-1);
+
+        if(mode === 'SOP' && ones.length === 0){
+            container.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-mouse-pointer fa-2x mb-3"></i><p>Afegeix 1s al mapa per veure la simplificació en SOP.</p></div>';
+            return;
+        }
+        if(mode === 'POS' && zeros.length === 0){
+            container.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-mouse-pointer fa-2x mb-3"></i><p>Afegeix zeros (0) al mapa o canvia cel·les per veure la simplificació en POS.</p></div>';
             return;
         }
 
+        // Per cada grup de la solució (currentSolution) fem una targeta
         currentSolution.forEach((sol, idx) => {
             const p = palette[idx % palette.length];
-            const termText = termToString(sol.term);
-            
-            // Analisi del canvi
+            const termText = (mode === 'SOP') ? termToSOPString(sol.term) : termToPOSString(sol.term);
+
+            // Anàlisi visual de variables
             let analysis = '';
-            ['A','B','C','D'].forEach((v, i) => {
-                if(sol.term[i] === '-') analysis += `<span class="badge bg-light text-secondary border me-1" style="text-decoration: line-through">${v}</span>`;
-                else analysis += `<span class="badge bg-white text-dark border me-1 fw-bold">${v}${sol.term[i]==='0'?"'":""}</span>`;
-            });
+            for(let i=0;i<4;i++){
+                const bit = sol.term[i];
+                if(bit === '-') {
+                    analysis += `<span class="badge bg-light text-secondary border me-1" style="text-decoration: line-through">${variables[i]}</span>`;
+                } else {
+                    if(mode === 'SOP'){
+                        // SOP mostra variable i si és 0 afegim '
+                        analysis += `<span class="badge bg-white text-dark border me-1 fw-bold">${variables[i]}${bit==='0'?"'":""}</span>`;
+                    } else {
+                        // POS: en la clausula, bit '0' -> literal sense ' , bit '1' -> literal amb '
+                        analysis += `<span class="badge bg-white text-dark border me-1 fw-bold">${variables[i]}${bit==='1'?"'":""}</span>`;
+                    }
+                }
+            }
 
             const div = document.createElement('div');
             div.className = 'explanation-card p-3 mb-3 bg-white rounded shadow-sm';
             div.style.borderLeftColor = p.color;
+
             div.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h5 class="mb-0 font-monospace" style="color:${p.color}">${termText}</h5>
@@ -382,23 +400,17 @@
                 <div class="small mb-2">
                     Variables: ${analysis}
                 </div>
-                <div class="text-muted extra-small" style="font-size: 0.85rem">
-                    <i class="fas fa-info-circle text-primary"></i> 
-                    Les cel·les d'aquest grup tenen un <strong>punt de color ${getColorName(idx)}</strong>.
+                <div class="text-muted extra-small" style="font-size:0.85rem">
+                    <i class="fas fa-info-circle text-primary"></i>
+                    ${mode === 'SOP' ? 'Aquest grup cobreix unes (F=1).' : 'Aquest grup cobreix zeros (F=0) i representa una clausula POS.'}
                 </div>
             `;
-            
-            // Events hover
+
             div.addEventListener('mouseenter', () => highlightGroup(sol.minterms, p.bg));
             div.addEventListener('mouseleave', () => clearHighlights());
 
             container.appendChild(div);
         });
-    }
-
-    function getColorName(i) {
-        const names = ['Vermell', 'Blau', 'Verd', 'Taronja', 'Lila'];
-        return names[i % names.length];
     }
 
     function highlightGroup(indices, colorBg) {
@@ -407,19 +419,19 @@
             if(rect) rect.setAttribute('fill', colorBg);
         });
     }
-
     function clearHighlights() {
-        document.querySelectorAll('.cell-rect').forEach(r => r.setAttribute('fill', 'white'));
+        document.querySelectorAll('.cell-rect').forEach(r => r.setAttribute('fill','white'));
     }
 
     function toggleCell(idx) {
+        // 0 -> 1 -> X (2) -> 0
         cells[idx] = (cells[idx] + 1) % 3;
         update();
     }
-    function resetCells() { cells.fill(0); update(); }
-    function randomize() { cells = cells.map(() => Math.floor(Math.random()*3)); update(); }
+    function resetCells(){ cells.fill(0); update(); }
+    function randomize(){ cells = cells.map(()=> Math.floor(Math.random()*3)); update(); }
 
-    // Init
+    // Inicialitzar
     drawMap();
     update();
 
