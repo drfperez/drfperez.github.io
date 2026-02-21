@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Logic Gate · Labels & Truth Table</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: #dfe6e9;
+            margin: 20px;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        #canvas {
+            border: 3px solid #2c3e50;
+            background-color: #f1f3f5;
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            touch-action: none;
+        }
+        .draggable {
+            cursor: grab;
+            touch-action: none;
+        }
+        .draggable:active {
+            cursor: grabbing;
+        }
+        #toolbar {
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: #e9ecef;
+            padding: 16px 20px;
+            border-radius: 40px;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 18px;
+            border: none;
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            min-width: 70px;
+            font-size: 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            touch-action: manipulation;
+        }
+        button:active {
+            transform: scale(0.96);
+            background: #2980b9;
+        }
+        button.wire-active {
+            background: #e67e22;
+            box-shadow: 0 0 0 3px #f39c12;
+        }
+        button.sim-active {
+            background: #27ae60;
+            box-shadow: 0 0 0 3px #2ecc71;
+        }
+        .status-text {
+            margin-left: auto;
+            font-family: 'Fira Mono', monospace;
+            font-weight: 600;
+            color: #1e272e;
+            background: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.2);
+            font-size: 0.95rem;
+        }
+        /* truth table modal */
+        #truthModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 2px solid #2c3e50;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow: auto;
+        }
+        #truthModal table {
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        #truthModal th, #truthModal td {
+            border: 1px solid #aaa;
+            padding: 8px 16px;
+            text-align: center;
+        }
+        #truthModal th {
+            background: #ecf0f1;
+        }
+        #closeModal {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            margin-left: 20px;
+        }
+        @media (max-width: 700px) {
+            button {
+                min-width: 60px;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            .status-text {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+            #toolbar {
+                padding: 12px;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <button onclick="addGate('AND')">➕ AND</button>
+        <button onclick="addGate('OR')">➕ OR</button>
+        <button onclick="addGate('NOT')">➕ NOT</button>
+        <button onclick="addInput()">🔘 Input</button>
+        <button onclick="addOutput()">🖍️ Output</button>
+        <button id="wireBtn" onclick="toggleWireMode()">🔌 Wire</button>
+        <button id="simBtn" onclick="toggleSimulate()">▶ Simulate</button>
+        <button onclick="saveCircuit()">💾 Save</button>
+        <button onclick="loadCircuit()">📂 Load</button>
+        <button onclick="undo()">↩️ Undo</button>
+        <button onclick="redo()">↪️ Redo</button>
+        <button onclick="generateTruthTable()">📊 Truth Table</button>
+        <span class="status-text" id="status">⚡ ready</span>
+    </div>
+    <svg id="canvas" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet"></svg>
+
+    <!-- Truth table modal -->
+    <div id="truthModal">
+        <span id="closeModal" onclick="document.getElementById('truthModal').style.display='none'">&times;</span>
+        <h3>Truth Table</h3>
+        <div id="truthContent"></div>
+    </div>
+
+    <script>
+        (function() {
+            const svgNS = "http://www.w3.org/2000/svg";
+            let components = [];
+            let connections = [];
+            let nextId = 0;
+            let wiring = false;
+            let startPoint = null;
+            let simulating = false;
+            const svg = document.getElementById('canvas');
+            const wireBtn = document.getElementById('wireBtn');
+            const simBtn = document.getElementById('simBtn');
+            const statusSpan = document.getElementById('status');
+            const truthModal = document.getElementById('truthModal');
+            const truthContent = document.getElementById('truthContent');
+
+            // ---------- Undo/Redo history ----------
+            let historyStack = [];
+            let historyIndex = -1;
+            const MAX_HISTORY = 50;
+
+            function captureState() {
+                const comps = components.map(c => {
+                    const g = svg.querySelector(`g[data-id="${c.id}"]`);
+                    const pos = getTranslateFromElement(g);
+                    return {
+                        id: c.id,
+                        type: c.type,
+                        x: pos.x,
+                        y: pos.y,
+                        value: c.value !== undefined ? c.value : (c.type === 'INPUT' ? 0 : undefined),
+                        label: c.label || ''   // save label
+                    };
+                });
+                const conns = connections.map(conn => ({
+                    from: { id: conn.from.id, port: conn.from.port },
+                    to: { id: conn.to.id, port: conn.to.port }
+                }));
+                return { components: comps, connections: conns };
+            }
+
+            function pushState() {
+                const state = captureState();
+                historyStack = historyStack.slice(0, historyIndex + 1);
+                historyStack.push(state);
+                if (historyStack.length > MAX_HISTORY) historyStack.shift();
+                historyIndex = historyStack.length - 1;
+            }
+
+            function restoreState(state) {
+                svg.innerHTML = '';
+                components = [];
+                connections = [];
+                state.components.forEach(comp => {
+                    let g;
+                    if (comp.type === 'INPUT') {
+                        g = createInputElement(comp.id, comp.x, comp.y, comp.value, comp.label);
+                    } else if (comp.type === 'OUTPUT') {
+                        g = createOutputElement(comp.id, comp.x, comp.y, comp.label);
+                    } else {
+                        g = createGateElement(comp.type, comp.id, comp.x, comp.y, comp.label);
+                    }
+                    svg.appendChild(g);
+                    components.push({
+                        id: comp.id,
+                        type: comp.type,
+                        connectionsIn: {},
+                        value: comp.value,
+                        label: comp.label || ''
+                    });
+                    makeDraggable(g);
+                    if (comp.type === 'INPUT') {
+                        g.addEventListener('click', toggleInput);
+                    }
+                    // add double-click for label editing
+                    g.addEventListener('dblclick', editLabel);
+                });
+
+                state.connections.forEach(conn => {
+                    const startPos = getPointPos(conn.from.id, conn.from.port);
+                    const endPos = getPointPos(conn.to.id, conn.to.port);
+                    const line = document.createElementNS(svgNS, 'line');
+                    line.setAttribute('stroke', '#2c3e50');
+                    line.setAttribute('stroke-width', '2.5');
+                    line.setAttribute('x1', startPos.x);
+                    line.setAttribute('y1', startPos.y);
+                    line.setAttribute('x2', endPos.x);
+                    line.setAttribute('y2', endPos.y);
+                    svg.insertBefore(line, svg.firstChild);
+                    connections.push({ from: conn.from, to: conn.to, line });
+                    const target = components.find(c => c.id == conn.to.id);
+                    if (!target.connectionsIn) target.connectionsIn = {};
+                    target.connectionsIn[conn.to.port] = { fromId: conn.from.id, fromPort: conn.from.port };
+                });
+
+                const maxId = components.reduce((max, c) => Math.max(max, c.id), -1);
+                nextId = maxId + 1;
+
+                if (simulating) propagate();
+            }
+
+            function undo() {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    restoreState(historyStack[historyIndex]);
+                } else {
+                    statusSpan.textContent = '⚡ nothing to undo';
+                    setTimeout(updateStatus, 1000);
+                }
+            }
+
+            function redo() {
+                if (historyIndex < historyStack.length - 1) {
+                    historyIndex++;
+                    restoreState(historyStack[historyIndex]);
+                } else {
+                    statusSpan.textContent = '⚡ nothing to redo';
+                    setTimeout(updateStatus, 1000);
+                }
+            }
+
+            function updateStatus() {
+                if (wiring) statusSpan.innerHTML = startPoint ? '📍 wiring (select input)' : '⚡ wiring on (output → input)';
+                else if (simulating) statusSpan.innerHTML = '⚡ simulation running';
+                else statusSpan.innerHTML = '⚡ ready';
+            }
+
+            // ---------- helpers ----------
+            function getTranslateFromElement(el) {
+                let trans = el.getAttribute('transform');
+                if (!trans) return { x: 0, y: 0 };
+                let match = trans.match(/translate\(\s*([-\d.]+)[,\s]+([-\d.]+)\s*\)/);
+                if (match) return { x: parseFloat(match[1]), y: parseFloat(match[2]) };
+                return { x: 0, y: 0 };
+            }
+
+            function getPointPos(compId, port) {
+                const g = svg.querySelector(`g[data-id="${compId}"]`);
+                if (!g) return { x: 0, y: 0 };
+                const c = g.querySelector(`circle[data-port="${port}"]`);
+                if (!c) return { x: 0, y: 0 };
+                const trans = getTranslateFromElement(g);
+                const cx = parseFloat(c.getAttribute('cx'));
+                const cy = parseFloat(c.getAttribute('cy'));
+                return { x: trans.x + cx, y: trans.y + cy };
+            }
+
+            function updateWiresForComp(id) {
+                connections.forEach(conn => {
+                    if (conn.from.id === id || conn.to.id === id) {
+                        const start = getPointPos(conn.from.id, conn.from.port);
+                        const end = getPointPos(conn.to.id, conn.to.port);
+                        conn.line.setAttribute('x1', start.x);
+                        conn.line.setAttribute('y1', start.y);
+                        conn.line.setAttribute('x2', end.x);
+                        conn.line.setAttribute('y2', end.y);
+                    }
+                });
+            }
+
+            // ---------- simulation ----------
+            function getValue(id, visited = new Set()) {
+                // detect cycles to avoid infinite recursion
+                if (visited.has(id)) return 0; // break loop
+                visited.add(id);
+
+                let comp = components.find(c => c.id == id);
+                if (!comp) return 0;
+                if (comp.value !== undefined) return comp.value;
+
+                let inVals = {};
+                for (let port in comp.connectionsIn) {
+                    let from = comp.connectionsIn[port];
+                    inVals[port] = getValue(from.fromId, visited);
+                }
+
+                if (comp.type === 'AND') {
+                    comp.value = (inVals['in1'] && inVals['in2']) ? 1 : 0;
+                } else if (comp.type === 'OR') {
+                    comp.value = (inVals['in1'] || inVals['in2']) ? 1 : 0;
+                } else if (comp.type === 'NOT') {
+                    comp.value = (inVals['in'] ? 0 : 1);
+                } else if (comp.type === 'OUTPUT') {
+                    comp.value = inVals['in'] || 0;
+                } else {
+                    comp.value = 0;
+                }
+                return comp.value;
+            }
+
+            function propagate() {
+                if (!simulating) return;
+                components.forEach(c => { if (c.type !== 'INPUT') c.value = undefined; });
+                components.filter(c => c.type === 'OUTPUT').forEach(out => {
+                    let val = getValue(out.id);
+                    let g = svg.querySelector(`g[data-id="${out.id}"]`);
+                    if (g) {
+                        let text = g.querySelector('text.valueText');
+                        if (text) {
+                            text.textContent = val;
+                            text.setAttribute('fill', val ? 'green' : 'red');
+                        }
+                    }
+                });
+                components.filter(c => c.type === 'INPUT').forEach(inp => {
+                    let g = svg.querySelector(`g[data-id="${inp.id}"]`);
+                    if (g) {
+                        let text = g.querySelector('text.valueText');
+                        if (text) {
+                            text.textContent = inp.value;
+                            text.setAttribute('fill', inp.value ? 'green' : 'red');
+                        }
+                    }
+                });
+            }
+
+            // ---------- event handlers ----------
+            function toggleWireMode() {
+                wiring = !wiring;
+                startPoint = null;
+                wireBtn.textContent = wiring ? '⛔ Stop Wire' : '🔌 Wire';
+                wireBtn.classList.toggle('wire-active', wiring);
+                updateStatus();
+            }
+
+            function toggleSimulate() {
+                simulating = !simulating;
+                simBtn.textContent = simulating ? '⏹️ Stop Sim' : '▶ Simulate';
+                simBtn.classList.toggle('sim-active', simulating);
+                updateStatus();
+                if (simulating) propagate();
+            }
+
+            function handlePointClick(e) {
+                if (!wiring) return;
+                e.stopPropagation();
+                let point = e.target;
+                let g = point.closest('g');
+                if (!g) return;
+                let id = g.dataset.id;
+                let port = point.dataset.port;
+                let pos = getPointPos(id, port);
+
+                if (startPoint === null) {
+                    if (!point.classList.contains('output')) {
+                        alert('Wire must start from an OUTPUT.');
+                        return;
+                    }
+                    startPoint = { id, port, pos };
+                    statusSpan.innerHTML = `📍 from: ${g.querySelector('text.labelText')?.textContent || '?'} ‧ ${port}`;
+                } else {
+                    if (!point.classList.contains('input')) {
+                        alert('Wire must end at an INPUT.');
+                        return;
+                    }
+                    if (startPoint.id === id) {
+                        alert('Cannot connect to same component.');
+                        return;
+                    }
+
+                    let targetComp = components.find(c => c.id == id);
+                    if (targetComp.connectionsIn && targetComp.connectionsIn[port]) {
+                        let oldConnIndex = connections.findIndex(c => c.to.id == id && c.to.port == port);
+                        if (oldConnIndex !== -1) {
+                            let oldLine = connections[oldConnIndex].line;
+                            oldLine.remove();
+                            connections.splice(oldConnIndex, 1);
+                        }
+                        delete targetComp.connectionsIn[port];
+                    }
+
+                    let line = document.createElementNS(svgNS, 'line');
+                    line.setAttribute('stroke', '#2c3e50');
+                    line.setAttribute('stroke-width', '2.5');
+                    line.setAttribute('x1', startPoint.pos.x);
+                    line.setAttribute('y1', startPoint.pos.y);
+                    line.setAttribute('x2', pos.x);
+                    line.setAttribute('y2', pos.y);
+                    svg.insertBefore(line, svg.firstChild);
+
+                    connections.push({
+                        from: { id: startPoint.id, port: startPoint.port },
+                        to: { id, port },
+                        line: line
+                    });
+
+                    if (!targetComp.connectionsIn) targetComp.connectionsIn = {};
+                    targetComp.connectionsIn[port] = { fromId: startPoint.id, fromPort: startPoint.port };
+
+                    startPoint = null;
+                    updateStatus();
+                    pushState();
+                }
+            }
+
+            svg.addEventListener('click', (e) => {
+                if (e.target === svg && wiring && startPoint) {
+                    startPoint = null;
+                    updateStatus();
+                }
+            });
+
+            function toggleInput(e) {
+                if (!simulating) return;
+                let g = e.currentTarget;
+                let id = g.dataset.id;
+                let comp = components.find(c => c.id == id);
+                comp.value = 1 - comp.value;
+                let text = g.querySelector('text.valueText');
+                if (text) {
+                    text.textContent = comp.value;
+                    text.setAttribute('fill', comp.value ? 'green' : 'red');
+                }
+                propagate();
+            }
+
+            // ---------- label editing (double-click) ----------
+            function editLabel(e) {
+                e.stopPropagation();
+                let g = e.currentTarget;
+                let id = g.dataset.id;
+                let comp = components.find(c => c.id == id);
+                if (!comp) return;
+                let newLabel = prompt('Enter component label:', comp.label || '');
+                if (newLabel !== null) {
+                    comp.label = newLabel;
+                    // update label text in DOM
+                    let labelText = g.querySelector('text.labelText');
+                    if (labelText) {
+                        labelText.textContent = newLabel;
+                    } else {
+                        // create label if not present (should exist, but just in case)
+                        let label = document.createElementNS(svgNS, 'text');
+                        label.setAttribute('class', 'labelText');
+                        label.setAttribute('x', '25');
+                        label.setAttribute('y', '-10');
+                        label.setAttribute('font-size', '12');
+                        label.setAttribute('text-anchor', 'middle');
+                        label.setAttribute('fill', '#2c3e50');
+                        label.textContent = newLabel;
+                        g.insertBefore(label, g.firstChild);
+                    }
+                    pushState(); // record label change
+                }
+            }
+
+            // ---------- SVG builders with label support ----------
+            function createRect(x, y, w, h, fill = '#f5f7fa', stroke = '#2c3e50') {
+                let r = document.createElementNS(svgNS, 'rect');
+                r.setAttribute('x', x);
+                r.setAttribute('y', y);
+                r.setAttribute('width', w);
+                r.setAttribute('height', h);
+                r.setAttribute('fill', fill);
+                r.setAttribute('stroke', stroke);
+                r.setAttribute('stroke-width', '1.8');
+                r.setAttribute('rx', '6');
+                r.setAttribute('ry', '6');
+                return r;
+            }
+
+            function createText(x, y, t, size = '16', color = '#1e272e', cls = '') {
+                let txt = document.createElementNS(svgNS, 'text');
+                txt.setAttribute('x', x);
+                txt.setAttribute('y', y);
+                txt.setAttribute('font-size', size);
+                txt.setAttribute('text-anchor', 'middle');
+                txt.setAttribute('dominant-baseline', 'middle');
+                txt.setAttribute('fill', color);
+                if (cls) txt.setAttribute('class', cls);
+                txt.textContent = t;
+                return txt;
+            }
+
+            function createCircle(x, y, r, cls = '', port = '') {
+                let c = document.createElementNS(svgNS, 'circle');
+                c.setAttribute('cx', x);
+                c.setAttribute('cy', y);
+                c.setAttribute('r', r);
+                if (cls) c.setAttribute('class', cls);
+                if (port) c.dataset.port = port;
+                c.setAttribute('fill', 'white');
+                c.setAttribute('stroke', '#2c3e50');
+                c.setAttribute('stroke-width', '2');
+                c.addEventListener('mousedown', (e) => e.stopPropagation());
+                c.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+                c.addEventListener('click', handlePointClick);
+                return c;
+            }
+
+            function createGateElement(type, id, x, y, label = '') {
+                let g = document.createElementNS(svgNS, 'g');
+                g.setAttribute('transform', `translate(${x}, ${y})`);
+                g.setAttribute('class', 'draggable');
+                g.dataset.id = id;
+
+                // label (above)
+                let labelText = createText(25, -10, label, '12', '#2c3e50', 'labelText');
+                g.appendChild(labelText);
+
+                let height = (type === 'NOT') ? 30 : 50;
+                let rect = createRect(0, 0, 50, height, '#f5f7fa', '#2c3e50');
+                g.appendChild(rect);
+
+                if (type === 'AND') {
+                    g.appendChild(createText(25, 25, '&', '20', '#2c3e50'));
+                    g.appendChild(createCircle(-5, 15, 7, 'input', 'in1'));
+                    g.appendChild(createCircle(-5, 35, 7, 'input', 'in2'));
+                    g.appendChild(createCircle(55, 25, 7, 'output', 'out'));
+                } else if (type === 'OR') {
+                    g.appendChild(createText(25, 25, '≥1', '16', '#2c3e50'));
+                    g.appendChild(createCircle(-5, 15, 7, 'input', 'in1'));
+                    g.appendChild(createCircle(-5, 35, 7, 'input', 'in2'));
+                    g.appendChild(createCircle(55, 25, 7, 'output', 'out'));
+                } else if (type === 'NOT') {
+                    g.appendChild(createText(25, 15, '1', '18', '#2c3e50'));
+                    g.appendChild(createCircle(-5, 15, 7, 'input', 'in'));
+                    g.appendChild(createCircle(55, 15, 7, 'output', 'out'));
+                    let bubble = document.createElementNS(svgNS, 'circle');
+                    bubble.setAttribute('cx', 49);
+                    bubble.setAttribute('cy', 15);
+                    bubble.setAttribute('r', 3);
+                    bubble.setAttribute('fill', 'white');
+                    bubble.setAttribute('stroke', '#2c3e50');
+                    bubble.setAttribute('stroke-width', '1.5');
+                    g.appendChild(bubble);
+                }
+                return g;
+            }
+
+            function createInputElement(id, x, y, value = 0, label = '') {
+                let g = document.createElementNS(svgNS, 'g');
+                g.setAttribute('transform', `translate(${x}, ${y})`);
+                g.setAttribute('class', 'draggable');
+                g.dataset.id = id;
+
+                // label above
+                let labelText = createText(20, -10, label, '12', '#2c3e50', 'labelText');
+                g.appendChild(labelText);
+
+                g.appendChild(createRect(0, 0, 40, 40, '#fff3e0', '#2c3e50'));
+                let text = createText(20, 20, value.toString(), '20', value ? 'green' : 'red', 'valueText');
+                g.appendChild(text);
+                g.appendChild(createCircle(45, 20, 7, 'output', 'out'));
+                return g;
+            }
+
+            function createOutputElement(id, x, y, label = '') {
+                let g = document.createElementNS(svgNS, 'g');
+                g.setAttribute('transform', `translate(${x}, ${y})`);
+                g.setAttribute('class', 'draggable');
+                g.dataset.id = id;
+
+                // label above
+                let labelText = createText(20, -10, label, '12', '#2c3e50', 'labelText');
+                g.appendChild(labelText);
+
+                g.appendChild(createRect(0, 0, 40, 40, '#e8f4fd', '#2c3e50'));
+                g.appendChild(createText(20, 20, '0', '20', 'red', 'valueText'));
+                g.appendChild(createCircle(-5, 20, 7, 'input', 'in'));
+                return g;
+            }
+
+            // ---------- add functions with double-click ----------
+            function addGate(type) {
+                let id = nextId++;
+                let x = Math.random() * 600 + 80;
+                let y = Math.random() * 400 + 80;
+                let g = createGateElement(type, id, x, y, '');
+                svg.appendChild(g);
+                components.push({ id, type, connectionsIn: {}, value: undefined, label: '' });
+                makeDraggable(g);
+                g.addEventListener('dblclick', editLabel);
+                pushState();
+            }
+
+            function addInput() {
+                let id = nextId++;
+                let x = Math.random() * 600 + 80;
+                let y = Math.random() * 400 + 80;
+                let g = createInputElement(id, x, y, 0, '');
+                svg.appendChild(g);
+                components.push({ id, type: 'INPUT', value: 0, connectionsIn: {}, label: '' });
+                makeDraggable(g);
+                g.addEventListener('click', toggleInput);
+                g.addEventListener('dblclick', editLabel);
+                pushState();
+            }
+
+            function addOutput() {
+                let id = nextId++;
+                let x = Math.random() * 600 + 80;
+                let y = Math.random() * 400 + 80;
+                let g = createOutputElement(id, x, y, '');
+                svg.appendChild(g);
+                components.push({ id, type: 'OUTPUT', connectionsIn: {}, value: undefined, label: '' });
+                makeDraggable(g);
+                g.addEventListener('dblclick', editLabel);
+                pushState();
+            }
+
+            // ---------- drag (same, but add history on end) ----------
+            function makeDraggable(elem) {
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                let startTrans = { x: 0, y: 0 };
+                let dragged = false;
+
+                elem.addEventListener('mousedown', dragMouseDown);
+                elem.addEventListener('touchstart', dragTouchStart, { passive: false });
+
+                function dragMouseDown(e) {
+                    if (e.target.tagName === 'circle') return;
+                    e.preventDefault();
+                    startTrans = getTranslateFromElement(elem);
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    document.addEventListener('mouseup', closeDrag);
+                    document.addEventListener('mousemove', elementDrag);
+                }
+
+                function dragTouchStart(e) {
+                    if (e.touches.length !== 1) return;
+                    if (e.target.tagName === 'circle') return;
+                    e.preventDefault();
+                    startTrans = getTranslateFromElement(elem);
+                    pos3 = e.touches[0].clientX;
+                    pos4 = e.touches[0].clientY;
+                    document.addEventListener('touchend', closeDrag);
+                    document.addEventListener('touchmove', elementTouchMove, { passive: false });
+                }
+
+                function elementDrag(e) {
+                    e.preventDefault();
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    updatePosition(pos1, pos2);
+                    dragged = true;
+                }
+
+                function elementTouchMove(e) {
+                    if (e.touches.length !== 1) return;
+                    e.preventDefault();
+                    pos1 = pos3 - e.touches[0].clientX;
+                    pos2 = pos4 - e.touches[0].clientY;
+                    pos3 = e.touches[0].clientX;
+                    pos4 = e.touches[0].clientY;
+                    updatePosition(pos1, pos2);
+                    dragged = true;
+                }
+
+                function updatePosition(dx, dy) {
+                    let trans = getTranslateFromElement(elem);
+                    let x = trans.x - dx;
+                    let y = trans.y - dy;
+                    elem.setAttribute('transform', `translate(${x}, ${y})`);
+                    updateWiresForComp(elem.dataset.id);
+                }
+
+                function closeDrag(e) {
+                    if (dragged) {
+                        let endTrans = getTranslateFromElement(elem);
+                        if (endTrans.x !== startTrans.x || endTrans.y !== startTrans.y) {
+                            pushState();
+                        }
+                        dragged = false;
+                    }
+                    document.removeEventListener('mouseup', closeDrag);
+                    document.removeEventListener('mousemove', elementDrag);
+                    document.removeEventListener('touchend', closeDrag);
+                    document.removeEventListener('touchmove', elementTouchMove);
+                }
+            }
+
+            // ---------- Save / Load ----------
+            function saveCircuit() {
+                const state = captureState();
+                const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'circuit.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                statusSpan.textContent = '✅ circuit saved';
+                setTimeout(updateStatus, 1500);
+            }
+
+            function loadCircuit() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json,application/json';
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        try {
+                            const state = JSON.parse(ev.target.result);
+                            restoreState(state);
+                            pushState();
+                            statusSpan.textContent = '✅ circuit loaded';
+                            setTimeout(updateStatus, 1500);
+                        } catch (err) {
+                            alert('Invalid JSON file');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+
+            // ---------- Truth Table Generation ----------
+            function generateTruthTable() {
+                const inputs = components.filter(c => c.type === 'INPUT').sort((a,b) => a.id - b.id);
+                const outputs = components.filter(c => c.type === 'OUTPUT').sort((a,b) => a.id - b.id);
+
+                if (inputs.length === 0 || outputs.length === 0) {
+                    alert('Need at least one input and one output to generate truth table.');
+                    return;
+                }
+
+                // Use labels if available, otherwise use generic names
+                const inputLabels = inputs.map((c, i) => c.label || `In${i+1}`);
+                const outputLabels = outputs.map((c, i) => c.label || `Out${i+1}`);
+
+                // Store original input values to restore later
+                const originalValues = inputs.map(c => c.value);
+
+                const rows = [];
+                const n = inputs.length;
+                const total = 1 << n;
+
+                for (let mask = 0; mask < total; mask++) {
+                    // set input values
+                    for (let i = 0; i < n; i++) {
+                        inputs[i].value = (mask >> (n-1-i)) & 1; // MSB first for readability
+                    }
+
+                    // clear cached values for all non-input components
+                    components.forEach(c => { if (c.type !== 'INPUT') c.value = undefined; });
+
+                    // compute outputs
+                    const outVals = outputs.map(out => getValue(out.id, new Set()));
+
+                    // store row
+                    const inVals = inputs.map(c => c.value);
+                    rows.push({ in: inVals, out: outVals });
+                }
+
+                // restore original input values
+                inputs.forEach((c, idx) => { c.value = originalValues[idx]; });
+                // re-propagate if simulating
+                if (simulating) propagate();
+
+                // Build HTML table
+                let html = '<table><thead><tr>';
+                inputLabels.forEach(l => html += `<th>${l}</th>`);
+                outputLabels.forEach(l => html += `<th>${l}</th>`);
+                html += '</tr></thead><tbody>';
+                rows.forEach(row => {
+                    html += '<tr>';
+                    row.in.forEach(v => html += `<td>${v}</td>`);
+                    row.out.forEach(v => html += `<td>${v}</td>`);
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+
+                truthContent.innerHTML = html;
+                truthModal.style.display = 'block';
+            }
+
+            // Expose globally
+            window.addGate = addGate;
+            window.addInput = addInput;
+            window.addOutput = addOutput;
+            window.toggleWireMode = toggleWireMode;
+            window.toggleSimulate = toggleSimulate;
+            window.saveCircuit = saveCircuit;
+            window.loadCircuit = loadCircuit;
+            window.undo = undo;
+            window.redo = redo;
+            window.generateTruthTable = generateTruthTable;
+
+            // Initial push
+            pushState();
+        })();
+    </script>
+</body>
+</html>
+
