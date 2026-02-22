@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ca" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web educativa · Francesc Pérez</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+<style>
+/* Submenu dropdown Bootstrap 5 */
+.dropdown-submenu {
+  position: relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-left: .1rem;
+  display: none;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+  display: block;
+}
+
+/* Evita que es tanqui el menú pare */
+.dropdown-menu > li > a {
+  white-space: nowrap;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+
+    <a class="navbar-brand fw-bold" href="https://drfperez.github.io">
+      Prof. F. Pérez
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+
+        <!-- PROGRAMACIÓ -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="fas fa-code me-1"></i>Programació
+          </a>
+          <ul class="dropdown-menu">
+            <li><h6 class="dropdown-header">Llenguatges</h6></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/python/">Python</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/aprenhtml/">HTML</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/aprencss/">CSS</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/aprenjs/">JavaScript</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/hellor/">R</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/aprenc/">C</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/aprencpp/">C++</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">Eines</h6></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/editor/">Editor de codi</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/terminal/">Terminal</a></li>
+          </ul>
+        </li>
+
+        <!-- COMPUTACIÓ -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="fas fa-brain me-1"></i>Computació
+          </a>
+          <ul class="dropdown-menu">
+            <li><h6 class="dropdown-header">Intel·ligència Artificial</h6></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/agentAI/">Agent AI</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/gpt2/">Agent GPT-2</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/cara1/">Crear cara</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/cara2/">Art per la cara</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/docking/">Docking de fàrmacs</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">Visual</h6></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/coordenades/">Coordenades</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/dibuixaformes/">Dibuixa formes</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/generaformes/">Genera formes</a></li>
+          </ul>
+        </li>
+
+        <!-- ROBÒTICA -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="fas fa-robot me-1"></i>Robòtica
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="https://drfperez.github.io/arduino/">Arduino</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/sensors/">Sensors</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/robots/">Robots</a></li>
+          </ul>
+        </li>
+
+        <!-- CIÈNCIA -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="fas fa-flask me-1"></i>Ciència
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="https://drfperez.github.io/biologia/">Biologia</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/fisica/">Física</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/quimica/">Química</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/mediambient/">Medi ambient</a></li>
+          </ul>
+        </li>
+
+        <!-- NÀUTICA -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="fas fa-ship me-1"></i>Nàutica
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="https://drfperez.github.io/vaixells/">Vaixells</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/navegacio/">Navegació</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/meteorologia/">Meteorologia</a></li>
+          </ul>
+        </li>
+
+        <!-- JOCS -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="fas fa-gamepad me-1"></i>Jocs
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="https://drfperez.github.io/escacs/">Escacs</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/memory/">Memory</a></li>
+            <li><a class="dropdown-item" href="https://drfperez.github.io/trencaclosques/">Trencaclosques</a></li>
+          </ul>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- =============== FI NAVBAR =============== -->
+
+<main class="container py-5 text-center">
+  <h1 class="fw-bold mb-3">✅ Pàgina de prova completa</h1>
+  <p class="lead">
+    Aquesta pàgina comprova que <strong>totes les categories i subcategories</strong>
+    del navbar funcionen correctament a GitHub Pages.
+  </p>
+  <p class="text-muted">
+    Cada enllaç apunta a:<br>
+    <code>https://drfperez.github.io/nomdelapagina/</code>
+  </p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
