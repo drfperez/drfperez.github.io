@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Truth table · SOP & POS w/ Don't Cares</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+        .card {
+            background: white;
+            max-width: 1200px;
+            width: 100%;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.2);
+            padding: 24px 20px 32px 20px;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin: 0 0 10px 0;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        h1 small {
+            font-size: 1rem;
+            font-weight: 400;
+            background: #e9eef3;
+            color: #1e3a5f;
+            padding: 4px 14px;
+            border-radius: 40px;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin: 20px 0 25px 0;
+            align-items: center;
+        }
+        .btn {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 12px 26px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1e293b;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 0 1 auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-primary {
+            background: #0f172a !important;
+            border: 1px solid #0f172a !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+            opacity: 1 !important;
+        }
+        .btn-primary:hover, .btn-primary:active {
+            background: #1e293b !important;
+            transform: scale(0.98);
+        }
+        .btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+        .btn:active {
+            transform: scale(0.96);
+            background: #e9eef3;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 18px 0 28px 0;
+            border-radius: 20px;
+            border: 1px solid #dde3e9;
+            background: #ffffff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.04);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 380px;
+            font-size: 1.1rem;
+        }
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #0b1e33;
+            padding: 18px 10px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #b9c7d9;
+        }
+        td {
+            text-align: center;
+            padding: 16px 8px;
+            border-bottom: 1px solid #dde3e9;
+            font-weight: 500;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .fixed-col {
+            background-color: #f2f6fc;
+            font-weight: 600;
+            color: #022b54;
+        }
+        
+        .f-cell {
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.3rem;
+            transition: 0.1s;
+            border-radius: 16px;
+            user-select: none;
+            -webkit-user-select: none;
+            min-width: 75px;
+            padding: 12px 8px;
+        }
+        .f-cell:active { transform: scale(0.95); }
+        .f-cell[data-val="0"] { background-color: #ffffff; color: #0f172a; }
+        .f-cell[data-val="0"]:hover { background-color: #f1f5f9; }
+        .f-cell[data-val="1"] { background-color: #fff3e3; color: #d97706; }
+        .f-cell[data-val="1"]:hover { background-color: #ffe0b9; }
+        .f-cell[data-val="X"] { background-color: #e2e8f0; color: #64748b; font-style: italic; }
+        .f-cell[data-val="X"]:hover { background-color: #cbd5e1; }
+
+        .expr-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .expr-box {
+            background: #f0f4fa;
+            border-radius: 24px;
+            padding: 22px 25px;
+            margin: 8px 0;
+            border-left: 6px solid #1e293b;
+        }
+        .expr-box.simp-sop { border-left-color: #10b981; background: #ecfdf5; }
+        .expr-box.simp-pos { border-left-color: #8b5cf6; background: #f5f3ff; }
+        
+        .expr-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #0b2b44;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .expr-output {
+            background: #ffffffd6;
+            padding: 16px 20px;
+            border-radius: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            word-break: break-word;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            border: 1px solid #bacde0;
+            box-shadow: inset 0 1px 5px #0000000d;
+        }
+        .d-care { color: #94a3b8; font-style: italic; }
+        
+        .footer-note {
+            text-align: right;
+            color: #526477;
+            font-size: 0.9rem;
+            margin-top: 16px;
+            border-top: 1px dashed #bacde0;
+            padding-top: 12px;
+            line-height: 1.5;
+        }
+        @media (max-width: 768px) {
+            .expr-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 550px) {
+            .card { padding: 18px 12px; }
+            h1 { font-size: 1.5rem; }
+            th { padding: 12px 5px; font-size: 1rem; }
+            td { padding: 14px 4px; font-size: 1rem; }
+            .f-cell { font-size: 1.2rem; min-width: 60px; }
+            .btn { padding: 10px 18px; font-size: 1rem; }
+            .expr-output { font-size: 1.1rem; padding: 14px 16px; }
+        }
+
+        #logisimSection { margin-top: 30px; }
+        #circXML {
+            width: 100%;
+            height: 220px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.85rem;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 14px;
+            resize: vertical;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        ⚡ 4‑variable truth table
+        <small>a b c d fixed · f toggles</small>
+    </h1>
+
+    <div class="toolbar">
+        <button class="btn btn-primary" id="randomBtn">🎲 Generate random f</button>
+        <button class="btn" id="resetZeroBtn">⏪ Set all f = 0</button>
+        <button class="btn" id="copyCircBtn">📋 Copy .circ XML</button>
+        <button class="btn btn-primary" id="downloadCircBtn">💾 Download Logisim .circ</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="truthTable">
+            <thead>
+                <tr><th>a</th><th>b</th><th>c</th><th>d</th><th style="background:#e9eef3;">f</th></tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="expr-grid">
+        <div class="expr-box">
+            <div class="expr-title">🔹 Canonical SOP (Minterms)</div>
+            <div class="expr-output" id="sopExpr">—</div>
+        </div>
+        <div class="expr-box">
+            <div class="expr-title">🔸 Canonical POS (Maxterms)</div>
+            <div class="expr-output" id="posExpr">—</div>
+        </div>
+
+        <div class="expr-box simp-sop">
+            <div class="expr-title">✨ Simplified SOP</div>
+            <div class="expr-output" id="simpsopExpr">—</div>
+        </div>
+        <div class="expr-box simp-pos">
+            <div class="expr-title">✨ Simplified POS</div>
+            <div class="expr-output" id="simpposExpr">—</div>
+        </div>
+    </div>
+
+    <div id="logisimSection">
+        <div class="expr-box">
+            <div class="expr-title">🔌 Logisim Evolution 4.x Circuit (SOP Layout)</div>
+            <textarea id="circXML" readonly></textarea>
+            <div style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap;">
+                <button class="btn" id="refreshCircBtn">🔄 Refresh .circ preview</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        ⚡ click any f cell to cycle: 0 → 1 → X (Don't Care)<br>
+        ⚡ "Download Logisim .circ" creates a professionally routed 4.x compliant schematic.
+    </div>
+</div>
+
+<script>
+    (function() {
+        const rows = 16;
+        const varNames = ['a', 'b', 'c', 'd'];
+        let fValues = new Array(rows).fill(0);
+        let currentSimpPIs = [];
+
+        const tbody = document.getElementById('tableBody');
+        const sopSpan = document.getElementById('sopExpr');
+        const posSpan = document.getElementById('posExpr');
+        const simpsopSpan = document.getElementById('simpsopExpr');
+        const simpposSpan = document.getElementById('simpposExpr');
+        const randomBtn = document.getElementById('randomBtn');
+        const resetZeroBtn = document.getElementById('resetZeroBtn');
+        const copyCircBtn = document.getElementById('copyCircBtn');
+        const downloadCircBtn = document.getElementById('downloadCircBtn');
+        const refreshCircBtn = document.getElementById('refreshCircBtn');
+        const circXMLArea = document.getElementById('circXML');
+
+        function randomF() {
+            for (let i = 0; i < rows; i++) {
+                const r = Math.random();
+                if (r < 0.4) fValues[i] = 0;
+                else if (r < 0.8) fValues[i] = 1;
+                else fValues[i] = 'X';
+            }
+        }
+
+        function renderTable() {
+            let html = '';
+            for (let i = 0; i < rows; i++) {
+                const a = (i >> 3) & 1, b = (i >> 2) & 1, c = (i >> 1) & 1, d = i & 1;
+                html += `<tr>
+                    <td class="fixed-col">${a}</td>
+                    <td class="fixed-col">${b}</td>
+                    <td class="fixed-col">${c}</td>
+                    <td class="fixed-col">${d}</td>
+                    <td class="f-cell" data-index="${i}" data-val="${fValues[i]}">${fValues[i]}</td>
+                </tr>`;
+            }
+            tbody.innerHTML = html;
+
+            document.querySelectorAll('.f-cell').forEach(cell => {
+                cell.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'), 10);
+                    const current = fValues[index];
+                    if (current === 0) fValues[index] = 1;
+                    else if (current === 1) fValues[index] = 'X';
+                    else fValues[index] = 0;
+                    
+                    renderTable();
+                    updateExpressions();
+                    refreshCircPreview();
+                });
+            });
+        }
+
+        function covers(pi, minterm) {
+            for (let i = 0; i < 4; i++) {
+                if (pi[i] !== '-' && pi[i] !== minterm[i]) return false;
+            }
+            return true;
+        }
+
+        function simplifyLogic(targetTerms, allowedTerms) {
+            if (targetTerms.length === 0) return []; 
+            if (allowedTerms.length === 16 && targetTerms.length > 0) return ['----'];
+
+            let combined = new Set(allowedTerms.map(m => m.toString(2).padStart(4, '0')));
+            let pis = new Set();
+            let hasMerged = true;
+
+            while (hasMerged) {
+                hasMerged = false;
+                let nextCombined = new Set();
+                let used = new Set();
+                let arr = Array.from(combined);
+
+                for (let i = 0; i < arr.length; i++) {
+                    for (let j = i + 1; j < arr.length; j++) {
+                        let diff = 0, idx = -1;
+                        for (let k = 0; k < 4; k++) {
+                            if (arr[i][k] !== arr[j][k]) { diff++; idx = k; }
+                        }
+                        if (diff === 1) {
+                            nextCombined.add(arr[i].substring(0, idx) + '-' + arr[i].substring(idx + 1));
+                            used.add(arr[i]);
+                            used.add(arr[j]);
+                            hasMerged = true;
+                        }
+                    }
+                }
+                for (let t of arr) if (!used.has(t)) pis.add(t);
+                combined = nextCombined;
+            }
+
+            let piArray = Array.from(pis);
+            let remaining = new Set(targetTerms.map(m => m.toString(2).padStart(4, '0')));
+            let selected = [];
+
+            let mToPI = {};
+            for (let m of remaining) {
+                mToPI[m] = piArray.filter(pi => covers(pi, m));
+            }
+            
+            for (let m in mToPI) {
+                if (mToPI[m].length === 1) {
+                    let epi = mToPI[m][0];
+                    if (!selected.includes(epi)) {
+                        selected.push(epi);
+                        for (let rm of Array.from(remaining)) {
+                            if (covers(epi, rm)) remaining.delete(rm);
+                        }
+                    }
+                }
+            }
+
+            while (remaining.size > 0) {
+                let best = null, maxCount = -1;
+                for (let pi of piArray) {
+                    if (selected.includes(pi)) continue;
+                    let count = 0;
+                    for (let rm of remaining) if (covers(pi, rm)) count++;
+                    if (count > maxCount) { maxCount = count; best = pi; }
+                }
+                if (best) {
+                    selected.push(best);
+                    for (let rm of Array.from(remaining)) {
+                        if (covers(best, rm)) remaining.delete(rm);
+                    }
+                } else break; 
+            }
+            return selected;
+        }
+
+        function updateExpressions() {
+            let ones = [], zeros = [], dcares = [];
+            for (let i = 0; i < rows; i++) {
+                if (fValues[i] === 1) ones.push(i);
+                else if (fValues[i] === 0) zeros.push(i);
+                else dcares.push(i);
+            }
+
+            let sopTerms = ones.map(m => (m&8?'a':'a\'') + (m&4?'b':'b\'') + (m&2?'c':'c\'') + (m&1?'d':'d\''));
+            let sopDcares = dcares.map(m => `<span class="d-care">${(m&8?'a':'a\'') + (m&4?'b':'b\'') + (m&2?'c':'c\'') + (m&1?'d':'d\'')}</span>`);
+            sopSpan.innerHTML = (sopTerms.concat(sopDcares)).length ? (sopTerms.concat(sopDcares)).join(' + ') : '0';
+
+            let posTerms = zeros.map(m => `(${(m&8?'a\'':'a')} + ${(m&4?'b\'':'b')} + ${(m&2?'c\'':'c')} + ${(m&1?'d\'':'d')})`);
+            let posDcares = dcares.map(m => `<span class="d-care">(${(m&8?'a\'':'a')} + ${(m&4?'b\'':'b')} + ${(m&2?'c\'':'c')} + ${(m&1?'d\'':'d')})</span>`);
+            posSpan.innerHTML = (posTerms.concat(posDcares)).length ? (posTerms.concat(posDcares)).join(' · ') : '1';
+
+            let simpsopPIs = simplifyLogic(ones, ones.concat(dcares));
+            currentSimpPIs = simpsopPIs.slice();
+
+            if (simpsopPIs.length === 0) simpsopSpan.innerText = '0';
+            else if (simpsopPIs.includes('----')) simpsopSpan.innerText = '1';
+            else {
+                simpsopSpan.innerText = simpsopPIs.map(pi => {
+                    let term = '';
+                    for (let i = 0; i < 4; i++) {
+                        if (pi[i] === '1') term += varNames[i];
+                        else if (pi[i] === '0') term += varNames[i] + "'";
+                    }
+                    return term || '1';
+                }).join(' + ');
+            }
+
+            let simpposPIs = simplifyLogic(zeros, zeros.concat(dcares));
+            if (simpposPIs.length === 0) simpposSpan.innerText = '1';
+            else if (simpposPIs.includes('----')) simpposSpan.innerText = '0';
+            else {
+                simpposSpan.innerText = simpposPIs.map(pi => {
+                    let vars = [];
+                    for (let i = 0; i < 4; i++) {
+                        if (pi[i] === '0') vars.push(varNames[i]);
+                        else if (pi[i] === '1') vars.push(varNames[i] + "'");
+                    }
+                    return '(' + vars.join(' + ') + ')';
+                }).join(' · ');
+            }
+
+            refreshCircPreview();
+        }
+
+        // ==================== LOGISIM EVOLUTION 4.x GENERATOR ====================
+        function generateLogisimCirc() {
+            const baseXMLHeader = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project source="3.9.0" version="1.0">
+  <lib desc="#Wiring" name="0">
+    <tool name="Pin">
+      <a name="appearance" val="classic"/>
+    </tool>
+  </lib>
+  <lib desc="#Gates" name="1"/>
+  <lib desc="#Base" name="8"/>
+  <main name="main"/>
+  <options>
+    <a name="gateUndefined" val="ignore"/>
+    <a name="simlimit" val="1000"/>
+    <a name="simrand" val="0"/>
+  </options>
+  <mappings/>
+  <toolbar/>
+  <circuit name="main">
+    <a name="appearance" val="logisim_evolution"/>
+    <a name="circuit" val="main"/>
+    <a name="circuitnamedboxfixedsize" val="true"/>
+    <a name="simulationFrequency" val="1.0"/>\n`;
+
+            const baseXMLFooter = `  </circuit>\n</project>`;
+
+            if (currentSimpPIs.length === 0 || currentSimpPIs.includes('----')) {
+                const val = currentSimpPIs.includes('----') ? '0x1' : '0x0';
+                return baseXMLHeader + 
+`    <comp lib="0" loc="(180,180)" name="Constant">
+      <a name="value" val="${val}"/>
+    </comp>
+    <comp lib="0" loc="(320,180)" name="Pin">
+      <a name="appearance" val="classic"/>
+      <a name="facing" val="west"/>
+      <a name="label" val="f"/>
+      <a name="output" val="true"/>
+    </comp>
+    <wire from="(180,180)" to="(320,180)"/>\n` + baseXMLFooter;
+            }
+
+            let xml = baseXMLHeader;
+            
+            // 1. Build Data Buses
+            const busX = { 'a': 100, 'a\'': 140, 'b': 180, 'b\'': 220, 'c': 260, 'c\'': 300, 'd': 340, 'd\'': 380 };
+            const notYBase = 80;
+
+            for (let i = 0; i < 4; i++) {
+                let v = varNames[i];
+                let bx = busX[v];
+                let bnx = busX[v + "'"];
+                let ny = notYBase + i * 20;
+
+                xml += `    <comp lib="0" loc="(${bx},40)" name="Pin">\n      <a name="appearance" val="classic"/>\n      <a name="facing" val="south"/>\n      <a name="label" val="${v}"/>\n    </comp>\n`;
+                xml += `    <wire from="(${bx},40)" to="(${bx},800)"/>\n`;
+                
+                xml += `    <comp lib="1" loc="(${bnx},${ny})" name="NOT Gate">\n      <a name="size" val="30"/>\n    </comp>\n`;
+                xml += `    <wire from="(${bx},${ny})" to="(${bnx - 30},${ny})"/>\n`;
+                xml += `    <wire from="(${bnx},${ny})" to="(${bnx},800)"/>\n`;
+            }
+
+            // 2. Build AND Gates (SOP Product Terms)
+            let andOutputs = [];
+            let andYBase = 200;
+            let terms = currentSimpPIs;
+
+            terms.forEach((pi, idx) => {
+                let lits = [];
+                for (let j = 0; j < 4; j++) {
+                    if (pi[j] === '1') lits.push(varNames[j]);
+                    else if (pi[j] === '0') lits.push(varNames[j] + "'");
+                }
+
+                let numInputs = lits.length;
+                let andY = andYBase + idx * 70;
+                let andX = 500;
+
+                if (numInputs === 1) {
+                    // Buffer (just wire it to OR tree)
+                    andOutputs.push({ x: busX[lits[0]], y: andY });
+                } else {
+                    let offsets = numInputs === 2 ? [-20, 20] : (numInputs === 3 ? [-20, 0, 20] : [-20, -10, 10, 20]);
+
+                    xml += `    <comp lib="1" loc="(${andX},${andY})" name="AND Gate">\n      <a name="inputs" val="${numInputs}"/>\n    </comp>\n`;
+                    lits.forEach((lit, i) => {
+                        let offY = andY + offsets[i];
+                        xml += `    <wire from="(${busX[lit]},${offY})" to="(${andX - 50},${offY})"/>\n`;
+                    });
+                    andOutputs.push({ x: andX, y: andY });
+                }
+            });
+
+            // 3. Build cascading OR Tree natively
+            let currentSignals = andOutputs;
+            let stage = 0;
+
+            while (currentSignals.length > 1) {
+                let nextSignals = [];
+                for (let i = 0; i < currentSignals.length; i += 2) {
+                    if (i + 1 < currentSignals.length) {
+                        let sig1 = currentSignals[i];
+                        let sig2 = currentSignals[i + 1];
+                        let orX = Math.max(sig1.x, sig2.x) + 120 + (stage * 20); 
+                        let orY = Math.round((sig1.y + sig2.y) / 20) * 10;
+
+                        xml += `    <comp lib="1" loc="(${orX},${orY})" name="OR Gate">\n      <a name="inputs" val="2"/>\n    </comp>\n`;
+
+                        // Wire sig 1 (top)
+                        let midX1 = orX - 70;
+                        let tgtY1 = orY - 20;
+                        xml += `    <wire from="(${sig1.x},${sig1.y})" to="(${midX1},${sig1.y})"/>\n`;
+                        if (sig1.y !== tgtY1) xml += `    <wire from="(${midX1},${sig1.y})" to="(${midX1},${tgtY1})"/>\n`;
+                        xml += `    <wire from="(${midX1},${tgtY1})" to="(${orX - 50},${tgtY1})"/>\n`;
+
+                        // Wire sig 2 (bottom)
+                        let midX2 = orX - 70;
+                        let tgtY2 = orY + 20;
+                        xml += `    <wire from="(${sig2.x},${sig2.y})" to="(${midX2},${sig2.y})"/>\n`;
+                        if (sig2.y !== tgtY2) xml += `    <wire from="(${midX2},${sig2.y})" to="(${midX2},${tgtY2})"/>\n`;
+                        xml += `    <wire from="(${midX2},${tgtY2})" to="(${orX - 50},${tgtY2})"/>\n`;
+
+                        nextSignals.push({ x: orX, y: orY });
+                    } else {
+                        nextSignals.push(currentSignals[i]);
+                    }
+                }
+                currentSignals = nextSignals;
+                stage++;
+            }
+
+            // 4. Output Pin Routing
+            if (currentSignals.length === 1) {
+                let finalSig = currentSignals[0];
+                let outX = finalSig.x + 60;
+                xml += `    <comp lib="0" loc="(${outX},${finalSig.y})" name="Pin">\n      <a name="appearance" val="classic"/>\n      <a name="facing" val="west"/>\n      <a name="label" val="f"/>\n      <a name="output" val="true"/>\n    </comp>\n`;
+                xml += `    <wire from="(${finalSig.x},${finalSig.y})" to="(${outX},${finalSig.y})"/>\n`;
+            }
+
+            return xml + baseXMLFooter;
+        }
+
+        function refreshCircPreview() {
+            const xml = generateLogisimCirc();
+            circXMLArea.value = xml;
+        }
+
+        function handleCopyCirc() {
+            const xml = circXMLArea.value || generateLogisimCirc();
+            navigator.clipboard.writeText(xml).then(() => {
+                const orig = copyCircBtn.innerHTML;
+                copyCircBtn.innerHTML = '✅ Copied!';
+                setTimeout(() => copyCircBtn.innerHTML = orig, 2000);
+            });
+        }
+
+        function handleDownloadCirc() {
+            const xml = circXMLArea.value || generateLogisimCirc();
+            const blob = new Blob([xml], { type: 'text/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `truth_table_4var_evolution.circ`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function randomAndRefresh() { randomF(); renderTable(); updateExpressions(); }
+        function resetToZero() { fValues.fill(0); renderTable(); updateExpressions(); }
+        function init() {
+            renderTable(); updateExpressions();
+            randomBtn.addEventListener('click', randomAndRefresh);
+            resetZeroBtn.addEventListener('click', resetToZero);
+            copyCircBtn.addEventListener('click', handleCopyCirc);
+            downloadCircBtn.addEventListener('click', handleDownloadCirc);
+            refreshCircBtn.addEventListener('click', refreshCircPreview);
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
