@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sintetitzador Lògic Visual (Versió NOR)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #2c3e50;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-top: 5px solid #e67e22; /* Color taronja per diferenciar el NOR */
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            text-align: center;
+            outline: none;
+        }
+        input[type="text"]:focus { border-color: #e67e22; }
+        button {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            box-shadow: 0 4px 6px rgba(230,126,34,0.3);
+        }
+        button:hover { background-color: #d35400; transform: translateY(-2px); }
+        .error { color: #e74c3c; font-weight: bold; display: none; margin-top: 15px; }
+        
+        #stepsContainer { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 25px; }
+        .step-card {
+            background: white; border-radius: 12px; padding: 30px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05); display: none; 
+            animation: slideIn 0.6s ease-out forwards; opacity: 0; transform: translateY(20px);
+        }
+        @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
+        .step-number {
+            display: inline-block; color: white; width: 34px; height: 34px;
+            text-align: center; line-height: 34px; border-radius: 50%; font-weight: bold;
+            margin-right: 12px; font-size: 1.1em;
+        }
+        .step-title {
+            font-size: 1.4em; font-weight: bold; margin-bottom: 15px; display: flex;
+            align-items: center; color: #2c3e50; border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px; justify-content: space-between;
+        }
+        .badge { font-size: 0.75em; padding: 5px 12px; border-radius: 20px; background: #e2e8f0; color: #334155; font-weight: bold; }
+        .badge.bad { background: #fecaca; color: #991b1b; }
+        .badge.good { background: #bbf7d0; color: #166534; }
+        .explanation { font-size: 1.05em; line-height: 1.6; color: #475569; }
+        
+        .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
+        .rule-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; }
+        .rule-box h4 { margin: 0 0 10px 0; color: #0f172a; }
+        .rule-box code { display: block; background: #e2e8f0; padding: 8px; border-radius: 4px; color: #b91c1c; font-weight: bold; }
+        .rule-box p { margin: 10px 0 0 0; font-size: 0.9em; color: #64748b; }
+
+        .svg-wrapper { width: 100%; overflow-x: auto; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; margin-top: 20px; padding: 20px 0; display: flex; justify-content: center; }
+        svg { display: block; overflow: visible; min-height: 150px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: monospace; font-size: 1.1em; }
+        th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
+        th { background-color: #f8fafc; color: #0f172a; }
+        tr:nth-child(even) { background-color: #f1f5f9; }
+        .val-1 { color: #166534; font-weight: bold; }
+        .val-0 { color: #991b1b; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h2>Sintetitzador Educatiu: Arquitectura NOR</h2>
+        <p>Escriu una funció utilitzant <strong>&</strong> (AND), <strong>|</strong> (OR), <strong>!</strong> (NOT).</p>
+        <input type="text" id="logicInput" value="!(A & B) | C">
+        <br>
+        <button onclick="runCompiler()">Compilar a NOR</button>
+        <div id="errorMsg" class="error">Hi ha un error de sintaxi a la funció! Revisa l'expressió.</div>
+    </div>
+
+    <div id="stepsContainer">
+        <div class="step-card" id="step1" style="border-left: 6px solid #007bff;">
+            <div class="step-title"><div><span class="step-number" style="background:#007bff;">1</span> Arbre de Sintaxi (AST)</div></div>
+            <p class="explanation">Lectura de l'equació matemàtica abstracta, respectant els parèntesis i prioritats.</p>
+            <div class="svg-wrapper" id="astSvgContainer"></div>
+        </div>
+
+        <div class="step-card" id="step2" style="border-left: 6px solid #ef4444;">
+            <div class="step-title"><div><span class="step-number" style="background:#ef4444;">2</span> Les Regles de Traducció a NOR</div></div>
+            <p class="explanation">En un sistema NOR, l'operació més "cara" és l'AND, al contrari que abans. Fixa't en les noves regles matemàtiques que apliquem per transformar qualsevol senyal:</p>
+            <div class="rules-grid">
+                <div class="rule-box">
+                    <h4>Traducció de NOT(X)</h4>
+                    <code>NOR(X, X)</code>
+                    <p>Cost: 1 porta. <strong>Problema:</strong> Clona tot el subcircuit <em>X</em>.</p>
+                </div>
+                <div class="rule-box">
+                    <h4>Traducció d'OR(X, Y)</h4>
+                    <code>NOR( NOR(X,Y), NOR(X,Y) )</code>
+                    <p>Cost: 3 portes. (Negar un NOR ens retorna l'OR original).</p>
+                </div>
+                <div class="rule-box">
+                    <h4>Traducció d'AND(X, Y)</h4>
+                    <code>NOR( NOR(X,X), NOR(Y,Y) )</code>
+                    <p>Cost: 3 portes. Aplicació clàssica de la Llei de De Morgan invertida.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card" id="step3" style="border-left: 6px solid #f59e0b;">
+            <div class="step-title">
+                <div><span class="step-number" style="background:#f59e0b;">3</span> Conversió Bruta a NOR</div>
+                <span class="badge bad" id="naiveCountBadge">Portes usades: ?</span>
+            </div>
+            <p class="explanation">Aplicació recursiva cega. Clonant subcircuits sense aturar-se a pensar.</p>
+            <div class="svg-wrapper" id="naiveSvgContainer" style="justify-content: flex-start; padding-left: 20px;"></div>
+        </div>
+
+        <div class="step-card" id="step4" style="border-left: 6px solid #9b59b6;">
+            <div class="step-title"><div><span class="step-number" style="background:#9b59b6;">4</span> Optimització: Dobles Negacions</div></div>
+            <p class="explanation">Eliminem els patrons <code>NOT(NOT(X))</code> que s'anul·len mútuament.</p>
+            <div class="svg-wrapper" id="doubleNotSvgContainer"></div>
+        </div>
+
+        <div class="step-card" id="step5" style="border-left: 6px solid #1abc9c;">
+            <div class="step-title"><div><span class="step-number" style="background:#1abc9c;">5</span> Optimització: Fusió a NOR natiu</div></div>
+            <p class="explanation">Aquí el compilador detecta agrupacions com <code>NOT(OR(A, B))</code> i les fusiona directament en una sola porta NOR física, estalviant moltíssim espai.</p>
+            <div class="svg-wrapper" id="collapseSvgContainer"></div>
+        </div>
+
+        <div class="step-card" id="step6" style="border-left: 6px solid #28a745;">
+            <div class="step-title">
+                <div><span class="step-number" style="background:#28a745;">6</span> Layout Final (Compartició de Senyals)</div>
+                <span class="badge good" id="optCountBadge">Portes usades: ?</span>
+            </div>
+            <p class="explanation">En lloc de clonar mòduls enters, soldem els cables perquè un sol subcircuit pugui enviar la seva sortida a múltiples entrades.</p>
+            <div class="svg-wrapper" id="optSvgContainer"></div>
+        </div>
+
+        <div class="step-card" id="step7" style="border-left: 6px solid #334155;">
+            <div class="step-title"><div><span class="step-number" style="background:#334155;">7</span> Taula de Veritat Matemàtica</div></div>
+            <p class="explanation">Matemàticament parlant, el resultat (la taula de veritat) ha de ser **exactament el mateix** que quan fabricàvem amb tecnologia NAND. Això demostra l'abstracció digital!</p>
+            <div id="truthTableContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. PARSER I AVALUADOR ---
+        function parseExpression(expr) {
+            const tokens = expr.match(/([a-zA-Z0-9]+|[&|!()])/g);
+            if (!tokens) return null;
+            const precedence = {'!': 3, '&': 2, '|': 1};
+            const output = [], operators = [];
+            for (let t of tokens) {
+                if (/^[a-zA-Z0-9]+$/.test(t)) output.push({ type: 'VAR', val: t });
+                else if (t === '(') operators.push(t);
+                else if (t === ')') {
+                    while (operators.length && operators[operators.length - 1] !== '(') output.push({ type: operators.pop() });
+                    if(operators.length) operators.pop();
+                } else {
+                    while (operators.length && precedence[operators[operators.length - 1]] >= precedence[t]) output.push({ type: operators.pop() });
+                    operators.push(t);
+                }
+            }
+            while (operators.length) output.push({ type: operators.pop() });
+            const stack = [];
+            for (let o of output) {
+                if (o.type === 'VAR') stack.push(o);
+                else if (o.type === '!') {
+                    if (stack.length < 1) throw "Error";
+                    stack.push({ type: 'NOT', left: stack.pop() });
+                } else {
+                    if (stack.length < 2) throw "Error";
+                    let right = stack.pop(), left = stack.pop();
+                    stack.push({ type: o.type === '&' ? 'AND' : 'OR', left, right });
+                }
+            }
+            return stack[0];
+        }
+
+        function extractVariables(ast) {
+            let vars = new Set();
+            function traverse(node) {
+                if (!node) return;
+                if (node.type === 'VAR') vars.add(node.val);
+                traverse(node.left);
+                traverse(node.right);
+            }
+            traverse(ast);
+            return Array.from(vars).sort();
+        }
+
+        function evaluateAST(ast, env) {
+            if (ast.type === 'VAR') return env[ast.val];
+            if (ast.type === 'NOT') return !evaluateAST(ast.left, env);
+            if (ast.type === 'AND') return evaluateAST(ast.left, env) && evaluateAST(ast.right, env);
+            if (ast.type === 'OR') return evaluateAST(ast.left, env) || evaluateAST(ast.right, env);
+            return false;
+        }
+
+        // --- 2. CONVERSORS I OPTIMITZADORS (ARA PER A NOR) ---
+        function cloneTree(node) {
+            if (!node) return null;
+            return { type: node.type, val: node.val, left: cloneTree(node.left), right: cloneTree(node.right) };
+        }
+        
+        function convertToNORNaive(ast) {
+            if (!ast) return null;
+            if (ast.type === 'VAR') return { type: 'VAR', val: ast.val };
+            let left = convertToNORNaive(ast.left);
+            let right = ast.right ? convertToNORNaive(ast.right) : null;
+
+            if (ast.type === 'NOT') return { type: 'NOR', left: cloneTree(left), right: cloneTree(left) };
+            if (ast.type === 'OR') {
+                let n1 = { type: 'NOR', left: cloneTree(left), right: cloneTree(right) };
+                return { type: 'NOR', left: cloneTree(n1), right: cloneTree(n1) };
+            }
+            if (ast.type === 'AND') {
+                return { type: 'NOR', left: { type: 'NOR', left: cloneTree(left), right: cloneTree(left) }, right: { type: 'NOR', left: cloneTree(right), right: cloneTree(right) } };
+            }
+            return ast;
+        }
+
+        function optimizeDoubleNegation(ast) {
+            if (!ast) return null;
+            if (ast.type === 'VAR') return { type: 'VAR', val: ast.val };
+            if (ast.type === 'NOT' && ast.left.type === 'NOT') return optimizeDoubleNegation(ast.left.left);
+            return { type: ast.type, val: ast.val, left: optimizeDoubleNegation(ast.left), right: ast.right ? optimizeDoubleNegation(ast.right) : null };
+        }
+
+        function optimizeCollapse(ast) {
+            if (!ast) return null;
+            if (ast.type === 'VAR') return { type: 'VAR', val: ast.val };
+            // FUSIÓ PER A NOR: Un NOT d'un OR és literalment un NOR
+            if (ast.type === 'NOT' && ast.left.type === 'OR') {
+                return { type: 'NOR', left: optimizeCollapse(ast.left.left), right: optimizeCollapse(ast.left.right) };
+            }
+            return { type: ast.type, val: ast.val, left: optimizeCollapse(ast.left), right: ast.right ? optimizeCollapse(ast.right) : null };
+        }
+
+        function convertIntermediateToNOR(ast) {
+            if (!ast) return null;
+            if (ast.type === 'VAR') return { type: 'VAR', val: ast.val };
+            let left = convertIntermediateToNOR(ast.left);
+            let right = ast.right ? convertIntermediateToNOR(ast.right) : null;
+
+            if (ast.type === 'NOT') return { type: 'NOR', isNot: true, left: left, right: left };
+            if (ast.type === 'NOR') return { type: 'NOR', left: left, right: right }; 
+            if (ast.type === 'OR') {
+                let n1 = { type: 'NOR', left: left, right: right };
+                return { type: 'NOR', isNot: true, left: n1, right: n1 };
+            }
+            if (ast.type === 'AND') {
+                return { type: 'NOR', left: { type: 'NOR', isNot: true, left: left, right: left }, right: { type: 'NOR', isNot: true, left: right, right: right } };
+            }
+            return ast;
+        }
+
+        function convertToNOROptimized(ast) {
+            if (!ast) return null;
+            if (ast.type === 'VAR') return { type: 'VAR', val: ast.val };
+            if (ast.type === 'NOT' && ast.left.type === 'NOT') return convertToNOROptimized(ast.left.left);
+            if (ast.type === 'NOT' && ast.left.type === 'OR') return { type: 'NOR', left: convertToNOROptimized(ast.left.left), right: convertToNOROptimized(ast.left.right) };
+            
+            let left = convertToNOROptimized(ast.left);
+            let right = ast.right ? convertToNOROptimized(ast.right) : null;
+
+            if (ast.type === 'NOT') return { type: 'NOR', isNot: true, left: left, right: left };
+            if (ast.type === 'OR') {
+                let n1 = { type: 'NOR', left: left, right: right };
+                return { type: 'NOR', isNot: true, left: n1, right: n1 };
+            }
+            if (ast.type === 'AND') {
+                return { type: 'NOR', left: { type: 'NOR', isNot: true, left: left, right: left }, right: { type: 'NOR', isNot: true, left: right, right: right } };
+            }
+            return ast;
+        }
+
+        function countNORGates(node) {
+            if (!node) return 0;
+            if (node.type === 'VAR') return 0;
+            let count = (node.type === 'NOR') ? 1 : 0;
+            if (node.isNot) return count + countNORGates(node.left);
+            return count + countNORGates(node.left) + countNORGates(node.right);
+        }
+
+        // --- 3. MOTORS DE RENDERITZAT SVG (NOVA FORMA NOR) ---
+        function calculateLayout(node, depth = 0) {
+            if (!node) return 0;
+            node.depth = depth;
+            if (node.type === 'VAR') { node.height = 40; return node.height; }
+            if (node.isNot || node.type === 'NOT') { node.height = calculateLayout(node.left, depth + 1); return node.height; }
+            let h1 = calculateLayout(node.left, depth + 1);
+            let h2 = calculateLayout(node.right, depth + 1);
+            node.height = h1 + h2;
+            return node.height;
+        }
+
+        function assignCoordinates(node, x, yStart, xSpacing) {
+            if (!node) return;
+            node.x = x;
+            if (node.type === 'VAR') { node.y = yStart + node.height / 2; } 
+            else if (node.isNot || node.type === 'NOT') {
+                assignCoordinates(node.left, x - xSpacing, yStart, xSpacing);
+                node.y = node.left.y; 
+                if (node.isNot) node.right = node.left; 
+            } else {
+                let leftStart = yStart; assignCoordinates(node.left, x - xSpacing, leftStart, xSpacing);
+                let rightStart = yStart + node.left.height; assignCoordinates(node.right, x - xSpacing, rightStart, xSpacing);
+                node.y = (node.left.y + node.right.y) / 2;
+            }
+        }
+
+        function renderASTSVG(node) {
+            let svgStr = '';
+            if (node.type !== 'VAR') {
+                svgStr += `<path d="M ${node.left.x} ${node.left.y} C ${node.x - 40} ${node.left.y}, ${node.x - 40} ${node.y}, ${node.x - 15} ${node.y}" fill="none" stroke="#94a3b8" stroke-width="2"/>`;
+                if (node.right && node.right !== node.left) {
+                    svgStr += `<path d="M ${node.right.x} ${node.right.y} C ${node.x - 40} ${node.right.y}, ${node.x - 40} ${node.y}, ${node.x - 15} ${node.y}" fill="none" stroke="#94a3b8" stroke-width="2"/>`;
+                }
+                svgStr += renderASTSVG(node.left);
+                if (node.right && node.right !== node.left) svgStr += renderASTSVG(node.right);
+                
+                svgStr += `<circle cx="${node.x}" cy="${node.y}" r="16" fill="#eff6ff" stroke="#007bff" stroke-width="2"/>`;
+                let symbol = node.type === 'AND' ? '&' : (node.type === 'OR' ? '|' : '!');
+                svgStr += `<text x="${node.x}" y="${node.y + 5}" font-family="monospace" font-size="16" font-weight="bold" fill="#007bff" text-anchor="middle">${symbol}</text>`;
+            } else {
+                svgStr += `<text x="${node.x - 15}" y="${node.y + 5}" font-family="monospace" font-size="16" font-weight="bold" fill="#333" text-anchor="end">${node.val}</text>`;
+                svgStr += `<circle cx="${node.x}" cy="${node.y}" r="5" fill="#e74c3c"/>`;
+            }
+            return svgStr;
+        }
+
+        function renderNORSVG(node) {
+            let svgStr = '';
+            if (node.type === 'NOR') {
+                if (node.isNot) {
+                    svgStr += `<path d="M ${node.left.x} ${node.left.y} L ${node.x - 30} ${node.left.y}" fill="none" stroke="#64748b" stroke-width="2"/>`;
+                    svgStr += `<path d="M ${node.x - 30} ${node.left.y} C ${node.x - 20} ${node.left.y}, ${node.x - 20} ${node.y - 8}, ${node.x - 15} ${node.y - 8}" fill="none" stroke="#64748b" stroke-width="2"/>`;
+                    svgStr += `<path d="M ${node.x - 30} ${node.left.y} C ${node.x - 20} ${node.left.y}, ${node.x - 20} ${node.y + 8}, ${node.x - 15} ${node.y + 8}" fill="none" stroke="#64748b" stroke-width="2"/>`;
+                    svgStr += `<circle cx="${node.x - 30}" cy="${node.left.y}" r="4" fill="#334155"/>`;
+                    svgStr += renderNORSVG(node.left);
+                } else {
+                    svgStr += `<path d="M ${node.left.x} ${node.left.y} C ${node.x - 50} ${node.left.y}, ${node.x - 50} ${node.y - 8}, ${node.x - 15} ${node.y - 8}" fill="none" stroke="#64748b" stroke-width="2"/>`;
+                    svgStr += `<path d="M ${node.right.x} ${node.right.y} C ${node.x - 50} ${node.right.y}, ${node.x - 50} ${node.y + 8}, ${node.x - 15} ${node.y + 8}" fill="none" stroke="#64748b" stroke-width="2"/>`;
+                    svgStr += renderNORSVG(node.left); svgStr += renderNORSVG(node.right);
+                }
+                // Nova forma per a NOR (esquena corbada i punta frontal) + la bombolla de negació
+                svgStr += `<g transform="translate(${node.x - 15}, ${node.y})">
+                            <path d="M 0,-15 Q 8,0 0,15 Q 15,15 24,0 Q 15,-15 0,-15 Z" fill="#fff7ed" stroke="#e67e22" stroke-width="2"/>
+                            <circle cx="28" cy="0" r="4" fill="white" stroke="#e67e22" stroke-width="2"/>
+                           </g>`;
+            } else if (node.type === 'VAR') {
+                svgStr += `<text x="${node.x - 10}" y="${node.y + 5}" font-family="monospace" font-size="16" font-weight="bold" fill="#333" text-anchor="end">${node.val}</text>
+                           <circle cx="${node.x}" cy="${node.y}" r="5" fill="#e74c3c"/>`;
+            }
+            return svgStr;
+        }
+
+        function buildSVGWrapper(tree, renderer, xSpacing, outColor, outText) {
+            calculateLayout(tree);
+            let maxDepth = 0;
+            function findDepth(n) {
+                if(!n) return;
+                if(n.depth > maxDepth) maxDepth = n.depth;
+                if(n.isNot || n.type === 'NOT') findDepth(n.left); else { findDepth(n.left); findDepth(n.right); }
+            }
+            findDepth(tree);
+
+            const svgWidth = (maxDepth + 1) * xSpacing + 100;
+            const svgHeight = tree.height + 40;
+            assignCoordinates(tree, svgWidth - 80, 20, xSpacing);
+
+            let content = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">`;
+            content += `<path d="M ${tree.x + (renderer===renderASTSVG?20:20)} ${tree.y} L ${tree.x + 50} ${tree.y}" fill="none" stroke="#64748b" stroke-width="2"/>`;
+            content += `<text x="${tree.x + 55}" y="${tree.y + 5}" font-family="monospace" font-size="16" font-weight="bold" fill="${outColor}">${outText}</text>`;
+            content += renderer(tree);
+            content += `</svg>`;
+            return content;
+        }
+
+        // --- 4. GENERADOR DE LA TAULA DE VERITAT ---
+        function renderTruthTable(ast, vars) {
+            let html = `<table><thead><tr>`;
+            vars.forEach(v => html += `<th>${v}</th>`);
+            html += `<th style="background:#e2e8f0;">SORTIDA</th></tr></thead><tbody>`;
+            
+            const numRows = Math.pow(2, vars.length);
+            for (let i = 0; i < numRows; i++) {
+                let env = {};
+                html += `<tr>`;
+                for (let j = 0; j < vars.length; j++) {
+                    let val = (i & (1 << (vars.length - 1 - j))) ? 1 : 0;
+                    env[vars[j]] = val === 1;
+                    html += `<td class="val-${val}">${val}</td>`;
+                }
+                let result = evaluateAST(ast, env) ? 1 : 0;
+                html += `<td class="val-${result}" style="background:#f8fafc;">${result}</td>`;
+                html += `</tr>`;
+            }
+            html += `</tbody></table>`;
+            return html;
+        }
+
+        // --- MOTOR PRINCIPAL ---
+        async function runCompiler() {
+            const input = document.getElementById('logicInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            errorMsg.style.display = 'none';
+            for(let i=1; i<=7; i++) {
+                let step = document.getElementById('step'+i);
+                if(step) step.style.display = 'none';
+            }
+
+            try {
+                const ast = parseExpression(input);
+                if (!ast) throw "Arbre buit";
+
+                const variables = extractVariables(ast);
+
+                // PAS 1: AST
+                document.getElementById('astSvgContainer').innerHTML = buildSVGWrapper(ast, renderASTSVG, 80, '#007bff', 'OUT');
+                document.getElementById('step1').style.display = 'block';
+                await new Promise(r => setTimeout(r, 800));
+
+                // PAS 2: Explicació de la traducció NOR
+                document.getElementById('step2').style.display = 'block';
+                await new Promise(r => setTimeout(r, 1200));
+
+                // PAS 3: Ingenu (Amb recompte)
+                const naiveTree = convertToNORNaive(parseExpression(input));
+                let naiveGates = countNORGates(naiveTree);
+                document.getElementById('naiveCountBadge').innerText = `Portes usades: ${naiveGates}`;
+                document.getElementById('naiveSvgContainer').innerHTML = buildSVGWrapper(naiveTree, renderNORSVG, 120, '#f59e0b', 'OUT');
+                document.getElementById('step3').style.display = 'block';
+                await new Promise(r => setTimeout(r, 1000));
+
+                // PAS 4: Doble Negació
+                const noDoubleNotAST = optimizeDoubleNegation(parseExpression(input));
+                const intermediateNOR1 = convertIntermediateToNOR(noDoubleNotAST);
+                document.getElementById('doubleNotSvgContainer').innerHTML = buildSVGWrapper(intermediateNOR1, renderNORSVG, 110, '#9b59b6', 'OUT');
+                document.getElementById('step4').style.display = 'block';
+                await new Promise(r => setTimeout(r, 1000));
+
+                // PAS 5: Col·lapse
+                const collapsedAST = optimizeCollapse(noDoubleNotAST);
+                const intermediateNOR2 = convertIntermediateToNOR(collapsedAST);
+                document.getElementById('collapseSvgContainer').innerHTML = buildSVGWrapper(intermediateNOR2, renderNORSVG, 110, '#1abc9c', 'OUT');
+                document.getElementById('step5').style.display = 'block';
+                await new Promise(r => setTimeout(r, 1000));
+
+                // PAS 6: Layout Final Optimitzat (Amb recompte)
+                const optTree = convertToNOROptimized(parseExpression(input));
+                let optGates = countNORGates(optTree);
+                let saved = naiveGates - optGates;
+                document.getElementById('optCountBadge').innerText = `Portes usades: ${optGates} (Estalvies ${saved} portes!)`;
+                document.getElementById('optSvgContainer').innerHTML = buildSVGWrapper(optTree, renderNORSVG, 100, '#28a745', 'OUT');
+                document.getElementById('step6').style.display = 'block';
+                await new Promise(r => setTimeout(r, 1000));
+
+                // PAS 7: Taula de veritat
+                document.getElementById('truthTableContainer').innerHTML = renderTruthTable(ast, variables);
+                document.getElementById('step7').style.display = 'block';
+
+            } catch (e) {
+                console.error(e);
+                errorMsg.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
+
+
