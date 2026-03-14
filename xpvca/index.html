@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalonia Air Analysis - Export</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #0052cc;
+            --primary-hover: #003d99;
+            --success: #28a745;
+            --success-hover: #218838;
+            --secondary: #6c757d;
+            --secondary-hover: #5a6268;
+            --bg: #f0f2f5;
+            --text: #333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            padding: 15px; 
+            background: var(--bg); 
+            color: var(--text); 
+        }
+
+        /* Mobile First Layout */
+        .controls { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            margin-bottom: 20px; 
+        }
+
+        .control-group { width: 100%; }
+
+        label { 
+            display: block; 
+            font-weight: 600; 
+            font-size: 13px; 
+            margin-bottom: 6px; 
+            color: #555; 
+        }
+
+        select, input, button { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 1rem;
+            background-color: white;
+        }
+
+        button { 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: background-color 0.2s; 
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-update { background: var(--primary); color: white; margin-top: 5px; }
+        .btn-update:hover { background: var(--primary-hover); }
+        .btn-export { background: var(--success); color: white; }
+        .btn-export:hover { background: var(--success-hover); }
+        .btn-image { background: var(--secondary); color: white; }
+        .btn-image:hover { background: var(--secondary-hover); }
+
+        .chart-container { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 12px; 
+            height: 50vh; 
+            min-height: 350px;
+            position: relative; 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .export-buttons { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+
+        /* Desktop Adjustments */
+        @media (min-width: 768px) {
+            body { padding: 25px; }
+            .controls { 
+                flex-direction: row; 
+                align-items: flex-end; 
+                flex-wrap: wrap; 
+            }
+            .control-group { width: auto; flex: 1; min-width: 150px; }
+            select, input { padding: 10px; font-size: 0.95rem; }
+            button { width: auto; padding: 10px 20px; }
+            .btn-update { margin-top: 0; }
+            .chart-container { height: 60vh; padding: 20px; }
+            .export-buttons { flex-direction: row; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>📍 Station</label>
+            <select id="estacio">
+                <option value="Agullana">Agullana</option>
+                <option value="Alcanar">Alcanar</option>
+                <option value="Alcover">Alcover</option>
+                <option value="Amposta">Amposta</option>
+                <option value="Badalona">Badalona</option>
+                <option value="Barberà del Vallès">Barberà del Vallès</option>
+                <option value="Barcelona (Ciutadella)">Barcelona (Ciutadella)</option>
+                <option value="Barcelona (Eixample)" selected>Barcelona (Eixample)</option>
+                <option value="Barcelona (Gràcia - Sant Gervasi)">Barcelona (Gràcia - Sant Gervasi)</option>
+                <option value="Barcelona (Observatori Fabra)">Barcelona (Observatori Fabra)</option>
+                <option value="Barcelona (Palau Reial)">Barcelona (Palau Reial)</option>
+                <option value="Barcelona (Parc Vall Hebron)">Barcelona (Parc Vall Hebron)</option>
+                <option value="Barcelona (Poblenou)">Barcelona (Poblenou)</option>
+                <option value="Barcelona (Sants)">Barcelona (Sants)</option>
+                <option value="Begur">Begur</option>
+                <option value="Bellver de Cerdanya">Bellver de Cerdanya</option>
+                <option value="Berga">Berga</option>
+                <option value="Constantí">Constantí</option>
+                <option value="Cubelles (Poliesportiu)">Cubelles (Poliesportiu)</option>
+                <option value="El Prat de Llobregat (Jardins de la Pau)">El Prat de Llobregat (Jardins de la Pau)</option>
+                <option value="El Prat de Llobregat (Sagnier)">El Prat de Llobregat (Sagnier)</option>
+                <option value="Els Guiamets">Els Guiamets</option>
+                <option value="Flix">Flix</option>
+                <option value="Gandesa">Gandesa</option>
+                <option value="Gavà">Gavà</option>
+                <option value="Girona (Escola de Música)">Girona (Escola de Música)</option>
+                <option value="Granollers">Granollers</option>
+                <option value="Igualada">Igualada</option>
+                <option value="Juneda (Pla del Molí)">Juneda (Pla del Molí)</option>
+                <option value="L'Ametlla de Mar">L'Ametlla de Mar</option>
+                <option value="L'Hospitalet de Llobregat">L'Hospitalet de Llobregat</option>
+                <option value="La Sénia">La Sénia</option>
+                <option value="Lleida">Lleida</option>
+                <option value="Manlleu">Manlleu</option>
+                <option value="Manresa">Manresa</option>
+                <option value="Martorell">Martorell</option>
+                <option value="Mataró">Mataró</option>
+                <option value="Mollet del Vallès">Mollet del Vallès</option>
+                <option value="Montcada i Reixac">Montcada i Reixac</option>
+                <option value="Montcada i Reixac (Can Sant Joan)">Montcada i Reixac (Can Sant Joan)</option>
+                <option value="Montsec">Montsec</option>
+                <option value="Montseny (La Castanya)">Montseny (La Castanya)</option>
+                <option value="Pallejà (Roca de Vilana)">Pallejà (Roca de Vilana)</option>
+                <option value="Pardines">Pardines</option>
+                <option value="Perafort (Puigdelfí)">Perafort (Puigdelfí)</option>
+                <option value="Ponts">Ponts</option>
+                <option value="Reus">Reus</option>
+                <option value="Rubí">Rubí</option>
+                <option value="Sabadell">Sabadell</option>
+                <option value="Sant Adrià de Besòs">Sant Adrià de Besòs</option>
+                <option value="Sant Andreu de la Barca">Sant Andreu de la Barca</option>
+                <option value="Sant Celoni">Sant Celoni</option>
+                <option value="Sant Cugat del Vallès">Sant Cugat del Vallès</option>
+                <option value="Sant Vicenç dels Horts">Sant Vicenç dels Horts</option>
+                <option value="Sant Vicenç dels Horts (Ribot)">Sant Vicenç dels Horts (Ribot)</option>
+                <option value="Santa Coloma de Gramenet">Santa Coloma de Gramenet</option>
+                <option value="Santa Maria de Palautordera">Santa Maria de Palautordera</option>
+                <option value="Santa Pau">Santa Pau</option>
+                <option value="Santa Perpètua de Mogoda">Santa Perpètua de Mogoda</option>
+                <option value="Sort">Sort</option>
+                <option value="Sta. Margarida i els Monjos (La Ràpita)">Sta. Margarida i els Monjos (La Ràpita)</option>
+                <option value="Tarragona (Bonavista)">Tarragona (Bonavista)</option>
+                <option value="Tarragona (Parc de la Ciutat)">Tarragona (Parc de la Ciutat)</option>
+                <option value="Tarragona (Sant Salvador)">Tarragona (Sant Salvador)</option>
+                <option value="Tarragona (Universitat Laboral)">Tarragona (Universitat Laboral)</option>
+                <option value="Terrassa">Terrassa</option>
+                <option value="Tona (Zona Esportiva)">Tona (Zona Esportiva)</option>
+                <option value="Vandellòs (Barranc del Terme)">Vandellòs (Barranc del Terme)</option>
+                <option value="Vandellòs (Els Dedalts)">Vandellòs (Els Dedalts)</option>
+                <option value="Vandellòs (Viver)">Vandellòs (Viver)</option>
+                <option value="Vic">Vic</option>
+                <option value="Vila-seca (IES Vila-seca)">Vila-seca (IES Vila-seca)</option>
+                <option value="Viladecans - Atrium">Viladecans - Atrium</option>
+                <option value="Vilafranca del Penedès">Vilafranca del Penedès</option>
+                <option value="Vilanova i la Geltrú">Vilanova i la Geltrú</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label>📊 View</label>
+            <select id="tipusVista" onchange="toggleVista()">
+                <option value="diaria">Daily View</option>
+                <option value="anual">Annual View</option>
+            </select>
+        </div>
+        
+        <div class="control-group" id="wrapperData">
+            <label>📅 Date</label>
+            <input type="date" id="fecha">
+        </div>
+        
+        <div class="control-group" id="wrapperAny" style="display:none">
+            <label>📅 Year</label>
+            <input type="number" id="any" value="2025" min="1991" max="2026">
+        </div>
+        
+        <button class="btn-update" onclick="carregarDades()">🔄 Update</button>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <div class="export-buttons">
+        <button class="btn-image" onclick="exportarImatge()">🖼️ Download PNG</button>
+        <button class="btn-export" onclick="exportarExcel()">📊 Download Excel (.xlsx)</button>
+    </div>
+
+    <script>
+        let myChart = null;
+        const configCont = [
+            { id: "PM1", label: "PM₁", color: "#8ecae6" },
+            { id: "PM2.5", label: "PM₂.₅", color: "#2a9d8f" },
+            { id: "PM10", label: "PM₁₀", color: "#e63946" },
+            { id: "NO", label: "NO", color: "#adb5bd" },
+            { id: "NO2", label: "NO₂", color: "#1d3557" },
+            { id: "NOX", label: "NOₓ", color: "#6a040f" },
+            { id: "O3", label: "O₃", color: "#457b9d" },
+            { id: "SO2", label: "SO₂", color: "#f4a261" },
+            { id: "CO", label: "CO", color: "#264653" },
+            { id: "C6H6", label: "C₆H₆", color: "#e76f51" }
+        ];
+
+        // Setup Initial Date
+        const inputData = document.getElementById('fecha');
+        const ahir = new Date();
+        ahir.setDate(ahir.getDate() - 1);
+        inputData.value = ahir.toISOString().split('T')[0];
+
+        function toggleVista() {
+            const esAnual = document.getElementById('tipusVista').value === 'anual';
+            document.getElementById('wrapperData').style.display = esAnual ? 'none' : 'block';
+            document.getElementById('wrapperAny').style.display = esAnual ? 'block' : 'none';
+        }
+
+        async function carregarDades() {
+            const estacio = document.getElementById('estacio').value;
+            const vista = document.getElementById('tipusVista').value;
+            let labels = [];
+            let datasets = [];
+
+            if (vista === 'diaria') {
+                const data = document.getElementById('fecha').value;
+                labels = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00h`);
+                
+                // Filter available pollutants
+                const datasetsPromises = configCont.map(async c => {
+                    const url = `https://analisi.transparenciacatalunya.cat/resource/tasf-thgu.json?nom_estacio=${estacio}&data=${data}&contaminant=${c.id}`;
+                    const res = await fetch(url).then(r => r.json());
+                    if (res.length === 0) return null;
+
+                    const valors = Array.from({length: 24}, (_, i) => {
+                        const valor = parseFloat(res[0][`h${(i+1).toString().padStart(2,'0')}`]);
+                        return isNaN(valor) ? null : valor;
+                    });
+
+                    const tieneDatos = valors.some(v => v !== null);
+                    if (!tieneDatos) return null;
+
+                    return { label: c.label, data: valors, borderColor: c.color, backgroundColor: c.color, tension: 0.3 };
+                });
+
+                const allDatasets = await Promise.all(datasetsPromises);
+                datasets = allDatasets.filter(d => d !== null);
+            } else {
+                const any = document.getElementById('any').value;
+                
+                const datasetsPromises = configCont.map(async c => {
+                    const url = `https://analisi.transparenciacatalunya.cat/resource/tasf-thgu.json?nom_estacio=${estacio}&contaminant=${c.id}&$where=data between '${any}-01-01T00:00:00' and '${any}-12-31T23:59:59'&$limit=5000&$order=data ASC`;
+                    try {
+                        const res = await fetch(url).then(r => r.json());
+                        if (res.length === 0) return null; 
+
+                        // Group data per day and calculate daily average
+                        const dadesPerDia = {};
+                        res.forEach(row => {
+                            const data = row.data.split('T')[0];
+                            if (!dadesPerDia[data]) { dadesPerDia[data] = { suma: 0, comptador: 0 }; }
+
+                            let totalDia = 0;
+                            let comptadorHores = 0;
+                            for (let h = 1; h <= 24; h++) {
+                                const horaStr = `h${h.toString().padStart(2, '0')}`;
+                                const valor = parseFloat(row[horaStr]);
+                                if (!isNaN(valor)) { totalDia += valor; comptadorHores++; }
+                            }
+
+                            if (comptadorHores > 0) {
+                                dadesPerDia[data].suma += totalDia;
+                                dadesPerDia[data].comptador += comptadorHores;
+                            }
+                        });
+
+                        const dies = Object.keys(dadesPerDia).sort();
+                        const mitjanes = dies.map(dia => {
+                            const { suma, comptador } = dadesPerDia[dia];
+                            return comptador > 0 ? suma / comptador : 0;
+                        });
+
+                        if (dies.length === 0) return null;
+                        if (labels.length === 0) labels = dies;
+
+                        return { label: c.label, data: mitjanes, borderColor: c.color, backgroundColor: c.color, pointRadius: 0, borderWidth: 2 };
+                    } catch (error) {
+                        console.error(`Error loading data for ${c.id}:`, error);
+                        return null;
+                    }
+                });
+
+                const allDatasets = await Promise.all(datasetsPromises);
+                datasets = allDatasets.filter(d => d !== null);
+            }
+
+            // Display message if no data exists
+            if (datasets.length === 0) {
+                if (myChart) myChart.destroy();
+                const ctx = document.getElementById('myChart');
+                const ctx2d = ctx.getContext('2d');
+                ctx2d.clearRect(0, 0, ctx.width, ctx.height);
+                ctx2d.font = window.innerWidth < 768 ? '14px Arial' : '16px Arial';
+                ctx2d.fillStyle = '#666';
+                ctx2d.textAlign = 'center';
+                ctx2d.fillText('No data available for the selected parameters.', ctx.width/2, ctx.height/2);
+                return;
+            }
+
+            renderChart(labels, datasets);
+        }
+
+        function renderChart(labels, datasets) {
+            const ctx = document.getElementById('myChart');
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { font: { size: 11 } } },
+                        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} µg/m³` } }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            title: { display: true, text: 'µg/m³' },
+                            ticks: { callback: function(value) { return value.toFixed(2); } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // EXPORT FUNCTIONS
+        function exportarImatge() {
+            if(!myChart || myChart.data.datasets.length === 0) return;
+            const link = document.createElement('a');
+            link.download = `air_pollution_chart_${new Date().getTime()}.png`;
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+
+        function exportarExcel() {
+            if (!myChart || myChart.data.datasets.length === 0) return;
+            const labels = myChart.data.labels;
+            const datasets = myChart.data.datasets;
+
+            const rows = labels.map((label, index) => {
+                const row = { "Time/Date": label };
+                datasets.forEach(ds => { row[ds.label] = ds.data[index]; });
+                return row;
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(rows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Pollution Data");
+            XLSX.writeFile(workbook, `air_data_${document.getElementById('estacio').value}.xlsx`);
+        }
+
+        window.onload = carregarDades;
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
