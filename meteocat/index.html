@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Meteocat Dashboard (XEMA) · mobile first</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif; background: #eef2f6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; background: white; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 20px 16px; }
+        #setupScreen { text-align: center; padding: 20px 0 10px; }
+        .setup-card { max-width: 460px; margin: 0 auto; background: #f9fcff; padding: 32px 20px; border-radius: 32px; border: 1px solid #dee7ef; }
+        .setup-card h2 { font-size: 1.9rem; font-weight: 600; margin-bottom: 24px; color: #0b2b40; letter-spacing: -0.02em; }
+        .setup-card label { display: block; text-align: left; font-weight: 600; color: #1e3b5c; margin-top: 20px; margin-bottom: 6px; font-size: 1rem; }
+        .setup-card select { width: 100%; padding: 14px 16px; border-radius: 18px; border: 1.5px solid #cbd5e1; background: white; font-size: 1.05rem; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23334155" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 18px; }
+        .btn-fetch { background: #0a7cbf; color: white; padding: 16px 20px; border-radius: 40px; border: none; font-weight: 700; font-size: 1.25rem; width: 100%; margin-top: 32px; cursor: pointer; transition: 0.2s; box-shadow: 0 8px 18px rgba(10,124,191,0.2); }
+        .btn-fetch:hover { background: #086aa5; }
+        .btn-fetch:disabled { background: #9bb7d4; box-shadow: none; cursor: not-allowed; }
+        .header-flex { display: flex; flex-direction: column; gap: 18px; margin-bottom: 24px; }
+        @media (min-width: 600px) { .header-flex { flex-direction: row; justify-content: space-between; align-items: flex-start; } }
+        .titles h1 { font-size: 2rem; line-height: 1.2; color: #0b2b40; font-weight: 700; }
+        .titles .subtitle { color: #2c4e6e; border-left: 5px solid #0a7cbf; padding-left: 16px; font-size: 1.1rem; margin-top: 8px; }
+        .export-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+        .btn { padding: 12px 18px; border-radius: 40px; border: none; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: 0.15s; flex: 1 0 auto; background: #e9ecf0; color: #1e293b; }
+        .btn-png { background: #e0e7ef; }
+        .btn-png:hover { background: #cbd5e1; }
+        .btn-excel { background: #0e7b5e; color: white; }
+        .btn-excel:hover { background: #0b644c; }
+        .filters { background: #f2f7fd; padding: 24px 20px; border-radius: 32px; margin-bottom: 28px; }
+        .filter-group label { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.3px; color: #1f4a6e; display: block; margin-bottom: 10px; }
+        .filter-group select { width: 100%; padding: 15px 18px; border-radius: 30px; border: 1px solid #b9cbdf; background: white; font-size: 1.1rem; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23334155" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>'); background-repeat: no-repeat; background-position: right 18px center; }
+        .chart-container { position: relative; height: 380px; background: white; border-radius: 32px; padding: 12px 8px 8px 8px; border: 1px solid #dde5ed; margin-bottom: 24px; }
+        @media (min-width: 600px) { .chart-container { height: 480px; } }
+        .summary { display: flex; flex-wrap: wrap; gap: 16px; background: linear-gradient(125deg, #0c314a, #163a57); color: white; padding: 28px 22px; border-radius: 36px; margin-top: 12px; }
+        .stat { flex: 1 1 140px; min-width: 130px; }
+        .stat .label { font-size: 0.85rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.4px; }
+        .stat .value { font-size: 2.2rem; font-weight: 700; display: block; margin-top: 4px; line-height: 1.1; }
+        .loading-container { text-align: center; padding: 50px 20px; display: none; }
+        .loading { font-size: 1.5rem; font-weight: 600; color: #0a7cbf; }
+        .error { color: #c5283d; font-weight: 600; margin-top: 20px; }
+        footer { text-align: center; margin-top: 32px; color: #587b9c; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- setup panel (English UI) -->
+    <div id="setupScreen">
+        <div class="setup-card">
+            <h2>🌤️ Meteocat data</h2>
+            
+            <label>1. Choose weather station</label>
+            <select id="stationSelect">
+                <!-- will be replaced immediately with static list -->
+                <option value="">Loading stations...</option>
+            </select>
+
+            <label>2. Choose year</label>
+            <select id="initialYearSelect">
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+                <option value="2019">2019</option>
+                <option value="2018">2018</option>
+                <option value="2017">2017</option>
+                <option value="2016">2016</option>
+                <option value="2015">2015</option>
+                <option value="2014">2014</option>
+                <option value="2013">2013</option>
+                <option value="2012">2012</option>
+            </select>
+            
+            <button class="btn-fetch" id="btnStartFetch" disabled>📡 Get data</button>
+            <div id="setupError" class="error"></div>
+        </div>
+    </div>
+
+    <!-- loading -->
+    <div id="loadingArea" class="loading-container">
+        <div class="loading" id="loadingText">⏳ Downloading records ...</div>
+    </div>
+
+    <!-- dashboard -->
+    <div id="dashboardArea" style="display: none;">
+        <div class="header-flex">
+            <div class="titles">
+                <h1 id="mainTitle">Meteocat · XEMA</h1>
+                <div class="subtitle" id="subTitleText">daily aggregation</div>
+            </div>
+            <div class="export-btns">
+                <button class="btn btn-png" id="btnDownloadPNG">🖼️ PNG chart</button>
+                <button class="btn btn-excel" id="btnDownloadExcel">📊 Excel data (50k)</button>
+                <button class="btn btn-png" onclick="location.reload()">🔁 Back</button>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label>🌡️ Select variable to display</label>
+                <select id="varFilter"></select>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="weatherChart"></canvas>
+        </div>
+        
+        <div class="summary">
+            <div class="stat"><span class="label">Total records</span><span class="value" id="totalRecords">0</span></div>
+            <div class="stat"><span class="label">Maximum value</span><span class="value" id="maxValue">-</span></div>
+            <div class="stat"><span class="label">Average value</span><span class="value" id="avgValue">-</span></div>
+        </div>
+    </div>
+    
+    <footer>Open data: Government of Catalonia (Dataset nzvn-apee)</footer>
+</div>
+
+<script>
+    (function() {
+        const setupScreen = document.getElementById('setupScreen');
+        const loadingArea = document.getElementById('loadingArea');
+        const dashboardArea = document.getElementById('dashboardArea');
+        const loadingText = document.getElementById('loadingText');
+        
+        const stationSelect = document.getElementById('stationSelect');
+        const initialYearSelect = document.getElementById('initialYearSelect');
+        const btnStartFetch = document.getElementById('btnStartFetch');
+        const varFilter = document.getElementById('varFilter');
+        const setupError = document.getElementById('setupError');
+
+        let rawData = [];
+        let chartInstance = null;
+        let currentStationName = "";
+
+        const DATA_API_URL = 'https://analisi.transparenciacatalunya.cat/resource/nzvn-apee.json';
+        const CHUNK_SIZE = 50000;
+
+        const VARIABLES_NOM = {
+          
+            '30': 'Wind speed (m/s)', '31': 'Wind direction (º)', '32': 'Temperature (ºC)',
+            '33': 'Relative humidity (%)', '34': 'Atmospheric pressure (hPa)', '35': 'Precipitation (mm)',
+            '36': 'Solar irradiance (W/m²)', '40': 'Maximum wind gust (m/s)', '42': 'Maximum temperature (ºC)',
+            '43': 'Minimum temperature (ºC)', '44': 'Maximum relative humidity (%)', '45': 'Minimum relative humidity (%)'
+        };
+
+        const AGGREGATION_TYPES = {
+            '1':  { agg: 'sum',  label: 'Daily sum (cloud-ground lightning)' },
+            '2':  { agg: 'sum',  label: 'Daily sum (intracloud lightning)' },
+            '3':  { agg: 'sum',  label: 'Daily sum (global solar radiation)' },
+            '35': { agg: 'sum',  label: 'Daily accumulated precipitation' },
+            '51': { agg: 'sum',  label: 'Daily sum (total lightning)' },
+            '40': { agg: 'max',  label: 'Daily maximum wind gust' },
+            '42': { agg: 'max',  label: 'Daily maximum temperature' },
+            '43': { agg: 'min',  label: 'Daily minimum temperature' },
+            '44': { agg: 'max',  label: 'Daily maximum relative humidity' },
+            '45': { agg: 'min',  label: 'Daily minimum relative humidity' },
+            '50': { agg: 'max',  label: 'Daily snow depth' },
+            '72': { agg: 'max',  label: 'Daily maximum solar irradiance' }
+        };
+
+        const whiteBackgroundPlugin = {
+            id: 'customCanvasBackgroundColor',
+            beforeDraw: (chart, args, options) => {
+                const {ctx} = chart;
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = options.color || '#ffffff';
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        };
+
+        // Fixed static stations with real names (all English UI)
+        const STATIC_STATIONS = [
+  { code: "VE", name: "Aitona" },
+  { code: "WB", name: "Albesa" },
+  { code: "XY", name: "Alcarràs" },
+  { code: "VF", name: "Alcarràs - Torrent d'Alcarràs" },
+  { code: "U7", name: "Aldover" },
+  { code: "WK", name: "Alfarràs" },
+  { code: "WG", name: "Algerri" },
+  { code: "X3", name: "Alguaire" },
+  { code: "Y4", name: "Alinyà" },
+  { code: "UU", name: "Amposta" },
+  { code: "XX", name: "Anglesola - Tornabous" },
+  { code: "DN", name: "Anglès" },
+  { code: "WW", name: "Artés" },
+  { code: "VA", name: "Ascó" },
+  { code: "DH", name: "Badalona - Mas Ram" },
+  { code: "WU", name: "Badalona - Museu" },
+  { code: "X6", name: "Baldomar" },
+  { code: "DJ", name: "Banyoles" },
+  { code: "AN", name: "Barcelona - Av. Lluís Companys" },
+  { code: "D5", name: "Barcelona - Observatori Fabra" },
+  { code: "X8", name: "Barcelona - Zona Universitària" },
+  { code: "X2", name: "Barcelona - Zoo" },
+  { code: "X4", name: "Barcelona - el Raval" },
+  { code: "YX", name: "Batea" },
+  { code: "WD", name: "Batea - Granja de Pere el Sec" },
+  { code: "WH", name: "Bellvís" },
+  { code: "VB", name: "Benissanet" },
+  { code: "W8", name: "Blancafort" },
+  { code: "YT", name: "Bonabé (1.693 m)" },
+  { code: "Z1", name: "Bonaigua (2.266 m)" },
+  { code: "DE", name: "Botarell" },
+  { code: "Z2", name: "Boí (2.535 m)" },
+  { code: "YS", name: "Cabanes" },
+  { code: "U1", name: "Cabanes - Mas de la Rajoleria" },
+  { code: "UP", name: "Cabrils" },
+  { code: "Z9", name: "Cadí Nord (2.143 m) - Prat d'Aguiló" },
+  { code: "X9", name: "Caldes de Montbui" },
+  { code: "VW", name: "Caldes de Montbui - Torre Marimon" },
+  { code: "WX", name: "Camarasa" },
+  { code: "WP", name: "Canaletes" },
+  { code: "YU", name: "Cantonigròs" },
+  { code: "XU", name: "Canyelles" },
+  { code: "MQ", name: "Cardona" },
+  { code: "UN", name: "Cassà de la Selva" },
+  { code: "DO", name: "Castell d'Aro" },
+  { code: "MS", name: "Castellar de n'Hug - el Clot del Moro" },
+  { code: "XC", name: "Castellbisbal" },
+  { code: "UL", name: "Castelldans" },
+  { code: "U4", name: "Castellnou de Bages" },
+  { code: "C6", name: "Castellnou de Seana" },
+  { code: "W1", name: "Castelló d'Empúries" },
+  { code: "VT", name: "Cerdanyola del Vallès" },
+  { code: "Z5", name: "Certascan (2.400 m)" },
+  { code: "C8", name: "Cervera" },
+  { code: "CA", name: "Clariana de Cardener" },
+  { code: "VQ", name: "Constantí" },
+  { code: "WZ", name: "Cunit" },
+  { code: "DP", name: "Das - Aeròdrom" },
+  { code: "UQ", name: "Dosrius - PN Montnegre Corredor" },
+  { code: "V7", name: "Embassament de Sau" },
+  { code: "VZ", name: "Espolla" },
+  { code: "Z7", name: "Espot (2.519 m)" },
+  { code: "X1", name: "Falset" },
+  { code: "CH", name: "Falset - Escola" },
+  { code: "KP", name: "Fogars de la Selva" },
+  { code: "DI", name: "Font-rubí" },
+  { code: "UO", name: "Fornells de la Selva" },
+  { code: "XP", name: "Gandesa" },
+  { code: "VH", name: "Gimenells" },
+  { code: "XJ", name: "Girona" },
+  { code: "DM", name: "Girona - Bombers" },
+  { code: "UI", name: "Gisclareny" },
+  { code: "WC", name: "Golmés" },
+  { code: "YM", name: "Granollers" },
+  { code: "WV", name: "Guardiola de Berguedà" },
+  { code: "CN", name: "Guardiola de Berguedà - Escola" },
+  { code: "MV", name: "Guixers - Valls" },
+  { code: "V3", name: "Gurb" },
+  { code: "D8", name: "Horta de Sant Joan" },
+  { code: "DL", name: "Illa de Buda" },
+  { code: "VS", name: "Lac Redon (2.247 m)" },
+  { code: "VO", name: "Lladurs" },
+  { code: "VI", name: "Lleida" },
+  { code: "XW", name: "Lleida - la Bordeta" },
+  { code: "YJ", name: "Lleida - la Femosa" },
+  { code: "VJ", name: "Lleida - pla de Lleida" },
+  { code: "CF", name: "Lloret de Mar" },
+  { code: "WI", name: "Maials" },
+  { code: "WT", name: "Malgrat de Mar" },
+  { code: "UR", name: "Malgrat de Mar - Cooperativa" },
+  { code: "Z3", name: "Malniu (2.230 m)" },
+  { code: "D1", name: "Margalef" },
+  { code: "C9", name: "Mas de Barberans" },
+  { code: "UV", name: "Mas de Barberans - Mitjanplana" },
+  { code: "YE", name: "Massoteres" },
+  { code: "YV", name: "Mataró" },
+  { code: "YF", name: "Miami Platja" },
+  { code: "V9", name: "Miralcamp" },
+  { code: "XI", name: "Mollerussa" },
+  { code: "CG", name: "Molló - Fabert" },
+  { code: "UC", name: "Monells" },
+  { code: "V4", name: "Montesquiu" },
+  { code: "CM", name: "Montmeló" },
+  { code: "WQ", name: "Montsec d'Ares (1.572 m)" },
+  { code: "WN", name: "Montserrat - Sant Dimes" },
+  { code: "CY", name: "Muntanyola" },
+  { code: "Y5", name: "Navata" },
+  { code: "MW", name: "Navès" },
+  { code: "VY", name: "Nulles" },
+  { code: "DG", name: "Núria (1.971 m)" },
+  { code: "W5", name: "Oliana" },
+  { code: "WA", name: "Oliola" },
+  { code: "YB", name: "Olot" },
+  { code: "DC", name: "Olot - pla de Baix" },
+  { code: "CJ", name: "Organyà" },
+  { code: "CC", name: "Orís" },
+  { code: "UY", name: "Os de Balaguer - el Monestir d'Avellanes" },
+  { code: "UF", name: "PN del Garraf - el Rascler" },
+  { code: "X5", name: "PN dels Ports" },
+  { code: "YP", name: "Palafrugell" },
+  { code: "J5", name: "Pantà de Darnius - Boadella" },
+  { code: "VC", name: "Pantà de Riba-roja" },
+  { code: "KE", name: "Pantà de Sau" },
+  { code: "MR", name: "Pantà de Siurana" },
+  { code: "XG", name: "Parets del Vallès" },
+  { code: "V5", name: "Perafita" },
+  { code: "VP", name: "Pinós" },
+  { code: "Y7", name: "Port de Barcelona - Bocana Sud" },
+  { code: "YQ", name: "Port de Barcelona - ZAL Prat" },
+  { code: "Y9", name: "Port de Barcelona - ZAL Prat (ca l'Arana)" },
+  { code: "UT", name: "Port de les Cases d'Alcanar" },
+  { code: "D6", name: "Portbou - coll dels Belitres" },
+  { code: "XR", name: "Prades" },
+  { code: "U5", name: "Prades - los Hortals" },
+  { code: "XK", name: "Puig Sesolles (1.668 m)" },
+  { code: "YA", name: "Puigcerdà" },
+  { code: "YH", name: "Pujalt" },
+  { code: "U8", name: "Punta del Fangar" },
+  { code: "VK", name: "Raimat" },
+  { code: "VU", name: "Rellinars" },
+  { code: "YL", name: "Riudecanyes" },
+  { code: "W6", name: "Riudoms" },
+  { code: "D4", name: "Roses" },
+  { code: "XF", name: "Sabadell - Parc Agrari" },
+  { code: "ZB", name: "Salòria (2.451 m)" },
+  { code: "XV", name: "Sant Cugat del Vallès - CAR" },
+  { code: "M6", name: "Sant Joan de les Abadesses" },
+  { code: "VV", name: "Sant Llorenç Savall" },
+  { code: "U3", name: "Sant Martí Sarroca" },
+  { code: "WL", name: "Sant Martí de Riucorb" },
+  { code: "CI", name: "Sant Pau de Segúries" },
+  { code: "U2", name: "Sant Pere Pescador" },
+  { code: "UK", name: "Sant Pere de Ribes - PN del Garraf" },
+  { code: "CP", name: "Sant Romà d'Abella" },
+  { code: "YO", name: "Sant Sadurní d'Anoia" },
+  { code: "WY", name: "Sant Sadurní d'Anoia - el Clot de les Comes" },
+  { code: "CL", name: "Sant Salvador de Guardiola" },
+  { code: "CK", name: "Santa Coloma de Farners" },
+  { code: "XS", name: "Santa Coloma de Farners" },
+  { code: "UJ", name: "Santa Coloma de Queralt" },
+  { code: "WM", name: "Santuari de Queralt" },
+  { code: "Z6", name: "Sasseuva (2.228 m)" },
+  { code: "UD", name: "Serra de Daró" },
+  { code: "XN", name: "Seròs" },
+  { code: "VL", name: "Seròs - la Creu" },
+  { code: "XT", name: "Solsona" },
+  { code: "XH", name: "Sort" },
+  { code: "VX", name: "Tagamanent - PN del Montseny" },
+  { code: "XE", name: "Tarragona - Complex Educatiu" },
+  { code: "YK", name: "Terrassa" },
+  { code: "Y6", name: "Tivissa" },
+  { code: "VR", name: "Tornabous - Montargull" },
+  { code: "DK", name: "Torredembarra" },
+  { code: "X7", name: "Torres de Segre" },
+  { code: "CO", name: "Torres de Segre - Depuradora" },
+  { code: "W2", name: "Torroella de Fluvià" },
+  { code: "XZ", name: "Torroella de Fluvià" },
+  { code: "UE", name: "Torroella de Montgrí" },
+  { code: "WR", name: "Torroja del Priorat" },
+  { code: "XQ", name: "Tremp" },
+  { code: "C7", name: "Tàrrega" },
+  { code: "YG", name: "Tírvia" },
+  { code: "UX", name: "Ulldecona - els Valentins" },
+  { code: "XD", name: "Ulldemolins" },
+  { code: "CZ", name: "Ulldemolins - Zona Esportiva" },
+  { code: "Z4", name: "Ulldeter (2.364 m)" },
+  { code: "ZC", name: "Ulldeter (2.413 m)" },
+  { code: "D2", name: "Vacarisses" },
+  { code: "V1", name: "Vallfogona de Balaguer" },
+  { code: "D3", name: "Vallirana" },
+  { code: "W3", name: "Ventalló" },
+  { code: "XO", name: "Vic" },
+  { code: "CX", name: "Vic - 1" },
+  { code: "CU", name: "Vielha" },
+  { code: "YN", name: "Vielha - Elipòrt" },
+  { code: "DQ", name: "Vila-rodona" },
+  { code: "DA", name: "Vila-rodona - Escola" },
+  { code: "WF", name: "Vilablareix" },
+  { code: "YY", name: "Viladecans - les Filipines" },
+  { code: "WS", name: "Viladrau" },
+  { code: "V6", name: "Viladrau - Aigües de Viladrau" },
+  { code: "CS", name: "Viladrau - centre" },
+  { code: "W4", name: "Vilafranca del Penedès - la Granada" },
+  { code: "CQ", name: "Vilanova de Meià" },
+  { code: "VM", name: "Vilanova de Segrià" },
+  { code: "WE", name: "Vilanova del Vallès" },
+  { code: "YR", name: "Vilanova i la Geltrú" },
+  { code: "DD", name: "Vilassar de Mar" },
+  { code: "VN", name: "Vilobí d'Onyar" },
+  { code: "D7", name: "Vinebre" },
+  { code: "U6", name: "Vinyols i els Arcs - Cambrils" },
+  { code: "VD", name: "el Canós" },
+  { code: "WJ", name: "el Masroig" },
+  { code: "UH", name: "el Montmell" },
+  { code: "DB", name: "el Perelló" },
+  { code: "V8", name: "el Poal" },
+  { code: "CT", name: "el Pont de Suert" },
+  { code: "R1", name: "el Pont de Vilomara" },
+  { code: "ZE", name: "el Port del Comte (2.290 m)" },
+  { code: "Z8", name: "el Port del Comte (2.316 m)" },
+  { code: "XL", name: "el Prat de Llobregat" },
+  { code: "D9", name: "el Vendrell" },
+  { code: "XM", name: "els Alamús" },
+  { code: "UW", name: "els Alfacs" },
+  { code: "CE", name: "els Hostalets de Pierola" },
+  { code: "U9", name: "l'Aldea" },
+  { code: "UA", name: "l'Ametlla de Mar" },
+  { code: "CW", name: "l'Espluga de Francolí" },
+  { code: "DF", name: "la Bisbal d'Empordà" },
+  { code: "WO", name: "la Bisbal del Penedès" },
+  { code: "UM", name: "la Granadella" },
+  { code: "XB", name: "la Llacuna" },
+  { code: "XA", name: "la Panadella" },
+  { code: "YC", name: "la Pobla de Segur" },
+  { code: "CV", name: "la Pobla de Segur - Bombers" },
+  { code: "CR", name: "la Quar" },
+  { code: "KX", name: "la Roca del Vallès - ETAP Cardedeu" },
+  { code: "CD", name: "la Seu d'Urgell - Bellestar" },
+  { code: "UB", name: "la Tallada d'Empordà" },
+  { code: "ZD", name: "la Tosa d'Alp (2.478 m)" },
+  { code: "W9", name: "la Vall d'en Bas" },
+  { code: "YD", name: "les Borges Blanques" },
+  { code: "US", name: "les Cases d'Alcanar" },
+  { code: "CB", name: "les Llosses" },
+  { code: "H1", name: "Òdena" }
+];
+
+
+        // Populate station select immediately with real names (fix broken template literals)
+        function populateStations() {
+            stationSelect.innerHTML = ''; // clear "Loading..."
+            // Sort alphabetically by name
+            const sorted = [...STATIC_STATIONS].sort((a, b) => a.name.localeCompare(b.name));
+            sorted.forEach(s => {
+                // Correct template literal: value="${s.code}" and text content
+                stationSelect.innerHTML += `<option value="${s.code}">${s.name} (${s.code})</option>`;
+            });
+            // Set default to Barcelona Fabra (D5)
+            stationSelect.value = "D5";
+            btnStartFetch.disabled = false;
+        }
+
+        // Set default year to current year if available
+        function setDefaultYear() {
+            const currentYear = new Date().getFullYear().toString();
+            if ([...initialYearSelect.options].some(opt => opt.value === currentYear)) {
+                initialYearSelect.value = currentYear;
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            populateStations();
+            setDefaultYear();
+        });
+
+        // Main fetch function – fixed URL parameters and template strings
+        async function fetchYearData(station, year) {
+            setupScreen.style.display = 'none';
+            loadingArea.style.display = 'block';
+            setupError.textContent = ''; // clear previous error
+
+            // Get selected station's display name
+            const selectedOption = stationSelect.options[stationSelect.selectedIndex];
+            currentStationName = selectedOption ? selectedOption.text : station;
+
+            try {
+                let allJson = [];
+                let offset = 0;
+                let hasMore = true;
+
+                // Correctly build where clause – no backslash escaping issues
+                const whereClause = `codi_estacio='${station}' AND data_lectura >= '${year}-01-01T00:00:00' AND data_lectura <= '${year}-12-31T23:59:59'`;
+                const encodedWhere = encodeURIComponent(whereClause);
+
+                while (hasMore) {
+                    loadingText.textContent = `⏳ Downloading data ... (${allJson.length.toLocaleString()} records fetched)`;
+                    
+                    // Correct SoQL parameters: $limit, $offset, $where
+                    const url = `${DATA_API_URL}?$limit=${CHUNK_SIZE}&$offset=${offset}&$where=${encodedWhere}`;
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`API error: ${response.status}`);
+                    
+                    const chunk = await response.json();
+                    if (chunk.length === 0) {
+                        hasMore = false;
+                    } else {
+                        allJson = allJson.concat(chunk);
+                        offset += CHUNK_SIZE;
+                        if (chunk.length < CHUNK_SIZE) hasMore = false;
+                    }
+                }
+
+                if (allJson.length === 0) throw new Error(`No data for this station in ${year}.`);
+
+                // Map raw data with safe field names
+                rawData = allJson.map(r => ({
+                    data_lectura: r.data_lectura,
+                    dia: r.data_lectura ? r.data_lectura.split('T')[0] : '',
+                    variable_codi: r.codi_variable,
+                    variable_nom: VARIABLES_NOM[r.codi_variable] || `Variable ${r.codi_variable}`,
+                    valor: parseFloat(r.valor_lectura) || 0
+                }));
+
+                initDashboard(year);
+            } catch (err) {
+                setupError.textContent = err.message;
+                setupScreen.style.display = 'block';
+                loadingArea.style.display = 'none';
+            }
+        }
+
+        function initDashboard(year) {
+            loadingArea.style.display = 'none';
+            dashboardArea.style.display = 'block';
+            document.getElementById('mainTitle').textContent = `🌤️ ${currentStationName}`;
+            document.getElementById('subTitleText').textContent = `Daily summary – ${year}`;
+
+            // Unique variables for filter
+            const uniqueVars = [...new Set(rawData.map(r => r.variable_codi))];
+// Només conservar les variables que existeixen a VARIABLES_NOM
+const varsDefinides = uniqueVars.filter(v => VARIABLES_NOM.hasOwnProperty(v));
+
+varFilter.innerHTML = '';
+if (varsDefinides.length === 0) {
+    varFilter.innerHTML = '<option value="">Cap variable definida</option>';
+} else {
+    varsDefinides.forEach(v => {
+        const name = VARIABLES_NOM[v]; // segur que existeix
+        varFilter.innerHTML += `<option value="${v}">${name}</option>`;
+    });
+}
+            varFilter.addEventListener('change', updateDashboard);
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            const selectedVar = varFilter.value;
+            if (!selectedVar) return;
+            
+            const filtered = rawData.filter(r => r.variable_codi === selectedVar);
+            if (filtered.length === 0) return;
+
+            const aggInfo = AGGREGATION_TYPES[selectedVar] || { agg: 'avg', label: 'Daily average' };
+            const aggType = aggInfo.agg;
+            const datasetLabel = aggInfo.label;
+
+            // Group by day
+            const dailyMap = new Map(); // day -> array of values
+            filtered.forEach(r => {
+                const day = r.dia;
+                if (!dailyMap.has(day)) dailyMap.set(day, []);
+                dailyMap.get(day).push(r.valor);
+            });
+
+            // Sort days
+            const dates = Array.from(dailyMap.keys()).sort();
+            const chartPoints = dates.map(day => {
+                const vals = dailyMap.get(day);
+                if (aggType === 'sum') return vals.reduce((a, b) => a + b, 0);
+                if (aggType === 'max') return Math.max(...vals);
+                if (aggType === 'min') return Math.min(...vals);
+                // default average
+                return vals.reduce((a, b) => a + b, 0) / vals.length;
+            });
+
+            const isSum = aggType === 'sum';
+            const chartType = isSum ? 'bar' : 'line';
+            const mainColor = isSum ? '#2563eb' : '#d97706';
+            const bgColor = isSum ? 'rgba(37,99,235,0.15)' : 'rgba(217,119,6,0.1)';
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(document.getElementById('weatherChart'), {
+                type: chartType,
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: datasetLabel,
+                        data: chartPoints,
+                        borderColor: mainColor,
+                        backgroundColor: bgColor,
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: dates.length > 100 ? 1 : 3
+                    }]
+                },
+                plugins: [whiteBackgroundPlugin],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        customCanvasBackgroundColor: { color: '#ffffff' },
+                        legend: { labels: { boxWidth: 14, font: { size: 13 }, padding: 15 } }
+                    },
+                    scales: {
+                        x: { ticks: { maxRotation: 45, minRotation: 30, font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // Summary stats
+            const allValues = filtered.map(r => r.valor);
+            const maxVal = Math.max(...allValues);
+            const avgVal = allValues.reduce((a, b) => a + b, 0) / allValues.length;
+
+            document.getElementById('totalRecords').textContent = filtered.length.toLocaleString();
+            document.getElementById('maxValue').textContent = Number.isFinite(maxVal) ? maxVal.toFixed(2) : '-';
+            document.getElementById('avgValue').textContent = avgVal.toFixed(2);
+
+            // Prepare export data (flat list)
+            window.currentExport = filtered.map(r => ({
+                'Station': currentStationName,
+                'Full date': r.data_lectura,
+                'Day': r.dia,
+                'Variable': r.variable_nom,
+                'Recorded value': r.valor
+            }));
+        }
+
+        // Event listeners
+        btnStartFetch.addEventListener('click', () => {
+            const station = stationSelect.value;
+            const year = initialYearSelect.value;
+            if (station && year) fetchYearData(station, year);
+        });
+
+        document.getElementById('btnDownloadPNG').addEventListener('click', () => {
+            if (!chartInstance) return;
+            const a = document.createElement('a');
+            a.href = chartInstance.toBase64Image();
+            a.download = `Meteocat_${varFilter.value}_export.png`;
+            a.click();
+        });
+
+        document.getElementById('btnDownloadExcel').addEventListener('click', () => {
+            if (!window.currentExport || window.currentExport.length === 0) return;
+            const wb = XLSX.utils.book_new();
+            const dataToExport = window.currentExport;
+            // Split into multiple sheets if exceeds CHUNK_SIZE (50k)
+            if (dataToExport.length <= CHUNK_SIZE) {
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dataToExport), "Data");
+            } else {
+                for (let i = 0; i < dataToExport.length; i += CHUNK_SIZE) {
+                    const part = dataToExport.slice(i, i + CHUNK_SIZE);
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(part), `Data_Part_${Math.floor(i/CHUNK_SIZE)+1}`);
+                }
+            }
+            XLSX.writeFile(wb, `Meteocat_export_${initialYearSelect.value}.xlsx`);
+        });
+    })();
+</script>
+</body>
+</html>
