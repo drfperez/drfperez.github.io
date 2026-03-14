@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIVIC Epidemiology - Interactive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root { --primary: #2563eb; --primary-hover: #1d4ed8; --bg-body: #f1f5f9; --bg-card: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* Mobile First Base */
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: var(--bg-card); padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        header h1 { font-size: 1.4rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .loading { display: none; color: #ea580c; font-weight: 600; font-size: 0.9rem; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .layout { display: flex; flex-direction: column; flex: 1; }
+        
+        .sidebar { width: 100%; background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .control-group { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
+        .control-group h3 { font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+        .field { margin-bottom: 12px; }
+        label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
+        select { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; background-color: white; }
+        
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background-color 0.2s; }
+        .btn-fetch { background: var(--primary); color: white; margin-top: 5px; }
+        .btn-fetch:hover { background: var(--primary-hover); }
+        .btn-export { background: #10b981; color: white; }
+        .btn-img { background: #64748b; color: white; }
+
+        .content { width: 100%; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        .kpi-card { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .kpi-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); word-break: break-word; }
+
+        .chart-wrapper { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); flex: 1; min-height: 400px; position: relative; }
+        .export-row { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+        .export-row .btn { width: 100%; padding: 10px 16px; }
+
+        .toggle-container { display: flex; background: #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 15px; }
+        .toggle-btn { flex: 1; text-align: center; padding: 10px 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--text-muted); border: none; background: transparent; transition: all 0.2s; }
+        .toggle-btn.active { background: var(--primary); color: white; }
+
+        .denominator-box { font-size: 0.8rem; color: #64748b; margin-top: auto; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; }
+
+        /* Desktop Layout Overrides */
+        @media (min-width: 768px) {
+            body { overflow-y: hidden; } /* Disable global scroll to let panels scroll independently */
+            .layout { flex-direction: row; overflow: hidden; }
+            .sidebar { width: 320px; flex-shrink: 0; border-right: 1px solid var(--border); border-bottom: none; overflow-y: auto; }
+            .content { flex: 1; overflow-y: auto; }
+            .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+            .export-row .btn { width: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🦠 SIVIC Interactive Explorer</h1>
+        <div id="loadingMsg" class="loading">⏳ Downloading API data... (This may take a few seconds)</div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="control-group">
+                <h3>1. Data Source</h3>
+                <div class="field">
+                    <label>📍 Basic Health Area (ABS)</label>
+                    <select id="absSelect"></select>
+                </div>
+                <div class="field">
+                    <label>📅 Year</label>
+                    <select id="anySelect">
+                        <option value="2026">2026</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+                <button class="btn btn-fetch" onclick="fetchAPIData()">📥 Load ABS</button>
+            </div>
+
+            <div class="control-group">
+                <h3>2. Metrics & Visualization</h3>
+                <div class="toggle-container" id="metricToggle">
+                    <button class="toggle-btn active" data-val="casos">Total Cases</button>
+                    <button class="toggle-btn" data-val="taxa">Rate (per 100k pop)</button>
+                </div>
+                <div class="toggle-container" id="timeToggle">
+                    <button class="toggle-btn" data-val="diari">Daily</button>
+                    <button class="toggle-btn active" data-val="setmanal">Weekly (Recommended)</button>
+                </div>
+                
+                <h3>3. Epidemiological Filters</h3>
+                <div class="field"><label>🩺 Diagnosis</label><select id="diagSelect" onchange="renderDashboard()"><option value="TOTS">All diagnoses</option></select></div>
+                <div class="field"><label>👥 Age group</label><select id="edatSelect" onchange="renderDashboard()"><option value="TOTS">All ages</option></select></div>
+                <div class="field"><label>⚥ Sex</label><select id="sexeSelect" onchange="renderDashboard()"><option value="TOTS">All sexes</option></select></div>
+            </div>
+            
+            <div class="denominator-box">
+                <strong>💡 Current denominator:</strong> <br>
+                <span id="popActualValue">0</span> inhabitants (based on active filters).
+            </div>
+        </aside>
+
+        <main class="content">
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="kpi-title" id="kpiLabelTotal">Cumulative Cases</div><div class="kpi-value" id="kpiTotal">0</div></div>
+                <div class="kpi-card"><div class="kpi-title" id="kpiLabelMitjana">Average</div><div class="kpi-value" id="kpiMitjana">0.0</div></div>
+                <div class="kpi-card"><div class="kpi-title" id="kpiLabelPic">Maximum Peak</div><div class="kpi-value" id="kpiPic">0</div></div>
+            </div>
+
+            <div class="chart-wrapper"><canvas id="myChart"></canvas></div>
+
+            <div class="export-row">
+                <button class="btn btn-img" onclick="exportarImatge()">🖼️ Download PNG Chart</button>
+                <button class="btn btn-export" onclick="exportarExcel()">📊 Download Excel Data</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const absList = ["Abrera","Agramunt","Alcarràs","Alfarràs - Almenar","Almacelles","Alt Berguedà","Alt Camp Est","Alt Camp Oest","Alt Mogent","Alt Urgell Sud","Alta Ribagorça","Amposta","Anglès","Anoia rural","Aran","Arbúcies - Sant Hilari","Arenys de Mar","Argentona","Artesa de Segre","Artés","Badalona - 01","Badalona - 02","Badalona - 03","Badalona - 04","Badalona - 05","Badalona - 06","Badalona - 07","Badalona - 08","Badalona - 09","Badalona - 10","Badalona - 11","Badia del Vallès","Balaguer","Banyoles","Barberà del Vallès","Barcelona - 01A","Barcelona - 01B","Barcelona - 01C","Barcelona - 02A","Barcelona - 02B","Barcelona - 02C","Barcelona - 02D","Barcelona - 02E","Barcelona - 03A","Barcelona - 03B","Barcelona - 03D","Barcelona - 04A","Barcelona - 04B","Barcelona - 04C","Barcelona - 04D","Barcelona - 05A","Barcelona - 05B","Barcelona - 05C","Barcelona - 05D","Barcelona - 05E","Barcelona - 06A","Barcelona - 06B","Barcelona - 06C","Barcelona - 06D","Barcelona - 07A","Barcelona - 07B","Barcelona - 07C","Barcelona - 07D","Barcelona - 07E","Barcelona - 07F","Barcelona - 08C","Barcelona - 08F","Barcelona - 08G","Barcelona - 08H","Barcelona - 09A","Barcelona - 09C","Barcelona - 09E","Barcelona - 09F","Barcelona - 10A","Barcelona - 10B","Barcelona - 10C","Barcelona - 10D","Barcelona - 10E","Barcelona - 10F","Barcelona - 10G","Barcelona - 10H","Barcelona - 10I","Barcelona - 10J","Batea","Begues","Bellpuig","Berga Centre","Besalú","Blanes - 1","Blanes - 2","Breda - Hostalric","Calaf","Calafell","Caldes de Malavella","Caldes de Montbui","Calella","Cambrils","Campdevànol","Camprodon","Canet de Mar","Capellades","Cardedeu","Cassà de la Selva","Castellar del Vallès","Castellbisbal","Castelldefels - 1 (Els Canyars)","Castelldefels - 2 (Can Bou)","Castelló d'Empúries","Celrà","Centelles","Cervera - la Segarra","Cervelló","Constantí","Corbera de Llobregat","Cornellà de Llobregat - 1","Cornellà de Llobregat - 2","Cornellà de Llobregat - 3","Cornellà de Llobregat - 4","Cubelles","Cunit","Deltebre","El Masnou - Alella","El Pla de Santa Maria","El Prat de Llobregat - 1","El Prat de Llobregat - 2","El Prat de Llobregat - 3","El Vendrell","El Vendrell rural","Els Monjos","Esplugues de Llobregat - 1","Esplugues de Llobregat - 2","Falset","Figueres","Flix","Gavà - 1","Gavà - 2","Girona - 1","Girona - 2","Girona - 3","Girona - 4","Gironella","Granollers - Centre","Granollers - Nord","Granollers - Sud","Guissona","Hospitalet de l'Infant","Igualada Urbà","L'Ametlla de Mar","L'Arboç","L'Escala","L'Espluga de Francolí","La Bisbal d'Empordà","La Garriga","La Granadella","La Jonquera","La Llagosta","La Pobla de Segur","La Roca del Vallès","La Selva del Camp","La Seu d'Urgell","La Sénia","La Vall d'en Bas - Hostalets d'en Bas","Les Borges Blanques","Llagostera","Llançà","Lleida - 1 Centre Històric - Rambla de Ferran","Lleida - 2 Ronda - Mariola","Lleida - 3 Eixample","Lleida - 4 Balàfia - Pardinyes","Lleida - 5 Cappont","Lleida - 6 Bordeta - Magraners","Lleida rural - 1 Nord","Lleida rural - 2 Sud","Lliçà d'Amunt","Lloret de Mar - 1","Lloret de Mar - 2","Malgrat de Mar","Manlleu","Manresa - 1","Manresa - 2","Manresa - 3","Manresa - 4","Martorell","Martorelles","Mataró - 1","Mataró - 2","Mataró - 3","Mataró - 4","Mataró - 5","Mataró - 6","Mataró - 7","Moià","Molins de Rei","Mollerussa","Mollet del Vallès - 1 Est","Mollet del Vallès - 2 Oest","Montblanc","Montcada i Reixac","Montgat - Tiana","Montmeló - Montornès del Vallès","Mont-roig del Camp","Móra la Nova - Móra d'Ebre","Navarcles - Sant Fruitós - Santpedor","Navàs - Balsareny","Olesa de Montserrat","Olot","Palafolls","Palafrugell","Palamós","Pallars Sobirà","Pallejà","Parets del Vallès","Piera","Pineda de Mar","Pla d'Urgell","Ponts","Portbou","Premià de Dalt","Premià de Mar","Puigcerdà","Reus - 1","Reus - 2","Reus - 3","Reus - 4","Reus - 5","Ribes de Freser","Ripoll","Ripollet - 1","Ripollet - 2","Roda de Ter","Roquetes","Roses","Rubí - 1","Rubí - 2","Rubí - 3","Sabadell - 1 B","Sabadell - 10","Sabadell - 2","Sabadell - 3","Sabadell - 4 B","Sabadell - 5","Sabadell - 6","Sabadell - 7","Salou","Salt","Sant Adrià de Besòs - 1","Sant Adrià de Besòs - 2","Sant Andreu de la Barca","Sant Boi de Llobregat - 1","Sant Boi de Llobregat - 2","Sant Boi de Llobregat - 3","Sant Boi de Llobregat - 4","Sant Boi de Llobregat - 5","Sant Celoni","Sant Cugat del Vallès - 1","Sant Cugat del Vallès - 2","Sant Cugat del Vallès - 3","Sant Feliu de Guíxols","Sant Feliu de Llobregat","Sant Hipòlit de Voltregà","Sant Joan de Vilatorrada","Sant Joan Despí - 1","Sant Joan Despí - 2","Sant Just Desvern","Sant Pere de Ribes","Sant Pere de Ribes rural","Sant Quirze de Besora","Sant Quirze del Vallès","Sant Sadurní d'Anoia","Sant Vicenç de Castellet","Sant Vicenç dels Horts - 1","Sant Vicenç dels Horts - 2","Santa Coloma de Cervelló","Santa Coloma de Farners","Santa Coloma de Gramenet - 1","Santa Coloma de Gramenet - 2","Santa Coloma de Gramenet - 3","Santa Coloma de Gramenet - 4","Santa Coloma de Gramenet - 5","Santa Coloma de Gramenet - 6","Santa Eulàlia de Ronçana","Santa Margarida de Montbui","Santa Maria de Palautordera","Santa Perpètua de Mogoda","Sarrià de Ter","Seròs","Sils - Vidreres - Maçanet de la Selva","Sitges","Solsona","Súria","Tarragona - 1","Tarragona - 2","Tarragona - 3","Tarragona - 4","Tarragona - 5","Tarragona - 6","Tarragona - 7","Tarragona - 8","Tàrrega","Terrassa - A","Terrassa - B","Terrassa - C","Terrassa - D","Terrassa - E","Terrassa - F","Terrassa - G","Terrassa - H","Tona","Torelló","Torredembarra","Torroella de Montgrí","Tortosa - 1 Est","Tortosa - 2 Oest","Tossa de Mar","Tremp","Ulldecona","Vall del Tenes","Valls","Vandellòs - l'Hospitalet de l'Infant","Vic - 1 Sud","Vic - 2 Nord","Viladecans - 1","Viladecans - 2","Vilafant","Vilafranca del Penedès - 1","Vilafranca del Penedès - 2","Vilanova del Camí","Vilanova i la Geltrú - 1","Vilanova i la Geltrú - 2","Vilanova i la Geltrú - 3","Vila-seca","Vilassar de Dalt","Vilassar de Mar","Xarxa sanitària i social Santa Tecla","l'Hospitalet de Llobregat - 01","l'Hospitalet de Llobregat - 02","l'Hospitalet de Llobregat - 03","l'Hospitalet de Llobregat - 04","l'Hospitalet de Llobregat - 05","l'Hospitalet de Llobregat - 06","l'Hospitalet de Llobregat - 07","l'Hospitalet de Llobregat - 08","l'Hospitalet de Llobregat - 09","l'Hospitalet de Llobregat - 10","l'Hospitalet de Llobregat - 11"];
+        
+        const absSelect = document.getElementById('absSelect');
+        absList.forEach(a => { absSelect.innerHTML += `<option value="${a}">${a}</option>`; });
+
+        let rawData = [];
+        let filteredData = [];
+        let myChart = null;
+        let activeMetric = 'casos'; 
+        let timeMode = 'setmanal';
+        let populationMap = {}; 
+
+        // Retain original Catalan diagnosis keys for API matching
+        const colorsDiag = { "COVID-19": "#ef4444", "Grip": "#10b981", "VRS": "#f59e0b", "Rinovirus": "#3b82f6" };
+        function getColor(diag, idx) { return colorsDiag[diag] || ["#14b8a6", "#f97316", "#06b6d4", "#6366f1"][idx % 4]; }
+
+        // Toggle Management (Metrics and Time)
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const container = e.target.closest('.toggle-container');
+                container.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                if (container.id === 'metricToggle') {
+                    activeMetric = e.target.getAttribute('data-val');
+                } else if (container.id === 'timeToggle') {
+                    timeMode = e.target.getAttribute('data-val');
+                }
+                renderDashboard(); 
+            });
+        });
+
+        // Function to calculate ISO Epidemiological Week
+        function getEpiWeek(dateString) {
+            const date = new Date(dateString);
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            const week1 = new Date(date.getFullYear(), 0, 4);
+            const weekNumber = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+            return `${date.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`; // Ex: 2025-W03
+        }
+
+        async function fetchAPIData() {
+            const absName = document.getElementById('absSelect').value;
+            const any = document.getElementById('anySelect').value;
+            document.getElementById('loadingMsg').style.display = 'block';
+
+            const whereClause = `nom_abs='${absName}' AND data >= '${any}-01-01T00:00:00' AND data <= '${any}-12-31T23:59:59'`;
+            const url = `https://analisi.transparenciacatalunya.cat/resource/fa7i-d8gc.json?$where=${encodeURIComponent(whereClause)}&$limit=50000`;
+
+            try {
+                rawData = await fetch(url).then(r => r.json());
+                if (rawData.length === 0) { alert(`No data in ${absName} for ${any}.`); return; }
+                
+                populationMap = {};
+                const keys = Object.keys(rawData[0]);
+                const fieldTaxa = keys.find(k => k.toLowerCase().includes('taxa') || k.toLowerCase().includes('incid')) || 'taxa';
+                const fieldPob = keys.find(k => k.toLowerCase().includes('pob')) || 'poblacio';
+
+                rawData.forEach(r => {
+                    if(r.grup_edat && r.sexe) {
+                        const key = r.grup_edat + '|' + r.sexe;
+                        let c = parseInt(r.casos) || 0;
+                        let t = parseFloat(r[fieldTaxa]) || 0;
+                        let p = parseInt(r[fieldPob]) || 0;
+                        
+                        if (p === 0 && t > 0) p = (c / t) * 100000;
+                        if (p > 0) {
+                            if (!populationMap[key] || populationMap[key] < p) {
+                                populationMap[key] = p; 
+                            }
+                        }
+                    }
+                });
+
+                updateDynamicSelectors();
+                renderDashboard();
+            } catch (err) { alert("API Error: " + err.message); } 
+            finally { document.getElementById('loadingMsg').style.display = 'none'; }
+        }
+
+        function updateDynamicSelectors() {
+            const diags = new Set(), edats = new Set(), sexes = new Set();
+            rawData.forEach(r => {
+                if(r.diagnostic) diags.add(r.diagnostic);
+                if(r.grup_edat) edats.add(r.grup_edat);
+                if(r.sexe) sexes.add(r.sexe);
+            });
+            const populate = (id, set) => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = `<option value="TOTS">All</option>`;
+                Array.from(set).sort().forEach(val => sel.innerHTML += `<option value="${val}">${val}</option>`);
+            };
+            populate('diagSelect', diags); populate('edatSelect', edats); populate('sexeSelect', sexes);
+        }
+
+        function renderDashboard() {
+            if (rawData.length === 0) return;
+
+            const fDiag = document.getElementById('diagSelect').value;
+            const fEdat = document.getElementById('edatSelect').value;
+            const fSexe = document.getElementById('sexeSelect').value;
+
+            let currentPopulation = 0;
+            for (const key in populationMap) {
+                const parts = key.split('|');
+                if ((fEdat === 'TOTS' || parts[0] === fEdat) && (fSexe === 'TOTS' || parts[1] === fSexe)) {
+                    currentPopulation += populationMap[key];
+       
