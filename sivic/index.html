@@ -239,4 +239,147 @@
                 const parts = key.split('|');
                 if ((fEdat === 'TOTS' || parts[0] === fEdat) && (fSexe === 'TOTS' || parts[1] === fSexe)) {
                     currentPopulation += populationMap[key];
-       
+                }
+            }
+            currentPopulation = Math.round(currentPopulation) || 1;
+            document.getElementById('popActualValue').textContent = currentPopulation.toLocaleString();
+
+            filteredData = rawData.filter(r => 
+                (fDiag === 'TOTS' || r.diagnostic === fDiag) &&
+                (fEdat === 'TOTS' || r.grup_edat === fEdat) &&
+                (fSexe === 'TOTS' || r.sexe === fSexe)
+            );
+
+            const agregat = {};
+            const diagnosticsPresents = new Set();
+
+            filteredData.forEach(r => {
+                const dataRaw = (r.data || '').split('T')[0];
+                const timeKey = timeMode === 'setmanal' ? getEpiWeek(dataRaw) : dataRaw;
+                const diag = fDiag === 'TOTS' ? (r.diagnostic || 'Others') : fDiag;
+                
+                diagnosticsPresents.add(diag);
+                if (!agregat[timeKey]) agregat[timeKey] = {};
+                if (!agregat[timeKey][diag]) agregat[timeKey][diag] = { sumaCasos: 0 };
+                
+                agregat[timeKey][diag].sumaCasos += (parseInt(r.casos) || 0);
+            });
+
+            const timeKeys = Object.keys(agregat).sort();
+            const diagArray = Array.from(diagnosticsPresents).sort();
+            
+            let grandTotalCasos = 0;
+
+            const datasets = diagArray.map((diag, idx) => {
+                const dataPoints = timeKeys.map(tKey => {
+                    const obj = agregat[tKey][diag];
+                    const casosTemps = obj ? obj.sumaCasos : 0;
+                    
+                    if (activeMetric === 'casos') {
+                        return casosTemps;
+                    } else {
+                        return parseFloat(((casosTemps / currentPopulation) * 100000).toFixed(2));
+                    }
+                });
+                return {
+                    label: diag, data: dataPoints,
+                    borderColor: getColor(diag, idx), backgroundColor: getColor(diag, idx) + '22',
+                    borderWidth: 2, pointRadius: timeMode === 'setmanal' ? 3 : 1, 
+                    fill: activeMetric === 'casos', tension: 0.2
+                };
+            });
+
+            const totalsPerTime = timeKeys.map(tKey => {
+                let intervalCases = 0;
+                diagArray.forEach(diag => {
+                    if (agregat[tKey][diag]) intervalCases += agregat[tKey][diag].sumaCasos;
+                });
+                grandTotalCasos += intervalCases;
+                
+                if (activeMetric === 'casos') return intervalCases;
+                return (intervalCases / currentPopulation) * 100000;
+            });
+
+            const maxInterval = totalsPerTime.length ? Math.max(...totalsPerTime) : 0;
+            const countIntervals = totalsPerTime.length || 1;
+
+            const timeLabelText = timeMode === 'setmanal' ? 'Weekly' : 'Daily';
+            const timeLabelPic = timeMode === 'setmanal' ? 'Week' : 'Day';
+
+            if (activeMetric === 'casos') {
+                document.getElementById('kpiLabelTotal').textContent = "Sum of Cases (Cumulative)";
+                document.getElementById('kpiTotal').textContent = grandTotalCasos.toLocaleString();
+                
+                document.getElementById('kpiLabelMitjana').textContent = `Average ${timeLabelText} (Cases)`;
+                document.getElementById('kpiMitjana').textContent = (grandTotalCasos / countIntervals).toFixed(1);
+                
+                document.getElementById('kpiLabelPic').textContent = `Max Peak (${timeLabelPic})`;
+                document.getElementById('kpiPic').textContent = Math.round(maxInterval).toLocaleString();
+            } else {
+                const incidenciaAcumulada = (grandTotalCasos / currentPopulation) * 100000;
+                
+                document.getElementById('kpiLabelTotal').textContent = "Cumul. Annual Incidence (100k)";
+                document.getElementById('kpiTotal').textContent = incidenciaAcumulada.toLocaleString(undefined, {maximumFractionDigits: 1});
+                
+                document.getElementById('kpiLabelMitjana').textContent = `Average Incidence ${timeLabelText}`;
+                document.getElementById('kpiMitjana').textContent = (incidenciaAcumulada / countIntervals).toFixed(2);
+                
+                document.getElementById('kpiLabelPic').textContent = `Incidence Peak (${timeLabelPic})`;
+                document.getElementById('kpiPic').textContent = maxInterval.toFixed(1);
+            }
+
+            let yAxisTitle = '';
+            if (activeMetric === 'casos') yAxisTitle = timeMode === 'setmanal' ? 'Cases per Week' : 'Daily Cases';
+            else yAxisTitle = timeMode === 'setmanal' ? '7-day Incidence (IA7) per 100k' : 'Daily Incidence per 100k';
+
+            if (myChart) myChart.destroy();
+            const ctx = document.getElementById('myChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line', data: { labels: timeKeys, datasets: datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: yAxisTitle } } }
+                }
+            });
+        }
+
+        function exportarImatge() {
+            if (!myChart) return;
+            const a = document.createElement('a'); a.href = myChart.toBase64Image(); a.download = `SIVIC_Chart.png`; a.click();
+        }
+
+        function exportarExcel() {
+            if (filteredData.length === 0) return;
+            const cleanData = filteredData.map(r => ({
+                'Daily Date': (r.data || '').split('T')[0],
+                'ISO Week': getEpiWeek((r.data || '').split('T')[0]),
+                'ABS': r.nom_abs || '',
+                'Diagnosis': r.diagnostic || '',
+                'Age Group': r.grup_edat || '',
+                'Sex': r.sexe || '',
+                'Cases': parseInt(r.casos) || 0
+            }));
+            const ws = XLSX.utils.json_to_sheet(cleanData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+            XLSX.writeFile(wb, `SIVIC_Export.xlsx`);
+        }
+        
+        window.onload = fetchAPIData;
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
