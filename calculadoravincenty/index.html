@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vincenty — Calculadora interactiva</title>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <meta name="theme-color" content="#0b4a6f">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background: #eef3f7; color: #042029; padding: 28px; max-width: 1100px; margin: auto; line-height: 1.6; }
+    h1, h2, h3 { color: #0b4a6f; }
+    .card { background: #ffffff; border-radius: 10px; padding: 18px; box-shadow: 0 6px 16px rgba(0,0,0,0.06); margin: 18px 0; }
+    label { display: block; margin: 6px 0 2px; font-weight: 600; }
+    input { padding: 6px 10px; border: 1px solid #ccd6dd; border-radius: 6px; width: 200px; }
+    button { margin-top: 12px; padding: 10px 18px; border: none; border-radius: 6px; background: #0b4a6f; color: white; font-weight: 600; cursor: pointer; }
+    button:hover { background: #0a3d5d; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+    th, td { border: 1px solid #dde5ec; padding: 6px; text-align: left; font-family: ui-monospace; }
+    pre { background: #f7fbfd; padding: 12px; border-radius: 8px; overflow: auto; }
+    .muted { color: #586069; font-size: 0.95rem; }
+    .explanation { background: #f0f8ff; padding: 12px; border-left: 4px solid #0b4a6f; margin: 12px 0; font-style: italic; }
+    .step { margin-bottom: 24px; }
+    .step h4 { margin-bottom: 8px; color: #0b4a6f; }
+    ul { list-style-type: disc; padding-left: 20px; }
+    .highlight { font-weight: bold; color: #d73a49; }
+  </style>
+</head>
+<body>
+
+<h1>Vincenty — Calculadora interactiva</h1>
+<p class="muted">Aquesta calculadora inclou explicacions i exemples pràctics. Introdueix coordenades i calcula la distància geodèsica amb l'algorisme de Vincenty. Veurem tots els passos intermedis!</p>
+
+<div class="card">
+  <h2>📘 0) Fonaments teòrics del mètode de Vincenty</h2>
+  <p>A continuació, t'explico <strong>pas a pas</strong> com funciona l'algorisme de Vincenty per calcular la <strong>distància més curta</strong> (geodèsica) i els <strong>rumbs</strong> (direccions) entre dos punts a la Terra. La Terra no és una esfera perfecta, sinó un <strong>el·lipsoide</strong> (com una pilota una mica aixafada als pols), i aquest mètode ho té en compte per ser molt precís.</p>
+  
+  <div class="explanation">
+    <strong>Per què és important?</strong> Per a distàncies curtes (com d'un carrer a un altre), pots usar fórmules senzilles. Però per a viatges llargs (com de Barcelona a Nova York), Vincenty evita errors de fins a 0.5% en la distància!
+  </div>
+
+  <div class="step">
+    <h3>Pas 1: Constants de l'el·lipsoide (la forma de la Terra)</h3>
+    <p>Usem el model <strong>WGS-84</strong>, estàndard per GPS. Són valors fixos que descriuen la forma de la Terra:</p>
+    <ul>
+      <li><strong>Semieix major (a):</strong> 6.378.137 metres (radi equatorial).</li>
+      <li><strong>Aplatisament (f):</strong> 1/298.257223563 (quant s'aixafa als pols).</li>
+      <li><strong>Semieix menor (b):</strong> Calculat com \( b = a \times (1 - f) \) ≈ 6.356.752 metres (radi polar).</li>
+    </ul>
+    <div class="explanation">
+      <strong>Exemple visual:</strong> Imagina la Terra com un ou: 'a' és l'amplada màxima, 'b' l'alçada més curta. L'aplatisament 'f' diu quant és d'ovalada.
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>Pas 2: Latitud reduïda (ajustar les coordenades)</h3>
+    <p>Les latituds normals (φ) són geodèsiques, però per calcular necessitem les <strong>latituds reduïdes (U)</strong>, que ajusten per l'aplatisament:</p>
+    <p>\[ U = \arctan((1 - f) \tan \phi) \]</p>
+    <div class="explanation">
+      <strong>Per què?</strong> Això converteix les coordenades en un format que funciona millor amb l'el·lipsoide, com "aplanar" el mapa per calcular rectes.
+      <br><strong>Exemple:</strong> Per una latitud de 45° al pol nord, U seria lleugerament diferent per compensar l'aixafament.
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>Pas 3: Iteració principal (trobar la línia més curta)</h3>
+    <p>Aquest és el cor de l'algorisme: repetim càlculs fins que convergim a la solució. Comencem amb la diferència de longituds \( L = \lambda_2 - \lambda_1 \) i inicialitzem \( \lambda = L \).</p>
+    <p>A cada iteració (normalment 5-10 vegades):</p>
+    <ol>
+      <li>Calcula la <strong>distància angular (σ)</strong>:
+        <p>\[ \sin \sigma = \sqrt{ (\cos U_2 \sin \lambda)^2 + (\cos U_1 \sin U_2 - \sin U_1 \cos U_2 \cos \lambda)^2 } \]</p>
+        <p>\[ \cos \sigma = \sin U_1 \sin U_2 + \cos U_1 \cos U_2 \cos \lambda \]</p>
+        <p>\[ \sigma = \arctan2(\sin \sigma, \cos \sigma) \]</p>
+        <span class="highlight">Explicació:</span> σ és l'angle central entre els punts, com l'arc d'un cercle.
+      </li>
+      <li>Calcula l'<strong>azimut (α)</strong> (direcció):
+        <p>\[ \sin \alpha = \frac{\cos U_1 \cos U_2 \sin \lambda}{\sin \sigma} \]</p>
+        <p>\[ \cos^2 \alpha = 1 - \sin^2 \alpha \]</p>
+        <span class="highlight">Explicació:</span> α és com l'angle de la brúixola per anar d'un punt a l'altre.
+      </li>
+      <li>Valors auxiliars per correcció:
+        <p>\[ \cos 2\sigma_m = \cos \sigma - \frac{2 \sin U_1 \sin U_2}{\cos^2 \alpha} \]</p>
+        <p>\[ C = \frac{f}{16} \cos^2 \alpha (4 + f (4 - 3 \cos^2 \alpha)) \]</p>
+        <span class="highlight">Explicació:</span> Aquests ajusten per la forma ovalada de la Terra.
+      </li>
+      <li>Actualitza λ:
+        <p>\[ \lambda = L + (1 - C) f \sin \alpha \left( \sigma + C \sin \sigma (\cos 2\sigma_m + C \cos \sigma (-1 + 2 \cos^2 2\sigma_m)) \right) \]</p>
+        <span class="highlight">Explicació:</span> Repetim fins que λ canviï menys de 0.000000000001 (precisió extrema!).
+      </li>
+    </ol>
+    <div class="explanation">
+      <strong>Per què iterem?</strong> Perquè la solució exacta és complicada; aproximem pas a pas, com resoldre una equació resolent-la repetidament.
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>Pas 4: Paràmetres finals (ajustos addicionals)</h3>
+    <p>Amb els valors convergits, calculem:</p>
+    <p>\[ u^2 = \cos^2 \alpha \frac{a^2 - b^2}{b^2} \]</p>
+    <p>\[ A = 1 + \frac{u^2}{16384} (4096 + u^2 (-768 + u^2 (320 - 175 u^2))) \]</p>
+    <p>\[ B = \frac{u^2}{1024} (256 + u^2 (-128 + u^2 (74 - 47 u^2))) \]</p>
+    <p>\[ \Delta \sigma = B \sin \sigma \left( \cos 2\sigma_m + \frac{B}{4} (\cos \sigma (-1 + 2 \cos^2 2\sigma_m) - \frac{B}{6} \cos 2\sigma_m (-3 + 4 \sin^2 \sigma) (-3 + 4 \cos^2 2\sigma_m)) \right) \]</p>
+    <div class="explanation">
+      <strong>Exemple:</strong> Aquests són com "factors de correcció" per passar d'angle a distància real en metres.
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>Pas 5: Distància final (s)</h3>
+    <p>\[ s = b A (\sigma - \Delta \sigma) \]</p>
+    <div class="explanation">
+      <strong>Exemple:</strong> Si σ és 90° (quarta part del món), s seria uns 10.000 km, ajustat per l'el·lipsoide.
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>Pas 6: Rumbs (direccions inicial i final)</h3>
+    <p>Rumb inicial (α₁, des de l'origen):</p>
+    <p>\[ \alpha_1 = \arctan2( \cos U_2 \sin \lambda, \cos U_1 \sin U_2 - \sin U_1 \cos U_2 \cos \lambda ) \]</p>
+    <p>Rumb final (α₂, a l'arribada):</p>
+    <p>\[ \alpha_2 = \arctan2( \cos U_1 \sin \lambda, -\sin U_1 \cos U_2 + \cos U_1 \sin U_2 \cos \lambda ) \]</p>
+    <div class="explanation">
+      <strong>Per què dos rumbs?</strong> En rutes corbes (geodèsiques), la direcció canvia lleugerament. α₁ és per sortir, α₂ per arribar.
+      <br><strong>Exemple:</strong> Volant d'Europa a Amèrica, comences apuntant nord-est, però arribes des del nord-oest.
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>1) Entrada de dades</h2>
+  <p>Introdueix les coordenades en graus decimals (ex: 41.3851 per Barcelona). Usa els valors per defecte per provar!</p>
+  <form id="formVincenty" onsubmit="event.preventDefault(); calculaVincenty();">
+    <h3>Punt d'origen</h3>
+    <label>Latitud φ₁ (graus)</label>
+    <input id="phi1" type="number" step="0.000001" value="46.494953" />
+    <label>Longitud λ₁ (graus)</label>
+    <input id="lam1" type="number" step="0.000001" value="-1.792091" />
+
+    <h3>Punt d'arribada</h3>
+    <label>Latitud φ₂ (graus)</label>
+    <input id="phi2" type="number" step="0.000001" value="15.8640" />
+    <label>Longitud λ₂ (graus)</label>
+    <input id="lam2" type="number" step="0.000001" value="-61.5860" />
+
+    <button type="submit">Calcular Vincenty</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>2) Resultats</h2>
+  <div id="resultats">— Encara no hi ha resultats. Prem el botó per calcular! —</div>
+</div>
+
+<script>
+function calculaVincenty(){
+  const rad = x => x * Math.PI / 180;
+  const deg = x => x * 180 / Math.PI;
+
+  // Llegir valors d'entrada
+  let φ1 = rad(parseFloat(document.getElementById("phi1").value));
+  let λ1 = rad(parseFloat(document.getElementById("lam1").value));
+  let φ2 = rad(parseFloat(document.getElementById("phi2").value));
+  let λ2 = rad(parseFloat(document.getElementById("lam2").value));
+
+  // Constants WGS-84
+  let a = 6378137.0;
+  let f = 1 / 298.257223563;
+  let b = a * (1 - f);
+
+  // Diferència de longitud
+  let L = λ2 - λ1;
+
+  // Latituds reduïdes
+  let U1 = Math.atan((1 - f) * Math.tan(φ1));
+  let U2 = Math.atan((1 - f) * Math.tan(φ2));
+
+  // Inicialitzar lambda
+  let λ = L;
+  let λ_prev, σ, sinσ, cosσ, sinα, cos2α, cos2σm, C;
+  let iter = 0;
+  let maxIter = 50;
+
+  let table = "<table><tr><th>Iter</th><th>λ (rad)</th><th>Δλ</th><th>σ</th><th>sinα</th><th>cos²α</th><th>cos2σₘ</th></tr>";
+
+  // Iteracions pas a pas
+  while (true) {
+    iter++;
+    λ_prev = λ;
+
+    let sinλ = Math.sin(λ);
+    let cosλ = Math.cos(λ);
+    let sinU1 = Math.sin(U1), cosU1 = Math.cos(U1);
+    let sinU2 = Math.sin(U2), cosU2 = Math.cos(U2);
+
+    sinσ = Math.sqrt((cosU2 * sinλ) ** 2 + (cosU1 * sinU2 - sinU1 * cosU2 * cosλ) ** 2);
+    cosσ = sinU1 * sinU2 + cosU1 * cosU2 * cosλ;
+    σ = Math.atan2(sinσ, cosσ);
+
+    sinα = cosU1 * cosU2 * sinλ / sinσ;
+    cos2α = 1 - sinα * sinα;
+
+    // Gestiona circumstància equatorial
+    cos2σm = (cos2α !== 0) ? (cosσ - 2 * sinU1 * sinU2 / cos2α) : 0;
+
+    C = (f / 16) * cos2α * (4 + f * (4 - 3 * cos2α));
+
+    λ = L + (1 - C) * f * sinα * (σ + C * sinσ * (cos2σm + C * cosσ * (-1 + 2 * cos2σm ** 2)));
+
+    let dλ = λ - λ_prev;
+
+    table += `<tr>
+      <td>${iter}</td>
+      <td>${λ.toFixed(12)}</td>
+      <td>${dλ.toExponential(3)}</td>
+      <td>${σ.toFixed(9)}</td>
+      <td>${sinα.toFixed(9)}</td>
+      <td>${cos2α.toFixed(9)}</td>
+      <td>${cos2σm.toFixed(9)}</td>
+    </tr>`;
+
+    if (Math.abs(dλ) < 1e-12 || iter > maxIter) break;
+  }
+  table += "</table>";
+
+  // Pas detallat: càlcul de valors intermedis finals
+  let u2 = cos2α * (a * a - b * b) / (b * b);
+  let A = 1 + (u2 / 16384) * (4096 + u2 * (-768 + u2 * (320 - 175 * u2)));
+  let B = (u2 / 1024) * (256 + u2 * (-128 + u2 * (74 - 47 * u2)));
+
+  let Δσ = B * sinσ * (
+    cos2σm + (B / 4) * (
+      cosσ * (-1 + 2 * cos2σm ** 2) - (B / 6) * cos2σm * (-3 + 4 * sinσ ** 2) * (-3 + 4 * cos2σm ** 2)
+    )
+  );
+
+  let s = b * A * (σ - Δσ);
+
+  let km = s / 1000;
+  let nm = s / 1852;
+
+  // Rumbs inicial i final
+  let alpha1 = Math.atan2(
+    Math.cos(U2) * Math.sin(λ),
+    Math.cos(U1) * Math.sin(U2) - Math.sin(U1) * Math.cos(U2) * Math.cos(λ)
+  );
+  let alpha2 = Math.atan2(
+    Math.cos(U1) * Math.sin(λ),
+    -Math.sin(U1) * Math.cos(U2) + Math.cos(U1) * Math.sin(U2) * Math.cos(λ)
+  );
+
+  // Passar a graus [0,360)
+  alpha1 = (deg(alpha1) + 360) % 360;
+  alpha2 = (deg(alpha2) + 360) % 360;
+
+  // Mostrar resultats finals detallats
+  document.getElementById("resultats").innerHTML = `
+    <h3>Iteracions detallades (pas a pas)</h3>
+    <p class="muted">Veus com convergeix λ ràpidament? Normalment en menys de 10 iteracions.</p>
+    ${table}
+    <h3>Valors intermedis finals</h3>
+    <p class="muted">Aquests són els ajustos finals per la distància.</p>
+    <ul>
+      <li><strong>u²:</strong> ${u2.toPrecision(10)}</li>
+      <li><strong>A:</strong> ${A.toPrecision(10)}</li>
+      <li><strong>B:</strong> ${B.toPrecision(10)}</li>
+      <li><strong>Δσ:</strong> ${Δσ.toPrecision(10)} rad</li>
+    </ul>
+    <h3>Resultats finals</h3>
+    <p class="muted">Aquí tens la distància i rumbs en unitats pràctiques.</p>
+    <ul>
+    
+      
+      
+      <li><strong>Distància:</strong> 
+  ${s.toFixed(3)} m = ${km.toFixed(6)} km = ${nm.toFixed(6)} NM
+</li>
+
+      
+      <li><strong>λ final:</strong> ${λ.toFixed(12)} rad</li>
+      <li><strong>σ:</strong> ${σ.toFixed(12)} rad</li>
+      <li><strong>Rumb inicial (azimut):</strong> ${alpha1.toFixed(6)} °</li>
+      <li><strong>Rumb final (azimut):</strong> ${alpha2.toFixed(6)} °</li>
+    </ul>
+  `;
+
+  MathJax.typesetPromise();
+}
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js");
+}
+</script>
+
+</body>
+</html>
