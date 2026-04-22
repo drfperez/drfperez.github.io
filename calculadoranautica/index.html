@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Mini Transat · 22 Dies · Mapa Didàctic Interactiu</title>
+    
+    <!-- Leaflet + plugins -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- PolylineDecorator per a fletxes direccionals -->
+    <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylinedecorator.js"></script>
+    
+    <style>
+        :root { 
+            --brand: #004e66; 
+            --accent: #fcb43a;
+            --bg: #eef3f7; 
+            --card: #ffffff; 
+        }
+
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: var(--bg); 
+            color: #1e2f3a;
+        }
+        h1 { 
+            text-align: center; 
+            color: var(--brand); 
+            margin-top: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        h1 small { font-size: 1rem; opacity: 0.8; font-weight: 400; }
+
+        .dashboard {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Panell d'eines */
+        #toolMenu {
+            width: 340px;
+            background: var(--card);
+            padding: 22px 18px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,40,60,0.12);
+            height: fit-content;
+            border: 1px solid rgba(0,78,102,0.15);
+        }
+
+        #mapContainer {
+            flex: 1;
+            min-width: 300px;
+        }
+        #map {
+            height: 620px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border: 2px solid white;
+        }
+
+        #results {
+            margin-top: 18px;
+            padding: 16px 18px;
+            background: var(--card);
+            border-radius: 18px;
+            border-left: 6px solid var(--accent);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        label { display:block; margin-top:14px; font-weight: 600; font-size: 0.8rem; color: var(--brand); text-transform: uppercase; letter-spacing: 0.3px; }
+        input, select { 
+            width:100%; 
+            margin-bottom:6px; 
+            padding:10px 12px; 
+            border: 1.5px solid #d0dde5; 
+            border-radius: 14px; 
+            font-size: 0.95rem;
+            background: white;
+            transition: 0.15s;
+        }
+        input:focus, select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(252,180,58,0.2); }
+        select { background: #fafdff; font-weight: 500; cursor: pointer; }
+        
+        button { 
+            margin-top: 18px; 
+            padding: 12px 16px; 
+            width:100%; 
+            background: var(--brand); 
+            color: white; 
+            border: none; 
+            border-radius: 40px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 12px rgba(0,78,102,0.3);
+            transition: 0.2s;
+        }
+        button:hover { background: #003344; transform: scale(1.01); }
+        .btn-secondary { background: #2c7a8c; box-shadow: none; margin-bottom: 20px; }
+        .btn-secondary:hover { background: #1e5e6e; }
+
+        .legend {
+            background: rgba(255,255,255,0.9);
+            padding: 12px 16px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 13px;
+            border: 1px solid white;
+        }
+        .legend-item { display: flex; align-items: center; margin-bottom: 6px; }
+        .legend-color { width: 22px; height: 8px; margin-right: 10px; border-radius: 20px; }
+
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,20,30,0.6); backdrop-filter: blur(3px); }
+        .modal-content { background: #fff; margin: 2% auto; padding: 24px 28px; border-radius: 28px; width: 90%; max-width: 850px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 40px rgba(0,0,0,0.3); }
+        .close { float: right; font-size: 32px; font-weight: 400; cursor: pointer; color: #5f7d8c; }
+
+        @media (max-width: 800px) {
+            .dashboard { flex-direction: column; }
+            #toolMenu { width: 100%; }
+        }
+        .emoji-marker { font-size: 24px; text-align: center; line-height: 24px; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .leaflet-tooltip { font-weight: 600; background: #1e3b4a; color: white; border: none; border-radius: 20px; padding: 4px 12px; }
+    </style>
+</head>
+<body>
+
+<h1>
+    ⛵ Navegador Didàctic · Mini 6.50 & 22 Dies 
+    <small>Rutes reals · Ortodròmia · Loxodròmia</small>
+</h1>
+
+<div class="dashboard">
+    <div id="toolMenu">
+        <button class="btn-secondary" onclick="openModal()">📘 Obrir Fitxa Didàctica (detalls)</button>
+        <label for="toolSelect">🧭 Tria eina didàctica:</label>
+        <select id="toolSelect" onchange="showToolInputs()">
+            <optgroup label="🗺️ Rutes Mini Transat (dibuix al mapa)">
+                <option value="ortodromia" selected>📏 Ortodròmia (cercle màxim)</option>
+                <option value="loxodromia">🧭 Loxodròmia (rumb constant)</option>
+                <option value="simulacio">🌊 Simular derrota amb corrent</option>
+                <option value="vmg">⏱️ Calculadora VMG</option>
+                <option value="dr">📍 Estima (Dead Reckoning)</option>
+                <option value="apparentWind">💨 Vent aparent</option>
+            </optgroup>
+            <optgroup label="🧰 Caixa d'eines · 22 dies / 22 peus">
+                <option value="pointsOfSail">📐 Punts de vela</option>
+                <option value="leeway">🌬️ Abatiment (deriva) + dibuix</option>
+                <option value="reefAdvice">🌪️ Assessor d'arrissar</option>
+                <option value="mobDrill">🆘 Home a l'aigua (MOB) · Boutakow</option>
+                <option value="provisioning">🍎 Queviures i aigua</option>
+            </optgroup>
+        </select>
+
+        <div id="toolInputs" style="margin-top: 12px;"></div>
+        <p style="font-size:0.8rem; margin-top:20px; color:#3a6579; border-top:1px dashed #b0c8d5; padding-top:14px;">
+            ⭐ Fletxes al mapa: direcció del rumb.<br>
+            🟦 Ortodròmia (blau) · 🟩 Loxodròmia (verd)
+        </p>
+    </div>
+
+    <div id="mapContainer">
+        <div id="map"></div>
+        <div id="results">📍 Selecciona una eina per començar. Les rutes es dibuixen al mapa.</div>
+    </div>
+</div>
+
+<!-- Modal didàctic amb MathJax -->
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modalText" style="font-size:1.05rem; line-height:1.6; color:#1e2f3a;"></div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ---------- CONFIGURACIÓ MAPA AMB CAPES REALS ----------
+        var map = L.map('map', { zoomControl: true, attributionControl: true }).setView([38, -25], 4);
+        
+        var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        });
+        var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            maxZoom: 19
+        });
+        
+        var baseMaps = {
+            "🗺️ Carrers / Nàutic": osmLayer,
+            "🛰️ Satèl·lit real": satelliteLayer
+        };
+        L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+        osmLayer.addTo(map);
+        
+        // Variables globals per capes
+        var orthoLayer = null, loxoLayer = null, simLayer = null, drLayer = null, didacticGroup = null;
+        var startMarker = null, endMarker = null, mobMarker = null;
+        var decoratorOrtho = null, decoratorLoxo = null;
+        
+        const defaultStart = [46.4975, -1.7936];
+        const defaultEnd   = [16.2500, -61.2667];
+        
+        // Llegenda
+        var legend = L.control({position: 'bottomleft'});
+        legend.onAdd = function() {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <div class="legend-item"><div class="legend-color" style="background:#1f77b4;"></div> Ortodròmia (més curta)</div>
+                <div class="legend-item"><div class="legend-color" style="background:#2ca02c;"></div> Loxodròmia (rumb fix)</div>
+                <div class="legend-item"><div class="legend-color" style="background:#d62728;"></div> Derrota real / corrent</div>
+                <div class="legend-item"><div class="legend-color" style="background:#ff7f0e;"></div> Maniobra / didàctic</div>
+                <div class="legend-item"><div style="width:22px;height:2px;background:black;margin-right:10px;border-top:3px dotted #333;"></div> Fletxes = direcció</div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+        
+        function clearDidacticLayers() {
+            if (didacticGroup) { map.removeLayer(didacticGroup); didacticGroup = null; }
+            if (simLayer) { map.removeLayer(simLayer); simLayer = null; }
+            if (drLayer) { map.removeLayer(drLayer); drLayer = null; }
+            if (mobMarker) { map.removeLayer(mobMarker); mobMarker = null; }
+        }
+        
+        function clearMainRoutes() {
+            if (orthoLayer) { map.removeLayer(orthoLayer); orthoLayer = null; }
+            if (loxoLayer) { map.removeLayer(loxoLayer); loxoLayer = null; }
+            if (decoratorOrtho) { map.removeLayer(decoratorOrtho); decoratorOrtho = null; }
+            if (decoratorLoxo) { map.removeLayer(decoratorLoxo); decoratorLoxo = null; }
+        }
+
+        function updateStartEndMarkers(lat1, lon1, lat2, lon2) {
+            if (startMarker) map.removeLayer(startMarker);
+            if (endMarker) map.removeLayer(endMarker);
+            var boatIcon = L.divIcon({ html: '⛵', className: 'emoji-marker', iconSize: [24,24] });
+            var flagIcon = L.divIcon({ html: '🏁', className: 'emoji-marker', iconSize: [24,24] });
+            startMarker = L.marker([lat1, lon1], { icon: boatIcon }).bindTooltip("Sortida: Les Sables").addTo(map);
+            endMarker = L.marker([lat2, lon2], { icon: flagIcon }).bindTooltip("Arribada: Guadalupe").addTo(map);
+        }
+
+        function drawRouteWithArrows(points, color, weight, dash, layerRef, decoratorRef, arrowColor=null) {
+            if (layerRef) map.removeLayer(layerRef);
+            if (decoratorRef) map.removeLayer(decoratorRef);
+            var line = L.polyline(points, { color: color, weight: weight, opacity: 0.9, dashArray: dash || null }).addTo(map);
+            var arrowDecorator = L.polylineDecorator(line, {
+                patterns: [{ offset: '8%', repeat: '12%', symbol: L.Symbol.arrowHead({ pixelSize: 16, polygon: false, pathOptions: { stroke: true, color: arrowColor || color, weight: 3, opacity: 0.9 } }) }]
+            }).addTo(map);
+            return { line, decorator: arrowDecorator };
+        }
+
+        // ----- CÀLCULS PRINCIPALS -----
+        function runOrtodromia(){
+            clearMainRoutes(); clearDidacticLayers();
+            var lat1 = parseFloat(document.getElementById('lat1')?.value || defaultStart[0]);
+            var lon1 = parseFloat(document.getElementById('lon1')?.value || defaultStart[1]);
+            var lat2 = parseFloat(document.getElementById('lat2')?.value || defaultEnd[0]);
+            var lon2 = parseFloat(document.getElementById('lon2')?.value || defaultEnd[1]);
+            updateStartEndMarkers(lat1, lon1, lat2, lon2);
+            
+            var R = 3440.065, toRad = Math.PI/180;
+            var l1 = lat1*toRad, l2 = lat2*toRad, dLon = (lon2-lon1)*toRad;
+            var a = Math.sin((l2-l1)/2)**2 + Math.cos(l1)*Math.cos(l2)*Math.sin(dLon/2)**2;
+            var dist = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * R;
+            var y = Math.sin(dLon)*Math.cos(l2);
+            var x = Math.cos(l1)*Math.sin(l2) - Math.sin(l1)*Math.cos(l2)*Math.cos(dLon);
+            var brg = (Math.atan2(y, x)*180/Math.PI + 360) % 360;
+            
+            var points = [];
+            for(var i=0; i<=60; i++){
+                var f = i/60, d = dist / R;
+                var A = Math.sin((1-f)*d)/Math.sin(d), B = Math.sin(f*d)/Math.sin(d);
+                var px = A*Math.cos(l1)*Math.cos(lon1*toRad) + B*Math.cos(l2)*Math.cos(lon2*toRad);
+                var py = A*Math.cos(l1)*Math.sin(lon1*toRad) + B*Math.cos(l2)*Math.sin(lon2*toRad);
+                var pz = A*Math.sin(l1) + B*Math.sin(l2);
+                points.push([Math.atan2(pz, Math.sqrt(px*px+py*py))*180/Math.PI, Math.atan2(py, px)*180/Math.PI]);
+            }
+            var res = drawRouteWithArrows(points, '#1f77b4', 3.5, '6,6', orthoLayer, decoratorOrtho, '#1f77b4');
+            orthoLayer = res.line; decoratorOrtho = res.decorator;
+            map.fitBounds(L.latLngBounds(points), {padding: [30,30]});
+            showResult(`<b>📏 ORTODRÒMIA (Gran Cercle)</b><br>Distància: <b>${dist.toFixed(1)} mn</b><br>Rumb inicial: <b>${brg.toFixed(1)}°</b>`);
+        }
+
+        function runLoxodromia(){
+            clearMainRoutes(); clearDidacticLayers();
+            var lat1 = parseFloat(document.getElementById('lat1')?.value || defaultStart[0]);
+            var lon1 = parseFloat(document.getElementById('lon1')?.value || defaultStart[1]);
+            var lat2 = parseFloat(document.getElementById('lat2')?.value || defaultEnd[0]);
+            var lon2 = parseFloat(document.getElementById('lon2')?.value || defaultEnd[1]);
+            updateStartEndMarkers(lat1, lon1, lat2, lon2);
+            
+            var toRad = Math.PI/180;
+            var l1 = lat1*toRad, l2 = lat2*toRad, dLon = (lon2-lon1)*toRad;
+            var dPhi = Math.log(Math.tan(l2/2+Math.PI/4)/Math.tan(l1/2+Math.PI/4));
+            var q = Math.abs(dPhi) > 1e-12 ? (l2-l1)/dPhi : Math.cos(l1);
+            var dist = Math.sqrt((l2-l1)**2 + q*q*dLon*dLon) * 3440.065;
+            var brg = (Math.atan2(dLon, dPhi)*180/Math.PI + 360) % 360;
+            
+            var points = [];
+            for(var i=0; i<=60; i++) points.push([lat1+(lat2-lat1)*i/60, lon1+(lon2-lon1)*i/60]);
+            var res = drawRouteWithArrows(points, '#2ca02c', 3.5, null, loxoLayer, decoratorLoxo, '#2ca02c');
+            loxoLayer = res.line; decoratorLoxo = res.decorator;
+            map.fitBounds(L.latLngBounds(points), {padding: [30,30]});
+            showResult(`<b>🧭 LOXODRÒMIA</b><br>Distància: <b>${dist.toFixed(1)} mn</b><br>Rumb constant: <b>${brg.toFixed(1)}°</b>`);
+        }
+
+        function runSim(){
+            clearDidacticLayers();
+            var lat = defaultStart[0]*Math.PI/180, lon = defaultStart[1]*Math.PI/180;
+            var hdg = parseFloat(document.getElementById('simHdg').value)*Math.PI/180;
+            var bs = parseFloat(document.getElementById('simBS').value);
+            var cs = parseFloat(document.getElementById('simCS').value);
+            var cd = parseFloat(document.getElementById('simCD').value)*Math.PI/180;
+            var hours = parseFloat(document.getElementById('simTime').value);
+            var points = [[lat*180/Math.PI, lon*180/Math.PI]];
+            var bx = bs*Math.sin(hdg), by = bs*Math.cos(hdg);
+            var cx = cs*Math.sin(cd), cy = cs*Math.cos(cd);
+            var gx = bx+cx, gy = by+cy;
+            for(var i=0; i<hours*6; i++){
+                lat += (gy*10/60)/60 * Math.PI/180;
+                lon += ((gx*10/60)/(60*Math.cos(lat))) * Math.PI/180;
+                points.push([lat*180/Math.PI, lon*180/Math.PI]);
+            }
+            simLayer = L.polyline(points, {color: '#d62728', weight: 4}).addTo(map);
+            var sog = Math.sqrt(gx*gx+gy*gy);
+            var cog = (Math.atan2(gx, gy)*180/Math.PI+360)%360;
+            map.fitBounds(simLayer.getBounds());
+            showResult(`<b>🌊 SIMULACIÓ AMB CORRENT</b><br>SOG: ${sog.toFixed(1)} kn · COG: ${cog.toFixed(1)}°`);
+        }
+
+        function runDR() {
+            clearDidacticLayers();
+            var lat = parseFloat(document.getElementById('drLat').value);
+            var lon = parseFloat(document.getElementById('drLon').value);
+            var brg = parseFloat(document.getElementById('drBrg').value)*Math.PI/180;
+            var d = parseFloat(document.getElementById('drDist').value)/60;
+            var newLat = lat + d*Math.cos(brg);
+            var newLon = lon + d*Math.sin(brg)/Math.cos(lat*Math.PI/180);
+            drLayer = L.polyline([[lat,lon],[newLat,newLon]], {color: '#9467bd', weight: 4}).addTo(map);
+            map.fitBounds(drLayer.getBounds(), {padding: [40,40]});
+            showResult(`<b>📍 ESTIMA</b><br>Nova posició: ${newLat.toFixed(4)}°, ${newLon.toFixed(4)}°`);
+        }
+
+        function runLeeway(){
+            clearDidacticLayers();
+            var wind = parseFloat(document.getElementById('lwWind').value);
+            var boat = parseFloat(document.getElementById('lwBoat').value);
+            var hdg = parseFloat(document.getElementById('lwHDG').value);
+            var leeway = Math.min(20, (0.28*wind)/Math.max(boat,1));
+            var cog = (hdg + leeway) % 360;
+            var lat0=45.5, lon0=-5.2, p0=[lat0,lon0];
+            var pHdg=[lat0+0.08*Math.cos(hdg*Math.PI/180), lon0+0.08*Math.sin(hdg*Math.PI/180)/Math.cos(lat0*Math.PI/180)];
+            var pCog=[lat0+0.08*Math.cos(cog*Math.PI/180), lon0+0.08*Math.sin(cog*Math.PI/180)/Math.cos(lat0*Math.PI/180)];
+            didacticGroup = L.featureGroup([
+                L.polyline([p0,pHdg], {color:'green', weight:3, dashArray:'5,8'}).bindTooltip("Proa (HDG)"),
+                L.polyline([p0,pCog], {color:'#d62728', weight:4}).bindTooltip("Derrota real"),
+                L.circleMarker(p0, {radius:5, color:'black', fillColor:'#fcb43a'})
+            ]).addTo(map);
+            map.fitBounds(didacticGroup.getBounds(), {padding:[40,40]});
+            showResult(`<b>🌬️ ABATIMENT</b><br>Deriva ~${leeway.toFixed(1)}° · COG ${cog.toFixed(1)}°`);
+        }
+
+        function runMOB(){
+            clearDidacticLayers();
+            var hdg = parseFloat(document.getElementById('mobHdg').value);
+            var lat0=46.2, lon0=-4.5, p0=[lat0,lon0];
+            var p1=[lat0+0.5/60*Math.cos(hdg*Math.PI/180), lon0+0.5/60*Math.sin(hdg*Math.PI/180)/Math.cos(lat0*Math.PI/180)];
+            var turn1=(hdg+60)%360;
+            var p2=[p1[0]+0.9/60*Math.cos(turn1*Math.PI/180), p1[1]+0.9/60*Math.sin(turn1*Math.PI/180)/Math.cos(p1[0]*Math.PI/180)];
+            mobMarker = L.marker(p0, {icon: L.divIcon({html:'🆘', className:'emoji-marker', iconSize:[30,30]})}).bindPopup("🏊 Home a l'aigua!").addTo(map);
+            didacticGroup = L.polyline([p0,p1,p2,p0], {color:'#ff7f0e', weight:4}).addTo(map);
+            map.fitBounds(didacticGroup.getBounds(), {padding:[60,60]});
+            showResult(`<b>🆘 MANIOBRA BOUTAKOW</b><br>1. Caure 60° a ${turn1}° · 2. Navegar 1' · 3. Retorn.`);
+        }
+
+        function runVMG(){ var v=parseFloat(document.getElementById('vmgSpeed').value), a=parseFloat(document.getElementById('vmgAngle').value); showResult(`<b>⏱️ VMG</b> = ${(v*Math.cos(a*Math.PI/180)).toFixed(2)} kn`); }
+        function runApparentWind(){
+            var tws=parseFloat(document.getElementById('awTWS').value), twd=parseFloat(document.getElementById('awTWD').value), bs=parseFloat(document.getElementById('awBS').value), hdg=parseFloat(document.getElementById('awHDG').value);
+            var rel=(twd-hdg)*Math.PI/180, app_x=tws*Math.sin(rel), app_y=tws*Math.cos(rel)+bs, aws=Math.hypot(app_x,app_y), awa=(Math.atan2(app_x,app_y)*180/Math.PI+360)%360;
+            showResult(`<b>💨 VENT APARENT</b> AWS ${aws.toFixed(1)} kn · AWA ${awa.toFixed(0)}°`);
+        }
+        function runPointsOfSail(){
+            var twd=parseFloat(document.getElementById('posTWD').value), hdg=parseFloat(document.getElementById('posHDG').value);
+            var ang=Math.abs((twd-hdg+360)%360); if(ang>180) ang=360-ang;
+            var txt = ang<35?"Proa al vent": ang<60?"Cenyida": ang<80?"Desquarterar": ang<120?"Través": ang<160?"Llarg":"Empopada";
+            showResult(`<b>📐 PUNT DE VELA</b> ${txt} (${ang.toFixed(0)}°)`);
+        }
+        function runReefAdvice(){ var t=parseFloat(document.getElementById('reefTWS').value); var adv = t<12?"Tot el drap": t<18?"1r rís": t<25?"2n rís": t<35?"3r rís":"Tempesta"; showResult(`<b>🌪️ ARRISSAR</b> ${t} kn → ${adv}`); }
+        function runProvisioning(){ var d=parseFloat(document.getElementById('provDays').value), c=parseFloat(document.getElementById('provCrew').value); showResult(`<b>🍎 QUEVIURES</b> ${d} dies · ${c} trip: 💧 ${(d*c*3*1.2).toFixed(0)} L · 🔥 ${(d*c*3200).toLocaleString()} kcal`); }
+
+        function showResult(html){ document.getElementById('results').innerHTML = html; }
+        function showToolInputs(){
+            var sel = document.getElementById('toolSelect').value;
+            var div = document.getElementById('toolInputs');
+            div.innerHTML = '';
+            if(sel==='ortodromia'||sel==='loxodromia') div.innerHTML = `<label>Lat origen</label><input id='lat1' value='${defaultStart[0]}'><label>Lon origen</label><input id='lon1' value='${defaultStart[1]}'><label>Lat destí</label><input id='lat2' value='${defaultEnd[0]}'><label>Lon destí</label><input id='lon2' value='${defaultEnd[1]}'><button onclick='run${sel.charAt(0).toUpperCase()+sel.slice(1)}()'>Calcular i dibuixar</button>`;
+            else if(sel==='simulacio') div.innerHTML = `<label>Rumb (°)</label><input id='simHdg' value='210'><label>Vel. vaixell (kn)</label><input id='simBS' value='6'><label>Vel. corrent</label><input id='simCS' value='1.5'><label>Dir. corrent</label><input id='simCD' value='180'><label>Hores</label><input id='simTime' value='24'><button onclick='runSim()'>Simular</button>`;
+            else if(sel==='vmg') div.innerHTML = `<label>Velocitat (kn)</label><input id='vmgSpeed' value='6'><label>Angle (°)</label><input id='vmgAngle' value='45'><button onclick='runVMG()'>VMG</button>`;
+            else if(sel==='dr') div.innerHTML = `<label>Lat inicial</label><input id='drLat' value='46.4975'><label>Lon inicial</label><input id='drLon' value='-1.7936'><label>Rumb</label><input id='drBrg' value='210'><label>Distància (mn)</label><input id='drDist' value='50'><button onclick='runDR()'>Estima</button>`;
+            else if(sel==='apparentWind') div.innerHTML = `<label>TWS (kn)</label><input id='awTWS' value='15'><label>TWD (°)</label><input id='awTWD' value='90'><label>Vel. vaixell</label><input id='awBS' value='7'><label>Rumb</label><input id='awHDG' value='45'><button onclick='runApparentWind()'>Calcular</button>`;
+            else if(sel==='pointsOfSail') div.innerHTML = `<label>Dir. vent (TWD)</label><input id='posTWD' value='0'><label>Rumb (HDG)</label><input id='posHDG' value='45'><button onclick='runPointsOfSail()'>Analitzar</button>`;
+            else if(sel==='leeway') div.innerHTML = `<label>Vent (kn)</label><input id='lwWind' value='15'><label>Vel. vaixell</label><input id='lwBoat' value='5'><label>Rumb</label><input id='lwHDG' value='90'><button onclick='runLeeway()'>Dibuixar abatiment</button>`;
+            else if(sel==='reefAdvice') div.innerHTML = `<label>Vent real (kn)</label><input id='reefTWS' value='18'><button onclick='runReefAdvice()'>Assessor</button>`;
+            else if(sel==='mobDrill') div.innerHTML = `<label>Rumb inicial</label><input id='mobHdg' value='210'><button onclick='runMOB()' style='background:#c44536;'>🚨 Llançar MOB</button>`;
+            else if(sel==='provisioning') div.innerHTML = `<label>Dies</label><input id='provDays' value='22'><label>Tripulants</label><input id='provCrew' value='1'><button onclick='runProvisioning()'>Calcular</button>`;
+        }
+
+        // MODAL AMB MATHJAX
+        window.openModal = function() {
+            var modalText = document.getElementById('modalText');
+            modalText.innerHTML = `
+                <h2 style="color:#004e66;">📐 FÓRMULES I CONCEPTES · CAIXA D'EINES DIDÀCTICA</h2>
+                <p style="font-style:italic; background:#eef7fb; padding:12px; border-radius:14px;">Totes les fórmules en notació LaTeX. MathJax les renderitza automàticament.</p>
+                <h3 style="color:#1f77b4;">📏 1. ORTODRÒMIA (Gran Cercle)</h3>
+                <p><strong>Distància (Haversine):</strong></p>
+                \\[ a = \\sin^2\\left(\\frac{\\Delta \\varphi}{2}\\right) + \\cos(\\varphi_1) \\cos(\\varphi_2) \\sin^2\\left(\\frac{\\Delta \\lambda}{2}\\right) \\]
+                \\[ c = 2 \\operatorname{atan2}(\\sqrt{a}, \\sqrt{1-a}) \\qquad d = R \\cdot c \\]
+                <p><strong>Rumb inicial:</strong></p>
+                \\[ \\theta = \\operatorname{atan2}(\\sin(\\Delta\\lambda)\\cos(\\varphi_2), \\cos(\\varphi_1)\\sin(\\varphi_2)-\\sin(\\varphi_1)\\cos(\\varphi_2)\\cos(\\Delta\\lambda)) \\]
+                <h3 style="color:#2ca02c;">🧭 2. LOXODRÒMIA</h3>
+                \\[ \\Delta\\Phi = \\ln\\left(\\frac{\\tan(\\varphi_2/2+\\pi/4)}{\\tan(\\varphi_1/2+\\pi/4)}\\right) \\]
+                \\[ d = R \\sqrt{(\\Delta\\varphi)^2 + q^2(\\Delta\\lambda)^2}, \\quad q = \\frac{\\Delta\\varphi}{\\Delta\\Phi} \\]
+                <h3 style="color:#d62728;">🌬️ 3. ABATIMENT</h3>
+                \\[ \\text{Leeway} = \\min\\left(20, 0.28 \\frac{\\text{Vent}}{\\max(\\text{Vaixell},1)}\\right) \\]
+                <h3 style="color:#9467bd;">💨 4. VENT APARENT</h3>
+                \\[ \\text{AWS} = \\sqrt{(\\text{TWS}\\sin\\alpha)^2 + (\\text{TWS}\\cos\\alpha + \\text{BS})^2} \\]
+                <h3>... i més (VMG, Estima, etc.)</h3>
+                <p style="margin-top:20px;"><i>➡️ La resta de fórmules (estima, corrent, MOB) s'expliquen a la interfície.</i></p>
+            `;
+            
+            if (!window.MathJax) {
+                var script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js';
+                script.onload = function() {
+                    document.getElementById('infoModal').style.display = 'block';
+                    MathJax.typesetPromise();
+                };
+                document.head.appendChild(script);
+            } else {
+                document.getElementById('infoModal').style.display = 'block';
+                MathJax.typesetPromise();
+            }
+        };
+        
+        window.closeModal = function(){ document.getElementById('infoModal').style.display = 'none'; };
+        window.onclick = function(e){ if(e.target === document.getElementById('infoModal')) closeModal(); };
+        
+        // Exposar funcions
+        window.runOrtodromia = runOrtodromia; window.runLoxodromia = runLoxodromia;
+        window.runSim = runSim; window.runVMG = runVMG; window.runDR = runDR;
+        window.runApparentWind = runApparentWind; window.runPointsOfSail = runPointsOfSail;
+        window.runLeeway = runLeeway; window.runReefAdvice = runReefAdvice;
+        window.runMOB = runMOB; window.runProvisioning = runProvisioning;
+        window.showToolInputs = showToolInputs;
+        
+        showToolInputs();
+        setTimeout(() => { runOrtodromia(); }, 100);
+    })();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
