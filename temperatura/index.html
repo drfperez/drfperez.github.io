@@ -1,0 +1,580 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guia ESP32 + DHT22 + Firebase + Web</title>
+
+  <!-- Tailwind-like dark style senzill -->
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: auto;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 24px;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #38bdf8;
+    }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.5rem; margin-top: 1.5rem; }
+    h3 { font-size: 1.2rem; margin-top: 1rem; }
+
+    .card {
+      background: #020617;
+      border: 1px solid #1e293b;
+      padding: 20px;
+      margin: 16px 0;
+      border-radius: 12px;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.7);
+    }
+
+    .step {
+      border-left: 4px solid #38bdf8;
+      padding-left: 10px;
+      margin: 8px 0;
+    }
+
+    ul { padding-left: 1.2rem; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      color: #e5e7eb;
+      margin-right: 6px;
+    }
+
+    .pill-ok {
+      color: #22c55e;
+    }
+    .pill-warn {
+      color: #f97316;
+    }
+
+    pre {
+      background: #020617;
+      border-radius: 10px;
+      padding: 14px;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+      margin: 10px 0 18px 0;
+    }
+
+    code {
+      font-family: "Fira Code", "JetBrains Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 0.9rem;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      color: #e5e7eb;
+      margin-left: 6px;
+    }
+  </style>
+
+  <!-- Highlight.js per al ressaltat de codi -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Llenguatges que farem servir -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      hljs.highlightAll();
+    });
+  </script>
+</head>
+
+<body>
+
+  <h1>🌡️ Temperatura online: ESP32 + DHT22 + Firebase + Dashboard Web</h1>
+  <p>
+    En aquesta pàgina tens el projecte explicat pas a pas:
+    <strong>ESP32</strong> + <strong>DHT22</strong> + <strong>Firebase Realtime Database</strong> +
+    <strong>Dashboard web amb gràfiques, humitat, alertes i estat del dispositiu</strong>.
+  </p>
+
+  <!-- VISIÓ GENERAL -->
+  <div class="card">
+    <h2>1. Visió general del sistema</h2>
+    <p>El sistema complet fa això:</p>
+    <ul>
+      <li>📡 L’ESP32 llegeix <strong>temperatura</strong> i <strong>humitat</strong> del sensor DHT22.</li>
+      <li>☁️ Envia aquestes dades a <strong>Firebase Realtime Database</strong> cada minut.</li>
+      <li>🟢 També actualitza un camp <code>status</code> i <code>lastSeen</code> per saber si està online.</li>
+      <li>🌐 Una pàgina web llegeix Firebase en temps real i mostra:
+        <ul>
+          <li>Temperatura i humitat actuals</li>
+          <li>Gràfica de temperatura i humitat</li>
+          <li>Alertes si superen certs llindars</li>
+          <li>Estat del dispositiu (online/offline)</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <!-- FIREBASE -->
+  <div class="card">
+    <h2>2. Configuració de Firebase</h2>
+
+    <div class="step">
+      1. Ves a <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a>
+    </div>
+    <div class="step">
+      2. Crea un projecte nou (pots desactivar Google Analytics per simplificar).
+    </div>
+    <div class="step">
+      3. A l’apartat <strong>Build → Realtime Database</strong>, crea una base de dades.
+    </div>
+    <div class="step">
+      4. Tria mode <strong>TEST</strong> per començar (després ja ho podràs restringir).
+    </div>
+    <div class="step">
+      5. A <strong>Project settings → General → SDK setup and configuration (Web)</strong> copia:
+      <ul>
+        <li><strong>apiKey</strong></li>
+        <li><strong>databaseURL</strong> (URL de la Realtime Database)</li>
+      </ul>
+    </div>
+
+    <p class="note">
+      Guarda aquests valors, els necessitaràs tant per al codi de l’ESP32 com per al dashboard web.
+    </p>
+  </div>
+
+  <!-- ESTRUCTURA DE DADES -->
+  <div class="card">
+    <h2>3. Estructura de dades a Firebase</h2>
+    <p>El nostre objectiu és tenir una estructura clara com aquesta:</p>
+
+    <pre><code class="language-text">
+sensor
+ ├── status: "online"
+ ├── lastSeen: 1700000000
+ └── history
+      ├── 1700000000
+      │     ├── temp: 23.4
+      │     └── hum: 45.2
+      ├── 1700000060
+      │     ├── temp: 23.6
+      │     └── hum: 46.0
+      └── ...
+    </code></pre>
+
+    <ul>
+      <li><code>sensor/status</code>: indica si l’ESP32 està <code>"online"</code> (actualitzat periòdicament).</li>
+      <li><code>sensor/lastSeen</code>: últim timestamp (en segons) en què l’ESP32 ha actualitzat l’estat.</li>
+      <li><code>sensor/history/&lt;timestamp&gt;/temp</code>: temperatura en °C.</li>
+      <li><code>sensor/history/&lt;timestamp&gt;/hum</code>: humitat relativa en %.</li>
+    </ul>
+  </div>
+
+  <!-- CODI ESP32 -->
+  <div class="card">
+    <h2>4. Codi ESP32 + DHT22 + Firebase</h2>
+    <p>
+      Aquest codi s’executa a l’ESP32. Fa:
+    </p>
+    <ul>
+      <li>Es connecta al WiFi.</li>
+      <li>Configura Firebase amb la teva <code>API_KEY</code> i <code>DATABASE_URL</code>.</li>
+      <li>Configura l’hora via NTP per obtenir timestamps correctes.</li>
+      <li>Llegeix temperatura i humitat del DHT22.</li>
+      <li>Envia les dades a <code>sensor/history/&lt;timestamp&gt;</code>.</li>
+      <li>Actualitza periòdicament <code>sensor/status</code> i <code>sensor/lastSeen</code>.</li>
+    </ul>
+
+    <p><strong>Substitueix</strong> els textos en majúscules (<code>EL_TEUS_SSID</code>, <code>LA_TEVA_CONTRASENYA</code>, etc.) pels teus valors reals.</p>
+
+    <pre><code class="language-cpp">
+#include &lt;WiFi.h&gt;
+#include &lt;DHT.h&gt;
+#include &lt;Firebase_ESP_Client.h&gt;
+#include "time.h"
+
+// ---------- CONFIGURACIÓ WIFI ----------
+#define WIFI_SSID      "EL_TEUS_SSID"
+#define WIFI_PASSWORD  "LA_TEVA_CONTRASENYA"
+
+// ---------- CONFIGURACIÓ FIREBASE ----------
+#define API_KEY        "LA_TEVA_API_KEY"
+#define DATABASE_URL   "https://EL_TEU_PROJECTE.firebaseio.com/"
+
+// ---------- CONFIGURACIÓ DHT ----------
+#define DHTPIN   4      // GPIO on tens el DHT22
+#define DHTTYPE  DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+// Objectes Firebase
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+// Per controlar cada quant actualitzem l'estat
+unsigned long lastStatusUpdate = 0;
+
+// --------------------
+// Connectar al WiFi
+// --------------------
+void connectWiFi() {
+  Serial.print("Connectant a WiFi");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(300);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("Connectat! IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+// --------------------
+// Configurar hora NTP
+// --------------------
+void setupTime() {
+  configTime(0, 0, "pool.ntp.org");
+  Serial.println("Sincronitzant hora NTP...");
+  struct tm timeinfo;
+  while (!getLocalTime(&timeinfo)) {
+    Serial.println("Encara sense hora, esperant...");
+    delay(500);
+  }
+  Serial.println("Hora NTP configurada correctament.");
+}
+
+// --------------------
+// SETUP
+// --------------------
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+
+  Serial.println();
+  Serial.println("Iniciant ESP32 + DHT22 + Firebase...");
+
+  connectWiFi();
+
+  // Configuració bàsica de Firebase
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+
+  // Inicialitzar Firebase
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
+
+  // Configurar hora
+  setupTime();
+
+  // Inicialitzar DHT
+  dht.begin();
+  Serial.println("DHT inicialitzat.");
+}
+
+// --------------------
+// LOOP
+// --------------------
+void loop() {
+  // 1. Llegir temperatura i humitat
+  float temp = dht.readTemperature();  // °C
+  float hum  = dht.readHumidity();     // %
+
+  if (!isnan(temp) && !isnan(hum)) {
+    time_t now = time(nullptr);  // timestamp en segons
+
+    // Path base per a aquest timestamp
+    String basePath = "/sensor/history/" + String(now);
+
+    // Guardar temperatura
+    Firebase.RTDB.setFloat(&fbdo, (basePath + "/temp").c_str(), temp);
+
+    // Guardar humitat
+    Firebase.RTDB.setFloat(&fbdo, (basePath + "/hum").c_str(), hum);
+
+    Serial.printf("Enviat a %s: %.1f°C, %.1f%%\n", basePath.c_str(), temp, hum);
+  } else {
+    Serial.println("Error llegint del DHT22 (NaN).");
+  }
+
+  // 2. Actualitzar estat cada 30 segons
+  if (millis() - lastStatusUpdate > 30000) {
+    time_t now = time(nullptr);
+    Firebase.RTDB.setString(&fbdo, "/sensor/status", "online");
+    Firebase.RTDB.setInt(&fbdo, "/sensor/lastSeen", now);
+    lastStatusUpdate = millis();
+    Serial.println("Estat actualitzat: online");
+  }
+
+  // 3. Esperar 60 segons abans de la següent lectura
+  delay(60000);
+}
+    </code></pre>
+
+    <p class="note">
+      Pots ajustar el temps de <code>delay(60000)</code> si vols lectures més freqüents (p. ex. cada 10s).
+    </p>
+  </div>
+
+  <!-- DASHBOARD WEB EXPLICAT -->
+  <div class="card">
+    <h2>5. Dashboard web: HTML + CSS + JS</h2>
+    <p>
+      Ara crearem un <strong>únic fitxer HTML</strong> que pots pujar a GitHub Pages o obrir localment.
+      Aquest fitxer:
+    </p>
+    <ul>
+      <li>Carrega <strong>Chart.js</strong> per a la gràfica.</li>
+      <li>Carrega el SDK de <strong>Firebase</strong> per llegir la Realtime Database.</li>
+      <li>Mostra:
+        <ul>
+          <li>Estat del dispositiu (online/offline + últim cop vist).</li>
+          <li>Temperatura i humitat actuals.</li>
+          <li>Alertes si temperatura &gt; 30°C o humitat &gt; 70%.</li>
+          <li>Gràfica amb temperatura i humitat.</li>
+          <li>Botons per filtrar: 1 hora, 24 hores, tot.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>5.1. HTML complet del dashboard</h3>
+    <p>
+      Aquest és el <strong>codi complet</strong> del dashboard. Substitueix <code>API_KEY</code> i
+      <code>https://PROJECT.firebaseio.com</code> pels valors del teu projecte.
+    </p>
+
+    <pre><code class="language-html">
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Dashboard ESP32 + DHT22&lt;/title&gt;
+
+  &lt;!-- Chart.js per a la gràfica --&gt;
+  &lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
+
+  &lt;!-- Firebase SDK (App + Database) --&gt;
+  &lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"&gt;&lt;/script&gt;
+  &lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"&gt;&lt;/script&gt;
+
+  &lt;style&gt;
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: auto;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 20px;
+    }
+    .card {
+      background: #020617;
+      border: 1px solid #1e293b;
+      padding: 16px;
+      margin: 12px 0;
+      border-radius: 10px;
+    }
+    h1, h2 {
+      color: #38bdf8;
+    }
+    button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin: 4px;
+      background: #38bdf8;
+      color: #020617;
+      font-weight: bold;
+    }
+    #status {
+      font-size: 1.1rem;
+      margin-top: 8px;
+    }
+    #status.online { color: #22c55e; }
+    #status.offline { color: #ef4444; }
+    #alertTemp { color: #f87171; font-weight: bold; }
+    #alertHum  { color: #fbbf24; font-weight: bold; }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+  &lt;h1&gt;🌡️ Dashboard ESP32 + DHT22&lt;/h1&gt;
+
+  &lt;div class="card"&gt;
+    &lt;h2&gt;Estat del dispositiu&lt;/h2&gt;
+    &lt;div id="status"&gt;Carregant...&lt;/div&gt;
+    &lt;div id="lastSeen"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class="card"&gt;
+    &lt;h2&gt;Lectures actuals&lt;/h2&gt;
+    &lt;h3&gt;Temperatura: &lt;span id="temp"&gt;--&lt;/span&gt;&lt;/h3&gt;
+    &lt;h3&gt;Humitat: &lt;span id="hum"&gt;--&lt;/span&gt;&lt;/h3&gt;
+    &lt;div id="alertTemp"&gt;&lt;/div&gt;
+    &lt;div id="alertHum"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class="card"&gt;
+    &lt;h2&gt;Historial&lt;/h2&gt;
+    &lt;button onclick="setRange('1h')"&gt;1 hora&lt;/button&gt;
+    &lt;button onclick="setRange('24h')"&gt;24 hores&lt;/button&gt;
+    &lt;button onclick="setRange('all')"&gt;Tot&lt;/button&gt;
+    &lt;canvas id="chart"&gt;&lt;/canvas&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    // 1. Configuració Firebase
+    const firebaseConfig = {
+      apiKey: "API_KEY",
+      databaseURL: "https://PROJECT.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 2. Variables globals
+    let dataGlobal = {};
+    let range = "all";
+
+    // 3. Configuració de la gràfica
+    const ctx = document.getElementById("chart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          { label: "Temperatura (°C)", data: [], borderColor: "#38bdf8", tension: 0.2 },
+          { label: "Humitat (%)",     data: [], borderColor: "#fbbf24", tension: 0.2 }
+        ]
+      }
+    });
+
+    // 4. Filtrar dades per rang
+    function filterData(data) {
+      const now = Date.now() / 1000;
+      return Object.entries(data).filter(([t]) =&gt; {
+        t = Number(t);
+        if (range === "1h")  return now - t &lt; 3600;
+        if (range === "24h") return now - t &lt; 86400;
+        return true;
+      });
+    }
+
+    // 5. Actualitzar gràfica i textos
+    function update() {
+      const filtered = filterData(dataGlobal);
+      const labels = [];
+      const temps  = [];
+      const hums   = [];
+
+      filtered.forEach(([t, obj]) =&gt; {
+        labels.push(new Date(t * 1000).toLocaleTimeString());
+        temps.push(obj.temp);
+        hums.push(obj.hum);
+      });
+
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = temps;
+      chart.data.datasets[1].data = hums;
+      chart.update();
+
+      if (temps.length) {
+        const lastT = temps.at(-1);
+        const lastH = hums.at(-1);
+
+        document.getElementById("temp").innerText = lastT.toFixed(1) + " °C";
+        document.getElementById("hum").innerText  = lastH.toFixed(1) + " %";
+
+        document.getElementById("alertTemp").innerText =
+          lastT &gt; 30 ? "⚠️ Temperatura massa alta!" : "";
+
+        document.getElementById("alertHum").innerText =
+          lastH &gt; 70 ? "⚠️ Humitat massa alta!" : "";
+      }
+    }
+
+    // 6. Canviar rang
+    function setRange(r) {
+      range = r;
+      update();
+    }
+    window.setRange = setRange;
+
+    // 7. Estat del dispositiu
+    db.ref("sensor/status").on("value", snap =&gt; {
+      const status = snap.val();
+      const el = document.getElementById("status");
+      if (status === "online") {
+        el.innerText = "🟢 Online";
+        el.className = "online";
+      } else {
+        el.innerText = "🔴 Offline";
+        el.className = "offline";
+      }
+    });
+
+    db.ref("sensor/lastSeen").on("value", snap =&gt; {
+      const ts = snap.val();
+      if (!ts) return;
+      document.getElementById("lastSeen").innerText =
+        "Últim cop vist: " + new Date(ts * 1000).toLocaleString();
+    });
+
+    // 8. Lectura en temps real de l'historial
+    db.ref("sensor/history").on("value", snap =&gt; {
+      dataGlobal = snap.val() || {};
+      update();
+    });
+  &lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+    </code></pre>
+  </div>
+
+  <!-- RESUM FINAL -->
+  <div class="card">
+    <h2>6. Resum final del projecte</h2>
+    <ul>
+      <li>📡 L’ESP32 llegeix temperatura i humitat del DHT22.</li>
+      <li>☁️ Desa cada lectura a <code>sensor/history/&lt;timestamp&gt;</code> a Firebase.</li>
+      <li>🟢 Actualitza <code>sensor/status</code> i <code>sensor/lastSeen</code> per indicar que és viu.</li>
+      <li>🌐 El dashboard web llegeix Firebase en temps real.</li>
+      <li>📊 Mostra gràfica de temperatura i humitat amb filtres de temps.</li>
+      <li>⚠️ Mostra alertes si la temperatura o la humitat són massa altes.</li>
+    </ul>
+    <p class="note">
+      A partir d’aquí pots afegir: configuració de llindars des de la web, notificacions (Telegram, email),
+      o fins i tot múltiples sensors/ESP32 al mateix dashboard.
+    </p>
+  </div>
+
+</body>
+</html>
+
+
+
+
+
+
+  
