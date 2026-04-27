@@ -43,11 +43,9 @@
 
   <main class="container py-4">
 
-  <h1>Mini Transat 2025 – Càlcul de Distància entre dos punts</h1>
+  <h1>Mini Transat 2025 – Càlcul de Distància i rumb</h1>
 
-  <div class="nota">
-    <strong>Nota:</strong> al mateix menú tens una altra pàgina amb l’<strong>algorisme de Vincenty</strong>, que és una alternativa més precisa quan es vol treballar sobre un model d’el·lipsoide terrestre.
-  </div>
+  
 
   <h2>1. Coordenades dels punts</h2>
   <p><strong>Sortida (Les Sables-d’Olonne):</strong> \( \phi_1 = 46.5^\circ, \lambda_1 = -1.78^\circ \)</p>
@@ -293,7 +291,9 @@
   </div>
 
   <div id="resultats" class="nota"></div>
-
+<div class="nota">
+    <strong>Nota:</strong> al mateix menú tens una altra pàgina amb l’<strong>algorisme de Vincenty</strong>, que és una alternativa més precisa quan es vol treballar sobre un model d’el·lipsoide terrestre.
+</div>
   <script>
     function calcular() {
       const lat1 = parseFloat(document.getElementById('lat1').value);
