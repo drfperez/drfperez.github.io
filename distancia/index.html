@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
   <meta charset="UTF-8" />
-  <title>Mini Transat 2025 – Càlculs de Distància</title>
+  <title>Mini Transat 2025 – Càlculs de Distància i Rumb</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -23,21 +23,31 @@
       font-size: 1em;
       overflow-x: auto;
     }
+    .nota {
+      background: #eef7ff;
+      border-left: 4px solid #0d6efd;
+      padding: 1em;
+      margin: 1em 0;
+    }
     svg { display: block; margin: 2em auto; max-width: 100%; }
     #map { height: 300px; margin-top: 2em; }
     code { background: #eee; padding: 2px 4px; border-radius: 4px; }
+    .small { font-size: 0.95em; color: #444; }
   </style>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="../styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div id="navbar-placeholder"></div>
 
   <main class="container py-4">
 
- 
   <h1>Mini Transat 2025 – Càlcul de Distància entre dos punts</h1>
+
+  <div class="nota">
+    <strong>Nota:</strong> al mateix menú tens una altra pàgina amb l’<strong>algorisme de Vincenty</strong>, que és una alternativa més precisa quan es vol treballar sobre un model d’el·lipsoide terrestre.
+  </div>
 
   <h2>1. Coordenades dels punts</h2>
   <p><strong>Sortida (Les Sables-d’Olonne):</strong> \( \phi_1 = 46.5^\circ, \lambda_1 = -1.78^\circ \)</p>
@@ -70,7 +80,41 @@
     \( d = 6371 \cdot \sqrt{(-0.890)^2 + (-0.528)^2} = 6371 \cdot \sqrt{0.793 + 0.278} = 6371 \cdot \sqrt{1.071} = \boxed{6594 \, \text{km}} \)
   </div>
 
-  <h2>5. Visualització del triangle i catets</h2>
+  <h2>5. Càlcul de rumb inicial i rumb final</h2>
+  <p>El <strong>rumb</strong> és l’angle que hauria de seguir el vaixell respecte al nord. El calculem amb trigonometria esfèrica.</p>
+  <div class="formula">
+    \( \Delta \lambda = \lambda_2 - \lambda_1 = -1.0423 \, \text{rad} \)<br>
+    \( y = \sin(\Delta \lambda) \cdot \cos(\phi_2) \)<br>
+    \( x = \cos(\phi_1) \cdot \sin(\phi_2) - \sin(\phi_1) \cdot \cos(\phi_2) \cdot \cos(\Delta \lambda) \)<br>
+    \( \theta = \operatorname{atan2}(y, x) \)<br>
+    \( \text{Rumb inicial} = (\theta \cdot \frac{180}{\pi} + 360) \bmod 360 \)
+  </div>
+  <p class="small">
+    Per a aquest cas, el rumb inicial surt aproximadament cap al <strong>sud-oest</strong>, amb un angle d’uns <strong>246°</strong> respecte al nord geogràfic.
+  </p>
+
+  <div class="formula">
+    \( \Delta \lambda = 0.0311 - (-1.0734) = 1.0423 \, \text{rad} \)<br>
+    \( y = \sin(-\Delta \lambda) \cdot \cos(\phi_1) \)<br>
+    \( x = \cos(\phi_2) \cdot \sin(\phi_1) - \sin(\phi_2) \cdot \cos(\phi_1) \cdot \cos(-\Delta \lambda) \)<br>
+    \( \theta_{final} = \operatorname{atan2}(y, x) \)<br>
+    \( \text{Rumb final} = (\theta_{final} \cdot \frac{180}{\pi} + 360) \bmod 360 \)
+  </div>
+
+  <h2>6. Què fa exactament <code>atan2</code>?</h2>
+  <div class="nota">
+    <p><strong><code>atan2(y, x)</code></strong> és una versió millorada de l’arctangent. En lloc de rebre un únic valor, rep <code>y</code> i <code>x</code> i calcula l’angle del vector <code>(x, y)</code>.</p>
+    <p><strong>Per què és tan útil?</strong></p>
+    <ul>
+      <li>sap en quin <strong>quadrant</strong> és el punt;</li>
+      <li>evita errors quan <code>x = 0</code>;</li>
+      <li>retorna l’angle correcte encara que el resultat sigui negatiu;</li>
+      <li>és ideal per calcular rumbs i orientacions.</li>
+    </ul>
+    <p><strong>Idea visual:</strong> si tens un vector que apunta, per exemple, cap a l’esquerra i amunt, <code>atan2</code> et dirà l’angle correcte sense confondre’l amb un vector que apunta cap a la dreta i avall.</p>
+  </div>
+
+  <h2>7. Visualització del triangle i catets</h2>
   <p>Aquí representem gràficament els catets horitzontal i vertical amb la distància.</p>
   <svg width="300" height="220" viewBox="0 0 300 220">
     <line x1="50" y1="50" x2="240" y2="50" stroke="blue" stroke-width="2" />
@@ -81,7 +125,7 @@
     <text x="60" y="130" fill="red">d (distància)</text>
   </svg>
 
-  <h2>6. Càlcul amb Haversine (trigonometria esfèrica)</h2>
+  <h2>8. Càlcul amb Haversine (trigonometria esfèrica)</h2>
   <div class="formula">
     \( \Delta \phi = -0.528 \)<br>
     \( \Delta \lambda = -1.0423 \)<br>
@@ -90,18 +134,19 @@
     \( d = 6371 \cdot 0.98 = \boxed{6244 \, \text{km}} \)
   </div>
 
-  <h2>7. Conversió a milles nàutiques</h2>
+  <h2>9. Conversió a milles nàutiques</h2>
   <div class="formula">
     \( \text{Distància sense correcció} = \frac{7438}{1.852} = 4016 \, \text{MN} \)<br>
     \( \text{Distància amb correcció} = \frac{6594}{1.852} = 3560 \, \text{MN} \)<br>
     \( \text{Distància Haversine} = \frac{6244}{1.852} = 3371 \, \text{MN} \)
   </div>
 
-  <h2>8. Comparació final</h2>
+  <h2>10. Comparació final</h2>
   <ul>
     <li><strong>Pitàgores sense correcció:</strong> 7438 km (4016 MN)</li>
     <li><strong>Pitàgores amb correcció:</strong> 6594 km (3560 MN)</li>
     <li><strong>Haversine:</strong> 6244 km (3371 MN)</li>
+    <li><strong>Rumb inicial:</strong> aproximadament 246°</li>
   </ul>
  
 
@@ -117,8 +162,7 @@
   <strong>3. Fórmula de Haversine:</strong> Aquest és el mètode més precís dels tres per calcular distàncies entre dos punts sobre l’esfera terrestre. Fa ús de funcions trigonomètriques per determinar l’angle central entre els punts i després calcula la distància real sobre la superfície. És especialment útil per trajectes llargs com travesses oceàniques, ja que considera la curvatura de la Terra. En aquest cas, la distància resultant és de 6244 km, i es considera la millor estimació per rutes globals com la Mini Transat.
 </p>
 
-
-  <h2>9. Visualització sobre el mapa</h2>
+  <h2>11. Visualització sobre el mapa</h2>
     
   <div id="map"></div>
   <p>🔴 Esfèrica (Haversine), 🔵 Plana amb correcció, 🟢 Catets sense correcció</p>
@@ -137,11 +181,16 @@
   L.marker(start).addTo(map).bindPopup("🔴 Sortida: Les Sables-d’Olonne").openPopup();
   L.marker(end).addTo(map).bindPopup("🟢 Arribada: Guadeloupe");
 
+  function toRad(deg) {
+    return deg * Math.PI / 180;
+  }
+
+  function toDeg(rad) {
+    return rad * 180 / Math.PI;
+  }
+
   // ✅ Ruta Haversine (gran cercle interpolada)
   function interpolateGreatCircle(lat1, lon1, lat2, lon2, steps) {
-    const toRad = deg => deg * Math.PI / 180;
-    const toDeg = rad => rad * 180 / Math.PI;
-
     const φ1 = toRad(lat1), λ1 = toRad(lon1);
     const φ2 = toRad(lat2), λ2 = toRad(lon2);
 
@@ -169,6 +218,21 @@
     return points;
   }
 
+  function initialBearing(lat1, lon1, lat2, lon2) {
+    const φ1 = toRad(lat1), λ1 = toRad(lon1);
+    const φ2 = toRad(lat2), λ2 = toRad(lon2);
+    const Δλ = λ2 - λ1;
+
+    const y = Math.sin(Δλ) * Math.cos(φ2);
+    const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+    const θ = Math.atan2(y, x);
+    return (toDeg(θ) + 360) % 360;
+  }
+
+  function finalBearing(lat1, lon1, lat2, lon2) {
+    return (initialBearing(lat2, lon2, lat1, lon1) + 180) % 360;
+  }
+
   const greatCirclePoints = interpolateGreatCircle(start[0], start[1], end[0], end[1], 100);
   L.polyline(greatCirclePoints, { color: 'red', weight: 3 }).addTo(map);
 
@@ -185,8 +249,24 @@
     opacity: 0.6,
     dashArray: '6, 4'
   }).addTo(map);
-</script>
 
+  const rumbInicial = initialBearing(start[0], start[1], end[0], end[1]);
+  const rumbFinal = finalBearing(start[0], start[1], end[0], end[1]);
+
+  L.popup({
+    closeButton: false,
+    autoClose: false,
+    closeOnClick: false,
+    className: 'bearing-popup'
+  })
+  .setLatLng([30, -30])
+  .setContent(`
+    <strong>Rumbs aproximats</strong><br>
+    Inicial: ${rumbInicial.toFixed(1)}°<br>
+    Final: ${rumbFinal.toFixed(1)}°
+  `)
+  .addTo(map);
+</script>
 
   <script>
     window.MathJax = {
@@ -195,8 +275,71 @@
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+  <h2>12. Calculadora de distància i rumb</h2>
+  <p>Introdueix les coordenades per calcular distància (Haversine) i rumb inicial:</p>
+
+  <div class="mb-3">
+    <label>Latitud origen:</label>
+    <input id="lat1" type="number" class="form-control" value="46.5">
+    <label>Longitud origen:</label>
+    <input id="lon1" type="number" class="form-control" value="-1.78">
+    <label>Latitud destí:</label>
+    <input id="lat2" type="number" class="form-control" value="16.25">
+    <label>Longitud destí:</label>
+    <input id="lon2" type="number" class="form-control" value="-61.5">
+    <button class="btn btn-primary mt-2" onclick="calcular()">Calcular</button>
+  </div>
+
+  <div id="resultats" class="nota"></div>
+
+  <script>
+    function calcular() {
+      const lat1 = parseFloat(document.getElementById('lat1').value);
+      const lon1 = parseFloat(document.getElementById('lon1').value);
+      const lat2 = parseFloat(document.getElementById('lat2').value);
+      const lon2 = parseFloat(document.getElementById('lon2').value);
+
+      const R = 6371;
+      const toRad = d => d * Math.PI / 180;
+      const toDeg = r => r * 180 / Math.PI;
+
+      const φ1 = toRad(lat1);
+      const φ2 = toRad(lat2);
+      const Δφ = toRad(lat2 - lat1);
+      const Δλ = toRad(lon2 - lon1);
+
+      const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const d = R * c;
+
+      const y = Math.sin(Δλ) * Math.cos(φ2);
+      const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+      const brng = (toDeg(Math.atan2(y, x)) + 360) % 360;
+
+      document.getElementById('resultats').innerHTML = `
+        <strong>Distància:</strong> ${d.toFixed(2)} km<br>
+        <strong>Distància:</strong> ${(d/1.852).toFixed(2)} MN<br>
+        <strong>Rumb inicial:</strong> ${brng.toFixed(2)}°
+      `;
+    }
+  </script>
+
 </main>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../navbar.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
