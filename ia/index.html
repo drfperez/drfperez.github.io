@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ChatGPT local (IA al navegador)</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: auto; }
+    #chat { white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; height: 400px; overflow: auto; background: #f9f9f9; }
+    input { width: 80%; padding: 10px; }
+    button { padding: 10px; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h2>🤖 El teu ChatGPT local</h2>
+  <div id="chat"></div>
+  <input id="msg" placeholder="Escriu aquí...">
+  <button id="sendBtn" disabled>Carregant model...</button>
+
+  <script type="module">
+    import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+
+    const chatDiv = document.getElementById("chat");
+    const input = document.getElementById("msg");
+    const sendBtn = document.getElementById("sendBtn");
+
+    function add(text, isError = false) {
+      const line = document.createElement("div");
+      line.textContent = text;
+      if (isError) line.style.color = "red";
+      chatDiv.appendChild(line);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    add("⏳ Inicialitzant IA... (comprova WebGPU)");
+
+    try {
+      // Comprova suport WebGPU
+      if (!navigator.gpu) {
+        throw new Error("El teu navegador no suporta WebGPU. Utilitza Chrome/Edge actualitzat.");
+      }
+
+      add("📥 Descarregant model TinyLlama (primer cop pot trigar 2-3 minuts)...");
+
+      // Model molt més lleuger (uns 700 MB en RAM)
+      
+// Canvia aquesta línia pel model que triïs
+const engine = await CreateMLCEngine("gemma-2-2b-it-q4f16_1-MLC", {
+    initProgressCallback: (progress) => {...}
+});
+      add("✅ Model llest! Pots començar a escriure.");
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Enviar";
+
+      async function send() {
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = "";
+        add(`👤 Tu: ${text}`);
+
+        try {
+          const reply = await engine.chat.completions.create({
+            messages: [{ role: "user", content: text }],
+            max_tokens: 200  // Evita respostes massa llargues
+          });
+          add(`🤖 IA: ${reply.choices[0].message.content}`);
+        } catch (err) {
+          add(`❌ Error en generar resposta: ${err.message}`, true);
+        }
+      }
+
+      sendBtn.onclick = send;
+      input.addEventListener("keypress", (e) => { if (e.key === "Enter") send(); });
+
+    } catch (err) {
+      add(`❌ Error fatal: ${err.message}`, true);
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Error";
+    }
+  </script>
+</body>
+</html>
