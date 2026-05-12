@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anàlisi Psicomètrica d'Ítems</title>
+
+  <!-- Llibreries externes -->
+<!-- Font Awesome -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- SheetJS (Excel) -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- jsPDF AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #10b981;
+      --accent: #8b5cf6;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --gray: #94a3b8;
+      --border: #e2e8f0;
+      --soft-blue: #eff6ff;
+      --soft-green: #ecfdf5;
+      --soft-yellow: #fffbeb;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(120deg, var(--primary), var(--accent));
+      color: white;
+      padding: 24px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo i {
+      font-size: 2rem;
+    }
+
+    .logo h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.16);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: white;
+      color: var(--primary);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    main {
+      padding: 24px;
+    }
+
+    .flex-container {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 24px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .flex-container {
+        flex-direction: column;
+      }
+    }
+
+    .panel {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 24px;
+      flex: 1;
+      border: 1px solid #f1f5f9;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      color: var(--primary);
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      min-height: 170px;
+      transition: border 0.3s, box-shadow 0.3s;
+      resize: vertical;
+      background: #fff;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .help-text {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    .file-input {
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .file-input input {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-input-label {
+      display: block;
+      padding: 16px 18px;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      color: var(--gray);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .file-input-label:hover {
+      background: #eff6ff;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-top: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      border: 1px solid #f1f5f9;
+    }
+
+    .stat-card i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+
+    .stat-card h3 {
+      font-size: 1rem;
+      margin-bottom: 6px;
+      color: var(--dark);
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 8px 0;
+      word-break: break-word;
+    }
+
+    .stat-good {
+      color: var(--success);
+    }
+
+    .stat-average {
+      color: var(--warning);
+    }
+
+    .stat-poor {
+      color: var(--danger);
+    }
+
+    .stat-neutral {
+      color: var(--primary);
+    }
+
+    .stat-description {
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    .notice {
+      background: var(--soft-yellow);
+      border-left: 5px solid var(--warning);
+      padding: 15px 16px;
+      border-radius: 0 10px 10px 0;
+      margin: 18px 0;
+    }
+
+    .notice.error {
+      background: #fef2f2;
+      border-left-color: var(--danger);
+    }
+
+    .notice.success {
+      background: var(--soft-green);
+      border-left-color: var(--success);
+    }
+
+    .notice.info {
+      background: var(--soft-blue);
+      border-left-color: var(--primary);
+    }
+
+    .notice-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .notice.error .notice-title {
+      color: var(--danger);
+    }
+
+    .notice.success .notice-title {
+      color: var(--success);
+    }
+
+    .notice.info .notice-title {
+      color: var(--primary);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin: 18px 0 24px;
+    }
+
+    .summary-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .summary-box .label {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .summary-box .value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--dark);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: linear-gradient(120deg, var(--primary), var(--accent));
+      color: white;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .badge.good {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge.average {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge.poor {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f1f5f9;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .chart-header h3 {
+      color: var(--primary);
+    }
+
+    .muted {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 18px;
+      color: #64748b;
+      font-size: 0.92rem;
+      border-top: 1px solid var(--border);
+      background: #fcfdff;
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      margin: 2% auto;
+      width: 100%;
+      max-width: 900px;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      animation: modalOpen 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes modalOpen {
+      from {
+        opacity: 0;
+        transform: translateY(-35px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      background: linear-gradient(120deg, var(--primary), var(--accent));
+      color: white;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .close {
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      line-height: 1;
+    }
+
+    .close:hover {
+      transform: scale(1.12);
+    }
+
+    .modal-body {
+      padding: 22px;
+      max-height: 78vh;
+      overflow-y: auto;
+    }
+
+    .guide-section {
+      margin-bottom: 24px;
+    }
+
+    .guide-section h3 {
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+    }
+
+    .guide-section ul {
+      padding-left: 24px;
+      margin-top: 10px;
+    }
+
+    .guide-section li {
+      margin-bottom: 8px;
+    }
+
+    .highlight {
+      background: var(--soft-blue);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .example {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 14px;
+      margin: 12px 0;
+      border-radius: 0 8px 8px 0;
+      font-family: Consolas, Monaco, monospace;
+      white-space: pre-wrap;
+    }
+
+    .status-inline {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #475569;
+    }
+
+    .small {
+      font-size: 0.9rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-chart-line"></i>
+        <h1>Anàlisi Psicomètrica d'Ítems</h1>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-warning" onclick="showModal()">
+          <i class="fas fa-circle-question"></i> Ajuda
+        </button>
+        <button class="btn btn-accent" onclick="exportToExcel()">
+          <i class="fas fa-file-excel"></i> Exporta a Excel
+        </button>
+        <button class="btn btn-accent" onclick="exportToPDF()">
+          <i class="fas fa-file-pdf"></i> Exporta a PDF
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div class="flex-container">
+        <!-- Entrada -->
+        <section class="panel">
+          <div class="panel-title">
+            <i class="fas fa-database"></i>
+            <h2>Entrada de dades</h2>
+          </div>
+
+          <div class="input-group">
+            <label for="manualInput">Introdueix les dades manualment (0 o 1)</label>
+            <textarea id="manualInput" placeholder="Exemple:
+1,0,1,0,1
+0,1,1,0,0
+1,1,0,1,1
+0,0,1,0,1"></textarea>
+            <div class="help-text">
+              Pots separar valors amb <strong>comes</strong>, <strong>punt i coma</strong> o <strong>tabulacions</strong>.
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="csvFile">O bé puja un fitxer CSV</label>
+            <div class="file-input">
+              <input type="file" id="csvFile" accept=".csv,.txt" />
+              <div class="file-input-label" id="fileLabel">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Arrossega un fitxer CSV/TXT o fes clic aquí
+              </div>
+            </div>
+            <div class="help-text">
+              El fitxer no ha de contenir capçaleres. Files = participants; columnes = ítems.
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button class="btn btn-primary pulse" onclick="analyze()">
+              <i class="fas fa-calculator"></i> Analitza les dades
+            </button>
+            <button class="btn btn-danger" onclick="clearAll()">
+              <i class="fas fa-trash"></i> Neteja
+            </button>
+          </div>
+
+          <div class="status-inline" id="statusText">
+            Estat: pendent d'anàlisi.
+          </div>
+        </section>
+
+        <!-- Interpretació -->
+        <section class="panel">
+          <div class="panel-title">
+            <i class="fas fa-circle-info"></i>
+            <h2>Interpretació ràpida</h2>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <i class="fas fa-gauge-high"></i>
+              <h3>Dificultat (p)</h3>
+              <div class="stat-value stat-neutral">0.00 – 1.00</div>
+              <div class="stat-description">
+                <p><strong>p &lt; 0.20</strong>: molt difícil</p>
+                <p><strong>0.20 – 0.80</strong>: adequat</p>
+                <p><strong>p &gt; 0.80</strong>: molt fàcil</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <i class="fas fa-filter"></i>
+              <h3>Discriminació (pbis)</h3>
+              <div class="stat-value stat-neutral">-1.00 – 1.00</div>
+              <div class="stat-description">
+                <p><strong>&lt; 0.20</strong>: baixa</p>
+                <p><strong>0.20 – 0.30</strong>: acceptable</p>
+                <p><strong>&gt; 0.30</strong>: bona</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <i class="fas fa-link"></i>
+              <h3>Alfa de Cronbach</h3>
+              <div class="stat-value stat-neutral">0.00 – 1.00</div>
+              <div class="stat-description">
+                <p><strong>&lt; 0.70</strong>: millorable</p>
+                <p><strong>0.70 – 0.80</strong>: acceptable</p>
+                <p><strong>&gt; 0.80</strong>: bona</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <i class="fas fa-project-diagram"></i>
+              <h3>Omega de McDonald</h3>
+              <div class="stat-value stat-neutral">0.00 – 1.00</div>
+              <div class="stat-description">
+                <p><strong>&lt; 0.70</strong>: millorable</p>
+                <p><strong>0.70 – 0.80</strong>: acceptable</p>
+                <p><strong>&gt; 0.80</strong>: bona</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="notice info">
+            <div class="notice-title">
+              <i class="fas fa-lightbulb"></i>
+              <span>Recomanació</span>
+            </div>
+            <p>
+              Per a una qualitat psicomètrica adequada, convé que la dificultat dels ítems se situï aproximadament entre
+              <strong>0.30 i 0.70</strong> i que la discriminació sigui superior a <strong>0.30</strong>.
+              Els índexs d'alfa i omega idealment han de superar <strong>0.70</strong>.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <div id="results"></div>
+
+      <section class="chart-container">
+        <div class="chart-header">
+          <h3><i class="fas fa-chart-bar"></i> Gràfic de dificultat i discriminació per ítem</h3>
+          <div class="muted" id="chartInfo">Encara no hi ha resultats per representar.</div>
+        </div>
+        <canvas id="psychChart"></canvas>
+      </section>
+    </main>
+
+    <!-- Modal ajuda -->
+    <div id="modal" class="modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+        <div class="modal-header">
+          <h2 id="helpTitle"><i class="fas fa-book"></i> Guia d'interpretació psicomètrica</h2>
+          <span class="close" onclick="closeModal()" aria-label="Tanca">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="guide-section">
+            <h3><i class="fas fa-gauge-high"></i> Dificultat de l'ítem (p)</h3>
+            <p>És la proporció de participants que han respost correctament un ítem.</p>
+            <ul>
+              <li><span class="highlight">0.00 – 0.20</span>: ítem molt difícil</li>
+              <li><span class="highlight">0.21 – 0.40</span>: ítem difícil</li>
+              <li><span class="highlight">0.41 – 0.60</span>: dificultat òptima</li>
+              <li><span class="highlight">0.61 – 0.80</span>: ítem fàcil</li>
+              <li><span class="highlight">0.81 – 1.00</span>: ítem molt fàcil</li>
+            </ul>
+          </div>
+
+          <div class="guide-section">
+            <h3><i class="fas fa-filter"></i> Discriminació (correlació punt-biserial corregida)</h3>
+            <p>Mesura fins a quin punt un ítem diferencia entre participants amb millor i pitjor rendiment.</p>
+            <ul>
+              <li><span class="highlight">pbis &lt; 0.20</span>: discriminació baixa</li>
+              <li><span class="highlight">0.20 ≤ pbis &lt; 0.30</span>: discriminació acceptable</li>
+              <li><span class="highlight">0.30 ≤ pbis &lt; 0.40</span>: bona discriminació</li>
+              <li><span class="highlight">pbis ≥ 0.40</span>: discriminació excel·lent</li>
+              <li><span class="highlight">Valors negatius</span>: l'ítem pot estar funcionant en direcció contrària; cal revisar-lo</li>
+            </ul>
+          </div>
+
+          <div class="guide-section">
+            <h3><i class="fas fa-link"></i> Alfa de Cronbach (α)</h3>
+            <p>Estima la consistència interna del test a partir de la relació entre ítems.</p>
+            <ul>
+              <li><span class="highlight">α ≥ 0.90</span>: excel·lent</li>
+              <li><span class="highlight">0.80 ≤ α &lt; 0.90</span>: bona</li>
+              <li><span class="highlight">0.70 ≤ α &lt; 0.80</span>: acceptable</li>
+              <li><span class="highlight">α &lt; 0.70</span>: qüestionable o millorable</li>
+            </ul>
+          </div>
+
+          <div class="guide-section">
+            <h3><i class="fas fa-project-diagram"></i> Omega de McDonald (ω)</h3>
+            <p>És una estimació de fiabilitat basada en l'estructura latent i pot ser més adequada quan els ítems tenen pesos diferents.</p>
+            <ul>
+              <li><span class="highlight">ω ≥ 0.90</span>: excel·lent</li>
+              <li><span class="highlight">0.80 ≤ ω &lt; 0.90</span>: bona</li>
+              <li><span class="highlight">0.70 ≤ ω &lt; 0.80</span>: acceptable</li>
+              <li><span class="highlight">ω &lt; 0.70</span>: qüestionable o millorable</li>
+            </ul>
+          </div>
+
+          <div class="guide-section">
+            <h3><i class="fas fa-file-csv"></i> Format de les dades</h3>
+            <ul>
+              <li>Files = participants</li>
+              <li>Columnes = ítems</li>
+              <li>Només valors <strong>0</strong> i <strong>1</strong></li>
+              <li>Sense capçaleres ni identificadors</li>
+            </ul>
+            <p>Exemple vàlid:</p>
+            <div class="example">1,0,1,0,1
+0,1,1,0,0
+1,1,0,1,1
+0,0,1,0,1</div>
+          </div>
+
+          <div class="guide-section">
+            <h3><i class="fas fa-stopwatch"></i> Temps de processament</h3>
+            <p>
+              L'eina calcula automàticament el temps emprat per analitzar les dades i el mostra en
+              <strong>minuts</strong> i <strong>segons</strong>. En general, el càlcul és gairebé immediat.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Anàlisi Psicomètrica © 2026 · Eina per a l'avaluació psicomètrica d'ítems dicotòmics
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    let psychChart = null;
+    let globalResults = [];
+    let alpha = 0;
+    let omega = 0;
+    let analysisMeta = {
+      participants: 0,
+      items: 0,
+      responses: 0,
+      processingMs: 0,
+      source: "-"
+    };
+
+    // ------------------------------
+    // Utilitats bàsiques
+    // ------------------------------
+    function setStatus(message) {
+      document.getElementById("statusText").textContent = "Estat: " + message;
+    }
+
+    function formatNumber(value, decimals = 3) {
+      if (!Number.isFinite(value)) return "0.000";
+      return Number(value).toFixed(decimals);
+    }
+
+    function formatMinutes(ms) {
+      const minutes = ms / 60000;
+      return minutes.toFixed(4);
+    }
+
+    function formatSeconds(ms) {
+      return (ms / 1000).toFixed(3);
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function getReliabilityDescription(value) {
+      if (value >= 0.90) return "Fiabilitat excel·lent. Adequada fins i tot per a decisions individuals.";
+      if (value >= 0.80) return "Bona fiabilitat. Adequada per a la majoria d'usos educatius i de recerca.";
+      if (value >= 0.70) return "Fiabilitat acceptable. Útil especialment en estudis de grup.";
+      return "Fiabilitat qüestionable. Convé revisar els ítems o l'estructura del test.";
+    }
+
+    function getReliabilityClass(value) {
+      if (value >= 0.80) return "stat-good";
+      if (value >= 0.70) return "stat-average";
+      return "stat-poor";
+    }
+
+    function getDifficultyLabel(p) {
+      if (p < 0.20) return { text: "Molt difícil", cls: "poor" };
+      if (p <= 0.40) return { text: "Difícil", cls: "average" };
+      if (p <= 0.60) return { text: "Òptim", cls: "good" };
+      if (p <= 0.80) return { text: "Fàcil", cls: "average" };
+      return { text: "Molt fàcil", cls: "poor" };
+    }
+
+    function getDiscriminationLabel(pbis) {
+      if (pbis < 0) return { text: "Negativa / revisar", cls: "poor" };
+      if (pbis < 0.20) return { text: "Baixa", cls: "poor" };
+      if (pbis < 0.30) return { text: "Acceptable", cls: "average" };
+      if (pbis < 0.40) return { text: "Bona", cls: "good" };
+      return { text: "Excel·lent", cls: "good" };
+    }
+
+    function showNotice(type, title, message) {
+      document.getElementById("results").innerHTML = `
+        <div class="notice ${type}">
+          <div class="notice-title">
+            <i class="fas ${type === 'error' ? 'fa-triangle-exclamation' : type === 'success' ? 'fa-circle-check' : 'fa-circle-info'}"></i>
+            <span>${escapeHTML(title)}</span>
+          </div>
+          <p>${message}</p>
+        </div>
+      `;
+    }
+
+    function clearAll() {
+      document.getElementById("manualInput").value = "";
+      document.getElementById("csvFile").value = "";
+      document.getElementById("fileLabel").innerHTML = `<i class="fas fa-cloud-upload-alt"></i> Arrossega un fitxer CSV/TXT o fes clic aquí`;
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("chartInfo").textContent = "Encara no hi ha resultats per representar.";
+      setStatus("dades esborrades.");
+      globalResults = [];
+      alpha = 0;
+      omega = 0;
+      analysisMeta = { participants: 0, items: 0, responses: 0, processingMs: 0, source: "-" };
+
+      if (psychChart) {
+        psychChart.destroy();
+        psychChart = null;
+      }
+    }
+
+    // ------------------------------
+    // Lectura i anàlisi
+    // ------------------------------
+    function analyze() {
+      const file = document.getElementById("csvFile").files[0];
+      const manual = document.getElementById("manualInput").value.trim();
+
+      if (file) {
+        setStatus("llegint el fitxer...");
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          processData(e.target.result, "fitxer: " + file.name);
+        };
+        reader.onerror = function () {
+          showNotice("error", "Error de lectura", "No s'ha pogut llegir el fitxer seleccionat.");
+          setStatus("error en llegir el fitxer.");
+        };
+        reader.readAsText(file, "UTF-8");
+      } else if (manual) {
+        setStatus("processant dades manuals...");
+        processData(manual, "entrada manual");
+      } else {
+        showNotice("error", "Falten dades", "Introdueix dades manualment o puja un fitxer CSV/TXT.");
+        setStatus("falten dades.");
+      }
+    }
+
+    function processData(text, sourceLabel = "-") {
+      const start = performance.now();
+
+      const parsed = parseFlexibleCSV(text);
+      if (!parsed.ok) {
+        showNotice("error", "Dades no vàlides", escapeHTML(parsed.error));
+        setStatus("error de validació.");
+        return;
+      }
+
+      const data = parsed.data;
+      const rows = data.length;
+      const cols = data[0].length;
+
+      if (rows < 2 || cols < 2) {
+        showNotice(
+          "error",
+          "Dimensions insuficients",
+          "Calen com a mínim <strong>2 participants</strong> i <strong>2 ítems</strong> per fer l'anàlisi."
+        );
+        setStatus("dimensions insuficients.");
+        return;
+      }
+
+      const itemNames = Array.from({ length: cols }, (_, i) => `Ítem ${i + 1}`);
+      const pValues = columnMeans(data);
+      const pbisValues = Array.from({ length: cols }, (_, j) => correctedPointBiserial(data, j));
+      alpha = cronbachAlpha(data);
+      omega = mcdonaldOmega(data);
+
+      globalResults = itemNames.map((name, i) => ({
+        item: name,
+        difficulty: pValues[i],
+        discrimination: pbisValues[i]
+      }));
+
+      const end = performance.now();
+      analysisMeta = {
+        participants: rows,
+        items: cols,
+        responses: rows * cols,
+        processingMs: end - start,
+        source: sourceLabel
+      };
+
+      displayResults(globalResults, alpha, omega, analysisMeta);
+      drawChart(globalResults);
+
+      document.getElementById("chartInfo").textContent =
+        `Representació de ${cols} ítems · temps de processament: ${formatMinutes(analysisMeta.processingMs)} min`;
+
+      setStatus(
+        `anàlisi completada (${rows} participants, ${cols} ítems, ${rows * cols} respostes, ${formatMinutes(analysisMeta.processingMs)} min).`
+      );
+    }
+
+    // ------------------------------
+    // Parser flexible
+    // ------------------------------
+    function parseFlexibleCSV(text) {
+      const rawLines = text
+        .replace(/\r/g, "\n")
+        .split("\n")
+        .map(line => line.trim())
+        .filter(line => line !== "");
+
+      if (!rawLines.length) {
+        return { ok: false, error: "El contingut està buit." };
+      }
+
+      const data = [];
+      let expectedCols = null;
+
+      for (let i = 0; i < rawLines.length; i++) {
+        const line = rawLines[i];
+        const parts = line
+          .split(/[,\t;]+/)
+          .map(cell => cell.trim())
+          .filter(cell => cell !== "");
+
+        if (!parts.length) {
+          continue;
+        }
+
+        const row = [];
+        for (let j = 0; j < parts.length; j++) {
+          const value = Number(parts[j]);
+          if (!(value === 0 || value === 1)) {
+            return {
+              ok: false,
+              error: `Valor no vàlid a la fila ${i + 1}, columna ${j + 1}. Només s'admeten 0 i 1.`
+            };
+          }
+          row.push(value);
+        }
+
+        if (expectedCols === null) {
+          expectedCols = row.length;
+        } else if (row.length !== expectedCols) {
+          return {
+            ok: false,
+            error: `La fila ${i + 1} té ${row.length} columnes, però s'esperaven ${expectedCols}. Totes les files han de tenir el mateix nombre d'ítems.`
+          };
+        }
+
+        data.push(row);
+      }
+
+      if (!data.length) {
+        return { ok: false, error: "No s'han detectat dades vàlides." };
+      }
+
+      return { ok: true, data };
+    }
+
+    // ------------------------------
+    // Càlculs
+    // ------------------------------
+    function mean(arr) {
+      return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
+
+    function variancePopulation(arr) {
+      const m = mean(arr);
+      return arr.reduce((sum, x) => sum + Math.pow(x - m, 2), 0) / arr.length;
+    }
+
+    function stdPopulation(arr) {
+      return Math.sqrt(variancePopulation(arr));
+    }
+
+    function columnMeans(data) {
+      const cols = data[0].length;
+      return Array.from({ length: cols }, (_, j) => {
+        return data.reduce((sum, row) => sum + row[j], 0) / data.length;
+      });
+    }
+
+    function correctedPointBiserial(data, col) {
+      const n = data.length;
+      const p = data.filter(row => row[col] === 1).length / n;
+      const q = 1 - p;
+
+      if (p === 0 || q === 0) return 0;
+
+      const totalScoresWithoutItem = data.map(row =>
+        row.reduce((sum, value, j) => (j === col ? sum : sum + value), 0)
+      );
+
+      const correctGroup = totalScoresWithoutItem.filter((_, idx) => data[idx][col] === 1);
+      const incorrectGroup = totalScoresWithoutItem.filter((_, idx) => data[idx][col] === 0);
+
+      if (!correctGroup.length || !incorrectGroup.length) return 0;
+
+      const meanCorrect = mean(correctGroup);
+      const meanIncorrect = mean(incorrectGroup);
+      const sdTotal = stdPopulation(totalScoresWithoutItem);
+
+      if (sdTotal === 0) return 0;
+
+      return ((meanCorrect - meanIncorrect) / sdTotal) * Math.sqrt(p * q);
+    }
+
+    function cronbachAlpha(data) {
+      const nItems = data[0].length;
+      const nStudents = data.length;
+
+      if (nItems < 2 || nStudents < 2) return 0;
+
+      const itemVars = Array.from({ length: nItems }, (_, j) => {
+        const values = data.map(row => row[j]);
+        return variancePopulation(values);
+      });
+
+      const totalScores = data.map(row => row.reduce((a, b) => a + b, 0));
+      const varTotal = variancePopulation(totalScores);
+
+      if (varTotal === 0) return 0;
+
+      const sumItemVars = itemVars.reduce((a, b) => a + b, 0);
+      return (nItems / (nItems - 1)) * (1 - (sumItemVars / varTotal));
+    }
+
+    function pearsonCorrelation(x, y) {
+      const mx = mean(x);
+      const my = mean(y);
+      const sx = stdPopulation(x);
+      const sy = stdPopulation(y);
+
+      if (sx === 0 || sy === 0) return 0;
+
+      let cov = 0;
+      for (let i = 0; i < x.length; i++) {
+        cov += (x[i] - mx) * (y[i] - my);
+      }
+      cov = cov / x.length;
+      return cov / (sx * sy);
+    }
+
+    function firstEigenvectorPowerMethod(matrix, maxIter = 200, tol = 1e-9) {
+      const n = matrix.length;
+      let v = Array(n).fill(1 / Math.sqrt(n));
+
+      for (let iter = 0; iter < maxIter; iter++) {
+        const w = Array(n).fill(0);
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j < n; j++) {
+            w[i] += matrix[i][j] * v[j];
+          }
+        }
+
+        const norm = Math.sqrt(w.reduce((sum, x) => sum + x * x, 0));
+        if (norm === 0) return v;
+
+        const vNew = w.map(x => x / norm);
+        const diff = Math.sqrt(vNew.reduce((sum, x, i) => sum + Math.pow(x - v[i], 2), 0));
+        v = vNew;
+
+        if (diff < tol) break;
+      }
+
+      return v;
+    }
+
+    function mcdonaldOmega(data) {
+      const nItems = data[0].length;
+      const nStudents = data.length;
+
+      if (nItems < 2 || nStudents < 2) return 0;
+
+      const corrMatrix = Array.from({ length: nItems }, (_, i) =>
+        Array.from({ length: nItems }, (_, j) => {
+          if (i === j) return 1;
+          const xi = data.map(row => row[i]);
+          const xj = data.map(row => row[j]);
+          return pearsonCorrelation(xi, xj);
+        })
+      );
+
+      const firstFactor = firstEigenvectorPowerMethod(corrMatrix);
+      let loadings = firstFactor.map(v => Math.abs(v));
+
+      // Escalat simple perquè les càrregues no superin 1
+      const maxLoading = Math.max(...loadings, 1e-9);
+      loadings = loadings.map(l => Math.min(l / maxLoading, 0.999));
+
+      const sumLoadings = loadings.reduce((a, b) => a + b, 0);
+      const commonVariance = Math.pow(sumLoadings, 2);
+      const errorVariance = loadings.reduce((sum, l) => sum + (1 - l * l), 0);
+
+      const omega = commonVariance / (commonVariance + errorVariance);
+      return Number.isFinite(omega) ? Math.max(0, Math.min(omega, 1)) : 0;
+    }
+
+    // ------------------------------
+    // Mostrar resultats
+    // ------------------------------
+    function displayResults(results, alphaValue, omegaValue, meta) {
+      const difference = Math.abs(alphaValue - omegaValue);
+
+      let html = `
+        <section class="panel">
+          <div class="panel-title">
+            <i class="fas fa-table"></i>
+            <h2>Resultats de l'anàlisi</h2>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-box">
+              <div class="label">Participants</div>
+              <div class="value">${meta.participants}</div>
+            </div>
+            <div class="summary-box">
+              <div class="label">Ítems</div>
+              <div class="value">${meta.items}</div>
+            </div>
+            <div class="summary-box">
+              <div class="label">Respostes analitzades</div>
+              <div class="value">${meta.responses}</div>
+            </div>
+            <div class="summary-box">
+              <div class="label">Temps de processament</div>
+              <div class="value">${formatMinutes(meta.processingMs)} min</div>
+            </div>
+            <div class="summary-box">
+              <div class="label">Temps en segons</div>
+              <div class="value">${formatSeconds(meta.processingMs)} s</div>
+            </div>
+            <div class="summary-box">
+              <div class="label">Origen</div>
+              <div class="value small">${escapeHTML(meta.source)}</div>
+            </div>
+          </div>
+
+          <div class="notice success">
+            <div class="notice-title">
+              <i class="fas fa-circle-check"></i>
+              <span>Resposta de l'anàlisi</span>
+            </div>
+            <p>
+              S'han processat correctament <strong>${meta.responses}</strong> respostes
+              corresponents a <strong>${meta.participants}</strong> participants i
+              <strong>${meta.items}</strong> ítems. El temps real de càlcul ha estat de
+              <strong>${formatMinutes(meta.processingMs)} minuts</strong>
+              (${formatSeconds(meta.processingMs)} segons).
+            </p>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ítem</th>
+                  <th>Dificultat (p)</th>
+                  <th>Interpretació p</th>
+                  <th>Discriminació (pbis)</th>
+                  <th>Interpretació pbis</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+      results.forEach((r) => {
+        const difficultyBadge = getDifficultyLabel(r.difficulty);
+        const discriminationBadge = getDiscriminationLabel(r.discrimination);
+
+        html += `
+          <tr>
+            <td>${escapeHTML(r.item)}</td>
+            <td>${formatNumber(r.difficulty)}</td>
+            <td><span class="badge ${difficultyBadge.cls}">${difficultyBadge.text}</span></td>
+            <td>${formatNumber(r.discrimination)}</td>
+            <td><span class="badge ${discriminationBadge.cls}">${discriminationBadge.text}</span></td>
+          </tr>
+        `;
+      });
+
+      html += `
+              </tbody>
+            </table>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <i class="fas fa-link"></i>
+              <h3>Alfa de Cronbach</h3>
+              <div class="stat-value ${getReliabilityClass(alphaValue)}">${formatNumber(alphaValue)}</div>
+              <div class="stat-description">${getReliabilityDescription(alphaValue)}</div>
+            </div>
+
+            <div class="stat-card">
+              <i class="fas fa-project-diagram"></i>
+              <h3>Omega de McDonald</h3>
+              <div class="stat-value ${getReliabilityClass(omegaValue)}">${formatNumber(omegaValue)}</div>
+              <div class="stat-description">${getReliabilityDescription(omegaValue)}</div>
+            </div>
+
+            <div class="stat-card">
+              <i class="fas fa-arrows-left-right-to-line"></i>
+              <h3>Diferència |α - ω|</h3>
+              <div class="stat-value stat-neutral">${formatNumber(difference)}</div>
+              <div class="stat-description">
+                Com més gran sigui la diferència, més convé revisar la possible estructura del test.
+              </div>
+            </div>
+          </div>
+      `;
+
+      if (difference >= 0.10) {
+        if (omegaValue > alphaValue) {
+          html += `
+            <div class="notice info">
+              <div class="notice-title">
+                <i class="fas fa-lightbulb"></i>
+                <span>Interpretació avançada</span>
+              </div>
+              <p>
+                L'omega de McDonald (<strong>${formatNumber(omegaValue)}</strong>) és sensiblement superior a l'alfa de Cronbach
+                (<strong>${formatNumber(alphaValue)}</strong>). Això pot suggerir que els ítems tenen pesos diferents sobre el constructe
+                mesurat i que l'omega és una estimació de fiabilitat més adequada en aquest cas.
+              </p>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="notice info">
+              <div class="notice-title">
+                <i class="fas fa-lightbulb"></i>
+                <span>Interpretació avançada</span>
+              </div>
+              <p>
+                L'alfa de Cronbach (<strong>${formatNumber(alphaValue)}</strong>) és superior a l'omega de McDonald
+                (<strong>${formatNumber(omegaValue)}</strong>). Convé revisar la dimensionalitat del test o la coherència entre ítems.
+              </p>
+            </div>
+          `;
+        }
+      }
+
+      html += `</section>`;
+
+      document.getElementById("results").innerHTML = html;
+    }
+
+    // ------------------------------
+    // Gràfic
+    // ------------------------------
+    function drawChart(results) {
+      const ctx = document.getElementById("psychChart").getContext("2d");
+      if (psychChart) psychChart.destroy();
+
+      psychChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: results.map(r => r.item),
+          datasets: [
+            {
+              label: "Dificultat (p)",
+              data: results.map(r => r.difficulty),
+              backgroundColor: "rgba(37, 99, 235, 0.72)",
+              borderColor: "rgba(37, 99, 235, 1)",
+              borderWidth: 1,
+              borderRadius: 6
+            },
+            {
+              label: "Discriminació (pbis)",
+              data: results.map(r => r.discrimination),
+              backgroundColor: "rgba(16, 185, 129, 0.72)",
+              borderColor: "rgba(16, 185, 129, 1)",
+              borderWidth: 1,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                font: {
+                  size: 13
+                }
+              }
+            },
+            title: {
+              display: true,
+              text: "Anàlisi psicomètrica per ítem",
+              font: {
+                size: 18,
+                weight: "bold"
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.dataset.label || "";
+                  const value = context.parsed.y;
+                  return `${label}: ${formatNumber(value)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              min: -0.5,
+              max: 1,
+              beginAtZero: false,
+              title: {
+                display: true,
+                text: "Valor"
+              },
+              ticks: {
+                stepSize: 0.2
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Ítems"
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ------------------------------
+    // Exportació Excel
+    // ------------------------------
+    function exportToExcel() {
+      if (!globalResults.length) {
+        alert("Primer has d'analitzar les dades.");
+        return;
+      }
+
+      const rows = globalResults.map(r => ({
+        "Ítem": r.item,
+        "Dificultat (p)": formatNumber(r.difficulty),
+        "Discriminació (pbis)": formatNumber(r.discrimination),
+        "Interpretació dificultat": getDifficultyLabel(r.difficulty).text,
+        "Interpretació discriminació": getDiscriminationLabel(r.discrimination).text
+      }));
+
+      rows.push({});
+      rows.push({ "Ítem": "Participants", "Dificultat (p)": analysisMeta.participants });
+      rows.push({ "Ítem": "Ítems", "Dificultat (p)": analysisMeta.items });
+      rows.push({ "Ítem": "Respostes analitzades", "Dificultat (p)": analysisMeta.responses });
+      rows.push({ "Ítem": "Temps de processament (min)", "Dificultat (p)": formatMinutes(analysisMeta.processingMs) });
+      rows.push({ "Ítem": "Temps de processament (s)", "Dificultat (p)": formatSeconds(analysisMeta.processingMs) });
+      rows.push({ "Ítem": "Alfa de Cronbach", "Dificultat (p)": formatNumber(alpha) });
+      rows.push({ "Ítem": "Omega de McDonald", "Dificultat (p)": formatNumber(omega) });
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Resultats");
+
+      XLSX.writeFile(wb, "analisi_psicometrica_cat.xlsx");
+    }
+
+    // ------------------------------
+    // Exportació PDF
+    // ------------------------------
+    function exportToPDF() {
+      if (!globalResults.length) {
+        alert("Primer has d'analitzar les dades.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.setTextColor(37, 99, 235);
+      doc.text("Anàlisi Psicomètrica d'Ítems", 105, 18, { align: "center" });
+
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      doc.text(`Participants: ${analysisMeta.participants}`, 14, 30);
+      doc.text(`Ítems: ${analysisMeta.items}`, 14, 37);
+      doc.text(`Respostes analitzades: ${analysisMeta.responses}`, 14, 44);
+      doc.text(`Temps de processament: ${formatMinutes(analysisMeta.processingMs)} min (${formatSeconds(analysisMeta.processingMs)} s)`, 14, 51);
+
+      const head = [[
+        "Ítem",
+        "Dificultat (p)",
+        "Interpretació p",
+        "Discriminació (pbis)",
+        "Interpretació pbis"
+      ]];
+
+      const body = globalResults.map(r => [
+        r.item,
+        formatNumber(r.difficulty),
+        getDifficultyLabel(r.difficulty).text,
+        formatNumber(r.discrimination),
+        getDiscriminationLabel(r.discrimination).text
+      ]);
+
+      doc.autoTable({
+        head,
+        body,
+        startY: 58,
+        theme: "grid",
+        headStyles: {
+          fillColor: [37, 99, 235],
+          textColor: 255,
+          fontStyle: "bold"
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252]
+        },
+        styles: {
+          fontSize: 10
+        }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 12;
+
+      doc.setFontSize(13);
+      doc.setTextColor(37, 99, 235);
+      doc.text("Fiabilitat global", 14, finalY);
+
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Alfa de Cronbach: ${formatNumber(alpha)}`, 14, finalY + 10);
+      doc.text(`Omega de McDonald: ${formatNumber(omega)}`, 14, finalY + 18);
+      doc.text(`Interpretació alfa: ${getReliabilityDescription(alpha)}`, 14, finalY + 28, { maxWidth: 180 });
+      doc.text(`Interpretació omega: ${getReliabilityDescription(omega)}`, 14, finalY + 42, { maxWidth: 180 });
+
+      doc.save("analisi_psicometrica_cat.pdf");
+    }
+
+    // ------------------------------
+    // Modal
+    // ------------------------------
+    function showModal() {
+      const modal = document.getElementById("modal");
+      modal.style.display = "block";
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("modal");
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("modal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+
+    // ------------------------------
+    // Fitxer seleccionat
+    // ------------------------------
+    document.getElementById("csvFile").addEventListener("change", function() {
+      const file = this.files[0];
+      const label = document.getElementById("fileLabel");
+      if (file) {
+        label.innerHTML = `<i class="fas fa-file-lines"></i> Fitxer seleccionat: ${escapeHTML(file.name)}`;
+        setStatus(`fitxer seleccionat: ${file.name}`);
+      } else {
+        label.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> Arrossega un fitxer CSV/TXT o fes clic aquí`;
+      }
+    });
+
+    // ------------------------------
+    // Exemple inicial
+    // ------------------------------
+    document.addEventListener("DOMContentLoaded", function() {
+      const exampleData = `1,1,1,1,0
+0,1,0,1,0
+1,1,1,1,1
+0,0,0,1,0
+1,1,1,1,1
+1,0,1,0,1
+0,1,1,0,0`;
+      document.getElementById("manualInput").value = exampleData;
+      setStatus("carregat exemple inicial. Pots analitzar-lo directament.");
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
