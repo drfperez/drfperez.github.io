@@ -1,0 +1,627 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial: Ping Pong amb una pala (responsive)</title>
+    <!-- Highlight.js per ressaltar el codi del tutorial -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            padding: 20px;
+        }
+        .tutorial-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #161b22;
+            border-radius: 12px;
+            padding: 30px 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #58a6ff;
+            margin-bottom: 10px;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+        }
+        h2 {
+            color: #f0883e;
+            margin-top: 35px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #30363d;
+            padding-bottom: 6px;
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+        }
+        p, li {
+            margin-bottom: 10px;
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+        }
+        ul, ol { margin-left: 25px; margin-bottom: 15px; }
+        code {
+            background: #21262d;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #ffa657;
+        }
+        pre {
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+        }
+        .demo-section {
+            margin-top: 40px;
+            text-align: center;
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .demo-section h2 {
+            border-bottom: none;
+            margin-top: 0;
+        }
+        iframe {
+            width: 100%;
+            max-width: 480px;
+            height: 650px;
+            border: 2px solid #58a6ff;
+            border-radius: 12px;
+            background: #000;
+        }
+        @media (max-width: 600px) {
+            .tutorial-container { padding: 15px 10px; }
+            iframe { height: 550px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="tutorial-container">
+        <h1>🏓 Ping Pong amb una pala</h1>
+        <p style="text-align:center; color:#8b949e;">Tutorial pas a pas · Compatible amb PC i mòbil · Sense errors de còpia</p>
+
+        <!-- ========= PAS 1 ========= -->
+        <h2>Pas 1: Estructura HTML bàsica</h2>
+        <p>
+            Comencem amb l'esquelet del document. La meta etiqueta <code>viewport</code> és clau
+            per a la responsivitat. Afegim un <code>div</code> contenidor, un <code>canvas</code>
+            i un element per mostrar la puntuació.
+        </p>
+        <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="ca"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"&gt;
+    &lt;title&gt;Ping Pong&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="game-container"&gt;
+        &lt;canvas id="gameCanvas"&gt;&lt;/canvas&gt;
+        &lt;div id="score"&gt;0&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+        <!-- ========= PAS 2 ========= -->
+        <h2>Pas 2: CSS responsiu</h2>
+        <p>
+            El contenidor fa servir <code>aspect-ratio: 480/700</code> per mantenir la proporció
+            del joc. <code>max-width</code> i <code>max-height</code> eviten que el canvas
+            sobrepassi la pantalla. <code>touch-action: none</code> impedeix desplaçaments
+            accidentals en mòbils.
+        </p>
+        <pre><code class="language-css">* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    touch-action: none;
+}
+#game-container {
+    position: relative;
+    max-width: 100vw;
+    max-height: 100vh;
+    aspect-ratio: 480 / 700;
+}
+canvas {
+    width: 100%;
+    height: 100%;
+    background: #222;
+    border: 2px solid #0ff;
+    border-radius: 10px;
+}
+#score {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: clamp(18px, 5vw, 24px);
+    pointer-events: none;
+}</code></pre>
+
+        <!-- ========= PAS 3 ========= -->
+        <h2>Pas 3: JavaScript – Configuració del canvas i variables</h2>
+        <p>
+            Definim la resolució interna del joc (480×700 píxels). La pala se situa a baix
+            i la pilota al centre amb una velocitat inicial cap amunt. Tot es dibuixa
+            sobre aquesta resolució fixa, mentre el CSS escala el canvas visualment.
+        </p>
+        <pre><code class="language-javascript">const GAME_WIDTH = 480;
+const GAME_HEIGHT = 700;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = GAME_WIDTH;
+canvas.height = GAME_HEIGHT;
+
+const paddle = {
+    x: GAME_WIDTH / 2 - 50,
+    y: GAME_HEIGHT - 40,
+    width: 100,
+    height: 14,
+    speed: 7
+};
+
+const ball = {
+    x: GAME_WIDTH / 2,
+    y: GAME_HEIGHT / 2,
+    radius: 10,
+    dx: 4,
+    dy: -4
+};
+
+let score = 0;
+let gameRunning = true;
+let gameOver = false;</code></pre>
+
+        <!-- ========= PAS 4 ========= -->
+        <h2>Pas 4: Funció per convertir coordenades del punter</h2>
+        <p>
+            Com que el canvas s'escala, cal traduir la posició del ratolí/dit
+            (<code>clientX</code>) a la coordenada X del món del joc.
+        </p>
+        <pre><code class="language-javascript">function getGameX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = GAME_WIDTH / rect.width;
+    return (clientX - rect.left) * scaleX;
+}</code></pre>
+
+        <!-- ========= PAS 5 ========= -->
+        <h2>Pas 5: Controls de teclat (PC)</h2>
+        <p>
+            Emmagatzemem l'estat de les tecles (fletxes i A/D) per moure la pala
+            amb el teclat.
+        </p>
+        <pre><code class="language-javascript">const keys = {};
+document.addEventListener('keydown', function(e) {
+    keys[e.key] = true;
+    e.preventDefault();
+});
+document.addEventListener('keyup', function(e) {
+    keys[e.key] = false;
+    e.preventDefault();
+});</code></pre>
+
+        <!-- ========= PAS 6 ========= -->
+        <h2>Pas 6: Controls de ratolí</h2>
+        <p>
+            La pala segueix el cursor horitzontalment dins del canvas.
+        </p>
+        <pre><code class="language-javascript">canvas.addEventListener('mousemove', function(e) {
+    if (gameOver) return;
+    const gameX = getGameX(e.clientX);
+    paddle.x = gameX - paddle.width / 2;
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+});</code></pre>
+
+        <!-- ========= PAS 7 ========= -->
+        <h2>Pas 7: Controls tàctils (mòbil)</h2>
+        <p>
+            Amb <code>touchstart</code> i <code>touchmove</code> fem el mateix.
+            Si el joc ha acabat, un toc el reinicia.
+        </p>
+        <pre><code class="language-javascript">canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    if (gameOver) { restartGame(); return; }
+    const gameX = getGameX(e.touches[0].clientX);
+    paddle.x = gameX - paddle.width / 2;
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+}, { passive: false });
+
+canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (gameOver) return;
+    const gameX = getGameX(e.touches[0].clientX);
+    paddle.x = gameX - paddle.width / 2;
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+}, { passive: false });</code></pre>
+
+        <!-- ========= PAS 8 ========= -->
+        <h2>Pas 8: Lògica del joc (moviment i col·lisions)</h2>
+        <p>
+            La funció <code>update()</code> mou la pala amb el teclat, la pilota,
+            gestiona els rebots i detecta la col·lisió amb la pala. Cada cop que
+            la pilota toca la pala, la velocitat augmenta lleugerament i suma un punt.
+        </p>
+        <pre><code class="language-javascript">function update() {
+    if (!gameRunning) return;
+
+    // Teclat
+    if (keys['ArrowLeft'] || keys['a']) paddle.x -= paddle.speed;
+    if (keys['ArrowRight'] || keys['d']) paddle.x += paddle.speed;
+
+    // Limitar pala
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+
+    // Moure pilota
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+
+    // Rebots laterals i superior
+    if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= GAME_WIDTH) ball.dx = -ball.dx;
+    if (ball.y - ball.radius <= 0) ball.dy = -ball.dy;
+
+    // Col·lisió amb la pala
+    if (ball.dy > 0 &&
+        ball.y + ball.radius >= paddle.y &&
+        ball.y - ball.radius <= paddle.y + paddle.height &&
+        ball.x + ball.radius >= paddle.x &&
+        ball.x - ball.radius <= paddle.x + paddle.width) {
+        ball.dy = -ball.dy;
+        ball.y = paddle.y - ball.radius;
+        ball.dx *= 1.02;
+        ball.dy *= 1.02;
+        score++;
+        document.getElementById('score').textContent = score;
+    }
+
+    // Game Over
+    if (ball.y - ball.radius > GAME_HEIGHT) {
+        gameRunning = false;
+        gameOver = true;
+        document.getElementById('score').textContent =
+            'Game Over! Puntuació: ' + score + ' (toca per reiniciar)';
+    }
+}</code></pre>
+
+        <!-- ========= PAS 9 ========= -->
+        <h2>Pas 9: Dibuixat</h2>
+        <p>
+            <code>draw()</code> neteja el canvas i pinta el fons, la línia central,
+            la pala i la pilota amb efecte de resplendor. Si el joc s'ha acabat,
+            mostra un missatge semitransparent.
+        </p>
+        <pre><code class="language-javascript">function draw() {
+    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // Línia central discontínua
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.setLineDash([10, 15]);
+    ctx.beginPath();
+    ctx.moveTo(0, GAME_HEIGHT / 2);
+    ctx.lineTo(GAME_WIDTH, GAME_HEIGHT / 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Pala
+    ctx.fillStyle = '#0ff';
+    ctx.shadowColor = '#0ff';
+    ctx.shadowBlur = 15;
+    ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+
+    // Pilota
+    ctx.shadowColor = '#fff';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Game Over
+    if (gameOver) {
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        ctx.fillStyle = '#fff';
+        ctx.font = '30px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Game Over!', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 20);
+        ctx.font = '18px Arial';
+        ctx.fillText('Toca per reiniciar', GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20);
+        ctx.textAlign = 'start';
+    }
+}</code></pre>
+
+        <!-- ========= PAS 10 ========= -->
+        <h2>Pas 10: Reinici i bucle del joc</h2>
+        <p>
+            <code>restartGame()</code> torna tot a l'estat inicial.
+            <code>gameLoop()</code> s'executa contínuament amb
+            <code>requestAnimationFrame</code> per aconseguir 60 fps.
+        </p>
+        <pre><code class="language-javascript">function restartGame() {
+    score = 0;
+    document.getElementById('score').textContent = '0';
+    ball.x = GAME_WIDTH / 2;
+    ball.y = GAME_HEIGHT / 2;
+    ball.dx = (Math.random() > 0.5 ? 1 : -1) * 4;
+    ball.dy = -4;
+    paddle.x = GAME_WIDTH / 2 - 50;
+    gameOver = false;
+    gameRunning = true;
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();</code></pre>
+
+        <!-- ========= DEMO ========= -->
+        <div class="demo-section">
+            <h2>🎮 Prova el joc aquí mateix!</h2>
+            <p style="color:#8b949e; margin-bottom:15px;">
+                Juga amb ratolí, teclat (fletxes o A/D) o pantalla tàctil.
+            </p>
+            <!-- L'iframe s'omple amb srcdoc a partir d'un textarea ocult, sense errors de còpia -->
+            <iframe id="gameFrame" title="Demo Ping Pong" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+    </div>
+
+    <!-- Textarea ocult amb el codi complet del joc (sense necessitat d'escapar cometes ni salts de línia) -->
+    <textarea id="gameCode" style="display:none;">
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ping Pong</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: none;
+        }
+        #game-container {
+            position: relative;
+            max-width: 100vw;
+            max-height: 100vh;
+            aspect-ratio: 480 / 700;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            background: #222;
+            border: 2px solid #0ff;
+            border-radius: 10px;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: clamp(18px, 5vw, 24px);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="score">0</div>
+    </div>
+    <script>
+        const GAME_WIDTH = 480;
+        const GAME_HEIGHT = 700;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        canvas.width = GAME_WIDTH;
+        canvas.height = GAME_HEIGHT;
+
+        const paddle = {
+            x: GAME_WIDTH / 2 - 50,
+            y: GAME_HEIGHT - 40,
+            width: 100,
+            height: 14,
+            speed: 7
+        };
+
+        const ball = {
+            x: GAME_WIDTH / 2,
+            y: GAME_HEIGHT / 2,
+            radius: 10,
+            dx: 4,
+            dy: -4
+        };
+
+        let score = 0;
+        let gameRunning = true;
+        let gameOver = false;
+
+        function getGameX(clientX) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = GAME_WIDTH / rect.width;
+            return (clientX - rect.left) * scaleX;
+        }
+
+        const keys = {};
+        document.addEventListener('keydown', function(e) {
+            keys[e.key] = true;
+            e.preventDefault();
+        });
+        document.addEventListener('keyup', function(e) {
+            keys[e.key] = false;
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('mousemove', function(e) {
+            if (gameOver) return;
+            const gameX = getGameX(e.clientX);
+            paddle.x = gameX - paddle.width / 2;
+            if (paddle.x < 0) paddle.x = 0;
+            if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+        });
+
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (gameOver) { restartGame(); return; }
+            const gameX = getGameX(e.touches[0].clientX);
+            paddle.x = gameX - paddle.width / 2;
+            if (paddle.x < 0) paddle.x = 0;
+            if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (gameOver) return;
+            const gameX = getGameX(e.touches[0].clientX);
+            paddle.x = gameX - paddle.width / 2;
+            if (paddle.x < 0) paddle.x = 0;
+            if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+        }, { passive: false });
+
+        function restartGame() {
+            score = 0;
+            scoreDisplay.textContent = '0';
+            ball.x = GAME_WIDTH / 2;
+            ball.y = GAME_HEIGHT / 2;
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * 4;
+            ball.dy = -4;
+            paddle.x = GAME_WIDTH / 2 - 50;
+            gameOver = false;
+            gameRunning = true;
+        }
+
+        function update() {
+            if (!gameRunning) return;
+            if (keys['ArrowLeft'] || keys['a']) paddle.x -= paddle.speed;
+            if (keys['ArrowRight'] || keys['d']) paddle.x += paddle.speed;
+            if (paddle.x < 0) paddle.x = 0;
+            if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= GAME_WIDTH) ball.dx = -ball.dx;
+            if (ball.y - ball.radius <= 0) ball.dy = -ball.dy;
+
+            if (ball.dy > 0 &&
+                ball.y + ball.radius >= paddle.y &&
+                ball.y - ball.radius <= paddle.y + paddle.height &&
+                ball.x + ball.radius >= paddle.x &&
+                ball.x - ball.radius <= paddle.x + paddle.width) {
+                ball.dy = -ball.dy;
+                ball.y = paddle.y - ball.radius;
+                ball.dx *= 1.02;
+                ball.dy *= 1.02;
+                score++;
+                scoreDisplay.textContent = score;
+            }
+
+            if (ball.y - ball.radius > GAME_HEIGHT) {
+                gameRunning = false;
+                gameOver = true;
+                scoreDisplay.textContent = 'Game Over! Puntuació: ' + score + ' (toca per reiniciar)';
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.setLineDash([10, 15]);
+            ctx.beginPath();
+            ctx.moveTo(0, GAME_HEIGHT / 2);
+            ctx.lineTo(GAME_WIDTH, GAME_HEIGHT / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#0ff';
+            ctx.shadowColor = '#0ff';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+                ctx.fillStyle = '#fff';
+                ctx.font = '30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 20);
+                ctx.font = '18px Arial';
+                ctx.fillText('Toca per reiniciar', GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20);
+                ctx.textAlign = 'start';
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+    </script>
+</body>
+</html>
+    </textarea>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // Ressaltar tots els blocs de codi del tutorial
+        hljs.highlightAll();
+
+        // Carregar el joc a l'iframe sense errors de còpia
+        document.getElementById('gameFrame').srcdoc = document.getElementById('gameCode').value;
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
