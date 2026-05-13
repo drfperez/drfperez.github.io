@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial: Robot Poeta Interactiu amb Web Speech API</title>
+    <!-- Highlight.js CSS (tema fosc) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        /* Estils generals del tutorial (responsius) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            padding: 20px;
+        }
+        .tutorial-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #161b22;
+            border-radius: 12px;
+            padding: 30px 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #58a6ff;
+            margin-bottom: 10px;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+        }
+        h2 {
+            color: #f0883e;
+            margin-top: 35px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #30363d;
+            padding-bottom: 6px;
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+        }
+        h3 {
+            color: #d2a8ff;
+            margin-top: 22px;
+            margin-bottom: 8px;
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+        }
+        p, li {
+            margin-bottom: 10px;
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        code {
+            background: #21262d;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #ffa657;
+        }
+        pre {
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+        }
+        .demo-section {
+            margin-top: 40px;
+            text-align: center;
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .demo-section h2 {
+            border-bottom: none;
+            margin-top: 0;
+        }
+        iframe {
+            width: 100%;
+            max-width: 480px;
+            height: 800px;
+            border: 2px solid #58a6ff;
+            border-radius: 12px;
+            background: #f5f0e6;
+        }
+        .note {
+            background: #1f2a37;
+            border-left: 4px solid #f0883e;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .tutorial-container {
+                padding: 15px 10px;
+            }
+            iframe {
+                height: 750px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tutorial-container">
+        <h1>🤖✍️ Robot Poeta Interactiu</h1>
+        <p style="text-align:center; color:#8b949e;">Tutorial pas a pas · Reconeixement de veu · Anàlisi de sentiments · Síntesi de parla · Responsiu</p>
+        <p>
+            Aprendrem a crear un <strong>Robot Poeta</strong> que escolta les teves paraules
+            mitjançant la <strong>Web Speech API</strong> (reconeixement de veu), n'analitza
+            el sentiment amb un diccionari de paraules, genera un poema personalitzat i el
+            recita en veu alta amb síntesi de parla. Funciona tant en ordinadors com en
+            dispositius mòbils (cal un navegador compatible amb les API de veu, com Chrome).
+        </p>
+
+        <!-- ========= PAS 1 ========= -->
+        <h2>Pas 1: Estructura HTML bàsica</h2>
+        <p>
+            Comencem amb l'esquelet del document. Incloem la meta etiqueta <code>viewport</code>
+            per a la responsivitat. Dins del <code>body</code> situem una icona del robot,
+            un títol, controls amb botons, i diverses caixes (<code>div</code>) per mostrar
+            l'estat, el text reconegut, l'anàlisi de sentiments i el poema generat.
+        </p>
+        <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="ca"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Robot Poeta Interactiu&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="robot-icon"&gt;🤖✍️&lt;/div&gt;
+    &lt;h1&gt;Robot Poeta Interactiu&lt;/h1&gt;
+    &lt;div class="subtitle"&gt;Cada paraula respira mentre la recito&lt;/div&gt;
+
+    &lt;div class="controls"&gt;
+        &lt;button onclick="start()"&gt;🎤 Parla amb mi&lt;/button&gt;
+        &lt;button onclick="reprodueixPoema()"&gt;🔊 Escolta el poema&lt;/button&gt;
+        &lt;br&gt;
+        &lt;label for="estilPoema"&gt;Estil de poema:&lt;/label&gt;
+        &lt;select id="estilPoema"&gt;
+            &lt;option value="clàssic"&gt;Clàssic&lt;/option&gt;
+            &lt;option value="modern"&gt;Modern&lt;/option&gt;
+            &lt;option value="minimalista"&gt;Minimalista&lt;/option&gt;
+        &lt;/select&gt;
+    &lt;/div&gt;
+
+    &lt;div class="box"&gt;
+        &lt;p&gt;&lt;strong&gt;Estat:&lt;/strong&gt;&lt;/p&gt;
+        &lt;div id="estat"&gt;🌬️ Escoltant el teu cor…&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="box"&gt;
+        &lt;p&gt;&lt;strong&gt;Les teves paraules:&lt;/strong&gt;&lt;/p&gt;
+        &lt;div id="resultat"&gt;Aquí apareixerà el que diguis...&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="box"&gt;
+        &lt;p&gt;&lt;strong&gt;Anàlisi de sentiments:&lt;/strong&gt;&lt;/p&gt;
+        &lt;div class="sentiment-box neutral" id="sentiment"&gt;Esperant les teves paraules...&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="box"&gt;
+        &lt;p&gt;&lt;strong&gt;Poema generat:&lt;/strong&gt;&lt;/p&gt;
+        &lt;div class="poema" id="poema"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <p>
+            Observa que els botons criden les funcions <code>start()</code> i
+            <code>reprodueixPoema()</code> directament des de l'HTML. El selector
+            <code>#estilPoema</code> permetrà (en una futura ampliació) triar
+            diferents formats de poema.
+        </p>
+
+        <!-- ========= PAS 2 ========= -->
+        <h2>Pas 2: Estils CSS responsius i temàtica</h2>
+        <p>
+            Utilitzem una paleta de colors càlids (marrons i cremes) per evocar un ambient
+            poètic. El cos té <code>max-width: 800px</code> i <code>padding</code> perquè
+            s'adapti a qualsevol pantalla. Les caixes (<code>.box</code>) tenen ombra i una
+            vora esquerra decorativa. Afegim classes per als sentiments (<code>.positiu</code>,
+            <code>.negatiu</code>, <code>.neutral</code>) que canvien els colors de fons i
+            text, i transicions suaus.
+        </p>
+        <pre><code class="language-css">body {
+    font-family: 'Georgia', serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f5f0e6;
+    color: #333;
+}
+h1 {
+    text-align: center;
+    color: #5d4037;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+.subtitle {
+    text-align: center;
+    color: #795548;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+.robot-icon {
+    text-align: center;
+    font-size: 3em;
+    margin: 20px 0;
+    transition: transform 0.3s;
+}
+.robot-icon.talking {
+    transform: scale(1.2) rotate(-5deg);
+}
+button {
+    background: #8d6e63;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+    font-family: 'Georgia', serif;
+    transition: background 0.3s;
+}
+button:hover {
+    background: #6d4c41;
+}
+#estat {
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    margin: 20px 0;
+    font-style: italic;
+    background: #fff3e0;
+    transition: background 0.8s, color 0.8s;
+}
+.box {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    border-left: 5px solid #8d6e63;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.sentiment-box {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    transition: background 0.8s, color 0.8s, border-color 0.8s;
+}
+.positiu {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 2px solid #81c784;
+}
+.negatiu {
+    background: #ffebee;
+    color: #c62828;
+    border: 2px solid #ef9a9a;
+}
+.neutral {
+    background: #f3e5f5;
+    color: #7b1fa2;
+    border: 2px solid #ce93d8;
+}
+.poema {
+    font-style: italic;
+    line-height: 1.8;
+    text-align: center;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    border: 2px dashed #8d6e63;
+    margin: 20px 0;
+}
+.poema .estrofa { margin: 15px 0; }
+.poema .vers {
+    margin: 6px 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.poema .signatura {
+    text-align: right;
+    font-style: normal;
+    font-weight: bold;
+    color: #5d4037;
+    margin-top: 20px;
+}
+.controls {
+    text-align: center;
+    margin: 20px 0;
+}
+.controls button {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 10px 20px;
+}
+#estilPoema {
+    margin-top: 10px;
+    padding: 5px 10px;
+    font-size: 16px;
+}</code></pre>
+        <div class="note">
+            💡 <strong>Consell:</strong> Les transicions (<code>transition</code>) fan que els canvis
+            de color i opacitat siguin suaus, millorant l'experiència d'usuari.
+        </div>
+
+        <!-- ========= PAS 3 ========= -->
+        <h2>Pas 3: Inicialització de variables globals</h2>
+        <p>
+            Definim un petit diccionari de sentiments (<code>diccionariSentiments</code>) on
+            cada paraula té un valor numèric: positiu si és bona, negatiu si és dolenta.
+            També declarem <code>poemaActual</code> per emmagatzemar el darrer poema generat,
+            i <code>sintesisVeu</code> (no utilitzat directament, però es podria usar per
+            desar la instància de síntesi).
+        </p>
+        <pre><code class="language-javascript">const diccionariSentiments = {
+    "bo": 2, "bé": 2, "content": 2, "feliç": 3, "fantàstic": 3,
+    "dolent": -2, "malament": -2, "trist": -2, "horrible": -3, "problema": -1
+};
+let poemaActual = "";
+let sintesisVeu = null;</code></pre>
+
+        <!-- ========= PAS 4 ========= -->
+        <h2>Pas 4: Configuració del reconeixement de veu (SpeechRecognition)</h2>
+        <p>
+            La <strong>Web Speech API</strong> proporciona <code>SpeechRecognition</code>
+            (o <code>webkitSpeechRecognition</code> en navegadors més antics). Creem una
+            instància, li assignem l'idioma català (<code>ca-ES</code>) i desactivem
+            els resultats intermedis. La funció <code>start()</code> actualitza l'estat
+            i inicia l'escolta.
+        </p>
+        <pre><code class="language-javascript">const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.lang = "ca-ES";
+recognition.continuous = false;
+recognition.interimResults = false;
+
+function start() {
+    document.getElementById("estat").innerText = "🎧 Escoltant el teu cor…";
+    recognition.start();
+}</code></pre>
+        <div class="note">
+            ⚠️ <strong>Important:</strong> El reconeixement de veu només funciona en pàgines servides
+            via HTTPS o en localhost, i requereix permís de l'usuari per accedir al micròfon.
+        </div>
+
+        <!-- ========= PAS 5 ========= -->
+        <h2>Pas 5: Anàlisi de sentiments</h2>
+        <p>
+            La funció <code>analitzarSentiment(text)</code> converteix el text a minúscules,
+            el divideix en paraules i acumula la puntuació de cada paraula segons el
+            diccionari. Retorna un nombre enter: positiu per a emocions bones, negatiu per
+            a dolentes, zero si és neutre.
+        </p>
+        <pre><code class="language-javascript">function analitzarSentiment(text) {
+    return text.toLowerCase()
+        .split(/\s+/)
+        .reduce((acc, paraula) => acc + (diccionariSentiments[paraula] || 0), 0);
+}</code></pre>
+
+        <!-- ========= PAS 6 ========= -->
+        <h2>Pas 6: Generació del poema segons el sentiment</h2>
+        <p>
+            A partir de la puntuació del sentiment, <code>generarPoema(text, puntuacio)</code>
+            retorna un objecte amb un títol, un prefix (emoji) i un array d'estrofes. Cada
+            estrofa és un array de versos. Com més alta és la puntuació, més alegre és el
+            poema; com més baixa, més malenconiós.
+        </p>
+        <pre><code class="language-javascript">function generarPoema(text, puntuacio) {
+    let estrofes = [], titulo = "", prefix = "";
+    if (puntuacio > 2) {
+        titulo = "Oda a l'Alegria";
+        estrofes = [["El sol dansa al teu cor", "el vent canta amb tu"], ["Riu de llum s'estén", "i el teu cor brilla"]];
+        prefix = "☀️ ";
+    } else if (puntuacio > 0) {
+        titulo = "Sonet del Benestar";
+        estrofes = [["La calma flueix", "un sospir suau recorre el dia"], ["Tot sembla més lleu", "el moment és música"]];
+    } else if (puntuacio > -1) {
+        titulo = "Balada del Present";
+        estrofes = [["Les paraules flueixen suaus", "ni gran goig ni clots"], ["Equilibri precís", "en el silenci amable"]];
+    } else if (puntuacio > -3) {
+        titulo = "Elegia del Desassossec";
+        estrofes = [["Sento una ombra en el teu dir", "fred suau que toca el cor"], ["Però la llum espera", "torna a guiar el teu pas"]];
+    } else {
+        titulo = "Càntic de la Melangia";
+        estrofes = [["Com pluja persistent", "la tristesa mulla el parlar"], ["Però el sol sempre torna", "i amb ell, l'esperança brilla"]];
+        prefix = "🌧️ ";
+    }
+    return { prefix, titulo, estrofes };
+}</code></pre>
+
+        <!-- ========= PAS 7 ========= -->
+        <h2>Pas 7: Síntesi de veu i reproducció del poema</h2>
+        <p>
+            La funció <code>reprodueixPoema()</code> agafa tots els versos (elements
+            <code>.vers</code>) i els va llegint un per un amb
+            <code>SpeechSynthesisUtterance</code>. Mentre es llegeix, la icona del robot
+            s'anima (classe <code>.talking</code>). Cada vers es fa visible (opacitat 1)
+            en el moment que comença a ser pronunciat, creant un efecte de sincronització
+            visual i auditiu.
+        </p>
+        <pre><code class="language-javascript">function reprodueixPoema() {
+    if (!poemaActual) {
+        parla("Encara no he sentit les teves paraules per crear un poema.");
+        return;
+    }
+    const versosEls = document.querySelectorAll('.vers');
+    let delay = 0;
+    function parlarVers(i) {
+        if (i >= versosEls.length) return;
+        const text = versosEls[i].innerText;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "ca-ES";
+        utter.rate = 0.9;
+        utter.pitch = 1.0;
+        utter.onstart = () => document.querySelector('.robot-icon').classList.add('talking');
+        utter.onend = () => {
+            document.querySelector('.robot-icon').classList.remove('talking');
+            setTimeout(() => parlarVers(i + 1), 200);
+        };
+        window.speechSynthesis.speak(utter);
+        versosEls[i].style.opacity = 1;
+    }
+    parlarVers(0);
+}
+
+// Funció auxiliar per si encara no hi ha poema
+function parla(missatge) {
+    const utter = new SpeechSynthesisUtterance(missatge);
+    utter.lang = "ca-ES";
+    window.speechSynthesis.speak(utter);
+}</code></pre>
+
+        <!-- ========= PAS 8 ========= -->
+        <h2>Pas 8: Gestió del resultat del reconeixement</h2>
+        <p>
+            Quan el reconeixement obté un resultat (esdeveniment <code>onresult</code>),
+            recuperem el text transcrit, l'analitzem, actualitzem la interfície amb la
+            puntuació i la classe CSS corresponent, generem el poema i el mostrem al DOM.
+            Tot seguit, amb un petit retard (<code>setTimeout</code>), cridem
+            <code>reprodueixPoema()</code> perquè el robot reciti automàticament el poema.
+        </p>
+        <pre><code class="language-javascript">recognition.onresult = function(e) {
+    const text = e.results[0][0].transcript;
+    document.getElementById("resultat").innerText = text;
+
+    const puntuacio = analitzarSentiment(text);
+    const elemS = document.getElementById("sentiment");
+    let cls = "neutral", txt = "😐 Sentiment neutral";
+    if (puntuacio > 3) { cls = "positiu"; txt = "✨ Sentiment molt positiu"; }
+    else if (puntuacio > 0) { cls = "positiu"; txt = "😊 Sentiment positiu"; }
+    else if (puntuacio > -3) { cls = "negatiu"; txt = "😔 Sentiment negatiu"; }
+    else { cls = "negatiu"; txt = "😢 Sentiment molt negatiu"; }
+    txt += ` (Puntuació: ${puntuacio})`;
+    elemS.innerText = txt;
+    elemS.className = "sentiment-box " + cls;
+
+    const poema = generarPoema(text, puntuacio);
+    poemaActual = poema.prefix + poema.titulo + "\n" + poema.estrofes.flat().join("\n") + "\n\n— Robot Poeta";
+
+    const elemP = document.getElementById("poema");
+    elemP.innerHTML = "";
+    poema.estrofes.forEach(estrofa => {
+        const estDiv = document.createElement("div");
+        estDiv.className = "estrofa";
+        estrofa.forEach(v => {
+            const vDiv = document.createElement("div");
+            vDiv.className = "vers";
+            vDiv.innerText = v;
+            estDiv.appendChild(vDiv);
+        });
+        elemP.appendChild(estDiv);
+    });
+    const sig = document.createElement("div");
+    sig.className = "signatura";
+    sig.innerText = "— Robot Poeta";
+    elemP.appendChild(sig);
+
+    // Amaguem tots els versos per a l'animació de lectura
+    elemP.querySelectorAll('.vers').forEach(v => v.style.opacity = 0);
+
+    // Reproduir automàticament amb un petit retard
+    setTimeout(() => reprodueixPoema(), 300);
+};
+
+recognition.onerror = function(e) {
+    document.getElementById("estat").innerText = "❌ Error: " + e.error;
+};</code></pre>
+        <div class="note">
+            🎯 El poema es genera al moment, basant-se en la puntuació del sentiment, i es recita
+            immediatament. La icona del robot s'anima durant la lectura.
+        </div>
+
+        <!-- ========= PAS 9 ========= -->
+        <h2>Pas 9: Codi complet del Robot Poeta</h2>
+        <p>
+            Aquí tens el codi complet. Desa'l en un fitxer <code>.html</code> i obre'l amb
+            un navegador compatible (Chrome, Edge) per provar-lo. Recorda que cal donar
+            permís al micròfon i servir la pàgina via HTTPS o localhost.
+        </p>
+        <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="ca"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;Robot Poeta Interactiu&lt;/title&gt;
+&lt;style&gt;
+body { font-family:'Georgia',serif; max-width:800px; margin:0 auto; padding:20px; background:#f5f0e6; color:#333;}
+h1{text-align:center;color:#5d4037;font-size:2.5em;margin-bottom:10px;}
+.subtitle{text-align:center;color:#795548;font-style:italic;margin-bottom:20px;}
+.robot-icon{text-align:center;font-size:3em;margin:20px 0;transition:transform 0.3s;}
+.robot-icon.talking{transform:scale(1.2) rotate(-5deg);}
+button{background:#8d6e63;color:white;border:none;padding:12px 24px;font-size:18px;border-radius:5px;cursor:pointer;display:block;margin:20px auto;font-family:'Georgia',serif;transition:background 0.3s;}
+button:hover{background:#6d4c41;}
+#estat{padding:12px;border-radius:8px;text-align:center;font-weight:bold;margin:20px 0;font-style:italic;background:#fff3e0;transition:background 0.8s,color 0.8s;}
+.box{background:white;border-radius:12px;padding:20px;margin:20px 0;border-left:5px solid #8d6e63;box-shadow:0 4px 10px rgba(0,0,0,0.08);}
+.sentiment-box{text-align:center;font-size:1.2em;font-weight:bold;padding:15px;border-radius:10px;margin:20px 0;transition:background 0.8s,color 0.8s,border-color 0.8s;}
+.positiu{background:#e8f5e9;color:#2e7d32;border:2px solid #81c784;}
+.negatiu{background:#ffebee;color:#c62828;border:2px solid #ef9a9a;}
+.neutral{background:#f3e5f5;color:#7b1fa2;border:2px solid #ce93d8;}
+.poema{font-style:italic;line-height:1.8;text-align:center;padding:20px;background:#fff;border-radius:12px;border:2px dashed #8d6e63;margin:20px 0;}
+.poema .estrofa{margin:15px 0;}
+.poema .vers{margin:6px 0;opacity:0;transition:opacity 0.3s;}
+.poema .signatura{text-align:right;font-style:normal;font-weight:bold;color:#5d4037;margin-top:20px;}
+.controls{text-align:center;margin:20px 0;}
+.controls button{display:inline-block;margin:0 10px;padding:10px 20px;}
+#estilPoema{margin-top:10px;padding:5px 10px;font-size:16px;}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class="robot-icon"&gt;🤖✍️&lt;/div&gt;
+&lt;h1&gt;Robot Poeta Interactiu&lt;/h1&gt;
+&lt;div class="subtitle"&gt;Cada paraula respira mentre la recito&lt;/div&gt;
+&lt;div class="controls"&gt;
+    &lt;button onclick="start()"&gt;🎤 Parla amb mi&lt;/button&gt;
+    &lt;button onclick="reprodueixPoema()"&gt;🔊 Escolta el poema&lt;/button&gt;
+    &lt;br&gt;
+    &lt;label for="estilPoema"&gt;Estil de poema:&lt;/label&gt;
+    &lt;select id="estilPoema"&gt;
+        &lt;option value="clàssic"&gt;Clàssic&lt;/option&gt;
+        &lt;option value="modern"&gt;Modern&lt;/option&gt;
+        &lt;option value="minimalista"&gt;Minimalista&lt;/option&gt;
+    &lt;/select&gt;
+&lt;/div&gt;
+&lt;div class="box"&gt;
+    &lt;p&gt;&lt;strong&gt;Estat:&lt;/strong&gt;&lt;/p&gt;
+    &lt;div id="estat"&gt;🌬️ Escoltant el teu cor…&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="box"&gt;
+    &lt;p&gt;&lt;strong&gt;Les teves paraules:&lt;/strong&gt;&lt;/p&gt;
+    &lt;div id="resultat"&gt;Aquí apareixerà el que diguis...&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="box"&gt;
+    &lt;p&gt;&lt;strong&gt;Anàlisi de sentiments:&lt;/strong&gt;&lt;/p&gt;
+    &lt;div class="sentiment-box neutral" id="sentiment"&gt;Esperant les teves paraules...&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="box"&gt;
+    &lt;p&gt;&lt;strong&gt;Poema generat:&lt;/strong&gt;&lt;/p&gt;
+    &lt;div class="poema" id="poema"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;script&gt;
+const diccionariSentiments={"bo":2,"bé":2,"content":2,"feliç":3,"fantàstic":3,"dolent":-2,"malament":-2,"trist":-2,"horrible":-3,"problema":-1};
+let poemaActual="", sintesisVeu=null;
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.lang="ca-ES"; recognition.continuous=false; recognition.interimResults=false;
+function start(){document.getElementById("estat").innerText="🎧 Escoltant el teu cor…";recognition.start();}
+function analitzarSentiment(text){return text.toLowerCase().split(/\s+/).reduce((acc,p)=>acc+(diccionariSentiments[p]||0),0);}
+function generarPoema(text,puntuacio){
+    let estrofes=[], titulo="", prefix="";
+    if(puntuacio>2){titulo="Oda a l'Alegria"; estrofes=[["El sol dansa al teu cor","el vent canta amb tu"],["Riu de llum s'estén","i el teu cor brilla"]]; prefix="☀️ ";}
+    else if(puntuacio>0){titulo="Sonet del Benestar"; estrofes=[["La calma flueix","un sospir suau recorre el dia"],["Tot sembla més lleu","el moment és música"]];}
+    else if(puntuacio>-1){titulo="Balada del Present"; estrofes=[["Les paraules flueixen suaus","ni gran goig ni clots"],["Equilibri precís","en el silenci amable"]];}
+    else if(puntuacio>-3){titulo="Elegia del Desassossec"; estrofes=[["Sento una ombra en el teu dir","fred suau que toca el cor"],["Però la llum espera","torna a guiar el teu pas"]];}
+    else{titulo="Càntic de la Melangia"; estrofes=[["Com pluja persistent","la tristesa mulla el parlar"],["Però el sol sempre torna","i amb ell, l'esperança brilla"]]; prefix="🌧️ ";}
+    return {prefix,titulo,estrofes};
+}
+function reprodueixPoema(){
+    if(!poemaActual){parla("Encara no he sentit les teves paraules per crear un poema.");return;}
+    const versosEls=document.querySelectorAll('.vers');
+    let delay=0;
+    function parlarVers(i){
+        if(i>=versosEls.length) return;
+        const text=versosEls[i].innerText;
+        const utter=new SpeechSynthesisUtterance(text);
+        utter.lang="ca-ES"; utter.rate=0.9; utter.pitch=1.0;
+        utter.onstart=()=>document.querySelector('.robot-icon').classList.add('talking');
+        utter.onend=()=>{
+            document.querySelector('.robot-icon').classList.remove('talking');
+            setTimeout(()=>parlarVers(i+1),200);
+        };
+        window.speechSynthesis.speak(utter);
+        versosEls[i].style.opacity=1;
+    }
+    parlarVers(0);
+}
+function parla(missatge){
+    const utter = new SpeechSynthesisUtterance(missatge);
+    utter.lang="ca-ES";
+    window.speechSynthesis.speak(utter);
+}
+recognition.onresult=function(e){
+    const text=e.results[0][0].transcript;
+    document.getElementById("resultat").innerText=text;
+    const puntuacio=analitzarSentiment(text);
+    const elemS=document.getElementById("sentiment");
+    let cls="neutral", txt="😐 Sentiment neutral";
+    if(puntuacio>3){cls="positiu"; txt="✨ Sentiment molt positiu";}
+    else if(puntuacio>0){cls="positiu"; txt="😊 Sentiment positiu";}
+    else if(puntuacio>-3){cls="negatiu"; txt="😔 Sentiment negatiu";}
+    else{cls="negatiu"; txt="😢 Sentiment molt negatiu";}
+    txt+=` (Puntuació: ${puntuacio})`;
+    elemS.innerText=txt; elemS.className="sentiment-box "+cls;
+    const poema=generarPoema(text,puntuacio);
+    poemaActual=poema.prefix+poema.titulo+"\n"+poema.estrofes.flat().join("\n")+"\n\n— Robot Poeta";
+    const elemP=document.getElementById("poema");
+    elemP.innerHTML="";
+    poema.estrofes.forEach(estrofa=>{
+        const estDiv=document.createElement("div"); estDiv.className="estrofa";
+        estrofa.forEach(v=>{
+            const vDiv=document.createElement("div"); vDiv.className="vers"; vDiv.innerText=v; estDiv.appendChild(vDiv);
+        });
+        elemP.appendChild(estDiv);
+    });
+    const sig=document.createElement("div"); sig.className="signatura"; sig.innerText="— Robot Poeta"; elemP.appendChild(sig);
+    elemP.querySelectorAll('.vers').forEach(v=>v.style.opacity=0);
+    setTimeout(()=>reprodueixPoema(),300);
+};
+recognition.onerror=function(e){document.getElementById("estat").innerText="❌ Error: "+e.error;};
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+        <!-- ========= DEMO ========= -->
+        <div class="demo-section">
+            <h2>🎤 Prova el Robot Poeta aquí mateix!</h2>
+            <p style="color:#8b949e; margin-bottom:15px;">
+                Fes clic a <strong>🎤 Parla amb mi</strong>, digues unes paraules en català
+                (p. ex. "estic molt feliç") i mira com el robot n'analitza el sentiment,
+                genera un poema i el recita. També pots fer clic a <strong>🔊 Escolta el poema</strong>
+                per tornar-lo a sentir. Funciona amb micròfon; dona permís quan el navegador ho demani.
+            </p>
+            <!-- L'iframe s'omple amb srcdoc a partir d'un textarea ocult, sense errors de còpia -->
+            <iframe id="gameFrame" title="Demo Robot Poeta" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+        </div>
+    </div>
+
+    <!-- Textarea ocult amb el codi complet del Robot Poeta (sense necessitat d'escapar cometes ni salts de línia) -->
+    <textarea id="gameCode" style="display:none;">
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Poeta Interactiu</title>
+    <style>
+        body { font-family:'Georgia',serif; max-width:800px; margin:0 auto; padding:20px; background:#f5f0e6; color:#333;}
+        h1{text-align:center;color:#5d4037;font-size:2.5em;margin-bottom:10px;}
+        .subtitle{text-align:center;color:#795548;font-style:italic;margin-bottom:20px;}
+        .robot-icon{text-align:center;font-size:3em;margin:20px 0;transition:transform 0.3s;}
+        .robot-icon.talking{transform:scale(1.2) rotate(-5deg);}
+        button{background:#8d6e63;color:white;border:none;padding:12px 24px;font-size:18px;border-radius:5px;cursor:pointer;display:block;margin:20px auto;font-family:'Georgia',serif;transition:background 0.3s;}
+        button:hover{background:#6d4c41;}
+        #estat{padding:12px;border-radius:8px;text-align:center;font-weight:bold;margin:20px 0;font-style:italic;background:#fff3e0;transition:background 0.8s,color 0.8s;}
+        .box{background:white;border-radius:12px;padding:20px;margin:20px 0;border-left:5px solid #8d6e63;box-shadow:0 4px 10px rgba(0,0,0,0.08);}
+        .sentiment-box{text-align:center;font-size:1.2em;font-weight:bold;padding:15px;border-radius:10px;margin:20px 0;transition:background 0.8s,color 0.8s,border-color 0.8s;}
+        .positiu{background:#e8f5e9;color:#2e7d32;border:2px solid #81c784;}
+        .negatiu{background:#ffebee;color:#c62828;border:2px solid #ef9a9a;}
+        .neutral{background:#f3e5f5;color:#7b1fa2;border:2px solid #ce93d8;}
+        .poema{font-style:italic;line-height:1.8;text-align:center;padding:20px;background:#fff;border-radius:12px;border:2px dashed #8d6e63;margin:20px 0;}
+        .poema .estrofa{margin:15px 0;}
+        .poema .vers{margin:6px 0;opacity:0;transition:opacity 0.3s;}
+        .poema .signatura{text-align:right;font-style:normal;font-weight:bold;color:#5d4037;margin-top:20px;}
+        .controls{text-align:center;margin:20px 0;}
+        .controls button{display:inline-block;margin:0 10px;padding:10px 20px;}
+        #estilPoema{margin-top:10px;padding:5px 10px;font-size:16px;}
+    </style>
+</head>
+<body>
+    <div class="robot-icon">🤖✍️</div>
+    <h1>Robot Poeta Interactiu</h1>
+    <div class="subtitle">Cada paraula respira mentre la recito</div>
+    <div class="controls">
+        <button onclick="start()">🎤 Parla amb mi</button>
+        <button onclick="reprodueixPoema()">🔊 Escolta el poema</button>
+        <br>
+        <label for="estilPoema">Estil de poema:</label>
+        <select id="estilPoema">
+            <option value="clàssic">Clàssic</option>
+            <option value="modern">Modern</option>
+            <option value="minimalista">Minimalista</option>
+        </select>
+    </div>
+    <div class="box">
+        <p><strong>Estat:</strong></p>
+        <div id="estat">🌬️ Escoltant el teu cor…</div>
+    </div>
+    <div class="box">
+        <p><strong>Les teves paraules:</strong></p>
+        <div id="resultat">Aquí apareixerà el que diguis...</div>
+    </div>
+    <div class="box">
+        <p><strong>Anàlisi de sentiments:</strong></p>
+        <div class="sentiment-box neutral" id="sentiment">Esperant les teves paraules...</div>
+    </div>
+    <div class="box">
+        <p><strong>Poema generat:</strong></p>
+        <div class="poema" id="poema"></div>
+    </div>
+    <script>
+        const diccionariSentiments={"bo":2,"bé":2,"content":2,"feliç":3,"fantàstic":3,"dolent":-2,"malament":-2,"trist":-2,"horrible":-3,"problema":-1};
+        let poemaActual="", sintesisVeu=null;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang="ca-ES"; recognition.continuous=false; recognition.interimResults=false;
+        function start(){document.getElementById("estat").innerText="🎧 Escoltant el teu cor…";recognition.start();}
+        function analitzarSentiment(text){return text.toLowerCase().split(/\s+/).reduce((acc,p)=>acc+(diccionariSentiments[p]||0),0);}
+        function generarPoema(text,puntuacio){
+            let estrofes=[], titulo="", prefix="";
+            if(puntuacio>2){titulo="Oda a l'Alegria"; estrofes=[["El sol dansa al teu cor","el vent canta amb tu"],["Riu de llum s'estén","i el teu cor brilla"]]; prefix="☀️ ";}
+            else if(puntuacio>0){titulo="Sonet del Benestar"; estrofes=[["La calma flueix","un sospir suau recorre el dia"],["Tot sembla més lleu","el moment és música"]];}
+            else if(puntuacio>-1){titulo="Balada del Present"; estrofes=[["Les paraules flueixen suaus","ni gran goig ni clots"],["Equilibri precís","en el silenci amable"]];}
+            else if(puntuacio>-3){titulo="Elegia del Desassossec"; estrofes=[["Sento una ombra en el teu dir","fred suau que toca el cor"],["Però la llum espera","torna a guiar el teu pas"]];}
+            else{titulo="Càntic de la Melangia"; estrofes=[["Com pluja persistent","la tristesa mulla el parlar"],["Però el sol sempre torna","i amb ell, l'esperança brilla"]]; prefix="🌧️ ";}
+            return {prefix,titulo,estrofes};
+        }
+        function reprodueixPoema(){
+            if(!poemaActual){parla("Encara no he sentit les teves paraules per crear un poema.");return;}
+            const versosEls=document.querySelectorAll('.vers');
+            function parlarVers(i){
+                if(i>=versosEls.length) return;
+                const text=versosEls[i].innerText;
+                const utter=new SpeechSynthesisUtterance(text);
+                utter.lang="ca-ES"; utter.rate=0.9; utter.pitch=1.0;
+                utter.onstart=()=>document.querySelector('.robot-icon').classList.add('talking');
+                utter.onend=()=>{
+                    document.querySelector('.robot-icon').classList.remove('talking');
+                    setTimeout(()=>parlarVers(i+1),200);
+                };
+                window.speechSynthesis.speak(utter);
+                versosEls[i].style.opacity=1;
+            }
+            parlarVers(0);
+        }
+        function parla(missatge){
+            const utter = new SpeechSynthesisUtterance(missatge);
+            utter.lang="ca-ES";
+            window.speechSynthesis.speak(utter);
+        }
+        recognition.onresult=function(e){
+            const text=e.results[0][0].transcript;
+            document.getElementById("resultat").innerText=text;
+            const puntuacio=analitzarSentiment(text);
+            const elemS=document.getElementById("sentiment");
+            let cls="neutral", txt="😐 Sentiment neutral";
+            if(puntuacio>3){cls="positiu"; txt="✨ Sentiment molt positiu";}
+            else if(puntuacio>0){cls="positiu"; txt="😊 Sentiment positiu";}
+            else if(puntuacio>-3){cls="negatiu"; txt="😔 Sentiment negatiu";}
+            else{cls="negatiu"; txt="😢 Sentiment molt negatiu";}
+            txt+=` (Puntuació: ${puntuacio})`;
+            elemS.innerText=txt; elemS.className="sentiment-box "+cls;
+            const poema=generarPoema(text,puntuacio);
+            poemaActual=poema.prefix+poema.titulo+"\n"+poema.estrofes.flat().join("\n")+"\n\n— Robot Poeta";
+            const elemP=document.getElementById("poema");
+            elemP.innerHTML="";
+            poema.estrofes.forEach(estrofa=>{
+                const estDiv=document.createElement("div"); estDiv.className="estrofa";
+                estrofa.forEach(v=>{
+                    const vDiv=document.createElement("div"); vDiv.className="vers"; vDiv.innerText=v; estDiv.appendChild(vDiv);
+                });
+                elemP.appendChild(estDiv);
+            });
+            const sig=document.createElement("div"); sig.className="signatura"; sig.innerText="— Robot Poeta"; elemP.appendChild(sig);
+            elemP.querySelectorAll('.vers').forEach(v=>v.style.opacity=0);
+            setTimeout(()=>reprodueixPoema(),300);
+        };
+        recognition.onerror=function(e){document.getElementById("estat").innerText="❌ Error: "+e.error;};
+    </script>
+</body>
+</html>
+    </textarea>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // Ressaltar tots els blocs de codi del tutorial
+        hljs.highlightAll();
+
+        // Carregar el Robot Poeta a l'iframe sense errors de còpia
+        document.getElementById('gameFrame').srcdoc = document.getElementById('gameCode').value;
+    </script>
+</body>
+</html>
+
+
+
