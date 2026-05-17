@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modern Chess AI + Stockfish</title>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-border: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+
+      --board-light: #f1f5f9;
+      --board-dark: #cbd5e1;
+      --board-selected: #bae6fd;
+      --board-move: rgba(16, 185, 129, 0.42);
+      --board-last-from: rgba(245, 158, 11, 0.28);
+      --board-last-to: rgba(59, 130, 246, 0.28);
+      --board-hint-from: rgba(250, 204, 21, 0.38);
+      --board-hint-to: rgba(34, 197, 94, 0.32);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    header { text-align: center; }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.25rem;
+      background: linear-gradient(to right, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle { color: var(--muted); font-size: 0.92rem; }
+
+    .board-area {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .eval-bar-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .eval-bar {
+      position: relative;
+      width: 28px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #111827;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+      min-height: 100%;
+    }
+
+    .eval-white {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #f8fafc;
+      transition: height 0.2s ease;
+    }
+
+    .eval-center-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      background: rgba(148, 163, 184, 0.45);
+      transform: translateY(-0.5px);
+      pointer-events: none;
+    }
+
+    .eval-label {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      font-weight: 800;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .eval-label.top { top: 6px; color: #0f172a; }
+    .eval-label.bottom { bottom: 6px; color: #f8fafc; }
+
+    .eval-text {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) rotate(-90deg);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #94a3b8;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    #chessboard {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #e2e8f0;
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.3),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .square {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .square.light { background: var(--board-light); }
+    .square.dark { background: var(--board-dark); }
+    .square.selected { background: var(--board-selected) !important; }
+    .square.dragging { opacity: 0.5; }
+
+    .square.last-from { box-shadow: inset 0 0 0 4px var(--board-last-from); }
+    .square.last-to { box-shadow: inset 0 0 0 4px var(--board-last-to); }
+    .square.hint-from { box-shadow: inset 0 0 0 4px var(--board-hint-from); }
+    .square.hint-to { box-shadow: inset 0 0 0 4px var(--board-hint-to); }
+
+    .square.legal-move::after {
+      content: "";
+      position: absolute;
+      width: 24%;
+      height: 24%;
+      border-radius: 999px;
+      background: var(--board-move);
+      pointer-events: none;
+    }
+
+    .coord-file, .coord-rank {
+      position: absolute;
+      font-size: 0.68rem;
+      font-weight: 800;
+      opacity: 0.9;
+      pointer-events: none;
+      user-select: none;
+      z-index: 2;
+    }
+
+    .coord-file { right: 6px; bottom: 4px; }
+    .coord-rank { left: 6px; top: 4px; }
+
+    .square.light .coord-file,
+    .square.light .coord-rank { color: #64748b; }
+    .square.dark .coord-file,
+    .square.dark .coord-rank { color: #475569; }
+
+    .piece-img,
+    .piece-fallback {
+      width: 90%;
+      height: 90%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      z-index: 10;
+      user-select: none;
+    }
+
+    .piece-img { object-fit: contain; }
+
+    .piece-fallback {
+      font-size: clamp(28px, 6vw, 54px);
+      line-height: 1;
+      font-family: "Segoe UI Symbol", "Noto Sans Symbols", serif;
+      text-shadow: 0 2px 4px rgba(0,0,0,.15);
+    }
+
+    .piece-fallback.white {
+      color: #ffffff;
+      text-shadow:
+        0 0 1px #0f172a,
+        0 1px 0 #0f172a,
+        0 2px 4px rgba(0,0,0,0.35);
+    }
+
+    .piece-fallback.black {
+      color: #0f172a;
+      text-shadow:
+        0 0 1px rgba(255,255,255,0.25),
+        0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status-row,
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .controls-left,
+    .controls-right {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .log {
+      background: #0f172a;
+      color: var(--muted);
+      border: 1px solid rgba(148, 163, 184, 0.08);
+      border-radius: 8px;
+      min-height: 40px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .history-panel {
+      background: #0f172a;
+      color: var(--muted);
+      border: 1px solid rgba(148, 163, 184, 0.08);
+      border-radius: 8px;
+      padding: 10px 12px;
+      min-height: 92px;
+      max-height: 190px;
+      overflow-y: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .history-title {
+      color: var(--text);
+      font-size: 0.84rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    select,
+    button {
+      font-size: 0.92rem;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+
+    select {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+      padding: 0.78rem 0.9rem;
+      cursor: pointer;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+    }
+
+    button:hover { background: var(--accent-hover); }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .note { color: var(--muted); font-size: 0.78rem; }
+
+    #toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      z-index: 100;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      text-align: center;
+      box-shadow: 0 10px 16px rgba(0, 0, 0, 0.22);
+      max-width: min(90vw, 620px);
+    }
+
+    #toast:empty { opacity: 0; top: 0; }
+
+    @media (max-width: 760px) {
+      .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls-left,
+      .controls-right { width: 100%; }
+
+      select,
+      button { width: 100%; }
+    }
+
+    @media (max-width: 520px) {
+      .board-area {
+        grid-template-columns: 22px 1fr;
+        gap: 8px;
+      }
+
+      .eval-bar { width: 22px; }
+    }
+  </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "chess.js": "https://esm.sh/chess.js@0.12.1?bundle"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="toast"></div>
+
+  <div class="container">
+    <header>
+      <h1>Modern Chess AI</h1>
+      <p class="subtitle">Production build + Play as Black + Evaluation Bar + Opening Book + Stockfish</p>
+    </header>
+
+    <div class="board-area">
+      <div class="eval-bar-wrap">
+        <div class="eval-bar" id="evalBar">
+          <div class="eval-white" id="evalWhite"></div>
+          <div class="eval-center-line"></div>
+          <div class="eval-label top">W</div>
+          <div class="eval-label bottom">B</div>
+          <div class="eval-text" id="evalText">0.00</div>
+        </div>
+      </div>
+
+      <div id="chessboard" aria-label="Chess board"></div>
+    </div>
+
+    <div class="panel">
+      <div class="status-row">
+        <span id="gameStatus">🎲 Turn: White (you)</span>
+        <span id="thinkingState">Booting...</span>
+      </div>
+
+      <div id="legalMoves" class="log">Waiting for engine boot…</div>
+      <div id="engineStats" class="log">Depth: — · Nodes: — · Eval: — · Best: —</div>
+
+      <div>
+        <div class="history-title">Move History</div>
+        <div id="moveHistory" class="history-panel">No moves yet.</div>
+      </div>
+
+      <div class="controls-row">
+        <div class="controls-left">
+          <select id="sideSelect" aria-label="Side">
+            <option value="w" selected>Play as White</option>
+            <option value="b">Play as Black</option>
+          </select>
+
+          <select id="difficultySelect" aria-label="Difficulty">
+            <option value="easy">Easy · depth 3 · 250ms</option>
+            <option value="medium" selected>Medium · depth 5 · 800ms</option>
+            <option value="hard">Hard · depth 7 · 1800ms</option>
+            <option value="expert">Expert · depth 9 · 4000ms</option>
+            <option value="stockfish">Stockfish · external engine</option>
+          </select>
+
+          <button id="hintBtn">Hint</button>
+          <button id="flipBtn">Flip Board</button>
+          <button id="exportPgnBtn">Export PGN</button>
+        </div>
+
+        <div class="controls-right">
+          <button id="undoBtn">Undo</button>
+          <button id="resetBtn">Reset Board</button>
+        </div>
+      </div>
+
+      <div class="note">
+        The evaluation bar shows White at the top and Black at the bottom. The opening book helps the built-in AI play fast, natural opening moves. The Stockfish option expects local engine files in <code>./engines/</code>.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      function toast(message, bg = '#ff4757dd') {
+        const el = document.getElementById('toast');
+        if (!el) return;
+        el.textContent = message;
+        el.style.background = bg;
+        setTimeout(() => {
+          if (el.textContent === message) el.textContent = '';
+        }, bg === '#4ade80cc' ? 1800 : 2600);
+      }
+
+      window.__toast = toast;
+
+      window.addEventListener('error', (event) => {
+        if (event.target && event.target !== window) {
+          const src = event.target.src || event.target.href || '(unknown src)';
+          console.error('[ChessApp] Resource load failed:', src);
+          return;
+        }
+
+        console.error(
+          '[ChessApp] Error:',
+          event.message,
+          '@',
+          event.filename || '(unknown file)',
+          event.lineno || 0,
+          event.colno || 0
+        );
+      }, true);
+
+      window.addEventListener('unhandledrejection', (event) => {
+        const reason = event.reason;
+        console.error(
+          '[ChessApp] Unhandled promise rejection:',
+          reason && reason.stack ? reason.stack :
+          reason && reason.message ? reason.message :
+          String(reason)
+        );
+      });
+    })();
+  </script>
+
+  <script type="module">
+    (async () => {
+      const toast = window.__toast;
+
+      const PIECE_IMG_URL = 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png';
+
+      const PIECE_SYMBOLS = {
+        wp: '♙', wn: '♘', wb: '♗', wr: '♖', wq: '♕', wk: '♔',
+        bp: '♟', bn: '♞', bb: '♝', br: '♜', bq: '♛', bk: '♚'
+      };
+
+      const ENGINE_LEVELS = {
+        easy:   { maxDepth: 3, timeMs: 250 },
+        medium: { maxDepth: 5, timeMs: 800 },
+        hard:   { maxDepth: 7, timeMs: 1800 },
+        expert: { maxDepth: 9, timeMs: 4000 }
+      };
+
+      const OPENING_BOOK = {
+        w: {
+          "": ["e2e4", "d2d4", "c2c4", "g1f3"],
+          "e2e4 e7e5": ["g1f3", "f1c4"],
+          "e2e4 c7c5": ["g1f3", "c2c3"],
+          "d2d4 d7d5": ["c2c4", "g1f3"],
+          "d2d4 g8f6": ["c2c4", "g1f3"],
+          "c2c4 e7e5": ["b1c3", "g1f3"],
+          "g1f3 d7d5": ["d2d4", "g2g3"],
+          "e2e4 e7e6": ["d2d4", "g1f3"],
+          "e2e4 c7c6": ["d2d4", "b1c3"],
+          "d2d4 d7d5 c2c4": ["e7e6", "c7c6"]
+        },
+        b: {
+          "e2e4": ["c7c5", "e7e5", "e7e6", "c7c6"],
+          "d2d4": ["d7d5", "g8f6"],
+          "c2c4": ["e7e5", "g8f6"],
+          "g1f3": ["d7d5", "g8f6"],
+          "e2e4 e7e5 g1f3": ["b8c6", "g8f6"],
+          "e2e4 c7c5 g1f3": ["d7d6", "b8c6"],
+          "e2e4 e7e6 d2d4": ["d7d5"],
+          "e2e4 c7c6 d2d4": ["d7d5"],
+          "d2d4 d7d5 c2c4": ["e7e6", "c7c6"],
+          "c2c4 e7e5 b1c3": ["g8f6", "f8b4"]
+        }
+      };
+
+      let Chess;
+      try {
+        ({ Chess } = await import('chess.js'));
+      } catch (err) {
+        console.error('[ChessApp] Failed to import chess.js:', err?.stack || err?.message || String(err));
+        toast('Fatal boot error');
+        throw err;
+      }
+
+      const workerCode = `
+        import { Chess } from 'https://esm.sh/chess.js@0.12.1?bundle';
+
+        const INF = 1000000000;
+        const MATE = 100000;
+        const DRAW = 0;
+        const PIECE_VALUES = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+
+        const PAWN_TABLE = [
+          [0,0,0,0,0,0,0,0],
+          [50,50,50,50,50,50,50,50],
+          [10,10,20,30,30,20,10,10],
+          [5,5,10,25,25,10,5,5],
+          [0,0,0,20,20,0,0,0],
+          [5,-5,-10,0,0,-10,-5,5],
+          [5,10,10,-20,-20,10,10,5],
+          [0,0,0,0,0,0,0,0]
+        ];
+
+        const KNIGHT_TABLE = [
+          [-50,-40,-30,-30,-30,-30,-40,-50],
+          [-40,-20,0,0,0,0,-20,-40],
+          [-30,0,10,15,15,10,0,-30],
+          [-30,5,15,20,20,15,5,-30],
+          [-30,0,15,20,20,15,0,-30],
+          [-30,5,10,15,15,10,5,-30],
+          [-40,-20,0,5,5,0,-20,-40],
+          [-50,-40,-30,-30,-30,-30,-40,-50]
+        ];
+
+        const BISHOP_TABLE = [
+          [-20,-10,-10,-10,-10,-10,-10,-20],
+          [-10,0,0,0,0,0,0,-10],
+          [-10,0,5,10,10,5,0,-10],
+          [-10,5,5,10,10,5,5,-10],
+          [-10,0,10,10,10,10,0,-10],
+          [-10,10,10,10,10,10,10,-10],
+          [-10,5,0,0,0,0,5,-10],
+          [-20,-10,-10,-10,-10,-10,-10,-20]
+        ];
+
+        const ROOK_TABLE = [
+          [0,0,0,5,5,0,0,0],
+          [5,10,10,10,10,10,10,5],
+          [-5,0,0,0,0,0,0,-5],
+          [-5,0,0,0,0,0,0,-5],
+          [-5,0,0,0,0,0,0,-5],
+          [-5,0,0,0,0,0,0,-5],
+          [-5,0,0,0,0,0,0,-5],
+          [0,0,0,5,5,0,0,0]
+        ];
+
+        const QUEEN_TABLE = [
+          [-20,-10,-10,-5,-5,-10,-10,-20],
+          [-10,0,0,0,0,0,0,-10],
+          [-10,0,5,5,5,5,0,-10],
+          [-5,0,5,5,5,5,0,-5],
+          [0,0,5,5,5,5,0,-5],
+          [-10,5,5,5,5,5,0,-10],
+          [-10,0,5,0,0,0,0,-10],
+          [-20,-10,-10,-5,-5,-10,-10,-20]
+        ];
+
+        const KING_TABLE = [
+          [-30,-40,-40,-50,-50,-40,-40,-30],
+          [-30,-40,-40,-50,-50,-40,-40,-30],
+          [-30,-40,-40,-50,-50,-40,-40,-30],
+          [-30,-40,-40,-50,-50,-40,-40,-30],
+          [-20,-30,-30,-40,-40,-30,-30,-20],
+          [-10,-20,-20,-20,-20,-20,-20,-10],
+          [20,20,0,0,0,0,20,20],
+          [20,30,10,0,0,10,30,20]
+        ];
+
+        const game = new Chess();
+        const TT = new Map();
+
+        let stopSearch = false;
+        let searchToken = 0;
+        let startTime = 0;
+        let softTimeLimit = 800;
+        let nodes = 0;
+        let currentJob = 'move';
+
+        function timeUp() {
+          return (Date.now() - startTime) >= softTimeLimit;
+        }
+
+        function moveKey(m) {
+          return m.from + m.to + (m.promotion || '');
+        }
+
+        function getPositionalValue(piece, x, y) {
+          if (piece.type === 'p') return piece.color === 'w' ? PAWN_TABLE[7 - x][y] : PAWN_TABLE[x][y];
+          if (piece.type === 'n') return piece.color === 'w' ? KNIGHT_TABLE[7 - x][y] : KNIGHT_TABLE[x][y];
+          if (piece.type === 'b') return piece.color === 'w' ? BISHOP_TABLE[7 - x][y] : BISHOP_TABLE[x][y];
+          if (piece.type === 'r') return piece.color === 'w' ? ROOK_TABLE[7 - x][y] : ROOK_TABLE[x][y];
+          if (piece.type === 'q') return piece.color === 'w' ? QUEEN_TABLE[7 - x][y] : QUEEN_TABLE[x][y];
+          if (piece.type === 'k') return piece.color === 'w' ? KING_TABLE[7 - x][y] : KING_TABLE[x][y];
+          return 0;
+        }
+
+        function getPieceValue(piece, x, y) {
+          if (!piece) return 0;
+          const value = PIECE_VALUES[piece.type] || 0;
+          const positionalBonus = getPositionalValue(piece, x, y);
+          return piece.color === 'b' ? (value + positionalBonus) : -(value + positionalBonus);
+        }
+
+        function evaluateBoard() {
+          let total = 0;
+          const board = game.board();
+
+          for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+              const piece = board[r][c];
+              if (piece) total += getPieceValue(piece, r, c);
+            }
+          }
+
+          total += game.turn() === 'b' ? 10 : -10;
+          return total;
+        }
+
+        function terminalScore(ply) {
+          if (game.in_checkmate()) return -MATE + ply;
+          if (game.in_draw()) return DRAW;
+          return null;
+        }
+
+        function scoreMove(move, ttBestMoveKey) {
+          let score = 0;
+          if (ttBestMoveKey && moveKey(move) === ttBestMoveKey) score += 1000000;
+          if (move.captured) score += 10 * (PIECE_VALUES[move.captured] || 0) - (PIECE_VALUES[move.piece] || 0);
+          if (move.promotion) score += PIECE_VALUES[move.promotion] || 0;
+          if (move.san && (move.san.includes('+') || move.san.includes('#'))) score += 50;
+          return score;
+        }
+
+        function orderedMoves() {
+          const fen = game.fen();
+          const ttEntry = TT.get(fen);
+          const ttBestMoveKey = ttEntry ? ttEntry.bestMoveKey : null;
+
+          const moves = game.moves({ verbose: true });
+          moves.sort((a, b) => scoreMove(b, ttBestMoveKey) - scoreMove(a, ttBestMoveKey));
+          return moves;
+        }
+
+        function quiescence(alpha, beta, colorSign, ply) {
+          nodes++;
+
+          if (stopSearch || timeUp()) return colorSign * evaluateBoard();
+
+          const term = terminalScore(ply);
+          if (term !== null) return term;
+
+          let standPat = colorSign * evaluateBoard();
+
+          if (standPat >= beta) return beta;
+          if (standPat > alpha) alpha = standPat;
+
+          let moves;
+          if (game.in_check()) {
+            moves = game.moves({ verbose: true });
+          } else {
+            moves = game.moves({ verbose: true }).filter(m => m.captured || m.promotion);
+          }
+
+          moves.sort((a, b) => scoreMove(b, null) - scoreMove(a, null));
+
+          for (const move of moves) {
+            game.move(move);
+            const score = -quiescence(-beta, -alpha, -colorSign, ply + 1);
+            game.undo();
+
+            if (stopSearch || timeUp()) return alpha;
+            if (score >= beta) return beta;
+            if (score > alpha) alpha = score;
+          }
+
+          return alpha;
+        }
+
+        function negamax(depth, alpha, beta, colorSign, ply) {
+          nodes++;
+
+          if (stopSearch || timeUp()) return colorSign * evaluateBoard();
+
+          const term = terminalScore(ply);
+          if (term !== null) return term;
+
+          if (depth === 0) return quiescence(alpha, beta, colorSign, ply);
+
+          const fen = game.fen();
+          const ttEntry = TT.get(fen);
+          const originalAlpha = alpha;
+
+          if (ttEntry && ttEntry.depth >= depth) {
+            if (ttEntry.flag === 'EXACT') return ttEntry.score;
+            if (ttEntry.flag === 'LOWER' && ttEntry.score >= beta) return ttEntry.score;
+            if (ttEntry.flag === 'UPPER' && ttEntry.score <= alpha) return ttEntry.score;
+          }
+
+          let bestScore = -INF;
+          let bestMoveKey = null;
+          const moves = orderedMoves();
+
+          if (moves.length === 0) {
+            return terminalScore(ply) ?? (colorSign * evaluateBoard());
+          }
+
+          for (const move of moves) {
+            game.move(move);
+            const score = -negamax(depth - 1, -beta, -alpha, -colorSign, ply + 1);
+            game.undo();
+
+            if (stopSearch || timeUp()) return alpha;
+
+            if (score > bestScore) {
+              bestScore = score;
+              bestMoveKey = moveKey(move);
+            }
+
+            if (score > alpha) alpha = score;
+            if (alpha >= beta) break;
+          }
+
+          let flag = 'EXACT';
+          if (bestScore <= originalAlpha) flag = 'UPPER';
+          else if (bestScore >= beta) flag = 'LOWER';
+
+          TT.set(fen, { depth, score: bestScore, flag, bestMoveKey });
+          return bestScore;
+        }
+
+        function searchRoot(maxDepth) {
+          const rootColorSign = game.turn() === 'b' ? 1 : -1;
+          let bestMove = null;
+          let bestScore = -INF;
+
+          for (let depth = 1; depth <= maxDepth; depth++) {
+            if (stopSearch || timeUp()) break;
+
+            let alpha = -INF;
+            const beta = INF;
+            const moves = orderedMoves();
+            let localBestMove = null;
+            let localBestScore = -INF;
+
+            for (const move of moves) {
+              game.move(move);
+              const score = -negamax(depth - 1, -beta, -alpha, -rootColorSign, 1);
+              game.undo();
+
+              if (stopSearch || timeUp()) break;
+
+              if (score > localBestScore) {
+                localBestScore = score;
+                localBestMove = move;
+              }
+
+              if (score > alpha) alpha = score;
+            }
+
+            if (localBestMove) {
+              bestMove = localBestMove;
+              bestScore = localBestScore;
+
+              self.postMessage({
+                type: 'progress',
+                depth,
+                nodes,
+                score: bestScore,
+                bestMove,
+                job: currentJob
+              });
+            }
+          }
+
+          return { bestMove, bestScore };
+        }
+
+        self.onmessage = function(e) {
+          const data = e.data || {};
+
+          if (data.type === 'cancel') {
+            stopSearch = true;
+            searchToken++;
+            return;
+          }
+
+          if (data.type !== 'search') return;
+
+          const token = ++searchToken;
+          stopSearch = false;
+          nodes = 0;
+          startTime = Date.now();
+          softTimeLimit = Math.max(50, data.timeMs || 800);
+          currentJob = data.job || 'move';
+
+          try {
+            const ok = game.load(data.fen);
+            if (!ok) throw new Error('Invalid FEN');
+
+            const maxDepth = Math.max(1, Math.min(32, data.maxDepth || 5));
+            const result = searchRoot(maxDepth);
+
+            if (!stopSearch && token === searchToken) {
+              self.postMessage({
+                type: 'bestmove',
+                bestMove: result.bestMove,
+                score: result.bestScore,
+                nodes,
+                job: currentJob,
+                requestFen: data.fen
+              });
+            }
+          } catch (err) {
+            self.postMessage({
+              type: 'error',
+              message: err && err.stack ? err.stack : (err && err.message ? err.message : 'Worker search failed'),
+              job: currentJob
+            });
+          }
+        };
+      `;
+
+      class ModernChess {
+        #game;
+        #boardElement;
+        #selectedSquare = null;
+        #legalMovesForSelected = [];
+        #worker = null;
+        #isThinking = false;
+        #lastMove = null;
+        #aiConfig = { ...ENGINE_LEVELS.medium };
+        #latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+        #moveStack = [];
+        #hintMove = null;
+        #hintRequestFen = null;
+        #manualFlip = false;
+        #playerColor = 'w';
+        #bookTag = '';
+        #useStockfish = false;
+        #stockfish = null;
+        #stockfishReady = false;
+        #stockfishJob = null;
+
+        constructor(boardElement) {
+          this.#game = new Chess();
+          this.#boardElement = boardElement;
+
+          this.#initBoardUI();
+          this.#attachEvents();
+          this.#bindControls();
+          this.#renderBoard();
+          this.#updateMoveHistory();
+          this.#updateUI();
+          this.#initWorker();
+
+          toast('Engine Active', '#4ade80cc');
+        }
+
+        #colorName(color) {
+          return color === 'w' ? 'White' : 'Black';
+        }
+
+        #aiColor() {
+          return this.#playerColor === 'w' ? 'b' : 'w';
+        }
+
+        #effectiveFlipped() {
+          const autoFlip = this.#playerColor === 'b';
+          return autoFlip !== this.#manualFlip;
+        }
+
+        #isPlayersTurn() {
+          return this.#game.turn() === this.#playerColor;
+        }
+
+        #initWorker() {
+          try {
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            const workerUrl = URL.createObjectURL(blob);
+
+            this.#worker = new Worker(workerUrl, { type: 'module' });
+
+            this.#worker.onmessage = (e) => this.#handleWorkerMessage(e);
+
+            this.#worker.onerror = (err) => {
+              console.error('[ChessApp] Worker error:', err?.message || err);
+              this.#isThinking = false;
+              toast('Worker failed');
+              this.#updateUI();
+            };
+
+            this.#worker.onmessageerror = () => {
+              console.error('[ChessApp] Worker message deserialization failed.');
+            };
+
+            setTimeout(() => {
+              try { URL.revokeObjectURL(workerUrl); } catch {}
+            }, 1500);
+          } catch (err) {
+            console.error('[ChessApp] Failed to create worker:', err?.stack || err?.message || String(err));
+          }
+        }
+
+        #initStockfish() {
+          if (this.#stockfish) return;
+          try {
+            this.#stockfish = new Worker('./engines/stockfish-18-lite-single.js');
+            this.#stockfish.onmessage = (e) => {
+              const line = typeof e.data === 'string' ? e.data : String(e.data || '');
+              this.#handleStockfishMessage(line);
+            };
+            this.#stockfish.onerror = (err) => {
+              console.error('[ChessApp] Stockfish error:', err?.message || err);
+              this.#stockfishReady = false;
+              this.#useStockfish = false;
+              this.#isThinking = false;
+              toast('Stockfish failed');
+              this.#updateUI();
+            };
+            this.#stockfish.postMessage('uci');
+            this.#stockfish.postMessage('isready');
+          } catch (err) {
+            console.error('[ChessApp] Failed to initialize Stockfish:', err?.stack || err?.message || String(err));
+            toast('Stockfish init failed');
+          }
+        }
+
+        #uciToMove(uci) {
+          return {
+            from: uci.slice(0, 2),
+            to: uci.slice(2, 4),
+            promotion: uci.length > 4 ? uci.slice(4) : undefined
+          };
+        }
+
+        #parseStockfishInfo(line) {
+          const depthMatch = line.match(/\bdepth\s+(\d+)/);
+          const nodesMatch = line.match(/\bnodes\s+(\d+)/);
+          const cpMatch = line.match(/\bscore\s+cp\s+(-?\d+)/);
+          const mateMatch = line.match(/\bscore\s+mate\s+(-?\d+)/);
+          const pvMatch = line.match(/\bpv\s+([a-h][1-8][a-h][1-8][qrbn]?)/);
+
+          let score = this.#latestProgress.score;
+          if (cpMatch) {
+            score = -Number(cpMatch[1]);
+          } else if (mateMatch) {
+            const mate = Number(mateMatch[1]);
+            score = mate > 0 ? -100000 + Math.abs(mate) : 100000 - Math.abs(mate);
+          }
+
+          const bestMove = pvMatch ? this.#uciToMove(pvMatch[1]) : this.#latestProgress.bestMove;
+
+          this.#latestProgress = {
+            depth: depthMatch ? Number(depthMatch[1]) : this.#latestProgress.depth,
+            nodes: nodesMatch ? Number(nodesMatch[1]) : this.#latestProgress.nodes,
+            score,
+            bestMove
+          };
+
+          this.#updateEngineStats();
+          this.#updateEvalBar();
+        }
+
+        #handleStockfishMessage(line) {
+          if (!line) return;
+          // console.log('[Stockfish]', line);
+          if (line === 'uciok') return;
+
+          if (line === 'readyok') {
+            this.#stockfishReady = true;
+            if (this.#useStockfish && !this.#stockfishJob && !this.#game.game_over() && !this.#isPlayersTurn()) {
+              setTimeout(() => this.#executeEngineAI(), 0);
+            }
+            return;
+          }
+
+          if (line.startsWith('info ')) {
+            this.#parseStockfishInfo(line);
+            return;
+          }
+
+          if (line.startsWith('bestmove ')) {
+            const parts = line.split(/\s+/);
+            const uci = parts[1];
+
+            if (!uci || uci === '(none)') {
+              this.#isThinking = false;
+              this.#stockfishJob = null;
+              this.#updateUI();
+              if (this.#stockfishJob === 'hint') toast('No hint available');
+              return;
+            }
+
+            const move = this.#uciToMove(uci);
+
+            if (this.#stockfishJob === 'hint') {
+              this.#hintMove = { from: move.from, to: move.to };
+              this.#renderBoard();
+              this.#isThinking = false;
+              this.#stockfishJob = null;
+              this.#updateUI();
+              toast('Hint: ' + move.from + ' → ' + move.to, '#4ade80cc');
+              return;
+            }
+
+            const applied = this.#game.move({
+              from: move.from,
+              to: move.to,
+              promotion: move.promotion || 'q'
+            });
+
+            if (applied) {
+              this.#pushMove(applied);
+              toast('Stockfish move complete', '#3b82f6cc');
+              this.#renderBoard();
+              if (this.#game.game_over()) this.#handleGameOver();
+            } else {
+              console.error('[ChessApp] Stockfish returned an illegal move:', uci);
+            }
+
+            this.#isThinking = false;
+            this.#stockfishJob = null;
+            this.#updateUI();
+          }
+        }
+
+        #bindControls() {
+          const difficultySelect = document.getElementById('difficultySelect');
+          difficultySelect.value = 'medium';
+
+          difficultySelect.addEventListener('change', () => {
+            const level = difficultySelect.value;
+            if (level === 'stockfish') {
+              this.#useStockfish = true;
+              this.#initStockfish();
+              toast('Difficulty: Stockfish', '#4ade80cc');
+              this.#updateUI();
+              return;
+            }
+
+            this.#useStockfish = false;
+            this.#aiConfig = { ...ENGINE_LEVELS[level] };
+            toast(
+              'Difficulty: ' + level[0].toUpperCase() + level.slice(1) +
+              ' · depth ' + this.#aiConfig.maxDepth +
+              ' · ' + this.#aiConfig.timeMs + 'ms',
+              '#4ade80cc'
+            );
+            this.#updateUI();
+          });
+
+          const sideSelect = document.getElementById('sideSelect');
+          sideSelect.value = this.#playerColor;
+          sideSelect.addEventListener('change', () => {
+            this.setPlayerColor(sideSelect.value);
+          });
+
+          document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+          document.getElementById('undoBtn').addEventListener('click', () => this.undo());
+          document.getElementById('hintBtn').addEventListener('click', () => this.requestHint());
+          document.getElementById('flipBtn').addEventListener('click', () => this.flipBoard());
+          document.getElementById('exportPgnBtn').addEventListener('click', () => this.exportPgn());
+        }
+
+        #initBoardUI() {
+          this.#boardElement.innerHTML = '';
+
+          const flipped = this.#effectiveFlipped();
+          const rows = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+          const cols = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+
+          rows.forEach((row, visualRow) => {
+            cols.forEach((col, visualCol) => {
+              const file = String.fromCharCode(97 + col);
+              const rank = 8 - row;
+              const squareName = file + rank;
+              const isLight = (row + col) % 2 === 0;
+
+              const square = document.createElement('div');
+              square.className = 'square ' + (isLight ? 'light' : 'dark');
+              square.dataset.square = squareName;
+              square.setAttribute('draggable', 'true');
+
+              if (visualCol === 0) {
+                const rankLabel = document.createElement('span');
+                rankLabel.className = 'coord-rank';
+                rankLabel.textContent = String(rank);
+                square.appendChild(rankLabel);
+              }
+
+              if (visualRow === 7) {
+                const fileLabel = document.createElement('span');
+                fileLabel.className = 'coord-file';
+                fileLabel.textContent = file;
+                square.appendChild(fileLabel);
+              }
+
+              this.#boardElement.appendChild(square);
+            });
+          });
+        }
+
+        #attachEvents() {
+          this.#boardElement.addEventListener('click', (e) => {
+            if (this.#isThinking) return;
+            const square = e.target.closest('.square');
+            if (square) this.#handleSquareClick(square.dataset.square);
+          });
+
+          this.#boardElement.addEventListener('dragstart', (e) => {
+            const square = e.target.closest('.square');
+            if (!square) { e.preventDefault(); return; }
+
+            const from = square.dataset.square;
+            const piece = this.#game.get(from);
+
+            if (!piece || piece.color !== this.#playerColor || !this.#isPlayersTurn() || this.#isThinking) {
+              e.preventDefault();
+              return;
+            }
+
+            e.dataTransfer.setData('text/plain', from);
+            e.dataTransfer.effectAllowed = 'move';
+            square.classList.add('dragging');
+          });
+
+          this.#boardElement.addEventListener('dragover', (e) => e.preventDefault());
+
+          this.#boardElement.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const targetSquare = e.target.closest('.square');
+            if (!targetSquare) return;
+
+            const from = e.dataTransfer.getData('text/plain');
+            if (!from) return;
+
+            document.querySelectorAll('.square').forEach(sq => sq.classList.remove('dragging'));
+
+            if (from === targetSquare.dataset.square) {
+              this.#clearSelection();
+              return;
+            }
+
+            this.#tryMove(from, targetSquare.dataset.square);
+            this.#clearSelection();
+          });
+
+          this.#boardElement.addEventListener('dragend', () => {
+            document.querySelectorAll('.square').forEach(sq => sq.classList.remove('dragging'));
+          });
+        }
+
+        #getSquareDiv(square) {
+          return document.querySelector('.square[data-square="' + square + '"]');
+        }
+
+        #clearHint() {
+          this.#hintMove = null;
+          this.#hintRequestFen = null;
+          document.querySelectorAll('.square').forEach(sq => {
+            sq.classList.remove('hint-from', 'hint-to');
+          });
+        }
+
+        #applyHintHighlight() {
+          document.querySelectorAll('.square').forEach(sq => {
+            sq.classList.remove('hint-from', 'hint-to');
+          });
+
+          if (!this.#hintMove) return;
+          this.#getSquareDiv(this.#hintMove.from)?.classList.add('hint-from');
+          this.#getSquareDiv(this.#hintMove.to)?.classList.add('hint-to');
+        }
+
+        #handleSquareClick(squareName) {
+          if (this.#selectedSquare) {
+            const success = this.#tryMove(this.#selectedSquare, squareName);
+            this.#clearSelection();
+            if (success) return;
+          }
+
+          const piece = this.#game.get(squareName);
+          if (piece && piece.color === this.#playerColor && this.#isPlayersTurn()) {
+            this.#setSelected(squareName);
+          } else {
+            this.#clearSelection();
+          }
+        }
+
+        #setSelected(square) {
+          this.#clearSelection();
+          this.#selectedSquare = square;
+
+          const moves = this.#game.moves({ verbose: true });
+          this.#legalMovesForSelected = moves.filter(m => m.from === square).map(m => m.to);
+          this.#highlightLegalMoves();
+
+          this.#getSquareDiv(square)?.classList.add('selected');
+        }
+
+        #clearSelection() {
+          this.#selectedSquare = null;
+          this.#legalMovesForSelected = [];
+          document.querySelectorAll('.square').forEach(sq => {
+            sq.classList.remove('selected', 'legal-move');
+          });
+          this.#highlightLastMove();
+          this.#applyHintHighlight();
+        }
+
+        #highlightLegalMoves() {
+          for (const to of this.#legalMovesForSelected) {
+            this.#getSquareDiv(to)?.classList.add('legal-move');
+          }
+        }
+
+        #highlightLastMove() {
+          document.querySelectorAll('.square').forEach(sq => {
+            sq.classList.remove('last-from', 'last-to');
+          });
+
+          if (!this.#lastMove) return;
+          this.#getSquareDiv(this.#lastMove.from)?.classList.add('last-from');
+          this.#getSquareDiv(this.#lastMove.to)?.classList.add('last-to');
+        }
+
+        #moveToUci(moveObj) {
+          return moveObj.from + moveObj.to + (moveObj.promotion || '');
+        }
+
+        #pushMove(moveObj) {
+          this.#moveStack.push({
+            from: moveObj.from,
+            to: moveObj.to,
+            san: moveObj.san,
+            color: moveObj.color,
+            piece: moveObj.piece,
+            uci: this.#moveToUci(moveObj)
+          });
+          this.#lastMove = { from: moveObj.from, to: moveObj.to };
+          this.#updateMoveHistory();
+        }
+
+        #popMove() {
+          this.#moveStack.pop();
+          const prev = this.#moveStack[this.#moveStack.length - 1];
+          this.#lastMove = prev ? { from: prev.from, to: prev.to } : null;
+          this.#updateMoveHistory();
+        }
+
+        #bookSequenceKey() {
+          return this.#moveStack.map(m => m.uci).join(' ');
+        }
+
+        #parseUci(uci) {
+          if (!uci || uci.length < 4) return null;
+          return {
+            from: uci.slice(0, 2),
+            to: uci.slice(2, 4),
+            promotion: uci.length > 4 ? uci.slice(4) : undefined
+          };
+        }
+
+        #getBookMove() {
+          const sideBook = OPENING_BOOK[this.#aiColor()];
+          if (!sideBook) return null;
+
+          const key = this.#bookSequenceKey();
+          const candidates = sideBook[key];
+          if (!candidates || !candidates.length) return null;
+
+          const legal = this.#game.moves({ verbose: true });
+          const legalMap = new Map();
+          for (const m of legal) legalMap.set(this.#moveToUci(m), m);
+
+          const valid = candidates.filter(uci => legalMap.has(uci));
+          if (!valid.length) return null;
+
+          const chosen = valid[Math.floor(Math.random() * valid.length)];
+          return legalMap.get(chosen);
+        }
+
+        #tryMove(from, to) {
+          const move = this.#game.move({ from, to, promotion: 'q' });
+          if (!move) {
+            toast('Invalid move');
+            return false;
+          }
+
+          this.#clearHint();
+          this.#bookTag = '';
+          this.#pushMove(move);
+          toast('Player move', '#4ade80cc');
+          this.#latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+          this.#renderBoard();
+          this.#updateUI();
+
+          if (this.#game.game_over()) {
+            this.#handleGameOver();
+            return true;
+          }
+
+          if (!this.#isPlayersTurn()) {
+            setTimeout(() => this.#executeEngineAI(), 120);
+          }
+
+          return true;
+        }
+
+        #executeEngineAI() {
+          if (this.#game.game_over() || this.#isPlayersTurn()) return;
+
+          if (this.#useStockfish) {
+            if (!this.#stockfish) this.#initStockfish();
+            if (!this.#stockfishReady) {
+              toast('Stockfish still loading...');
+              return;
+            }
+
+            this.#isThinking = true;
+            this.#stockfishJob = 'move';
+            this.#bookTag = 'Stockfish';
+            this.#latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+            this.#updateUI();
+
+            try {
+              this.#stockfish.postMessage('ucinewgame');
+              this.#stockfish.postMessage('position fen ' + this.#game.fen());
+              this.#stockfish.postMessage('go depth 16');
+            } catch (err) {
+              console.error('[ChessApp] Stockfish search failed:', err?.stack || err?.message || String(err));
+              this.#isThinking = false;
+              this.#updateUI();
+            }
+            return;
+          }
+
+          if (!this.#worker) {
+            console.error('[ChessApp] Worker unavailable.');
+            toast('Engine unavailable');
+            return;
+          }
+
+          const bookMove = this.#getBookMove();
+          if (bookMove) {
+            const applied = this.#game.move({
+              from: bookMove.from,
+              to: bookMove.to,
+              promotion: bookMove.promotion || 'q'
+            });
+
+            if (applied) {
+              this.#pushMove(applied);
+              this.#bookTag = 'Book';
+              this.#latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+              this.#renderBoard();
+              this.#updateUI();
+              toast('Opening book: ' + applied.san, '#4ade80cc');
+              if (this.#game.game_over()) this.#handleGameOver();
+              return;
+            }
+          }
+
+          this.#isThinking = true;
+          this.#bookTag = '';
+          this.#latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+          this.#updateUI();
+
+          try {
+            this.#worker.postMessage({
+              type: 'search',
+              job: 'move',
+              fen: this.#game.fen(),
+              maxDepth: this.#aiConfig.maxDepth,
+              timeMs: this.#aiConfig.timeMs
+            });
+          } catch (err) {
+            console.error('[ChessApp] Search postMessage failed:', err?.stack || err?.message || String(err));
+            this.#isThinking = false;
+            this.#updateUI();
+          }
+        }
+
+        #handleWorkerMessage(e) {
+          const data = e.data || {};
+
+          if (data.type === 'progress') {
+            if (data.job === 'move') {
+              this.#latestProgress = {
+                depth: data.depth,
+                nodes: data.nodes,
+                score: data.score,
+                bestMove: data.bestMove
+              };
+              this.#updateEngineStats();
+              this.#updateEvalBar();
+            }
+            return;
+          }
+
+          if (data.type === 'error') {
+            console.error('[ChessApp] Worker search error:', data.message);
+            if (data.job === 'move') {
+              this.#isThinking = false;
+              toast('Engine error');
+              this.#updateUI();
+            } else if (data.job === 'hint') {
+              toast('Hint failed');
+            }
+            return;
+          }
+
+          if (data.type === 'bestmove') {
+            if (data.job === 'hint') {
+              if (data.requestFen !== this.#game.fen()) return;
+
+              if (data.bestMove) {
+                this.#hintMove = { from: data.bestMove.from, to: data.bestMove.to };
+                this.#renderBoard();
+                toast('Hint: ' + data.bestMove.from + ' → ' + data.bestMove.to, '#4ade80cc');
+              } else {
+                toast('No hint available');
+              }
+              return;
+            }
+
+            const bestMove = data.bestMove;
+
+            if (bestMove) {
+              const applied = this.#game.move({
+                from: bestMove.from,
+                to: bestMove.to,
+                promotion: bestMove.promotion || 'q'
+              });
+
+              if (applied) {
+                this.#pushMove(applied);
+                toast('AI move complete', '#3b82f6cc');
+              } else {
+                console.error('[ChessApp] Worker returned an illegal move:', bestMove);
+              }
+            } else {
+              console.error('[ChessApp] Worker returned no best move.');
+            }
+
+            this.#isThinking = false;
+            this.#latestProgress = {
+              depth: this.#latestProgress.depth,
+              nodes: data.nodes,
+              score: data.score,
+              bestMove: data.bestMove
+            };
+
+            this.#renderBoard();
+
+            if (this.#game.game_over()) this.#handleGameOver();
+
+            this.#updateUI();
+            this.#clearSelection();
+          }
+        }
+
+        #handleGameOver() {
+          const winnerColor = this.#game.in_checkmate()
+            ? (this.#game.turn() === 'w' ? 'b' : 'w')
+            : null;
+
+          let endMsg = 'Game drawn or finished.';
+          if (winnerColor) {
+            endMsg =
+              'Checkmate! ' +
+              (winnerColor === this.#playerColor ? 'You' : 'AI') +
+              ' (' + this.#colorName(winnerColor) + ') ' +
+              (winnerColor === this.#playerColor ? 'win.' : 'wins.');
+          }
+
+          document.getElementById('gameStatus').textContent = endMsg;
+          toast(endMsg, '#ef4444');
+        }
+
+        #renderPieceFallback(squareDiv, piece) {
+          const key = piece.color + piece.type;
+          const span = document.createElement('div');
+          span.className = 'piece-fallback ' + (piece.color === 'w' ? 'white' : 'black');
+          span.textContent = PIECE_SYMBOLS[key] || '?';
+          squareDiv.appendChild(span);
+        }
+
+        #renderBoard() {
+          const board = this.#game.board();
+
+          for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+              const piece = board[i][j];
+              const file = String.fromCharCode(97 + j);
+              const rank = 8 - i;
+              const squareName = file + rank;
+              const squareDiv = this.#getSquareDiv(squareName);
+
+              if (!squareDiv) continue;
+              squareDiv.querySelector('.piece-img')?.remove();
+              squareDiv.querySelector('.piece-fallback')?.remove();
+
+              if (piece) {
+                const pieceCode =
+                  piece.type === 'k' ? 'k' :
+                  piece.type === 'q' ? 'q' :
+                  piece.type === 'r' ? 'r' :
+                  piece.type === 'b' ? 'b' :
+                  piece.type === 'n' ? 'n' : 'p';
+
+                const imgUrl = PIECE_IMG_URL.replace('{piece}', piece.color + pieceCode.toUpperCase());
+
+                const img = document.createElement('img');
+                img.className = 'piece-img';
+                img.alt = piece.color + piece.type;
+                img.draggable = false;
+                img.src = imgUrl;
+
+                img.onerror = () => {
+                  img.remove();
+                  this.#renderPieceFallback(squareDiv, piece);
+                };
+
+                squareDiv.appendChild(img);
+              }
+            }
+          }
+
+          this.#highlightLastMove();
+          this.#applyHintHighlight();
+
+          if (this.#selectedSquare) {
+            this.#getSquareDiv(this.#selectedSquare)?.classList.add('selected');
+            this.#highlightLegalMoves();
+          }
+        }
+
+        #formatEval(score) {
+          if (score == null || Number.isNaN(score)) return '0.00';
+
+          if (Math.abs(score) >= 99900) {
+            const mateIn = Math.max(1, Math.floor((100000 - Math.abs(score)) / 2));
+            return score > 0 ? '-M' + mateIn : 'M' + mateIn;
+          }
+
+          const whiteAdv = -score / 100;
+          return (whiteAdv >= 0 ? '+' : '') + whiteAdv.toFixed(2);
+        }
+
+        #updateEvalBar() {
+          const fill = document.getElementById('evalWhite');
+          const text = document.getElementById('evalText');
+          if (!fill || !text) return;
+
+          let score = this.#latestProgress.score;
+          let whitePercent = 50;
+
+          if (score != null && !Number.isNaN(score)) {
+            if (Math.abs(score) >= 99900) {
+              whitePercent = score < 0 ? 100 : 0;
+            } else {
+              const whiteAdvCp = Math.max(-1200, Math.min(1200, -score));
+              whitePercent = 50 + (whiteAdvCp / 1200) * 50;
+              whitePercent = Math.max(0, Math.min(100, whitePercent));
+            }
+          }
+
+          fill.style.height = whitePercent + '%';
+          text.textContent = this.#formatEval(score);
+        }
+
+        #formatMoveHistory() {
+          if (this.#moveStack.length === 0) return 'No moves yet.';
+
+          const lines = [];
+          for (let i = 0; i < this.#moveStack.length; i += 2) {
+            const moveNo = Math.floor(i / 2) + 1;
+            const white = this.#moveStack[i]?.san || '';
+            const black = this.#moveStack[i + 1]?.san || '';
+            lines.push(moveNo + '. ' + white + (black ? '  ' + black : ''));
+          }
+
+          return lines.join('\n');
+        }
+
+        #updateMoveHistory() {
+          const historyEl = document.getElementById('moveHistory');
+          if (!historyEl) return;
+          historyEl.textContent = this.#formatMoveHistory();
+          historyEl.scrollTop = historyEl.scrollHeight;
+        }
+
+        #updateEngineStats() {
+          const moveText = this.#latestProgress.bestMove
+            ? (this.#latestProgress.bestMove.from + '-' + this.#latestProgress.bestMove.to)
+            : '—';
+
+          const depthText = this.#latestProgress.depth ?? '—';
+          const nodesText = this.#latestProgress.nodes != null
+            ? Number(this.#latestProgress.nodes).toLocaleString()
+            : '—';
+
+          const evalText = this.#latestProgress.score != null
+            ? this.#formatEval(this.#latestProgress.score)
+            : '—';
+
+          const suffix = this.#useStockfish
+            ? ' · Stockfish'
+            : (this.#bookTag ? ' · ' + this.#bookTag : '');
+
+          document.getElementById('engineStats').textContent =
+            'Depth: ' + depthText +
+            ' · Nodes: ' + nodesText +
+            ' · Eval: ' + evalText +
+            ' · Best: ' + moveText +
+            suffix;
+        }
+
+        #updateUI() {
+          const turn = this.#game.turn();
+
+          let status;
+          if (turn === this.#playerColor) {
+            status = this.#colorName(turn) + ' (you)';
+          } else {
+            status = this.#colorName(turn) + (this.#isThinking ? ' (AI thinking…)' : ' (AI)');
+          }
+
+          if (this.#game.in_check()) status += ' · Check!';
+          if (this.#game.game_over()) status = 'Game over';
+
+          document.getElementById('gameStatus').textContent = '🎲 Turn: ' + status;
+
+          if (this.#game.game_over()) {
+            document.getElementById('thinkingState').textContent = 'Search stopped';
+            document.getElementById('legalMoves').textContent = 'Game finished';
+          } else if (this.#isPlayersTurn() && !this.#isThinking) {
+            document.getElementById('thinkingState').textContent = 'Engine ready';
+            const moves = this.#game.moves({ verbose: true }).map(m => m.san).slice(0, 14);
+            document.getElementById('legalMoves').textContent = 'Moves: ' + (moves.join(', ') || 'none');
+          } else {
+            document.getElementById('thinkingState').textContent = this.#isThinking
+              ? (this.#useStockfish ? 'Stockfish thinking…' : ('depth ≤ ' + this.#aiConfig.maxDepth + ' · ' + this.#aiConfig.timeMs + 'ms'))
+              : (this.#bookTag ? 'Opening book move' : 'Engine ready');
+
+            document.getElementById('legalMoves').textContent = this.#isThinking
+              ? (this.#useStockfish ? 'Computing with Stockfish…' : 'Computing best line asynchronously…')
+              : (this.#bookTag ? 'Using opening book…' : 'Awaiting engine move…');
+          }
+
+          this.#updateEngineStats();
+          this.#updateEvalBar();
+
+          const undoBtn = document.getElementById('undoBtn');
+          const hintBtn = document.getElementById('hintBtn');
+
+          if (undoBtn) undoBtn.disabled = this.#moveStack.length === 0;
+          if (hintBtn) hintBtn.disabled = this.#isThinking || !this.#isPlayersTurn() || this.#game.game_over();
+        }
+
+        requestHint() {
+          if (this.#isThinking || !this.#isPlayersTurn() || this.#game.game_over()) {
+            toast('Hint only works on your turn');
+            return;
+          }
+
+          this.#clearHint();
+          this.#renderBoard();
+
+          if (this.#useStockfish) {
+            if (!this.#stockfish) this.#initStockfish();
+            if (!this.#stockfishReady) {
+              toast('Stockfish still loading...');
+              return;
+            }
+
+            this.#isThinking = true;
+            this.#stockfishJob = 'hint';
+            this.#hintRequestFen = this.#game.fen();
+            this.#updateUI();
+
+            try {
+              this.#stockfish.postMessage('position fen ' + this.#game.fen());
+              this.#stockfish.postMessage('go depth 14');
+              toast('Calculating Stockfish hint…', '#4ade80cc');
+            } catch (err) {
+              console.error('[ChessApp] Stockfish hint failed:', err?.stack || err?.message || String(err));
+              this.#isThinking = false;
+              this.#stockfishJob = null;
+              this.#updateUI();
+              toast('Hint failed');
+            }
+            return;
+          }
+
+          if (!this.#worker) {
+            toast('Engine unavailable');
+            return;
+          }
+
+          const fen = this.#game.fen();
+          this.#hintRequestFen = fen;
+
+          try {
+            this.#worker.postMessage({
+              type: 'search',
+              job: 'hint',
+              fen,
+              maxDepth: Math.max(2, Math.min(this.#aiConfig.maxDepth, 5)),
+              timeMs: Math.min(this.#aiConfig.timeMs, 1200)
+            });
+
+            toast('Calculating hint…', '#4ade80cc');
+          } catch (err) {
+            console.error('[ChessApp] Hint request failed:', err?.stack || err?.message || String(err));
+            toast('Hint failed');
+          }
+        }
+
+        flipBoard() {
+          this.#manualFlip = !this.#manualFlip;
+          this.#initBoardUI();
+          this.#renderBoard();
+          this.#clearSelection();
+          toast(this.#effectiveFlipped() ? 'Board flipped' : 'Board default orientation', '#4ade80cc');
+        }
+
+        setPlayerColor(color) {
+          if (color !== 'w' && color !== 'b') return;
+          if (this.#playerColor === color) return;
+
+          this.#playerColor = color;
+          this.#manualFlip = false;
+          this.reset(false);
+
+          toast('Now playing as ' + this.#colorName(color), '#4ade80cc');
+        }
+
+        exportPgn() {
+          try {
+            const whiteName = this.#playerColor === 'w' ? 'You' : 'Modern Chess AI';
+            const blackName = this.#playerColor === 'b' ? 'You' : 'Modern Chess AI';
+
+            const headers = {
+              Event: 'Modern Chess AI',
+              Site: window.location.origin || 'Local',
+              Date: new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
+              Round: '1',
+              White: whiteName,
+              Black: blackName,
+              Result: this.#getResultTag()
+            };
+
+            const pgn = this.#game.pgn({ newline_char: '\n', max_width: 80 });
+            const headerText = Object.entries(headers)
+              .map(([k, v]) => '[' + k + ' "' + v + '" ]'.replace(' ]', ']'))
+              .join('\n');
+
+            const fullPgn =
+              headerText +
+              '\n\n' +
+              pgn +
+              (pgn.trim().endsWith(headers.Result) ? '' : (' ' + headers.Result));
+
+            const blob = new Blob([fullPgn], { type: 'application/x-chess-pgn;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'modern-chess-ai-game.pgn';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            setTimeout(() => {
+              try { URL.revokeObjectURL(url); } catch {}
+            }, 1000);
+
+            toast('PGN exported', '#4ade80cc');
+          } catch (err) {
+            console.error('[ChessApp] PGN export failed:', err?.stack || err?.message || String(err));
+            toast('PGN export failed');
+          }
+        }
+
+        #getResultTag() {
+          if (!this.#game.game_over()) return '*';
+          if (this.#game.in_checkmate()) return this.#game.turn() === 'w' ? '0-1' : '1-0';
+          return '1/2-1/2';
+        }
+
+        undo() {
+          try { this.#worker?.postMessage({ type: 'cancel' }); } catch (err) {
+            console.error('[ChessApp] Cancel failed:', err?.message || String(err));
+          }
+          try { this.#stockfish?.postMessage('stop'); } catch (err) {
+            console.error('[ChessApp] Stockfish stop failed:', err?.message || String(err));
+          }
+
+          this.#clearHint();
+          this.#bookTag = '';
+
+          if (this.#moveStack.length === 0) {
+            toast('Nothing to undo');
+            return;
+          }
+
+          if (this.#isThinking) {
+            if (this.#moveStack.length > 0) {
+              const undone = this.#game.undo();
+              if (undone) this.#popMove();
+            }
+
+            this.#isThinking = false;
+            this.#stockfishJob = null;
+            this.#latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+            this.#renderBoard();
+            this.#clearSelection();
+            this.#updateUI();
+            toast('Undid last move', '#4ade80cc');
+            return;
+          }
+
+          if (this.#game.turn() === this.#playerColor) {
+            const u1 = this.#game.undo();
+            if (u1) this.#popMove();
+
+            if (this.#game.turn() !== this.#playerColor && this.#moveStack.length > 0) {
+              const u2 = this.#game.undo();
+              if (u2) this.#popMove();
+            }
+
+            this.#latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+            this.#renderBoard();
+            this.#clearSelection();
+            this.#updateUI();
+            toast('Undid last full turn', '#4ade80cc');
+            return;
+          }
+
+          const undone = this.#game.undo();
+          if (undone) this.#popMove();
+
+          this.#latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+          this.#renderBoard();
+          this.#clearSelection();
+          this.#updateUI();
+          toast('Undid last move', '#4ade80cc');
+        }
+
+        reset(showToast = true) {
+          try { this.#worker?.postMessage({ type: 'cancel' }); } catch (err) {
+            console.error('[ChessApp] Cancel failed:', err?.message || String(err));
+          }
+          try { this.#stockfish?.postMessage('stop'); } catch (err) {
+            console.error('[ChessApp] Stockfish stop failed:', err?.message || String(err));
+          }
+
+          this.#isThinking = false;
+          this.#stockfishJob = null;
+          this.#game.reset();
+          this.#selectedSquare = null;
+          this.#legalMovesForSelected = [];
+          this.#lastMove = null;
+          this.#latestProgress = { depth: null, nodes: null, score: null, bestMove: null };
+          this.#moveStack = [];
+          this.#hintMove = null;
+          this.#hintRequestFen = null;
+          this.#bookTag = '';
+
+          this.#initBoardUI();
+          this.#renderBoard();
+          this.#clearSelection();
+          this.#updateMoveHistory();
+          this.#updateUI();
+
+          if (showToast) toast('Game reset', '#4ade80cc');
+          if (!this.#isPlayersTurn()) setTimeout(() => this.#executeEngineAI(), 160);
+        }
+      }
+
+      const boardContainer = document.getElementById('chessboard');
+      if (!boardContainer) {
+        console.error('[ChessApp] Missing #chessboard');
+        toast('Fatal boot error');
+        throw new Error('Missing #chessboard');
+      }
+
+      new ModernChess(boardContainer);
+    })().catch((err) => {
+      const toast = window.__toast;
+      console.error('[ChessApp] Fatal boot error:', err?.stack || err?.message || String(err));
+      toast('Fatal boot error');
+    });
+  </script>
+</body>
+</html>
