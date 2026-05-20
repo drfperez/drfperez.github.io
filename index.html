@@ -1,115 +1,138 @@
-
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="ca" data-bs-theme="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Joc modular de ciències (JSON)</title>
-    <link rel="stylesheet" href="./css/styles.css" />
+  <meta charset="UTF-8" />
+  
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3Q2S940G6T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-3Q2S940G6T');
+</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web del professor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-    <div id="app">
-        <!-- PANTALLA INICIAL -->
-        <section id="pantalla-inicial">
-            <div class="hero-emoji" id="preview-emoji">🧪</div>
-            <h1 id="preview-title">JOC DE CIÈNCIES</h1>
-            <p class="subtitol" id="preview-subtitle">
-                Selecciona un tema i juga amb preguntes de ciències.
-            </p>
 
-            <div class="config-box">
-                <label for="selector-tema">Tema del joc</label>
-                <select id="selector-tema"></select>
+<div id="navbar-placeholder"></div>
 
-                <div class="preview-card">
-                    <div class="preview-mini" id="preview-mini-emoji">🧪</div>
-                    <div>
-                        <div class="preview-mini-title" id="preview-mini-title">Tema</div>
-                        <div class="preview-mini-text" id="preview-mini-text">
-                            Descripció del tema.
-                        </div>
-                    </div>
-                </div>
-            </div>
+<main class="container py-5">
+  <!-- Presentació -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold">Benvinguts a la meva web educativa</h1>
+    <p class="lead mt-3">Soc en <strong>Francesc Pérez</strong>, docent apassionat per la tecnologia, la programació, la robòtica, les ciències i la creativitat aplicada a l’educació.</p>
+  </div>
 
-            <p class="pregunta-jugadors">Quants jugadors participeu?</p>
-
-            <div class="selector-jugadors">
-                <button type="button" class="btn-jugadors" onclick="iniciarJoc(2)">
-                    <span class="num">2</span> Jugadors
-                </button>
-                <button type="button" class="btn-jugadors" onclick="iniciarJoc(3)">
-                    <span class="num">3</span> Jugadors
-                </button>
-                <button type="button" class="btn-jugadors" onclick="iniciarJoc(4)">
-                    <span class="num">4</span> Jugadors
-                </button>
-            </div>
-
-            <p class="nota">
-                ✏️ L’alumnat només ha d’editar fitxers JSON per crear nous temes.
-            </p>
-        </section>
-
-        <!-- PANTALLA JOC -->
-        <section id="pantalla-joc">
-            <div id="taulell-container">
-                <div id="taulell"></div>
-            </div>
-
-            <aside id="panell">
-                <h2 id="game-title">JOC</h2>
-                <p class="game-theme-line">
-                    <span id="game-emoji">🧪</span>
-                    <span id="game-subtitle">Tema</span>
-                </p>
-
-                <div id="info-torn">
-                    <span class="torn-label">Torn de:</span>
-                    <div class="torn-jugador">
-                        <span class="torn-color" id="torn-color-ind"></span>
-                        <span id="torn-nom">Jugador 1</span>
-                    </div>
-                </div>
-
-                <div id="dau-container">
-                    <div id="dau" title="Clica per tirar!"></div>
-                    <button type="button" id="btn-tirar" onclick="tirarDau()">🎲 Tirar dau</button>
-                </div>
-
-                <div id="registre">
-                    <div class="entry entry-muted">🏁 Comença l'aventura científica!</div>
-                </div>
-
-                <button type="button" class="btn-reiniciar" onclick="reiniciarJoc()">
-                    🔄 Tornar a l'inici
-                </button>
-            </aside>
-        </section>
-    </div>
-
-    <!-- MODAL -->
-    <div id="modal-overlay">
-        <div id="modal">
-            <div class="emoji-modal" id="modal-emoji">❓</div>
-            <h3 id="modal-title">Pregunta</h3>
-            <p class="pregunta-text" id="pregunta-text"></p>
-            <div class="opcions" id="opcions-container"></div>
-            <p class="resultat-text" id="resultat-text"></p>
+  <!-- GitHub -->
+  <div class="container mb-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body d-flex align-items-center">
+        <i class="fa-brands fa-github fa-3x me-3 text-dark"></i>
+        <div>
+          <h5 class="card-title mb-1">El meu GitHub</h5>
+          <p class="card-text mb-2">Explora els meus projectes de programació, codi font i activitats educatives.</p>
+          <a href="https://github.com/drfperez" class="btn btn-outline-dark btn-sm" target="_blank">
+            Visita el meu GitHub <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+          </a>
         </div>
+      </div>
     </div>
+  </div>
 
-    <script src="./js/path.js"></script>
-    <script src="./js/renderer.js"></script>
-    <script src="./js/engine.js"></script>
-    <script src="./js/app.js"></script>
+  <!-- Totes les altres webs agrupades en una targeta -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <h4 class="card-title text-center mb-4 fw-bold">🌐 Altres webs educatives meves</h4>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        
+        <!-- Tecnologia -->
+        <div class="col"><a href="https://blocs.xtec.cat/enginyeria" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-wrench fa-lg text-primary mt-1"></i>
+            <div><strong>Tecnologia i Enginyeria</strong><br><small>Problemes de Tecnologia i Enginyeria per Batxillerat.</small></div>
+          </div></a>
+        </div>
+
+        
+
+        <!-- Bloc Xtec -->
+        <div class="col"><a href="https://blocs.xtec.cat/tecno" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-blog fa-lg text-secondary mt-1"></i>
+            <div><strong>Bloc XTEC</strong><br><small>Recursos transversals per a l’aula.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Biotecnologia -->
+        <div class="col"><a href="https://blocs.xtec.cat/biotecnologia" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-dna fa-lg text-success mt-1"></i>
+            <div><strong>Biotecnologia</strong><br><small>Notícies de recerca biotecnològica.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Python -->
+        <div class="col"><a href="https://blocs.xtec.cat/python3" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fa-brands fa-python fa-lg text-warning mt-1"></i>
+            <div><strong>Pràctiques Python</strong><br><small>100 Exercicis per aprendre a programar.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Neocities -->
+        <div class="col"><a href="https://pompeu.neocities.org" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-globe fa-lg text-primary mt-1"></i>
+            <div><strong>Bloc Neocities</strong><br><small>Recursos tecnològics creatius.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Musical Arts -->
+        <div class="col"><a href="https://coldplaybarcelona.github.io" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-music fa-lg text-info mt-1"></i>
+            <div><strong>Musical Arts</strong><br><small>Una mirada artística a la música.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Art -->
+        <div class="col"><a href="https://blocs.xtec.cat/arteducation" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-palette fa-lg text-danger mt-1"></i>
+            <div><strong>Bloc d'Art</strong><br><small>Projecte Erasmus+ d'Educació visual i creativa.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Teatre -->
+        <div class="col"><a href="https://blocs.xtec.cat/comeonstage/" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-theater-masks fa-lg text-secondary mt-1"></i>
+            <div><strong>Bloc de Teatre</strong><br><small>Projecte Erasmus+ d'Expressió i dramatització a l’aula.</small></div>
+          </div></a>
+        </div>
+
+        <!-- Medi Ambient -->
+        <div class="col"><a href="https://blocs.xtec.cat/5cities" target="_blank" class="text-decoration-none">
+          <div class="d-flex align-items-start gap-3">
+            <i class="fas fa-tree fa-lg text-success mt-1"></i>
+            <div><strong>Bloc de Medi Ambient</strong><br><small>Projecte Erasmus+ de Sostenibilitat i ciència social.</small></div>
+          </div></a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="navbar.js"></script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
