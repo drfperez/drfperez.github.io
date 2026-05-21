@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Quiz Cooperatiu · Crea el teu Kahoot de Classe</title>
+    <style>
+        :root {
+            --red: #e63946;
+            --blue: #1d3557;
+            --yellow: #e9c46a;
+            --green: #2a9d8f;
+            --orange: #f4a261;
+            --purple: #6c5ce7;
+            --correct: #2ecc71;
+            --wrong: #e74c3c;
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --text: #2c3e50;
+            --text-light: #5a6c7d;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.10);
+            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.14);
+            --radius-sm: 10px;
+            --radius: 14px;
+            --radius-lg: 18px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-header {
+            width: 100%;
+            background: linear-gradient(135deg, #1d3557 0%, #264673 100%);
+            color: #fff;
+            padding: 16px 24px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(29, 53, 87, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-header h1 {
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .app-header .subtitle {
+            font-size: 0.9rem;
+            font-weight: 400;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 860px;
+            padding: 20px 16px 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px 22px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: box-shadow var(--transition);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        .card-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-header .icon {
+            font-size: 1.5rem;
+        }
+
+        button {
+            font-family: var(--font);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            background: #e0e4ec;
+            color: var(--text);
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            justify-content: center;
+            white-space: nowrap;
+            letter-spacing: 0.1px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        button:active {
+            transform: scale(0.97);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+        button:focus-visible {
+            outline: 3px solid var(--purple);
+            outline-offset: 2px;
+        }
+
+        .btn-primary {
+            background: var(--purple);
+            color: #fff;
+            font-size: 1.05rem;
+            padding: 14px 30px;
+            box-shadow: 0 4px 14px rgba(108, 92, 231, 0.35);
+        }
+        .btn-primary:hover {
+            background: #5a4bd1;
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.45);
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: #fff;
+            font-size: 1.1rem;
+            padding: 15px 36px;
+            box-shadow: 0 4px 14px rgba(42, 157, 143, 0.35);
+        }
+        .btn-success:hover {
+            background: #238b7e;
+            box-shadow: 0 6px 20px rgba(42, 157, 143, 0.45);
+        }
+
+        .btn-outline {
+            background: #fff;
+            border: 2px solid #d0d7e2;
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+            background: #f8f6ff;
+        }
+
+        .btn-danger {
+            background: #fff;
+            border: 2px solid var(--wrong);
+            color: var(--wrong);
+            font-size: 0.85rem;
+            padding: 8px 16px;
+        }
+        .btn-danger:hover {
+            background: #fef5f5;
+            border-color: #c0392b;
+            color: #c0392b;
+        }
+
+        .btn-sm {
+            font-size: 0.8rem;
+            padding: 7px 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+        }
+        .modal-overlay.hidden {
+            display: none;
+        }
+        .modal-dialog {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 28px 26px;
+            max-width: 620px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modalSlideIn 0.3s ease-out;
+            position: relative;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: #f0f2f5;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #888;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+            box-shadow: none;
+        }
+        .modal-close-btn:hover {
+            background: #e0e2e6;
+            color: #333;
+        }
+        .modal-dialog h2 {
+            margin: 0 0 10px;
+            font-size: 1.5rem;
+            color: var(--purple);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-dialog .flow-section {
+            background: #f8f9fc;
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            margin: 14px 0;
+            border-left: 4px solid var(--purple);
+        }
+        .modal-dialog .flow-section.professor {
+            border-left-color: var(--green);
+        }
+        .modal-dialog .flow-section h3 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .modal-dialog ol {
+            padding-left: 18px;
+            margin: 0;
+            line-height: 1.7;
+            font-size: 0.93rem;
+        }
+        .modal-dialog .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            box-sizing: border-box;
+            border: 2px solid #e0e4ec;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: var(--font);
+            background: #fafbfc;
+            transition: border var(--transition);
+        }
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--purple);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.08);
+        }
+
+        .options-grid-edit {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .option-edit {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fc;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 2px solid transparent;
+            transition: border var(--transition);
+        }
+        .option-edit:has(input[type="radio"]:checked) {
+            border-color: var(--purple);
+            background: #f3f0ff;
+        }
+        .option-edit input[type="radio"] {
+            transform: scale(1.3);
+            cursor: pointer;
+            accent-color: var(--purple);
+        }
+        .option-edit input[type="text"] {
+            flex-grow: 1;
+            border: 1px solid #e0e4ec;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: #fff;
+        }
+
+        .question-item {
+            background: #fff;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border-radius: var(--radius-sm);
+            border-left: 5px solid var(--blue);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .question-item .q-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        .question-item .correct-badge {
+            display: inline-block;
+            background: #e6f9ed;
+            color: #1a7a3a;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        #game-view {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: white;
+            padding: 14px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .question-display {
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            font-weight: 700;
+            text-align: center;
+            background: white;
+            padding: 36px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 130px;
+            word-break: break-word;
+        }
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            flex-grow: 1;
+            min-height: 280px;
+        }
+        .answer-btn {
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            font-weight: 700;
+            border: 3px solid transparent;
+            border-radius: var(--radius);
+            cursor: pointer;
+            color: white;
+            transition: all var(--transition);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.12);
+            padding: 18px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            word-break: break-word;
+            position: relative;
+            top: 0;
+        }
+        .answer-btn:active {
+            top: 3px;
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
+        }
+        .answer-btn:disabled {
+            cursor: default;
+            opacity: 0.55;
+            box-shadow: none;
+            top: 0;
+        }
+        .ans-0 {
+            background-color: var(--red);
+        }
+        .ans-1 {
+            background-color: var(--blue);
+        }
+        .ans-2 {
+            background-color: var(--orange);
+        }
+        .ans-3 {
+            background-color: var(--green);
+        }
+
+        .btn-correct {
+            background-color: var(--correct) !important;
+            border-color: #1e7e34 !important;
+            opacity: 1 !important;
+            transform: scale(1.03);
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.5) !important;
+            animation: pulse 0.6s ease-in-out;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1.03);
+            }
+            50% {
+                transform: scale(1.07);
+            }
+        }
+        .btn-wrong {
+            background-color: var(--wrong) !important;
+            opacity: 1 !important;
+            border-color: #a93226 !important;
+            box-shadow: 0 0 12px rgba(231, 76, 60, 0.4) !important;
+        }
+
+        .feedback-box {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.05rem;
+            border: 2px solid var(--blue);
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results {
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .results h1 {
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            color: var(--blue);
+        }
+        .score-ring {
+            display: inline-block;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #e6f9ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--green);
+            margin: 16px 0;
+            box-shadow: var(--shadow-md);
+        }
+        .mistakes-list {
+            text-align: left;
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-top: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .mistake-item {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+        }
+        .mistake-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-2 {
+            margin-top: 16px;
+        }
+        .mb-2 {
+            margin-bottom: 16px;
+        }
+        .badge {
+            background: var(--purple);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .error-msg {
+            color: var(--wrong);
+            font-weight: 600;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .success-msg {
+            color: #1a7a3a;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+        .upload-btn {
+            background: var(--green);
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 14px 28px;
+            border-radius: 999px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(42, 157, 143, 0.35);
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            width: auto;
+            max-width: 300px;
+            justify-content: center;
+        }
+        .upload-btn:hover {
+            background: #238b7e;
+            box-shadow: 0 6px 20px rgba(42, 157, 143, 0.45);
+        }
+        .file-name {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            word-break: break-all;
+        }
+        .file-input-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .shuffle-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #856404;
+        }
+
+        @media (max-width: 600px) {
+            .main-container {
+                padding: 12px 10px 30px;
+                gap: 14px;
+            }
+            .card {
+                padding: 18px 14px;
+            }
+            .options-grid-edit {
+                grid-template-columns: 1fr;
+            }
+            .answers-grid {
+                gap: 10px;
+                min-height: 240px;
+            }
+            .answer-btn {
+                font-size: 1rem;
+                padding: 14px 10px;
+            }
+            .question-display {
+                font-size: 1.2rem;
+                padding: 24px 16px;
+            }
+            .top-bar {
+                font-size: 0.9rem;
+                padding: 10px 14px;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            button {
+                font-size: 0.85rem;
+                padding: 10px 16px;
+            }
+            .upload-btn {
+                max-width: 260px;
+                font-size: 0.9rem;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <h1>🎓 Quiz Cooperatiu</h1>
+        <p class="subtitle">Aprèn, crea, comparteix i fusiona el Kahoot de tota la classe</p>
+    </header>
+
+    <div id="menu-view" class="main-container">
+        <div class="card text-center">
+            <div class="card-header" style="justify-content:center;">
+                <span class="icon">🚀</span> Què vols fer?
+            </div>
+            <div class="btn-group">
+                <button class="btn-success" onclick="startGame()">▶ Jugar al Kahoot</button>
+                <button class="btn-outline" onclick="showEditor()">✏️ Dissenyar Preguntes</button>
+            </div>
+            <button class="btn-primary mt-2" onclick="openModal()" style="width:100%;max-width:420px;margin:12px auto 0;">
+                💡 Com funciona el projecte cooperatiu?
+            </button>
+        </div>
+
+        <div class="card fusion-panel">
+            <div class="card-header">
+                <span class="icon">🔀</span> Fusionador de Quizzes (Mode Professor)
+            </div>
+            <p style="font-size:0.9rem;color:var(--text-light);margin-bottom:12px;">
+                Selecciona diversos fitxers JSON i els combinarà en un únic banc de preguntes.
+            </p>
+            <div class="file-upload-zone" style="background: #f6f4ff; padding: 18px 16px; border-radius: var(--radius-sm); border: 2px dashed #d5c8f0; text-align: center;">
+                <strong style="display:block; margin-bottom:10px;">📂 Pujada múltiple de fitxers</strong>
+                <input type="file" id="bulk-import-files" class="file-input-hidden" multiple onchange="handleBulkImport(event)">
+                <label for="bulk-import-files" class="upload-btn">
+                    <span>📁 Triar fitxers</span>
+                </label>
+                <span class="file-name" id="file-chosen-text">Cap fitxer seleccionat</span>
+            </div>
+            <div id="merge-status" style="margin:12px 0;font-weight:600;"></div>
+            <button id="btn-download-merged" onclick="exportQuestions()" class="btn-success hidden" style="width:100%;">
+                📥 Descarregar Tot Fusionat (.json)
+            </button>
+        </div>
+
+        <div class="card text-center">
+            <div class="card-header" style="justify-content:center;">
+                <span class="icon">💾</span> Gestió de dades
+            </div>
+            <div class="btn-group">
+                <button class="btn-outline" onclick="exportQuestions()">📥 Exportar el meu banc</button>
+                <button class="btn-danger" onclick="clearDatabase()">🗑 Esborrar tot el banc</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="instructions-modal" class="modal-overlay hidden">
+        <div class="modal-dialog">
+            <button class="modal-close-btn" onclick="closeModal()" aria-label="Tancar">&times;</button>
+            <h2>🚀 Projecte Cooperatiu: Creem el Kahoot de la Classe</h2>
+            <p style="margin:6px 0 16px;color:var(--text-light);">
+                Cada alumne dissenya preguntes, les descarrega, i el professor les fusiona totes per obtenir un únic joc de repàs col·lectiu.
+            </p>
+            <div class="flow-section">
+                <h3>👩‍🎓 Per a l'alumne</h3>
+                <ol>
+                    <li>Fes clic a <strong>✏️ Dissenyar Preguntes</strong>.</li>
+                    <li>Crea preguntes amb 4 opcions, marca la correcta i afegeix explicació.</li>
+                    <li>Torna a l'inici i prem <strong>📥 Exportar el meu banc</strong>.</li>
+                    <li>Es descarregarà un fitxer <span class="highlight">.json</span>. <strong>Conserva'l</strong> i envia'l al professor.</li>
+                </ol>
+            </div>
+            <div class="flow-section professor">
+                <h3>👨‍🏫 Per al professor</h3>
+                <ol>
+                    <li>Recull tots els fitxers .json dels alumnes.</li>
+                    <li>Ves al <strong>Fusionador de Quizzes</strong> i clica <strong>📁 Triar fitxers</strong>.</li>
+                    <li>Selecciona'ls tots alhora (funciona encara que tinguin noms diferents).</li>
+                    <li>Prem <strong>📥 Descarregar Tot Fusionat</strong> per obtenir el fitxer final.</li>
+                    <li>Ja pots jugar amb totes les preguntes de la classe!</li>
+                </ol>
+            </div>
+            <button onclick="closeModal()" class="btn-primary" style="width:100%;margin-top:14px;">👍 Entesos!</button>
+        </div>
+    </div>
+
+    <div id="editor-view" class="main-container hidden">
+        <div class="card">
+            <div class="card-header"><span class="icon">✏️</span> Nova Pregunta</div>
+            <button class="btn-outline btn-sm mb-2" onclick="showMenu()">⬅ Tornar a l'Inici</button>
+            <div class="form-group"><label>📝 Enunciat:</label><input type="text" id="q-text" placeholder="Ex: Quina fórmula defineix la llei d'Ohm?"></div>
+            <div class="options-grid-edit">
+                <div class="option-edit"><input type="radio" name="correct-ans" value="0" checked><input type="text" id="q-opt0" placeholder="Opció A (Vermell)"></div>
+                <div class="option-edit"><input type="radio" name="correct-ans" value="1"><input type="text" id="q-opt1" placeholder="Opció B (Blau)"></div>
+                <div class="option-edit"><input type="radio" name="correct-ans" value="2"><input type="text" id="q-opt2" placeholder="Opció C (Taronja)"></div>
+                <div class="option-edit"><input type="radio" name="correct-ans" value="3"><input type="text" id="q-opt3" placeholder="Opció D (Verd)"></div>
+            </div>
+            <div class="form-group"><label>💡 Explicació:</label><input type="text" id="q-explanation" placeholder="Ex: V=I·R..."></div>
+            <button onclick="addQuestion()" style="background:var(--blue);color:#fff;width:100%;padding:13px;">➕ Desar pregunta</button>
+        </div>
+        <div id="q-list" class="mt-2"></div>
+    </div>
+
+    <div id="game-view" class="hidden">
+        <div class="top-bar">
+            <span id="game-progress">Pregunta 1/10</span>
+            <span id="game-score">⭐ Encerts: 0</span>
+        </div>
+        <div class="shuffle-notice" id="shuffle-notice">
+            🔀 Preguntes i respostes en ordre aleatori per garantir la concentració individual.
+        </div>
+        <div class="question-display" id="game-question">Carregant...</div>
+        <div class="answers-grid" id="answers-container">
+            <button class="answer-btn ans-0" onclick="processAnswer(0)" id="btn-ans-0"></button>
+            <button class="answer-btn ans-1" onclick="processAnswer(1)" id="btn-ans-1"></button>
+            <button class="answer-btn ans-2" onclick="processAnswer(2)" id="btn-ans-2"></button>
+            <button class="answer-btn ans-3" onclick="processAnswer(3)" id="btn-ans-3"></button>
+        </div>
+        <div id="feedback-section" class="feedback-box hidden">
+            <p id="feedback-text"></p>
+            <button onclick="nextQuestion()" style="background:#333;color:#fff;font-size:1.1rem;padding:13px 28px;border-radius:999px;margin-top:8px;">Següent ➔</button>
+        </div>
+    </div>
+
+    <div id="results-view" class="main-container hidden results">
+        <div class="card text-center">
+            <h1>📊 Anàlisi del Repàs</h1>
+            <div class="score-ring" id="score-percent">0%</div>
+            <p id="final-score-text" style="font-size:1.3rem;font-weight:600;"></p>
+        </div>
+        <div id="mistakes-container" class="hidden mistakes-list">
+            <h3>🔍 Conceptes pendents:</h3>
+            <div id="mistakes-list"></div>
+        </div>
+        <button onclick="showMenu()" class="btn-primary" style="font-size:1.1rem;padding:14px 32px;margin-top:20px;">🏠 Tornar a l'inici</button>
+    </div>
+
+    <script>
+        let questions = JSON.parse(localStorage.getItem('quiz_coop_v2')) || [];
+        // Variables per al joc aleatori
+        let gameQuestions = [];            // còpia barrejada de preguntes
+        let currentQuestion = null;       // pregunta actual (ja té les opcions reordenades)
+        let currentCorrectIndex = 0;      // índex correcte dins de les opcions reordenades
+        let currentQIndex = 0;
+        let score = 0;
+        let isAnswering = false;
+        let mistakes = [];
+
+        // Funció per barrejar array (Fisher-Yates)
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Barreja les opcions d'una pregunta i retorna { options, correctIndex }
+        function shuffleQuestionOptions(q) {
+            const indices = [0, 1, 2, 3];
+            const shuffledIndices = shuffleArray([...indices]);
+            const newOptions = shuffledIndices.map(i => q.options[i]);
+            const newCorrectIndex = shuffledIndices.indexOf(q.correct);
+            return {
+                options: newOptions,
+                correctIndex: newCorrectIndex,
+                text: q.text,
+                explanation: q.explanation
+            };
+        }
+
+        document.getElementById('bulk-import-files').addEventListener('change', function(e) {
+            const fileNames = Array.from(e.target.files).map(f => f.name).join(', ');
+            document.getElementById('file-chosen-text').textContent = fileNames || 'Cap fitxer seleccionat';
+        });
+
+        function openModal() { document.getElementById('instructions-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('instructions-modal').classList.add('hidden'); }
+
+        function hideAll() {
+            document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('editor-view').classList.add('hidden');
+            document.getElementById('game-view').classList.add('hidden');
+            document.getElementById('results-view').classList.add('hidden');
+        }
+
+        function showMenu() { hideAll(); document.getElementById('menu-view').classList.remove('hidden'); updateMergeUI(); }
+        function showEditor() { hideAll(); document.getElementById('editor-view').classList.remove('hidden'); renderQuestionsList(); }
+        function saveToLocal() { localStorage.setItem('quiz_coop_v2', JSON.stringify(questions)); }
+
+        function clearDatabase() {
+            if (confirm('Esborrar totes les preguntes? Aquesta acció no es pot desfer.')) {
+                questions = []; saveToLocal(); showMenu();
+                document.getElementById('merge-status').innerHTML = '';
+                document.getElementById('btn-download-merged').classList.add('hidden');
+            }
+        }
+
+        function updateMergeUI() {
+            const statusDiv = document.getElementById('merge-status');
+            if (questions.length > 0) {
+                statusDiv.innerHTML = `<span class="success-msg">✅ Banc actual: <strong>${questions.length}</strong> preguntes.</span>`;
+                document.getElementById('btn-download-merged').classList.remove('hidden');
+            } else {
+                statusDiv.innerHTML = `<span class="error-msg">⚠️ Banc buit. Puja fitxers o crea preguntes.</span>`;
+                document.getElementById('btn-download-merged').classList.add('hidden');
+            }
+        }
+
+        function isValidQuestion(q) {
+            if (!q || typeof q !== 'object') return false;
+            if (typeof q.text !== 'string' || q.text.trim() === '') return false;
+            if (!Array.isArray(q.options) || q.options.length !== 4) return false;
+            if (!q.options.every(opt => typeof opt === 'string' && opt.trim() !== '')) return false;
+            if (typeof q.correct !== 'number' || q.correct < 0 || q.correct > 3) return false;
+            if (typeof q.explanation !== 'string') q.explanation = '';
+            return true;
+        }
+
+        function extractQuestionsArray(parsedData) {
+            if (Array.isArray(parsedData)) {
+                const validArr = parsedData.filter(q => isValidQuestion(q));
+                return validArr.length > 0 ? validArr : null;
+            }
+            if (parsedData && typeof parsedData === 'object' && Array.isArray(parsedData.questions)) {
+                const validArr = parsedData.questions.filter(q => isValidQuestion(q));
+                return validArr.length > 0 ? validArr : null;
+            }
+            return null;
+        }
+
+        function handleBulkImport(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const statusDiv = document.getElementById('merge-status');
+            statusDiv.innerHTML = '<span style="color:#666;">⏳ Processant fitxers...</span>';
+
+            let validFiles = 0;
+            let invalidFiles = [];
+            let totalQuestionsAdded = 0;
+            let filesProcessed = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        let content = e.target.result;
+                        let cleanText = content.trim().replace(/[\u200B-\u200D\uFEFF]/g, '');
+                        if (cleanText === '') throw new Error('Fitxer buit');
+                        const parsed = JSON.parse(cleanText);
+                        const questionsArray = extractQuestionsArray(parsed);
+                        if (questionsArray && questionsArray.length > 0) {
+                            questions = questions.concat(questionsArray);
+                            totalQuestionsAdded += questionsArray.length;
+                            validFiles++;
+                        } else {
+                            invalidFiles.push(`${file.name} (format no reconegut)`);
+                        }
+                    } catch (err) {
+                        invalidFiles.push(`${file.name} (JSON invàlid: ${err.message})`);
+                    }
+                    filesProcessed++;
+                    if (filesProcessed === files.length) {
+                        saveToLocal();
+                        let msg = '';
+                        if (validFiles > 0) msg += `<span class="success-msg">✅ Importades ${totalQuestionsAdded} preguntes de ${validFiles} fitxers.</span><br>`;
+                        if (invalidFiles.length > 0) msg += `<span class="error-msg">❌ Ignorats: ${invalidFiles.join(', ')}</span>`;
+                        statusDiv.innerHTML = msg || '<span class="error-msg">⚠️ Cap pregunta vàlida trobada.</span>';
+                        updateMergeUI();
+                        document.getElementById('bulk-import-files').value = '';
+                        document.getElementById('file-chosen-text').textContent = 'Cap fitxer seleccionat';
+                    }
+                };
+                reader.onerror = function() {
+                    invalidFiles.push(`${file.name} (error lectura)`);
+                    filesProcessed++;
+                    if (filesProcessed === files.length) {
+                        statusDiv.innerHTML = `<span class="error-msg">❌ Error de lectura: ${invalidFiles.join(', ')}</span>`;
+                        updateMergeUI();
+                        document.getElementById('bulk-import-files').value = '';
+                        document.getElementById('file-chosen-text').textContent = 'Cap fitxer seleccionat';
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function exportQuestions() {
+            if (questions.length === 0) return alert('No hi ha preguntes per exportar.');
+            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(questions, null, 2));
+            const a = document.createElement('a');
+            a.href = dataStr;
+            a.download = 'kahoot_classe_unificat.json';
+            document.body.appendChild(a); a.click(); a.remove();
+        }
+
+        function addQuestion() {
+            const text = document.getElementById('q-text').value.trim();
+            const opt0 = document.getElementById('q-opt0').value.trim();
+            const opt1 = document.getElementById('q-opt1').value.trim();
+            const opt2 = document.getElementById('q-opt2').value.trim();
+            const opt3 = document.getElementById('q-opt3').value.trim();
+            const explanation = document.getElementById('q-explanation').value.trim();
+            const correct = parseInt(document.querySelector('input[name="correct-ans"]:checked').value);
+            if (!text || !opt0 || !opt1 || !opt2 || !opt3) return alert('Omple totes les opcions.');
+            if (!explanation) return alert('L\'explicació és obligatòria.');
+            questions.push({ text, options: [opt0, opt1, opt2, opt3], correct, explanation });
+            saveToLocal(); renderQuestionsList();
+            document.getElementById('q-text').value = '';
+            document.getElementById('q-opt0').value = '';
+            document.getElementById('q-opt1').value = '';
+            document.getElementById('q-opt2').value = '';
+            document.getElementById('q-opt3').value = '';
+            document.getElementById('q-explanation').value = '';
+            document.querySelector('input[name="correct-ans"][value="0"]').checked = true;
+        }
+
+        function deleteQuestion(index) {
+            if (confirm('Esborrar pregunta?')) { questions.splice(index, 1); saveToLocal(); renderQuestionsList(); }
+        }
+
+        function renderQuestionsList() {
+            const listDiv = document.getElementById('q-list');
+            if (!listDiv) return;
+            listDiv.innerHTML = `<div class="card-header"><span class="icon">📋</span> Preguntes desades (${questions.length})</div>`;
+            if (questions.length === 0) {
+                listDiv.innerHTML += '<p style="color:var(--text-light);text-align:center;padding:20px;">Encara no hi ha preguntes.</p>';
+                return;
+            }
+            questions.forEach((q, index) => {
+                const item = document.createElement('div');
+                item.className = 'question-item';
+                item.innerHTML = `
+                    <div class="q-info"><strong>${index+1}. ${q.text}</strong><br><span class="correct-badge">✓ ${q.options[q.correct]}</span></div>
+                    <button class="btn-danger btn-sm" onclick="deleteQuestion(${index})">🗑</button>`;
+                listDiv.appendChild(item);
+            });
+        }
+
+        function startGame() {
+            if (questions.length < 2) return alert('Calen almenys 2 preguntes per jugar.');
+            // Crear còpia barrejada de preguntes
+            gameQuestions = shuffleArray([...questions]);
+            currentQIndex = 0;
+            score = 0;
+            mistakes = [];
+            hideAll();
+            document.getElementById('game-view').classList.remove('hidden');
+            loadQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function loadQuestion() {
+            isAnswering = true;
+            document.getElementById('feedback-section').classList.add('hidden');
+
+            // Agafar la pregunta actual del array barrejat
+            const originalQ = gameQuestions[currentQIndex];
+            // Barrejar les opcions per a aquesta pregunta
+            const shuffled = shuffleQuestionOptions(originalQ);
+            currentQuestion = shuffled;  // desa l'objecte amb opcions reordenades
+            currentCorrectIndex = shuffled.correctIndex;
+
+            document.getElementById('game-progress').innerText = `Pregunta ${currentQIndex+1} de ${gameQuestions.length}`;
+            document.getElementById('game-score').innerText = `⭐ Encerts: ${score}`;
+            document.getElementById('game-question').innerText = shuffled.text;
+
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`btn-ans-${i}`);
+                btn.innerText = shuffled.options[i];
+                btn.className = `answer-btn ans-${i}`;
+                btn.disabled = false;
+            }
+        }
+
+        function processAnswer(selectedIndex) {
+            if (!isAnswering) return;
+            isAnswering = false;
+
+            const correctIndex = currentCorrectIndex;
+
+            for (let i = 0; i < 4; i++) document.getElementById(`btn-ans-${i}`).disabled = true;
+            document.getElementById(`btn-ans-${correctIndex}`).classList.add('btn-correct');
+
+            let feedbackMsg = '';
+            if (selectedIndex === correctIndex) {
+                score++;
+                feedbackMsg = '<strong>✨ Correcte!</strong><br>';
+            } else {
+                document.getElementById(`btn-ans-${selectedIndex}`).classList.add('btn-wrong');
+                feedbackMsg = `<strong>❌ Incorrecte.</strong> La resposta correcta era: <em>${currentQuestion.options[correctIndex]}</em>.<br>`;
+                mistakes.push({
+                    question: currentQuestion.text,
+                    userAnswer: currentQuestion.options[selectedIndex],
+                    correctAnswer: currentQuestion.options[correctIndex]
+                });
+            }
+
+            if (currentQuestion.explanation) {
+                feedbackMsg += `<br>💡 <strong>Explicació:</strong> ${currentQuestion.explanation}`;
+            }
+
+            document.getElementById('feedback-text').innerHTML = feedbackMsg;
+            document.getElementById('feedback-section').classList.remove('hidden');
+            document.getElementById('feedback-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < gameQuestions.length) {
+                loadQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            hideAll();
+            document.getElementById('results-view').classList.remove('hidden');
+            const percent = Math.round((score / gameQuestions.length) * 100);
+            document.getElementById('score-percent').innerText = percent + '%';
+            document.getElementById('final-score-text').innerHTML = `Has encertat <strong>${score}</strong> de <strong>${gameQuestions.length}</strong>`;
+            const mistakesContainer = document.getElementById('mistakes-container');
+            const mistakesList = document.getElementById('mistakes-list');
+            if (mistakes.length > 0) {
+                mistakesContainer.classList.remove('hidden');
+                mistakesList.innerHTML = '';
+                mistakes.forEach(m => {
+                    mistakesList.innerHTML += `<div class="mistake-item"><strong>❓ ${m.question}</strong><br>❌ Triada: ${m.userAnswer}<br>✓ Solució: ${m.correctAnswer}</div>`;
+                });
+            } else {
+                mistakesContainer.classList.add('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+        document.getElementById('instructions-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+        window.onload = function() {
+            updateMergeUI();
+            renderQuestionsList();
+        };
+    </script>
+</body>
+</html>
+
