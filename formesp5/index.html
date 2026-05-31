@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de formes amb p5.js (coordenades absolutes)</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+    }
+
+    h1, h2, h3 {
+      letter-spacing: -0.02em;
+    }
+
+    #canvas-shell {
+      position: relative;
+    }
+
+    #canvas-container canvas {
+      border: 1px solid #ced4da;
+      border-radius: 10px;
+      background: white;
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: crosshair;
+      touch-action: none;
+      -ms-touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .panel-box {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,.06);
+    }
+
+    .shape-item {
+      border: 1px solid #dee2e6;
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin-bottom: 0.75rem;
+      background: #fff;
+    }
+
+    .shape-item.active {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.2rem rgba(13,110,253,.10);
+    }
+
+    .shape-color-preview {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid #adb5bd;
+      vertical-align: middle;
+      margin-right: 0.4rem;
+    }
+
+    pre {
+      background: #1e1e1e;
+      color: #dcdcdc;
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 260px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .small-code {
+      font-family: Consolas, monospace;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+
+    .help-box {
+      background: #f1f8ff;
+      border-left: 4px solid #0d6efd;
+      border-radius: 8px;
+      padding: 0.9rem;
+    }
+
+    .badge-soft {
+      background: #e9ecef;
+      color: #495057;
+      font-weight: 500;
+      padding: 0.4rem 0.55rem;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+
+    .hint-line {
+      font-size: 0.92rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .picked-color-preview {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid #999;
+      vertical-align: middle;
+    }
+
+    .toolbar-help {
+      font-size: 0.92rem;
+      color: #6c757d;
+      margin-top: 0.5rem;
+    }
+
+    .coords-box {
+      font-family: Consolas, monospace;
+      font-size: 0.9rem;
+      color: #495057;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .canvas-overlay-controls {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .canvas-overlay-controls .overlay-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      pointer-events: auto;
+    }
+
+    .overlay-btn {
+      border: none;
+      background: rgba(255,255,255,0.94);
+      border: 1px solid #d6dce2;
+      border-radius: 10px;
+      min-width: 46px;
+      min-height: 46px;
+      box-shadow: 0 0.15rem 0.5rem rgba(0,0,0,.12);
+      color: #243447;
+      font-weight: 700;
+    }
+
+    .overlay-btn:hover {
+      background: #fff;
+    }
+
+    .zoom-badge {
+      pointer-events: auto;
+      background: rgba(255,255,255,0.94);
+      border: 1px solid #d6dce2;
+      border-radius: 999px;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 0.15rem 0.5rem rgba(0,0,0,.12);
+      align-self: flex-end;
+    }
+
+    .world-status {
+      font-size: 0.88rem;
+      color: #495057;
+    }
+
+    .project-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Millora tàctil per als botons de formes desades */
+    #shapesList button,
+    #shapesList .shape-item {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (max-width: 768px) {
+      .overlay-btn {
+        min-width: 50px;
+        min-height: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container py-4">
+    <div class="row g-4">
+      <!-- COLUMNA PRINCIPAL -->
+      <div class="col-xl-8">
+        <div class="mb-3">
+          <h1 class="mb-2">Generador de formes amb p5.js (coordenades absolutes)</h1>
+          <p class="text-muted mb-0">
+            Editor tàctil amb zoom, pan, exportació de codi p5.js amb coordenades absolutes i projectes JSON per desar i carregar tot el treball.
+          </p>
+        </div>
+
+        <div class="panel-box mb-3">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label for="imageUpload" class="form-label">Imatge de fons (opcional)</label>
+              <input type="file" id="imageUpload" class="form-control" accept="image/*">
+            </div>
+
+            <div class="col-md-4">
+              <label for="curveType" class="form-label">Tipus de dibuix actual</label>
+              <select id="curveType" class="form-select">
+                <option value="vertex">Vertex</option>
+                <option value="curveVertex">Curve Vertex</option>
+                <option value="bezierVertex">Bezier Vertex</option>
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label for="pointColor" class="form-label">Color punts</label>
+              <input type="color" id="pointColor" class="form-control form-control-color" value="#ff0000">
+            </div>
+
+            <div class="col-md-2">
+              <label for="pointSize" class="form-label">Mida punts</label>
+              <input type="range" id="pointSize" class="form-range" min="6" max="28" value="11">
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" id="newShape" class="btn btn-primary">
+              <i class="fa-solid fa-plus"></i> Nova forma
+            </button>
+
+            <button type="button" id="undoPoint" class="btn btn-outline-secondary">
+              <i class="fa-solid fa-rotate-left"></i> Desfer últim punt
+            </button>
+
+            <button type="button" id="deleteSelectedPoint" class="btn btn-outline-warning">
+              <i class="fa-solid fa-location-xmark"></i> Esborra punt seleccionat
+            </button>
+
+            <button type="button" id="clearPoints" class="btn btn-outline-danger">
+              <i class="fa-solid fa-eraser"></i> Esborrar punts actuals
+            </button>
+
+            <button type="button" id="pickColorFromImage" class="btn btn-outline-info">
+              <i class="fa-solid fa-eye-dropper"></i> Agafa color de la imatge
+            </button>
+
+            <button type="button" id="fitViewBtn" class="btn btn-outline-dark">
+              <i class="fa-solid fa-expand"></i> Ajusta vista
+            </button>
+
+            <button type="button" id="openSaveModal" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#shapeModal">
+              <i class="fa-solid fa-floppy-disk"></i> Desar / actualitzar forma
+            </button>
+          </div>
+
+          <hr>
+
+          <div class="project-actions">
+            <button type="button" id="exportProjectJsonBtn" class="btn btn-outline-primary">
+              <i class="fa-solid fa-file-arrow-down"></i> Exporta projecte JSON
+            </button>
+
+            <button type="button" id="importProjectJsonBtn" class="btn btn-outline-primary">
+              <i class="fa-solid fa-file-arrow-up"></i> Importa projecte JSON
+            </button>
+
+            <button type="button" id="saveBrowserProjectBtn" class="btn btn-outline-secondary">
+              <i class="fa-solid fa-hard-drive"></i> Desa al navegador
+            </button>
+
+            <button type="button" id="loadBrowserProjectBtn" class="btn btn-outline-secondary">
+              <i class="fa-solid fa-clock-rotate-left"></i> Carrega del navegador
+            </button>
+          </div>
+
+          <input type="file" id="importProjectJsonInput" class="d-none" accept=".json,application/json">
+
+          <div class="toolbar-help">
+            <strong>Mòbil:</strong> toca un punt per moure’l · toc curt sobre buit = nou punt · arrossegar sobre buit = desplaça la vista · 2 dits = zoom + pan.
+            <br>
+            <strong>Exportació:</strong> cada forma s’exporta com a bloc amb comentari del nom, <code>fill(...)</code> i coordenades absolutes.
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="showPointLabels" checked>
+                <label class="form-check-label" for="showPointLabels">Mostrar número dels punts</label>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="showSavedShapes" checked>
+                <label class="form-check-label" for="showSavedShapes">Mostrar formes desades al llenç</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 d-flex flex-wrap gap-2">
+            <span class="badge-soft">Punts actuals: <span id="currentPointCount">0</span></span>
+            <span class="badge-soft">Formes desades: <span id="shapeCount">0</span></span>
+            <span class="badge-soft">Punt seleccionat: <span id="selectedPointInfo">cap</span></span>
+            <span class="badge-soft">Mode: <span id="editingStatus">Nova forma</span></span>
+            <span class="badge-soft">Pipeta: <span id="pipetteStatus">desactivada</span></span>
+            <span class="badge-soft">Zoom: <span id="zoomStatus">100%</span></span>
+            <span class="badge-soft">
+              Color triat:
+              <span id="pickedColorPreview" class="picked-color-preview" style="background:#00aaff;"></span>
+            </span>
+          </div>
+
+          <div class="mt-3 coords-box">
+            Coordenades del punt seleccionat:
+            <span id="selectedPointCoords">cap</span>
+          </div>
+
+          <div class="mt-2 world-status">
+            Vista: <span id="viewDebug">—</span>
+          </div>
+        </div>
+
+        <div id="canvas-shell" class="mb-3">
+          <div id="canvas-container"></div>
+
+          <div class="canvas-overlay-controls">
+            <div class="zoom-badge" id="zoomBadge">100%</div>
+
+            <div class="overlay-group">
+              <button type="button" id="zoomInBtn" class="overlay-btn" aria-label="Fer zoom més gran">+</button>
+              <button type="button" id="zoomOutBtn" class="overlay-btn" aria-label="Fer zoom més petit">−</button>
+              <button type="button" id="resetViewBtn" class="overlay-btn" aria-label="Ajustar vista">
+                <i class="fa-solid fa-expand"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-box mb-3">
+          <h2 class="h6">Com s’utilitza?</h2>
+          <ol class="mb-0">
+            <li><strong>Toc curt</strong> sobre una zona buida → afegeix un punt.</li>
+            <li><strong>Toca un punt i arrossega’l</strong> → mou el punt.</li>
+            <li><strong>Arrossega sobre buit</strong> → desplaça la vista.</li>
+            <li><strong>Fes pinça amb dos dits</strong> → zoom i desplaçament.</li>
+            <li>Activa la <strong>pipeta</strong> si vols captar el color d’una zona de la imatge.</li>
+            <li>Quan desis, el codi exportat tindrà <strong>comentari + fill + vèrtexs absoluts</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="panel-box">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0">Codi exportat</h2>
+            <div class="d-flex gap-2">
+              <button type="button" id="refreshExport" class="btn btn-outline-primary btn-sm">
+                <i class="fa-solid fa-rotate"></i> Regenera
+              </button>
+              <button type="button" id="copyCode" class="btn btn-success btn-sm">
+                <i class="fa-solid fa-copy"></i> Copiar
+              </button>
+            </div>
+          </div>
+          <pre id="generatedCode">// Encara no hi ha cap forma desada.</pre>
+        </div>
+      </div>
+
+      <!-- COLUMNA LATERAL -->
+      <div class="col-xl-4">
+        <div class="panel-box mb-3">
+          <h2 class="h5">Llegenda visual</h2>
+          <div class="hint-line">
+            <span class="legend-dot" style="background:#ff0000;"></span>
+            Punt normal
+          </div>
+          <div class="hint-line">
+            <span class="legend-dot" style="background:#ffc107;"></span>
+            Punt sota el punter
+          </div>
+          <div class="hint-line">
+            <span class="legend-dot" style="background:#0d6efd;"></span>
+            Punt seleccionat
+          </div>
+          <div class="hint-line mb-0">
+            <span class="legend-dot" style="background:#198754;"></span>
+            Punt arrossegat
+          </div>
+        </div>
+
+        <div class="panel-box mb-3">
+          <h2 class="h5">Formes desades</h2>
+          <p class="text-muted small">
+            Cada forma s’exporta com un bloc independent amb comentari, color i coordenades absolutes.
+          </p>
+          <div id="shapesList">
+            <div class="text-muted small">Encara no hi ha cap forma desada.</div>
+          </div>
+        </div>
+
+        <div class="panel-box mb-3">
+          <h2 class="h5">Ajuda didàctica</h2>
+          <p class="mb-2"><strong>Exemple d’exportació:</strong></p>
+
+<pre class="mb-0">// Ull esquerre
+fill(255, 120, 80);
+beginShape();
+vertex(120, 80);
+vertex(140, 92);
+vertex(135, 110);
+endShape(CLOSE);</pre>
+        </div>
+
+        <div class="panel-box">
+          <h2 class="h5">Nota sobre bezierVertex</h2>
+          <p class="small mb-0">
+            El primer punt és el punt inicial. Després, els punts es llegeixen en grups de 3:
+            <strong>control 1, control 2 i punt final</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL DESAR / EDITAR FORMA -->
+  <div class="modal fade" id="shapeModal" tabindex="-1" aria-labelledby="shapeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="shapeModalLabel">Desar o editar una forma</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tanca"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="shapeName" class="form-label">Nom de l’àrea <span class="text-danger">*</span></label>
+            <input type="text" id="shapeName" class="form-control" placeholder="Ex.: ull esquerre" required>
+            <div class="form-text">
+              Aquest nom és obligatori i sortirà al codi com a comentari exactament tal com l’escrigui l’usuari.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="fillColor" class="form-label">Color de farciment</label>
+            <input type="color" id="fillColor" class="form-control form-control-color" value="#00aaff">
+            <div class="form-text">
+              Pots escollir el color manualment o agafar-lo de la imatge amb la pipeta.
+            </div>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="useFill" checked>
+            <label class="form-check-label" for="useFill">Aplicar farciment</label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="closeShape" checked>
+            <label class="form-check-label" for="closeShape">Tancar la forma amb <code>endShape(CLOSE)</code></label>
+          </div>
+
+          <div class="alert alert-info small mb-0">
+            Has d’escriure obligatòriament un nom per poder desar la forma.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel·la</button>
+          <button type="button" id="saveShapeConfirm" class="btn btn-primary">
+            Desa la forma
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let img;
+    let imgDataUrl = null;
+    let canvas;
+
+    // Dimensions del món
+    let worldWidth = 900;
+    let worldHeight = 550;
+
+    // Forma actual en edició
+    let currentPoints = [];
+    let currentCurveType = 'vertex';
+
+    // Formes desades
+    let shapes = [];
+
+    // Índex de la forma editada
+    let editingShapeIndex = null;
+
+    // Estil punts
+    let pointColor = '#ff0000';
+    let pointSize = 11;
+
+    // Selecció
+    let draggedPointIndex = null;
+    let selectedPointIndex = null;
+    let hoverPointIndex = null;
+    const pointHitRadius = 16;
+
+    // Pipeta
+    let colorPickMode = false;
+    let lastPickedColor = '#00aaff';
+
+    // Vista
+    let viewScale = 1;
+    let viewOffsetX = 0;
+    let viewOffsetY = 0;
+    const MIN_ZOOM = 0.15;
+    const MAX_ZOOM = 12;
+
+    // Pointer events premium
+    const activePointers = new Map();
+    let pointerMode = 'idle'; // idle | drag-point | pan | pinch | tap-or-pan
+    let primaryPointerId = null;
+
+    let gesture = {
+      startScreenX: 0,
+      startScreenY: 0,
+      startWorldX: 0,
+      startWorldY: 0,
+      moved: false,
+      startOffsetX: 0,
+      startOffsetY: 0,
+      pointIndex: null
+    };
+
+    let pinchState = {
+      p1: null,
+      p2: null,
+      startDistance: 0,
+      startScale: 1,
+      startOffsetX: 0,
+      startOffsetY: 0,
+      startWorldCenterX: 0,
+      startWorldCenterY: 0
+    };
+
+    const PROJECT_VERSION = '2.1-absolute';
+    const BROWSER_PROJECT_KEY = 'p5_shape_editor_ultra_premium_v2_absolute';
+
+    function setup() {
+      canvas = createCanvas(worldWidth, worldHeight);
+      canvas.parent('canvas-container');
+      canvas.elt.style.touchAction = 'none';
+      canvas.elt.addEventListener('contextmenu', (e) => e.preventDefault());
+      setupPointerEvents();
+      fitViewToCanvas();
+      noLoop();
+    }
+
+    function draw() {
+      background(245);
+
+      push();
+      applyViewTransform();
+
+      if (img) {
+        image(img, 0, 0, worldWidth, worldHeight);
+      }
+
+      if (document.getElementById('showSavedShapes')?.checked) {
+        for (let i = 0; i < shapes.length; i++) {
+          if (i === editingShapeIndex) continue;
+          drawSavedShape(shapes[i], true);
+        }
+      }
+
+      drawCurrentShapeGeometry();
+      pop();
+
+      drawCurrentShapePointsOverlay();
+    }
+
+    function applyViewTransform() {
+      translate(viewOffsetX, viewOffsetY);
+      scale(viewScale);
+    }
+
+    function redrawCanvas() {
+      redraw();
+      updateCounters();
+      updateCanvasCursor();
+      updateViewUI();
+    }
+
+    function updateViewUI() {
+      const zoomPercent = Math.round(viewScale * 100);
+      document.getElementById('zoomStatus').textContent = `${zoomPercent}%`;
+      document.getElementById('zoomBadge').textContent = `${zoomPercent}%`;
+      document.getElementById('viewDebug').textContent =
+        `offsetX: ${Math.round(viewOffsetX)}, offsetY: ${Math.round(viewOffsetY)}, zoom: ${zoomPercent}%`;
+    }
+
+    function fitViewToCanvas() {
+      viewScale = 1;
+      viewOffsetX = 0;
+      viewOffsetY = 0;
+      redrawCanvas();
+    }
+
+    function getCanvasDisplayRect() {
+      if (!canvas || !canvas.elt) return null;
+      return canvas.elt.getBoundingClientRect();
+    }
+
+    function clientToCanvas(clientX, clientY) {
+      const rect = getCanvasDisplayRect();
+      const scaleX = width / rect.width;
+      const scaleY = height / rect.height;
+
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+      };
+    }
+
+    function canvasToWorld(x, y) {
+      return {
+        x: (x - viewOffsetX) / viewScale,
+        y: (y - viewOffsetY) / viewScale
+      };
+    }
+
+    function worldToCanvas(x, y) {
+      return {
+        x: x * viewScale + viewOffsetX,
+        y: y * viewScale + viewOffsetY
+      };
+    }
+
+    function isCanvasPointInside(x, y) {
+      return x >= 0 && x <= width && y >= 0 && y <= height;
+    }
+
+    function clampViewIfNeeded() {
+      const margin = 120;
+      const scaledW = worldWidth * viewScale;
+      const scaledH = worldHeight * viewScale;
+
+      const minX = Math.min(width - scaledW - margin, margin);
+      const maxX = Math.max(width - margin, width - scaledW + margin);
+      const minY = Math.min(height - scaledH - margin, margin);
+      const maxY = Math.max(height - margin, height - scaledH + margin);
+
+      viewOffsetX = constrain(viewOffsetX, minX, maxX);
+      viewOffsetY = constrain(viewOffsetY, minY, maxY);
+    }
+
+    function zoomAtCanvasPoint(factor, canvasX, canvasY) {
+      const before = canvasToWorld(canvasX, canvasY);
+
+      viewScale = constrain(viewScale * factor, MIN_ZOOM, MAX_ZOOM);
+
+      viewOffsetX = canvasX - before.x * viewScale;
+      viewOffsetY = canvasY - before.y * viewScale;
+
+      clampViewIfNeeded();
+      redrawCanvas();
+    }
+
+    function constrainPointToWorld(x, y) {
+      return {
+        x: constrain(x, 0, worldWidth),
+        y: constrain(y, 0, worldHeight)
+      };
+    }
+
+    function findPointAtCanvas(canvasX, canvasY) {
+      const radius = Math.max(pointHitRadius, pointSize + 6);
+
+      for (let i = currentPoints.length - 1; i >= 0; i--) {
+        const p = currentPoints[i];
+        const sp = worldToCanvas(p.x, p.y);
+        const d = dist(canvasX, canvasY, sp.x, sp.y);
+
+        if (d <= radius) return i;
+      }
+
+      return -1;
+    }
+
+    function drawSavedShape(shape, dimmed = false) {
+      if (!shape || !shape.points || shape.points.length === 0) return;
+
+      const rgb = hexToRgb(shape.fillColor || '#00aaff');
+
+      stroke(60, 60, 60, dimmed ? 90 : 140);
+      strokeWeight(1.5 / viewScale);
+
+      if (shape.useFill && rgb) {
+        fill(rgb.r, rgb.g, rgb.b, dimmed ? 50 : 100);
+      } else {
+        noFill();
+      }
+
+      if (shape.points.length > 1) {
+        beginShape();
+
+        if (shape.curveType === 'vertex') {
+          for (const p of shape.points) vertex(p.x, p.y);
+        } else if (shape.curveType === 'curveVertex') {
+          for (const p of shape.points) curveVertex(p.x, p.y);
+        } else if (shape.curveType === 'bezierVertex') {
+          vertex(shape.points[0].x, shape.points[0].y);
+          for (let i = 1; i + 2 < shape.points.length; i += 3) {
+            bezierVertex(
+              shape.points[i].x, shape.points[i].y,
+              shape.points[i + 1].x, shape.points[i + 1].y,
+              shape.points[i + 2].x, shape.points[i + 2].y
+            );
+          }
+        }
+
+        if (shape.closeShape) endShape(CLOSE);
+        else endShape();
+      }
+    }
+
+    function drawCurrentShapeGeometry() {
+      if (currentPoints.length === 0) return;
+
+      const fillHex = document.getElementById('fillColor')?.value || '#00aaff';
+      const useFill = document.getElementById('useFill')?.checked ?? true;
+      const closeShape = document.getElementById('closeShape')?.checked ?? true;
+      const rgb = hexToRgb(fillHex);
+
+      stroke(pointColor);
+      strokeWeight(2.5 / viewScale);
+
+      if (useFill && rgb) {
+        fill(rgb.r, rgb.g, rgb.b, 80);
+      } else {
+        noFill();
+      }
+
+      if (currentPoints.length > 1) {
+        beginShape();
+
+        if (currentCurveType === 'vertex') {
+          for (const p of currentPoints) vertex(p.x, p.y);
+        } else if (currentCurveType === 'curveVertex') {
+          for (const p of currentPoints) curveVertex(p.x, p.y);
+        } else if (currentCurveType === 'bezierVertex') {
+          vertex(currentPoints[0].x, currentPoints[0].y);
+
+          for (let i = 1; i + 2 < currentPoints.length; i += 3) {
+            bezierVertex(
+              currentPoints[i].x, currentPoints[i].y,
+              currentPoints[i + 1].x, currentPoints[i + 1].y,
+              currentPoints[i + 2].x, currentPoints[i + 2].y
+            );
+          }
+        }
+
+        if (closeShape) endShape(CLOSE);
+        else endShape();
+      }
+
+      stroke(120, 120, 120, 120);
+      strokeWeight(1 / viewScale);
+
+      if (currentCurveType === 'vertex' || currentCurveType === 'curveVertex') {
+        for (let i = 0; i < currentPoints.length - 1; i++) {
+          line(currentPoints[i].x, currentPoints[i].y, currentPoints[i + 1].x, currentPoints[i + 1].y);
+        }
+      }
+    }
+
+    function drawCurrentShapePointsOverlay() {
+      if (currentPoints.length === 0) return;
+
+      const showLabels = document.getElementById('showPointLabels')?.checked ?? true;
+
+      for (let i = 0; i < currentPoints.length; i++) {
+        const p = currentPoints[i];
+        const sp = worldToCanvas(p.x, p.y);
+
+        let fillCol = pointColor;
+        let outline = '#ffffff';
+        let size = pointSize;
+
+        if (i === hoverPointIndex) {
+          fillCol = '#ffc107';
+          outline = '#000000';
+          size = pointSize + 3;
+        }
+
+        if (i === selectedPointIndex) {
+          fillCol = '#0d6efd';
+          outline = '#ffffff';
+          size = pointSize + 5;
+        }
+
+        if (i === draggedPointIndex) {
+          fillCol = '#198754';
+          outline = '#ffffff';
+          size = pointSize + 6;
+        }
+
+        stroke(outline);
+        strokeWeight(2);
+        fill(fillCol);
+        circle(sp.x, sp.y, size);
+
+        if (showLabels) {
+          noStroke();
+          fill(20);
+          textSize(12);
+          textAlign(LEFT, BOTTOM);
+          text(`#${i + 1}`, sp.x + 8, sp.y - 6);
+        }
+      }
+    }
+
+    function updateCanvasCursor() {
+      const canvasElement = document.querySelector('#canvas-container canvas');
+      if (!canvasElement) return;
+
+      if (colorPickMode) {
+        canvasElement.style.cursor = 'copy';
+      } else if (pointerMode === 'drag-point') {
+        canvasElement.style.cursor = 'grabbing';
+      } else if (pointerMode === 'pan' || pointerMode === 'pinch') {
+        canvasElement.style.cursor = 'move';
+      } else if (hoverPointIndex !== null) {
+        canvasElement.style.cursor = 'grab';
+      } else {
+        canvasElement.style.cursor = 'crosshair';
+      }
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + [r, g, b]
+        .map(v => {
+          const hex = v.toString(16);
+          return hex.length === 1 ? "0" + hex : hex;
+        })
+        .join("");
+    }
+
+    function hexToRgb(hex) {
+      if (!hex) return null;
+
+      const clean = hex.replace('#', '');
+      const num = parseInt(clean, 16);
+
+      if (clean.length !== 6 || isNaN(num)) return null;
+
+      return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255
+      };
+    }
+
+    function pickAverageColorFromUploadedImage(x, y, radius = 1) {
+      if (!img) return null;
+
+      let totalR = 0;
+      let totalG = 0;
+      let totalB = 0;
+      let count = 0;
+
+      for (let dx = -radius; dx <= radius; dx++) {
+        for (let dy = -radius; dy <= radius; dy++) {
+          const ix = Math.round(constrain(x + dx, 0, img.width - 1));
+          const iy = Math.round(constrain(y + dy, 0, img.height - 1));
+          const pixel = img.get(ix, iy);
+          totalR += pixel[0];
+          totalG += pixel[1];
+          totalB += pixel[2];
+          count++;
+        }
+      }
+
+      const r = Math.round(totalR / count);
+      const g = Math.round(totalG / count);
+      const b = Math.round(totalB / count);
+
+      return { r, g, b, hex: rgbToHex(r, g, b) };
+    }
+
+    function updatePipetteUI() {
+      const statusEl = document.getElementById('pipetteStatus');
+      const buttonEl = document.getElementById('pickColorFromImage');
+
+      if (colorPickMode) {
+        statusEl.textContent = 'activada';
+        buttonEl.classList.remove('btn-outline-info');
+        buttonEl.classList.add('btn-info');
+      } else {
+        statusEl.textContent = 'desactivada';
+        buttonEl.classList.remove('btn-info');
+        buttonEl.classList.add('btn-outline-info');
+      }
+
+      updateCanvasCursor();
+    }
+
+    // =========================================================
+    // POINTER EVENTS PREMIUM
+    // =========================================================
+
+    function setupPointerEvents() {
+      const el = canvas.elt;
+
+      el.addEventListener('pointerdown', onPointerDown, { passive: false });
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp, { passive: false });
+      window.addEventListener('pointercancel', onPointerUp, { passive: false });
+
+      el.addEventListener('wheel', onWheelZoom, { passive: false });
+    }
+
+    function onPointerDown(e) {
+      e.preventDefault();
+
+      const canvasPos = clientToCanvas(e.clientX, e.clientY);
+      const worldPos = canvasToWorld(canvasPos.x, canvasPos.y);
+
+      activePointers.set(e.pointerId, {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        canvasX: canvasPos.x,
+        canvasY: canvasPos.y,
+        worldX: worldPos.x,
+        worldY: worldPos.y
+      });
+
+      if (canvas.elt.setPointerCapture) {
+        try {
+          canvas.elt.setPointerCapture(e.pointerId);
+        } catch (_) {}
+      }
+
+      if (activePointers.size === 2) {
+        startPinchMode();
+        return false;
+      }
+
+      primaryPointerId = e.pointerId;
+
+      if (!isCanvasPointInside(canvasPos.x, canvasPos.y)) return false;
+
+      if (colorPickMode) {
+        if (!img) {
+          alert('Primer has de pujar una imatge per poder agafar-ne un color.');
+          colorPickMode = false;
+          updatePipetteUI();
+          redrawCanvas();
+          return false;
+        }
+
+        const picked = pickAverageColorFromUploadedImage(worldPos.x, worldPos.y, 1);
+        if (picked) {
+          lastPickedColor = picked.hex;
+          document.getElementById('fillColor').value = picked.hex;
+          document.getElementById('useFill').checked = true;
+          document.getElementById('pickedColorPreview').style.background = picked.hex;
+        }
+
+        colorPickMode = false;
+        updatePipetteUI();
+        redrawCanvas();
+        return false;
+      }
+
+      const hitIndex = findPointAtCanvas(canvasPos.x, canvasPos.y);
+      hoverPointIndex = hitIndex !== -1 ? hitIndex : null;
+
+      gesture = {
+        startScreenX: canvasPos.x,
+        startScreenY: canvasPos.y,
+        startWorldX: worldPos.x,
+        startWorldY: worldPos.y,
+        moved: false,
+        startOffsetX: viewOffsetX,
+        startOffsetY: viewOffsetY,
+        pointIndex: hitIndex !== -1 ? hitIndex : null
+      };
+
+      if (hitIndex !== -1) {
+        selectedPointIndex = hitIndex;
+        draggedPointIndex = hitIndex;
+        pointerMode = 'drag-point';
+      } else {
+        pointerMode = 'tap-or-pan';
+      }
+
+      redrawCanvas();
+      return false;
+    }
+
+    function onPointerMove(e) {
+      if (!activePointers.has(e.pointerId)) {
+        const canvasPos = clientToCanvas(e.clientX, e.clientY);
+        if (isCanvasPointInside(canvasPos.x, canvasPos.y)) {
+          const hitIndex = findPointAtCanvas(canvasPos.x, canvasPos.y);
+          hoverPointIndex = hitIndex !== -1 ? hitIndex : null;
+          updateCanvasCursor();
+          redraw();
+        }
+        return;
+      }
+
+      e.preventDefault();
+
+      const canvasPos = clientToCanvas(e.clientX, e.clientY);
+      const worldPos = canvasToWorld(canvasPos.x, canvasPos.y);
+
+      activePointers.set(e.pointerId, {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        canvasX: canvasPos.x,
+        canvasY: canvasPos.y,
+        worldX: worldPos.x,
+        worldY: worldPos.y
+      });
+
+      if (pointerMode === 'pinch' && activePointers.size >= 2) {
+        updatePinchMode();
+        return false;
+      }
+
+      if (primaryPointerId !== e.pointerId) return false;
+
+      const moveDist = dist(canvasPos.x, canvasPos.y, gesture.startScreenX, gesture.startScreenY);
+      if (moveDist > 8) gesture.moved = true;
+
+      if (pointerMode === 'drag-point' && draggedPointIndex !== null) {
+        const pos = constrainPointToWorld(worldPos.x, worldPos.y);
+        currentPoints[draggedPointIndex].x = pos.x;
+        currentPoints[draggedPointIndex].y = pos.y;
+        selectedPointIndex = draggedPointIndex;
+        redrawCanvas();
+        return false;
+      }
+
+      if (pointerMode === 'tap-or-pan') {
+        if (gesture.moved) {
+          pointerMode = 'pan';
+        }
+      }
+
+      if (pointerMode === 'pan') {
+        const dx = canvasPos.x - gesture.startScreenX;
+        const dy = canvasPos.y - gesture.startScreenY;
+        viewOffsetX = gesture.startOffsetX + dx;
+        viewOffsetY = gesture.startOffsetY + dy;
+        clampViewIfNeeded();
+        redrawCanvas();
+        return false;
+      }
+
+      const hitIndex = findPointAtCanvas(canvasPos.x, canvasPos.y);
+      hoverPointIndex = hitIndex !== -1 ? hitIndex : null;
+      updateCanvasCursor();
+      redraw();
+      return false;
+    }
+
+    function onPointerUp(e) {
+      if (!activePointers.has(e.pointerId)) return false;
+      e.preventDefault();
+
+      const info = activePointers.get(e.pointerId);
+      activePointers.delete(e.pointerId);
+
+      if (canvas.elt.releasePointerCapture) {
+        try {
+          canvas.elt.releasePointerCapture(e.pointerId);
+        } catch (_) {}
+      }
+
+      if (pointerMode === 'pinch') {
+        if (activePointers.size < 2) {
+          pointerMode = 'idle';
+          primaryPointerId = activePointers.size === 1 ? [...activePointers.keys()][0] : null;
+          draggedPointIndex = null;
+          redrawCanvas();
+        }
+        return false;
+      }
+
+      if (primaryPointerId === e.pointerId) {
+        if (pointerMode === 'tap-or-pan' && !gesture.moved) {
+          const worldPos = canvasToWorld(info.canvasX, info.canvasY);
+          const pos = constrainPointToWorld(worldPos.x, worldPos.y);
+          currentPoints.push(createVector(pos.x, pos.y));
+          selectedPointIndex = currentPoints.length - 1;
+        }
+
+        if (pointerMode === 'drag-point') {
+          draggedPointIndex = null;
+        }
+
+        pointerMode = 'idle';
+        primaryPointerId = null;
+      }
+
+      redrawCanvas();
+      return false;
+    }
+
+    function startPinchMode() {
+      const ids = [...activePointers.keys()];
+      if (ids.length < 2) return;
+
+      const p1 = activePointers.get(ids[0]);
+      const p2 = activePointers.get(ids[1]);
+
+      pointerMode = 'pinch';
+      draggedPointIndex = null;
+
+      const centerCanvasX = (p1.canvasX + p2.canvasX) / 2;
+      const centerCanvasY = (p1.canvasY + p2.canvasY) / 2;
+      const centerWorld = canvasToWorld(centerCanvasX, centerCanvasY);
+
+      pinchState = {
+        p1: ids[0],
+        p2: ids[1],
+        startDistance: dist(p1.canvasX, p1.canvasY, p2.canvasX, p2.canvasY),
+        startScale: viewScale,
+        startOffsetX: viewOffsetX,
+        startOffsetY: viewOffsetY,
+        startWorldCenterX: centerWorld.x,
+        startWorldCenterY: centerWorld.y
+      };
+
+      redrawCanvas();
+    }
+
+    function updatePinchMode() {
+      const p1 = activePointers.get(pinchState.p1);
+      const p2 = activePointers.get(pinchState.p2);
+      if (!p1 || !p2) return;
+
+      const currentDistance = dist(p1.canvasX, p1.canvasY, p2.canvasX, p2.canvasY);
+      if (pinchState.startDistance <= 0) return;
+
+      let nextScale = pinchState.startScale * (currentDistance / pinchState.startDistance);
+      nextScale = constrain(nextScale, MIN_ZOOM, MAX_ZOOM);
+
+      const centerCanvasX = (p1.canvasX + p2.canvasX) / 2;
+      const centerCanvasY = (p1.canvasY + p2.canvasY) / 2;
+
+      viewScale = nextScale;
+      viewOffsetX = centerCanvasX - pinchState.startWorldCenterX * viewScale;
+      viewOffsetY = centerCanvasY - pinchState.startWorldCenterY * viewScale;
+
+      clampViewIfNeeded();
+      redrawCanvas();
+    }
+
+    function onWheelZoom(e) {
+      e.preventDefault();
+
+      const rect = getCanvasDisplayRect();
+      const canvasX = (e.clientX - rect.left) * (width / rect.width);
+      const canvasY = (e.clientY - rect.top) * (height / rect.height);
+
+      const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+      zoomAtCanvasPoint(factor, canvasX, canvasY);
+    }
+
+    function deleteSelectedPoint() {
+      if (selectedPointIndex === null) return;
+
+      currentPoints.splice(selectedPointIndex, 1);
+
+      if (currentPoints.length === 0) {
+        selectedPointIndex = null;
+      } else if (selectedPointIndex >= currentPoints.length) {
+        selectedPointIndex = currentPoints.length - 1;
+      }
+
+      redrawCanvas();
+    }
+
+    function keyPressed() {
+      const activeTag = document.activeElement?.tagName?.toLowerCase();
+      const isTyping = activeTag === 'input' || activeTag === 'textarea';
+      if (isTyping) return;
+
+      if ((keyCode === DELETE || keyCode === BACKSPACE) && selectedPointIndex !== null) {
+        deleteSelectedPoint();
+      }
+    }
+
+    function beginNewShape() {
+      currentPoints = [];
+      currentCurveType = document.getElementById('curveType').value;
+      editingShapeIndex = null;
+      selectedPointIndex = null;
+      draggedPointIndex = null;
+      hoverPointIndex = null;
+      pointerMode = 'idle';
+      activePointers.clear();
+      primaryPointerId = null;
+
+      document.getElementById('shapeName').value = '';
+      document.getElementById('fillColor').value = lastPickedColor || '#00aaff';
+      document.getElementById('useFill').checked = true;
+      document.getElementById('closeShape').checked = true;
+
+      redrawCanvas();
+      renderShapesList();
+    }
+
+    function openModalWithCurrentData() {
+      if (editingShapeIndex !== null && shapes[editingShapeIndex]) {
+        const shape = shapes[editingShapeIndex];
+        document.getElementById('shapeName').value = shape.name;
+        document.getElementById('fillColor').value = shape.fillColor;
+        document.getElementById('useFill').checked = shape.useFill;
+        document.getElementById('closeShape').checked = shape.closeShape;
+        document.getElementById('pickedColorPreview').style.background = shape.fillColor;
+      } else {
+        document.getElementById('fillColor').value = lastPickedColor || '#00aaff';
+        document.getElementById('pickedColorPreview').style.background = lastPickedColor || '#00aaff';
+      }
+    }
+
+    function saveCurrentShape() {
+      if (currentPoints.length === 0) {
+        document.getElementById('generatedCode').textContent =
+          '// No hi ha punts a la forma actual. Afegeix punts abans de desar.';
+        return false;
+      }
+
+      const rawName = document.getElementById('shapeName').value;
+      const trimmedName = rawName.trim();
+
+      if (!trimmedName) {
+        alert('Has d’escriure obligatòriament el nom de l’àrea.');
+        document.getElementById('shapeName').focus();
+        return false;
+      }
+
+      const fillColor = document.getElementById('fillColor').value;
+      const useFill = document.getElementById('useFill').checked;
+      const closeShape = document.getElementById('closeShape').checked;
+
+      const shapeData = {
+        name: rawName,
+        curveType: currentCurveType,
+        fillColor,
+        useFill,
+        closeShape,
+        points: currentPoints.map(p => ({
+          x: Math.round(p.x),
+          y: Math.round(p.y)
+        }))
+      };
+
+      if (editingShapeIndex !== null) {
+        shapes[editingShapeIndex] = shapeData;
+      } else {
+        shapes.push(shapeData);
+        editingShapeIndex = shapes.length - 1;
+      }
+
+      lastPickedColor = fillColor;
+      document.getElementById('pickedColorPreview').style.background = fillColor;
+
+      renderShapesList();
+      updateExportCode();
+      redrawCanvas();
+
+      const modalEl = document.getElementById('shapeModal');
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+
+      return true;
+    }
+
+    function loadShapeForEditing(index) {
+      const shape = shapes[index];
+      if (!shape) return;
+
+      editingShapeIndex = index;
+      currentCurveType = shape.curveType;
+      currentPoints = shape.points.map(p => createVector(p.x, p.y));
+
+      selectedPointIndex = null;
+      draggedPointIndex = null;
+      hoverPointIndex = null;
+      pointerMode = 'idle';
+      activePointers.clear();
+      primaryPointerId = null;
+
+      document.getElementById('curveType').value = shape.curveType;
+      document.getElementById('shapeName').value = shape.name;
+      document.getElementById('fillColor').value = shape.fillColor;
+      document.getElementById('useFill').checked = shape.useFill;
+      document.getElementById('closeShape').checked = shape.closeShape;
+      document.getElementById('pickedColorPreview').style.background = shape.fillColor;
+
+      renderShapesList();
+      redrawCanvas();
+    }
+
+    function duplicateShape(index) {
+      const original = shapes[index];
+      if (!original) return;
+
+      const copy = {
+        ...original,
+        name: `${original.name} còpia`,
+        points: original.points.map(p => ({ x: p.x, y: p.y }))
+      };
+
+      shapes.push(copy);
+      renderShapesList();
+      updateExportCode();
+      redrawCanvas();
+    }
+
+    function deleteShape(index) {
+      shapes.splice(index, 1);
+
+      if (editingShapeIndex === index) {
+        beginNewShape();
+      } else if (editingShapeIndex !== null && editingShapeIndex > index) {
+        editingShapeIndex--;
+      }
+
+      renderShapesList();
+      updateExportCode();
+      redrawCanvas();
+    }
+
+    // =========================================================
+    // HELPERS PER A LA LLISTA DE FORMES DESADES
+    // =========================================================
+    function bindPointerAction(element, callback, stopBubble = true) {
+      if (!element) return;
+
+      element.addEventListener('pointerup', function (e) {
+        e.preventDefault();
+        if (stopBubble) e.stopPropagation();
+        callback(e);
+      }, { passive: false });
+    }
+
+    function resetSavedShapesInteractionState() {
+      hoverPointIndex = null;
+      draggedPointIndex = null;
+      pointerMode = 'idle';
+      activePointers.clear();
+      primaryPointerId = null;
+    }
+
+    // =========================================================
+    // RENDER DE FORMES DESADES (SOLUCIÓ INTEGRADA)
+    // =========================================================
+    function renderShapesList() {
+      const container = document.getElementById('shapesList');
+
+      if (shapes.length === 0) {
+        container.innerHTML = '<div class="text-muted small">Encara no hi ha cap forma desada.</div>';
+        updateCounters();
+        return;
+      }
+
+      container.innerHTML = '';
+
+      shapes.forEach((shape, index) => {
+        const item = document.createElement('div');
+        item.className = 'shape-item' + (index === editingShapeIndex ? ' active' : '');
+        item.style.cursor = 'pointer';
+        item.style.touchAction = 'manipulation';
+
+        item.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-semibold">${escapeHtml(shape.name)}</div>
+              <div class="small text-muted">
+                <span class="shape-color-preview" style="background:${shape.fillColor};"></span>
+                <span class="small-code">Comentari + fill + coordenades absolutes</span>
+              </div>
+              <div class="mt-2 d-flex flex-wrap gap-1">
+                <span class="badge text-bg-light">${shape.curveType}</span>
+                <span class="badge text-bg-light">${shape.points.length} punts</span>
+                <span class="badge text-bg-light">${shape.closeShape ? 'tancada' : 'oberta'}</span>
+                <span class="badge text-bg-light">${shape.useFill ? 'amb fill' : 'sense fill'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm shape-action-edit">
+              <i class="fa-solid fa-pen"></i> Edita
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm shape-action-duplicate">
+              <i class="fa-solid fa-clone"></i> Duplica
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm shape-action-delete">
+              <i class="fa-solid fa-trash"></i> Esborra
+            </button>
+          </div>
+        `;
+
+        const editBtn = item.querySelector('.shape-action-edit');
+        const duplicateBtn = item.querySelector('.shape-action-duplicate');
+        const deleteBtn = item.querySelector('.shape-action-delete');
+
+        const selectThisShape = () => {
+          resetSavedShapesInteractionState();
+          loadShapeForEditing(index);
+        };
+
+        // La targeta sencera selecciona la forma
+        bindPointerAction(item, function () {
+          selectThisShape();
+        }, false);
+
+        // El botó Edita també selecciona la forma
+        bindPointerAction(editBtn, function () {
+          selectThisShape();
+        });
+
+        // Duplica
+        bindPointerAction(duplicateBtn, function () {
+          resetSavedShapesInteractionState();
+          duplicateShape(index);
+        });
+
+        // Esborra
+        bindPointerAction(deleteBtn, function () {
+          resetSavedShapesInteractionState();
+          deleteShape(index);
+        });
+
+        container.appendChild(item);
+      });
+
+      updateCounters();
+    }
+
+    function shapeToCode(shape) {
+      if (!shape.points || shape.points.length === 0) {
+        return `// ${shape.name || 'Àrea sense nom'}\n// Aquesta forma no té punts.\n`;
+      }
+
+      let code = `// ${shape.name}\n`;
+
+      const rgb = hexToRgb(shape.fillColor);
+
+      if (shape.useFill && rgb) {
+        code += `fill(${rgb.r}, ${rgb.g}, ${rgb.b});\n`;
+      } else {
+        code += `noFill();\n`;
+      }
+
+      code += `beginShape();\n`;
+
+      if (shape.curveType === 'vertex') {
+        shape.points.forEach(p => {
+          code += `vertex(${p.x}, ${p.y});\n`;
+        });
+      } else if (shape.curveType === 'curveVertex') {
+        shape.points.forEach(p => {
+          code += `curveVertex(${p.x}, ${p.y});\n`;
+        });
+      } else if (shape.curveType === 'bezierVertex') {
+        code += `vertex(${shape.points[0].x}, ${shape.points[0].y});\n`;
+
+        for (let i = 1; i + 2 < shape.points.length; i += 3) {
+          const p1 = shape.points[i];
+          const p2 = shape.points[i + 1];
+          const p3 = shape.points[i + 2];
+
+          code += `bezierVertex(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y}, ${p3.x}, ${p3.y});\n`;
+        }
+      }
+
+      if (shape.closeShape) {
+        code += `endShape(CLOSE);\n`;
+      } else {
+        code += `endShape();\n`;
+      }
+
+      return code;
+    }
+
+    function updateExportCode() {
+      const codeBox = document.getElementById('generatedCode');
+
+      if (shapes.length === 0) {
+        codeBox.textContent = '// Encara no hi ha cap forma desada.';
+        return;
+      }
+
+      let exportCode = '';
+
+      shapes.forEach((shape, index) => {
+        exportCode += shapeToCode(shape);
+        if (index < shapes.length - 1) {
+          exportCode += '\n';
+        }
+      });
+
+      codeBox.textContent = exportCode;
+    }
+
+    function updateCounters() {
+      document.getElementById('currentPointCount').textContent = currentPoints.length;
+      document.getElementById('shapeCount').textContent = shapes.length;
+
+      document.getElementById('selectedPointInfo').textContent =
+        selectedPointIndex !== null ? `#${selectedPointIndex + 1}` : 'cap';
+
+      if (selectedPointIndex !== null && currentPoints[selectedPointIndex]) {
+        const p = currentPoints[selectedPointIndex];
+        document.getElementById('selectedPointCoords').textContent =
+          `x: ${Math.round(p.x)}, y: ${Math.round(p.y)}`;
+      } else {
+        document.getElementById('selectedPointCoords').textContent = 'cap';
+      }
+
+      let statusText = 'Nova forma';
+      if (editingShapeIndex !== null && shapes[editingShapeIndex]) {
+        statusText = `Editant: ${shapes[editingShapeIndex].name}`;
+      }
+
+      document.getElementById('editingStatus').textContent = statusText;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // =========================================================
+    // JSON PROJECTES
+    // =========================================================
+
+    function clonePoints(points) {
+      if (!Array.isArray(points)) return [];
+      return points
+        .filter(p => p && Number.isFinite(Number(p.x)) && Number.isFinite(Number(p.y)))
+        .map(p => ({
+          x: Number(p.x),
+          y: Number(p.y)
+        }));
+    }
+
+    function cloneShapesForProject(shapesList) {
+      if (!Array.isArray(shapesList)) return [];
+
+      return shapesList.map(shape => ({
+        name: typeof shape.name === 'string' ? shape.name : 'àrea',
+        curveType: ['vertex', 'curveVertex', 'bezierVertex'].includes(shape.curveType) ? shape.curveType : 'vertex',
+        fillColor: typeof shape.fillColor === 'string' ? shape.fillColor : '#00aaff',
+        useFill: !!shape.useFill,
+        closeShape: shape.closeShape !== false,
+        points: clonePoints(shape.points)
+      }));
+    }
+
+    function buildProjectData() {
+      return {
+        app: 'p5-shape-editor-ultra-premium-absolute',
+        version: PROJECT_VERSION,
+        exportedAt: new Date().toISOString(),
+        world: {
+          width: worldWidth,
+          height: worldHeight
+        },
+        image: {
+          dataUrl: imgDataUrl || null
+        },
+        ui: {
+          pointColor,
+          pointSize,
+          currentCurveType,
+          fillColor: document.getElementById('fillColor').value,
+          useFill: document.getElementById('useFill').checked,
+          closeShape: document.getElementById('closeShape').checked,
+          shapeName: document.getElementById('shapeName').value,
+          lastPickedColor,
+          showPointLabels: document.getElementById('showPointLabels').checked,
+          showSavedShapes: document.getElementById('showSavedShapes').checked
+        },
+        view: {
+          scale: viewScale,
+          offsetX: viewOffsetX,
+          offsetY: viewOffsetY
+        },
+        editing: {
+          editingShapeIndex,
+          selectedPointIndex,
+          currentPoints: currentPoints.map(p => ({ x: Number(p.x), y: Number(p.y) }))
+        },
+        shapes: cloneShapesForProject(shapes)
+      };
+    }
+
+    function normalizeProjectData(data) {
+      const safe = (data && typeof data === 'object') ? data : {};
+
+      return {
+        app: safe.app || 'p5-shape-editor-ultra-premium-absolute',
+        version: safe.version || 'unknown',
+        world: {
+          width: Number.isFinite(Number(safe?.world?.width)) ? Number(safe.world.width) : 900,
+          height: Number.isFinite(Number(safe?.world?.height)) ? Number(safe.world.height) : 550
+        },
+        image: {
+          dataUrl: typeof safe?.image?.dataUrl === 'string' ? safe.image.dataUrl : null
+        },
+        ui: {
+          pointColor: typeof safe?.ui?.pointColor === 'string' ? safe.ui.pointColor : '#ff0000',
+          pointSize: Number.isFinite(Number(safe?.ui?.pointSize)) ? Number(safe.ui.pointSize) : 11,
+          currentCurveType: ['vertex', 'curveVertex', 'bezierVertex'].includes(safe?.ui?.currentCurveType)
+            ? safe.ui.currentCurveType
+            : 'vertex',
+          fillColor: typeof safe?.ui?.fillColor === 'string' ? safe.ui.fillColor : '#00aaff',
+          useFill: safe?.ui?.useFill !== false,
+          closeShape: safe?.ui?.closeShape !== false,
+          shapeName: typeof safe?.ui?.shapeName === 'string' ? safe.ui.shapeName : '',
+          lastPickedColor: typeof safe?.ui?.lastPickedColor === 'string' ? safe.ui.lastPickedColor : '#00aaff',
+          showPointLabels: safe?.ui?.showPointLabels !== false,
+          showSavedShapes: safe?.ui?.showSavedShapes !== false
+        },
+        view: {
+          scale: Number.isFinite(Number(safe?.view?.scale)) ? Number(safe.view.scale) : 1,
+          offsetX: Number.isFinite(Number(safe?.view?.offsetX)) ? Number(safe.view.offsetX) : 0,
+          offsetY: Number.isFinite(Number(safe?.view?.offsetY)) ? Number(safe.view.offsetY) : 0
+        },
+        editing: {
+          editingShapeIndex: Number.isInteger(safe?.editing?.editingShapeIndex) ? safe.editing.editingShapeIndex : null,
+          selectedPointIndex: Number.isInteger(safe?.editing?.selectedPointIndex) ? safe.editing.selectedPointIndex : null,
+          currentPoints: clonePoints(safe?.editing?.currentPoints)
+        },
+        shapes: cloneShapesForProject(safe.shapes)
+      };
+    }
+
+    function loadImageFromDataUrl(dataUrl) {
+      return new Promise((resolve, reject) => {
+        loadImage(
+          dataUrl,
+          loadedImg => resolve(loadedImg),
+          err => reject(err)
+        );
+      });
+    }
+
+    async function applyProjectData(projectData) {
+      const project = normalizeProjectData(projectData);
+
+      activePointers.clear();
+      primaryPointerId = null;
+      pointerMode = 'idle';
+      draggedPointIndex = null;
+      hoverPointIndex = null;
+
+      if (project.image.dataUrl) {
+        try {
+          const loadedImg = await loadImageFromDataUrl(project.image.dataUrl);
+          img = loadedImg;
+          imgDataUrl = project.image.dataUrl;
+          worldWidth = loadedImg.width;
+          worldHeight = loadedImg.height;
+        } catch (error) {
+          img = null;
+          imgDataUrl = null;
+          worldWidth = project.world.width;
+          worldHeight = project.world.height;
+          alert('No s’ha pogut carregar la imatge del projecte. Es recuperarà sense imatge.');
+        }
+      } else {
+        img = null;
+        imgDataUrl = null;
+        worldWidth = project.world.width;
+        worldHeight = project.world.height;
+      }
+
+      resizeCanvas(worldWidth, worldHeight);
+
+      shapes = project.shapes;
+      currentPoints = project.editing.currentPoints.map(p => createVector(p.x, p.y));
+      currentCurveType = project.ui.currentCurveType;
+      pointColor = project.ui.pointColor;
+      pointSize = project.ui.pointSize;
+      lastPickedColor = project.ui.lastPickedColor;
+
+      editingShapeIndex = project.editing.editingShapeIndex;
+      selectedPointIndex = project.editing.selectedPointIndex;
+
+      document.getElementById('curveType').value = currentCurveType;
+      document.getElementById('pointColor').value = pointColor;
+      document.getElementById('pointSize').value = pointSize;
+      document.getElementById('fillColor').value = project.ui.fillColor;
+      document.getElementById('useFill').checked = project.ui.useFill;
+      document.getElementById('closeShape').checked = project.ui.closeShape;
+      document.getElementById('shapeName').value = project.ui.shapeName;
+      document.getElementById('showPointLabels').checked = project.ui.showPointLabels;
+      document.getElementById('showSavedShapes').checked = project.ui.showSavedShapes;
+      document.getElementById('pickedColorPreview').style.background = project.ui.fillColor || lastPickedColor;
+
+      viewScale = constrain(project.view.scale, MIN_ZOOM, MAX_ZOOM);
+      viewOffsetX = project.view.offsetX;
+      viewOffsetY = project.view.offsetY;
+      clampViewIfNeeded();
+
+      if (selectedPointIndex !== null && (selectedPointIndex < 0 || selectedPointIndex >= currentPoints.length)) {
+        selectedPointIndex = null;
+      }
+
+      if (editingShapeIndex !== null && (editingShapeIndex < 0 || editingShapeIndex >= shapes.length)) {
+        editingShapeIndex = null;
+      }
+
+      renderShapesList();
+      updateExportCode();
+      redrawCanvas();
+    }
+
+    function slugifyFileName(text) {
+      return (text || 'projecte')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .toLowerCase() || 'projecte';
+    }
+
+    function downloadProjectJSON() {
+      const project = buildProjectData();
+
+      const nameSource =
+        document.getElementById('shapeName').value.trim() ||
+        (editingShapeIndex !== null && shapes[editingShapeIndex]?.name) ||
+        'projecte-formes';
+
+      const fileName = `${slugifyFileName(nameSource)}.json`;
+      const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      URL.revokeObjectURL(url);
+    }
+
+    async function importProjectFromFile(file) {
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        await applyProjectData(data);
+        alert('Projecte JSON carregat correctament.');
+      } catch (error) {
+        console.error(error);
+        alert('No s’ha pogut importar el projecte JSON. Comprova que el fitxer sigui correcte.');
+      }
+    }
+
+    function saveProjectToBrowser() {
+      try {
+        const project = buildProjectData();
+        localStorage.setItem(BROWSER_PROJECT_KEY, JSON.stringify(project));
+        alert('Projecte desat al navegador.');
+      } catch (error) {
+        console.error(error);
+        alert('No s’ha pogut desar al navegador.');
+      }
+    }
+
+    async function loadProjectFromBrowser() {
+      try {
+        const raw = localStorage.getItem(BROWSER_PROJECT_KEY);
+
+        if (!raw) {
+          alert('No hi ha cap projecte desat al navegador.');
+          return;
+        }
+
+        const data = JSON.parse(raw);
+        await applyProjectData(data);
+        alert('Projecte carregat del navegador.');
+      } catch (error) {
+        console.error(error);
+        alert('No s’ha pogut carregar el projecte del navegador.');
+      }
+    }
+
+    // =========================================================
+    // EVENTS DOM
+    // =========================================================
+
+    document.getElementById('imageUpload').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        imgDataUrl = event.target.result;
+
+        loadImage(imgDataUrl, function (loadedImg) {
+          img = loadedImg;
+          worldWidth = img.width;
+          worldHeight = img.height;
+          resizeCanvas(worldWidth, worldHeight);
+          fitViewToCanvas();
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('curveType').addEventListener('change', function (e) {
+      currentCurveType = e.target.value;
+      redrawCanvas();
+    });
+
+    document.getElementById('pointColor').addEventListener('input', function (e) {
+      pointColor = e.target.value;
+      redrawCanvas();
+    });
+
+    document.getElementById('pointSize').addEventListener('input', function (e) {
+      pointSize = parseInt(e.target.value, 10);
+      redrawCanvas();
+    });
+
+    document.getElementById('undoPoint').addEventListener('click', function () {
+      currentPoints.pop();
+
+      if (selectedPointIndex !== null && selectedPointIndex >= currentPoints.length) {
+        selectedPointIndex = currentPoints.length - 1;
+      }
+
+      if (currentPoints.length === 0) {
+        selectedPointIndex = null;
+      }
+
+      redrawCanvas();
+    });
+
+    document.getElementById('deleteSelectedPoint').addEventListener('click', function () {
+      deleteSelectedPoint();
+    });
+
+    document.getElementById('clearPoints').addEventListener('click', function () {
+      currentPoints = [];
+      selectedPointIndex = null;
+      draggedPointIndex = null;
+      hoverPointIndex = null;
+      pointerMode = 'idle';
+      activePointers.clear();
+      primaryPointerId = null;
+      redrawCanvas();
+    });
+
+    document.getElementById('pickColorFromImage').addEventListener('click', function () {
+      if (!img) {
+        alert('Primer has de pujar una imatge.');
+        return;
+      }
+
+      colorPickMode = !colorPickMode;
+      updatePipetteUI();
+    });
+
+    document.getElementById('newShape').addEventListener('click', function () {
+      beginNewShape();
+      updateExportCode();
+    });
+
+    document.getElementById('openSaveModal').addEventListener('click', function () {
+      openModalWithCurrentData();
+    });
+
+    document.getElementById('saveShapeConfirm').addEventListener('click', function () {
+      saveCurrentShape();
+    });
+
+    document.getElementById('refreshExport').addEventListener('click', function () {
+      updateExportCode();
+    });
+
+    document.getElementById('fitViewBtn').addEventListener('click', fitViewToCanvas);
+    document.getElementById('resetViewBtn').addEventListener('click', fitViewToCanvas);
+
+    document.getElementById('zoomInBtn').addEventListener('click', function () {
+      zoomAtCanvasPoint(1.2, width / 2, height / 2);
+    });
+
+    document.getElementById('zoomOutBtn').addEventListener('click', function () {
+      zoomAtCanvasPoint(1 / 1.2, width / 2, height / 2);
+    });
+
+    document.getElementById('exportProjectJsonBtn').addEventListener('click', function () {
+      downloadProjectJSON();
+    });
+
+    document.getElementById('importProjectJsonBtn').addEventListener('click', function () {
+      document.getElementById('importProjectJsonInput').click();
+    });
+
+    document.getElementById('importProjectJsonInput').addEventListener('change', async function (e) {
+      const file = e.target.files[0];
+      await importProjectFromFile(file);
+      e.target.value = '';
+    });
+
+    document.getElementById('saveBrowserProjectBtn').addEventListener('click', function () {
+      saveProjectToBrowser();
+    });
+
+    document.getElementById('loadBrowserProjectBtn').addEventListener('click', async function () {
+      await loadProjectFromBrowser();
+    });
+
+    document.getElementById('copyCode').addEventListener('click', async function () {
+      try {
+        await navigator.clipboard.writeText(document.getElementById('generatedCode').textContent);
+        this.innerHTML = '<i class="fa-solid fa-check"></i> Copiat';
+        setTimeout(() => {
+          this.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar';
+        }, 1500);
+      } catch (error) {
+        alert('No s’ha pogut copiar el codi.');
+      }
+    });
+
+    document.getElementById('fillColor').addEventListener('input', function (e) {
+      lastPickedColor = e.target.value;
+      document.getElementById('pickedColorPreview').style.background = e.target.value;
+      redrawCanvas();
+    });
+
+    document.getElementById('useFill').addEventListener('change', redrawCanvas);
+    document.getElementById('closeShape').addEventListener('change', redrawCanvas);
+    document.getElementById('showPointLabels').addEventListener('change', redrawCanvas);
+    document.getElementById('showSavedShapes').addEventListener('change', redrawCanvas);
+
+    window.addEventListener('resize', function () {
+      redrawCanvas();
+    });
+
+    // Inicialització
+    renderShapesList();
+    updateCounters();
+    updateExportCode();
+    updatePipetteUI();
+    updateViewUI();
+    document.getElementById('pickedColorPreview').style.background = lastPickedColor;
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+
