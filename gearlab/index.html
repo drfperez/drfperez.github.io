@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GearLab · Simulador didàctic d'engranatges</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="hero-top">
+        <div class="brand">
+          <div class="logo"></div>
+          <div>
+            <h1 id="pageTitle">GearLab · Simulador didàctic d'engranatges</h1>
+            <p class="subtitle" id="pageSubtitle">
+              Visualitza de manera clara com canvien la velocitat, el parell i el sentit de gir. Ideal per a alumnat i explicacions a classe.
+            </p>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <div class="lang-switch" aria-label="Selector d'idioma">
+            <button class="lang-btn active" data-lang="ca">Català</button>
+            <button class="lang-btn" data-lang="es">Castellano</button>
+            <button class="lang-btn" data-lang="en">English</button>
+          </div>
+
+          <button class="ghost-btn" id="resetBtn">Restableix</button>
+          <button class="primary-btn" id="playPauseBtn">Pausa</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- CONTROLS -->
+      <section class="panel">
+        <div class="panel-inner">
+          <h2 class="panel-title">
+            <span class="panel-icon"></span>
+            <span id="controlsTitle">Controls</span>
+          </h2>
+
+          <div class="section">
+            <div class="field">
+              <label for="module" id="moduleLabel">Mòdul comú (m)</label>
+              <input type="number" id="module" min="0.1" step="0.1" value="2">
+              <small class="help" id="moduleHelp">
+                Els dos engranatges comparteixen mòdul perquè l'engranament sigui correcte.
+              </small>
+            </div>
+
+            <div class="field">
+              <label id="driverLabel">Engranatge conductor</label>
+              <div class="segmented">
+                <label class="driver-option">
+                  <input type="radio" name="driver" value="g1" checked>
+                  <span id="driver1Text">Engranatge 1</span>
+                </label>
+                <label class="driver-option">
+                  <input type="radio" name="driver" value="g2">
+                  <span id="driver2Text">Engranatge 2</span>
+                </label>
+              </div>
+              <small class="help" id="driverHelp">
+                L'engranatge conductor fixa la velocitat d'entrada.
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="rpmInput" id="rpmInputLabel">Velocitat de l'engranatge conductor (RPM)</label>
+              <input type="number" id="rpmInput" min="0" step="0.1" value="60">
+              <small class="help" id="rpmInputHelp">
+                Aquest valor és la velocitat d'entrada del sistema.
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="animScale" id="animLabel">Velocitat de l'animació</label>
+              <input type="range" id="animScale" min="0.05" max="1.60" step="0.05" value="0.35">
+              <small class="help" id="animHelp">
+                Només afecta l'animació visual, no els càlculs.
+              </small>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>
+              <span class="gear-dot" style="background:var(--gear1)"></span>
+              <span id="gear1Title">Engranatge 1</span>
+            </h3>
+
+            <div class="field">
+              <label for="teeth1" id="teeth1Label">Nombre de dents (z₁)</label>
+              <input type="number" id="teeth1" min="6" step="1" value="20">
+              <small class="help" id="teeth1Help">Més dents ⇒ diàmetre primitiu més gran.</small>
+            </div>
+
+            <div class="field">
+              <label for="diameter1" id="diameter1Label">Diàmetre primitiu (d₁)</label>
+              <input type="number" id="diameter1" readonly>
+              <small class="help" id="diameter1Help">Es calcula amb d = m · z.</small>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>
+              <span class="gear-dot" style="background:var(--gear2)"></span>
+              <span id="gear2Title">Engranatge 2</span>
+            </h3>
+
+            <div class="field">
+              <label for="teeth2" id="teeth2Label">Nombre de dents (z₂)</label>
+              <input type="number" id="teeth2" min="6" step="1" value="40">
+              <small class="help" id="teeth2Help">Si té més dents i és de sortida, gira més lent.</small>
+            </div>
+
+            <div class="field">
+              <label for="diameter2" id="diameter2Label">Diàmetre primitiu (d₂)</label>
+              <input type="number" id="diameter2" readonly>
+              <small class="help" id="diameter2Help">Es calcula amb d = m · z.</small>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3 id="presetsTitle">Exemples ràpids</h3>
+            <div class="presets">
+              <button class="preset-btn" data-preset="2to1" id="presetBtn1">Reducció 2:1</button>
+              <button class="preset-btn" data-preset="1to2" id="presetBtn2">Multiplicació 1:2</button>
+              <button class="preset-btn" data-preset="1to1" id="presetBtn3">Relació 1:1</button>
+              <button class="preset-btn" data-preset="3to1" id="presetBtn4">Reducció 3:1</button>
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <strong id="formulaTitle">Fórmules clau</strong>
+            <span class="formula-inline" id="formulaLine1">d = m · z</span>
+            <span class="formula-inline" id="formulaLine2">i = z₂ / z₁</span>
+            <span class="formula-inline" id="formulaLine3">n₂ = n₁ · z₁ / z₂</span>
+            <span class="formula-inline" id="formulaLine4">ω = 2πn / 60</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISUALITZACIÓ -->
+      <section class="panel">
+        <div class="panel-inner">
+          <div class="stage-toolbar">
+            <h2 class="panel-title" style="margin:0;">
+              <span class="panel-icon" style="background:var(--accent2); box-shadow:0 0 0 6px rgba(34,197,94,.18);"></span>
+              <span id="visualTitle">Visualització</span>
+            </h2>
+
+            <div class="badge-row">
+              <span class="badge" id="rotationBadge">Giren en sentits oposats</span>
+              <span class="badge" id="meshBadge">Mòdul comú correcte</span>
+            </div>
+          </div>
+
+          <div class="canvas-shell">
+            <div id="canvasHost"></div>
+          </div>
+
+          <div class="legend">
+            <div class="legend-item">
+              <span class="gear-dot" style="background:var(--gear1)"></span>
+              <span id="legendGear1">Engranatge 1</span>
+            </div>
+            <div class="legend-item">
+              <span class="gear-dot" style="background:var(--gear2)"></span>
+              <span id="legendGear2">Engranatge 2</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-line"></span>
+              <span id="legendPitch">Cercle primitiu</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-center"></span>
+              <span id="legendCenter">Centre de l'eix</span>
+            </div>
+          </div>
+
+          <p class="footer-note" id="visualFootnote">
+            Els engranatges en contacte giren en sentits oposats i la relació de dents determina la velocitat de sortida.
+          </p>
+        </div>
+      </section>
+
+      <!-- RESULTATS + MODE PROFESSOR -->
+      <aside class="panel">
+        <div class="panel-inner">
+          <div class="results-header">
+            <h2 class="panel-title">
+              <span class="panel-icon" style="background:var(--accent3); box-shadow:0 0 0 6px rgba(245,158,11,.18);"></span>
+              <span id="resultsTitle">Resultats</span>
+            </h2>
+
+            <button class="ghost-btn small-btn" id="toggleResultsBtn">Amaga resultats</button>
+          </div>
+
+          <div class="metric-grid" id="resultsGrid">
+            <div class="metric">
+              <div class="label" id="ratioLabel">Relació de transmissió</div>
+              <div class="value" id="ratioValue">2.00</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="rpm1Label">Velocitat de l'engranatge 1</div>
+              <div class="value" id="rpm1Value">60.00 RPM</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="rpm2Label">Velocitat de l'engranatge 2</div>
+              <div class="value" id="rpm2Value">30.00 RPM</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="omegaOutLabel">Velocitat angular de sortida</div>
+              <div class="value" id="omegaOutValue">3.14 rad/s</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="torqueLabel">Parell de sortida (si entren 1 N·m)</div>
+              <div class="value" id="torqueValue">2.00 N·m</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="centerDistanceLabel">Distància entre centres</div>
+              <div class="value" id="centerDistanceValue">60.00 mm</div>
+            </div>
+          </div>
+
+          <div class="step-box">
+            <h3 id="stepsTitle">Explicació pas a pas</h3>
+            <ol class="steps" id="stepsList"></ol>
+          </div>
+
+          <div class="explain-card" id="interpretationBox">
+            Si l'engranatge de sortida té més dents, gira més lent però transmet més parell.
+          </div>
+
+          <div class="teacher-tip" id="teacherTipBox">
+            Suggeriment didàctic: canvia només el nombre de dents i demana a l'alumnat que predigui què passarà abans de mirar els resultats.
+          </div>
+
+          <p class="small-note" id="powerNote">
+            Model ideal: se suposa transmissió sense pèrdues per facilitar la comprensió.
+          </p>
+
+          <!-- MODE PROFESSOR -->
+          <section class="teacher-mode">
+            <h3 class="teacher-title" id="teacherTitle">Mode professor</h3>
+
+            <div class="teacher-toolbar">
+              <div class="teacher-field">
+                <label for="activitySelect" id="activityLabel">Activitat guiada</label>
+                <select id="activitySelect">
+                  <option value="z2_speed">Si z₂ augmenta, què passa amb la velocitat?</option>
+                  <option value="predict_current">Prediu abans de calcular</option>
+                  <option value="equal_teeth">Si z₁ = z₂, què passa?</option>
+                </select>
+              </div>
+
+              <div class="teacher-buttons">
+                <button class="teacher-btn secondary" id="newQuestionBtn">Nova pregunta</button>
+                <button class="teacher-btn primary" id="showSolutionBtn">Mostra solució</button>
+              </div>
+            </div>
+
+            <div id="teacherActivityCard" class="teacher-card"></div>
+          </section>
+        </div>
+      </aside>
+    </main>
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
