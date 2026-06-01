@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Portes lògiques: clica la porta per canviar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+  <!-- p5.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<h1>LogicGate</h1>
+  <div class="info" id="infoText">👆 Toca les entrades (gris/groc) per canviar 0/1</div>
+
+  <div class="langBox" id="langBox" aria-label="Language selector">
+    <button type="button" class="langBtn" data-lang="ca" id="btnLangCa">CA</button>
+    <button type="button" class="langBtn" data-lang="es" id="btnLangEs">ES</button>
+    <button type="button" class="langBtn" data-lang="en" id="btnLangEn">EN</button>
+  </div>
+
+  <div class="tip" id="tipText">
+    🔵 Toca la porta blava per canviar de tipus (AND → OR → XOR → NAND → NOR → XNOR → NOT)
+  </div>
+
+  <!-- JS propi -->
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+
+
