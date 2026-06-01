@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResistorLab · Simulador didàctic de resistències</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="hero-top">
+        <div class="brand">
+          <div class="logo"></div>
+          <div>
+            <h1 id="pageTitle">ResistorLab · Simulador didàctic de resistències</h1>
+            <p class="subtitle" id="pageSubtitle">
+              Aprèn a llegir i construir el codi de colors de les resistències de forma visual, guiada i fàcil d'entendre.
+            </p>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <div class="lang-switch" aria-label="Selector d'idioma">
+            <button class="lang-btn active" data-lang="ca">Català</button>
+            <button class="lang-btn" data-lang="es">Castellano</button>
+            <button class="lang-btn" data-lang="en">English</button>
+          </div>
+
+          <button class="ghost-btn" id="resetBtn">Restableix</button>
+          <button class="primary-btn" id="calculateBtn">Calcula</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- CONTROLES -->
+      <section class="panel">
+        <div class="panel-inner">
+          <h2 class="panel-title">
+            <span class="panel-icon"></span>
+            <span id="controlsTitle">Controls</span>
+          </h2>
+
+          <div class="mode-switch">
+            <button class="mode-btn active" id="modeColorBtn" data-mode="colorToValue">Codi → valor</button>
+            <button class="mode-btn" id="modeValueBtn" data-mode="valueToColor">Valor → codi</button>
+          </div>
+
+          <div class="section">
+            <div class="field">
+              <label id="bandCountLabel">Nombre de bandes</label>
+              <div class="segmented">
+                <label class="driver-option">
+                  <input type="radio" name="bandCount" value="4" checked />
+                  <span id="band4Label">4 bandes</span>
+                </label>
+                <label class="driver-option">
+                  <input type="radio" name="bandCount" value="5" />
+                  <span id="band5Label">5 bandes</span>
+                </label>
+              </div>
+              <small class="help" id="bandCountHelp">
+                Les resistències de 4 bandes tenen 2 xifres significatives; les de 5 bandes en tenen 3.
+              </small>
+            </div>
+          </div>
+
+          <!-- MODO COLOR A VALOR -->
+          <div class="section" id="colorModePanel">
+            <h3>
+              <span class="gear-dot resistor-dot"></span>
+              <span id="colorModeTitle">Codi de colors a valor</span>
+            </h3>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="band1" id="band1Label">Banda 1</label>
+                <select id="band1"></select>
+              </div>
+
+              <div class="field">
+                <label for="band2" id="band2Label">Banda 2</label>
+                <select id="band2"></select>
+              </div>
+
+              <div class="field" id="band3Wrap">
+                <label for="band3" id="band3Label">Banda 3</label>
+                <select id="band3"></select>
+              </div>
+
+              <div class="field">
+                <label for="multiplier" id="multiplierLabel">Multiplicador</label>
+                <select id="multiplier"></select>
+              </div>
+
+              <div class="field">
+                <label for="toleranceColor" id="toleranceColorLabel">Tolerància</label>
+                <select id="toleranceColor"></select>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODO VALOR A COLOR -->
+          <div class="section hidden" id="valueModePanel">
+            <h3>
+              <span class="gear-dot resistor-dot"></span>
+              <span id="valueModeTitle">Valor a codi de colors</span>
+            </h3>
+
+            <div class="field">
+              <label for="valueInput" id="valueInputLabel">Valor de la resistència</label>
+              <input type="text" id="valueInput" placeholder="Ex.: 220, 4.7k, 1M" />
+              <small class="help" id="valueInputHelp">
+                Pots escriure valors com 220, 4.7k, 10k, 1M o 2.2M.
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="toleranceInput" id="toleranceInputLabel">Tolerància</label>
+              <select id="toleranceInput"></select>
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <strong id="formulaTitle">Idees clau</strong>
+            <span class="formula-inline" id="formulaLine1">Les primeres bandes indiquen les xifres significatives.</span>
+            <span class="formula-inline" id="formulaLine2">La banda multiplicadora desplaça la coma decimal.</span>
+            <span class="formula-inline" id="formulaLine3">La tolerància indica el marge d'error admès.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISUALITZACIÓ -->
+      <section class="panel">
+        <div class="panel-inner">
+          <div class="stage-toolbar">
+            <h2 class="panel-title" style="margin:0;">
+              <span class="panel-icon" style="background:var(--accent2); box-shadow:0 0 0 6px rgba(34,197,94,.18);"></span>
+              <span id="visualTitle">Visualització</span>
+            </h2>
+
+            <div class="badge-row">
+              <span class="badge" id="bandsBadge">Bandes ordenades d'esquerra a dreta</span>
+              <span class="badge" id="toleranceBadge">La darrera banda és la tolerància</span>
+            </div>
+          </div>
+
+          <div class="canvas-shell resistor-shell">
+            <div class="resistor-svg-wrap">
+              <svg id="resistorSvg" viewBox="0 0 760 260" aria-label="Visualització de la resistència"></svg>
+            </div>
+          </div>
+
+          <div class="legend" id="bandLegend"></div>
+
+          <p class="footer-note" id="visualFootnote">
+            Recorda: en una resistència, les bandes es llegeixen des del costat oposat a la banda de tolerància.
+          </p>
+        </div>
+      </section>
+
+      <!-- RESULTATS + MODE PROFESSOR -->
+      <aside class="panel">
+        <div class="panel-inner">
+          <div class="results-header">
+            <h2 class="panel-title">
+              <span class="panel-icon" style="background:var(--accent3); box-shadow:0 0 0 6px rgba(245,158,11,.18);"></span>
+              <span id="resultsTitle">Resultats</span>
+            </h2>
+
+            <button class="ghost-btn small-btn" id="toggleResultsBtn">Amaga resultats</button>
+          </div>
+
+          <div class="metric-grid" id="resultsGrid">
+            <div class="metric">
+              <div class="label" id="mainValueLabel">Valor nominal</div>
+              <div class="value" id="mainValue">—</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="toleranceLabel">Tolerància</div>
+              <div class="value" id="toleranceValue">—</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="minValueLabel">Valor mínim</div>
+              <div class="value" id="minValue">—</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="maxValueLabel">Valor màxim</div>
+              <div class="value" id="maxValue">—</div>
+            </div>
+
+            <div class="metric">
+              <div class="label" id="summaryLabel">Resum del codi</div>
+              <div class="value smaller-value" id="summaryValue">—</div>
+            </div>
+          </div>
+
+          <div class="step-box">
+            <h3 id="stepsTitle">Explicació pas a pas</h3>
+            <ol class="steps" id="stepsList"></ol>
+          </div>
+
+          <div class="explain-card" id="interpretationBox">
+            La tolerància indica el marge d'error permès sobre el valor nominal.
+          </div>
+
+          <div class="teacher-tip" id="teacherTipBox">
+            Suggeriment didàctic: fes que l'alumnat predigui primer el valor abans de prémer «Calcula».
+          </div>
+
+          <p class="small-note" id="powerNote">
+            Aquest simulador està pensat per a la interpretació educativa del codi de colors de resistències.
+          </p>
+
+          <!-- MODE PROFESSOR -->
+          <section class="teacher-mode">
+            <h3 class="teacher-title" id="teacherTitle">Mode professor</h3>
+
+            <div class="teacher-toolbar">
+              <div class="teacher-field">
+                <label for="activitySelect" id="activityLabel">Activitat guiada</label>
+                <select id="activitySelect">
+                  <option value="multiplier_up">Si el multiplicador puja un pas, què passa?</option>
+                  <option value="predict_current">Prediu abans de calcular</option>
+                  <option value="gold_tolerance">Quina tolerància indica l'or?</option>
+                </select>
+              </div>
+
+              <div class="teacher-buttons">
+                <button class="teacher-btn secondary" id="newQuestionBtn">Nova pregunta</button>
+                <button class="teacher-btn primary" id="showSolutionBtn">Mostra solució</button>
+              </div>
+            </div>
+
+            <div id="teacherActivityCard" class="teacher-card"></div>
+          </section>
+        </div>
+      </aside>
+    </main>
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
