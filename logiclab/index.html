@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>LogicLab · Logic Gate Lab</title>
+    <link rel="stylesheet" href="styles.css">  
+</head>
+<body>
+<div class="main-header">
+    <h1 id="appTitle">⚡ LogicLab: Logic Gate Lab</h1>
+
+    <div class="header-actions">
+        <label for="langSelect" class="sr-only">Language</label>
+        <select id="langSelect" class="lang-select">
+            <option value="ca">Català</option>
+            <option value="es">Castellano</option>
+            <option value="en">English</option>
+        </select>
+
+        <button class="help-btn" id="helpButton" aria-label="Help">?</button>
+    </div>
+</div>
+
+<div class="spec-panel">
+    <h2>
+        <span id="truthTableTitle">⚡ 4-variable truth table</span>
+        <small id="truthTableSubtitle">a b c d fixed · f toggles (0/1/X)</small>
+    </h2>
+
+    <div class="spec-toolbar">
+        <button class="btn btn-primary" id="randomSpecBtn">🎲 Random f</button>
+        <button class="btn" id="resetSpecBtn">⏪ All f = 0</button>
+        <button class="btn" id="buildCircuitBtn">⚙️ Build from SOP</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="spec-table" id="specTable">
+            <thead>
+                <tr>
+                    <th>a</th>
+                    <th>b</th>
+                    <th>c</th>
+                    <th>d</th>
+                    <th style="background:#e9eef3;">f</th>
+                </tr>
+            </thead>
+            <tbody id="specTableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="kmap-wrapper">
+        <div class="kmap-title" id="kmapTitle">📊 Interactive Karnaugh Map (ab ↓  cd →)</div>
+        <table class="kmap-table" id="kmapTable">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>00</th>
+                    <th>01</th>
+                    <th>11</th>
+                    <th>10</th>
+                </tr>
+            </thead>
+            <tbody id="kmapBody"></tbody>
+        </table>
+
+        <div id="kmapHint" style="text-align:center; margin-top:12px; color:#64748b; font-size:0.95rem;">
+            👆 Click any cell to cycle 0 → 1 → X • Live sync with truth table
+        </div>
+    </div>
+
+    <div class="expr-grid">
+        <div class="expr-box">
+            <div class="expr-title" id="canonicalSOPTitle">🔹 Canonical SOP (Minterms)</div>
+            <div class="expr-output" id="sopExpr">—</div>
+        </div>
+
+        <div class="expr-box">
+            <div class="expr-title" id="canonicalPOSTitle">🔸 Canonical POS (Maxterms)</div>
+            <div class="expr-output" id="posExpr">—</div>
+        </div>
+
+        <div class="expr-box simp-sop">
+            <div class="expr-title" id="simplifiedSOPTitle">✨ Simplified SOP</div>
+            <div class="expr-output" id="simpsopExpr">—</div>
+        </div>
+
+        <div class="expr-box simp-pos">
+            <div class="expr-title" id="simplifiedPOSTitle">✨ Simplified POS</div>
+            <div class="expr-output" id="simpposExpr">—</div>
+        </div>
+    </div>
+
+    <div id="cycleHint" style="text-align:right; color:#526477; font-size:0.9rem; margin-top:10px;">
+        ⚡ click any f or K-map cell to cycle: 0 → 1 → X
+    </div>
+</div>
+
+<div id="toolbar">
+    <button id="addAndBtn" onclick="addGate('AND')">➕ AND</button>
+    <button id="addOrBtn" onclick="addGate('OR')">➕ OR</button>
+    <button id="addNotBtn" onclick="addGate('NOT')">➕ NOT</button>
+    <button id="addInputBtn" onclick="addInput()">🔘 Input</button>
+    <button id="addOutputBtn" onclick="addOutput()">🖍️ Output</button>
+    <button id="wireBtn" onclick="toggleWireMode()">🔌 Wire</button>
+    <button id="simBtn" onclick="toggleSimulate()">▶ Simulate</button>
+    <button id="saveBtn" onclick="saveCircuit()">💾 Save</button>
+    <button id="loadBtn" onclick="loadCircuit()">📂 Load</button>
+    <button id="undoBtn" onclick="undo()">↩️ Undo</button>
+    <button id="redoBtn" onclick="redo()">↪️ Redo</button>
+    <span class="status-text" id="status">⚡ ready</span>
+</div>
+
+<svg id="canvas" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet"></svg>
+
+<div id="helpModal">
+    <span id="closeHelp" onclick="closeHelpModal()">&times;</span>
+    <h3 id="helpTitle">How to use LogicLab – Logic Gate Lab</h3>
+    <p id="helpP1"><strong>1. Define your function</strong><br>Click cells in the truth table or Karnaugh Map to set f = 0 / 1 / X. Expressions update instantly.</p>
+    <p id="helpP2"><strong>2. Karnaugh Map</strong><br>Visual tool for simplification – click cells, watch SOP and POS change live.</p>
+    <p id="helpP3"><strong>3. Build circuit</strong><br>Click “Build from SOP” – automatically creates a clean two-level circuit from the simplified SOP expression.</p>
+    <p id="helpP4"><strong>4. Simulate &amp; edit</strong><br>Add gates, wire (output → input), toggle simulation. Right-click any component to delete.</p>
+    <p id="helpP5"><strong>5. Save / Load</strong><br>Use the toolbar buttons to save your circuit to a JSON file or load a previously saved one. Undo/Redo works on both circuit and truth table.</p>
+    <p id="helpFooter" style="margin-top:25px; font-style:italic; color:#475569;">Perfect for learning Boolean algebra, K-maps, and gate-level design. Enjoy!</p>
+</div>
+
+<div id="helpOverlay" class="overlay" onclick="closeHelpModal()"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
