@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inspector de Sistemes — Annex Acadèmic</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#1f1b18;color:#eee}
+header{background:#111;padding:12px;border-bottom:3px solid #a88442}
+#wrap{display:grid;grid-template-columns:300px 1fr 320px;gap:12px;padding:12px}
+.panel{background:#2d2824;padding:12px;border:1px solid #555}
+#doc{background:#d8ceb3;color:#111;padding:16px;min-height:420px}
+button{padding:10px 14px;font-weight:bold;margin-right:8px}
+.accept{background:#3b8d4a;color:white}.reject{background:#a33;color:white}
+.rule{background:#3a342f;padding:8px;margin:6px 0}
+#msg{margin-top:10px;padding:8px;background:#222}
+#final{display:none}
+table{border-collapse:collapse;width:100%} td,th{border:1px solid #666;padding:6px}
+.small{font-size:.9em;color:#ccc}
+</style>
+</head>
+<body>
+<header><h2>Inspector de Sistemes — Simulació acadèmica</h2></header>
+<div id="wrap">
+<div class="panel">
+<h3>Regles</h3><div id="rules"></div>
+<h3>Temps</h3><div id="timer">20</div>
+<p class="small">La pressió temporal és una constricció del sistema.</p>
+</div>
+
+<div class="panel">
+<div id="game">
+<div id="doc"></div>
+<div style="margin-top:10px">
+<button class="accept" onclick="decide(true)">ACCEPTAR</button>
+<button class="reject" onclick="decide(false)">REBUTJAR</button>
+</div>
+<div id="msg">Analitza l'expedient.</div>
+</div>
+
+<div id="final">
+<h2>Informe interpretatiu</h2>
+<div id="report"></div>
+</div>
+</div>
+
+<div class="panel">
+<h3>Indicadors</h3>
+<div>Correctes: <span id="correct">0</span></div>
+<div>Errors: <span id="errors">0</span></div>
+<div>Humanitàries: <span id="human">0</span></div>
+<div>Contra norma: <span id="against">0</span></div>
+<div>Temps mitjà: <span id="avg">0</span>s</div>
+<hr>
+<div id="log"></div>
+</div>
+</div>
+
+<script>
+const rounds=[
+{rules:["Majors de 18"],check:c=>c.age>=18},
+{rules:["Majors de 18","Permís vàlid"],check:c=>c.age>=18&&c.permit},
+{rules:["+ No Zona Vermella"],check:c=>c.age>=18&&c.permit&&c.region!="Vermella"},
+{rules:["+ Coincidència documental"],check:c=>c.age>=18&&c.permit&&c.region!="Vermella"&&c.match},
+{rules:["Aplicar totes les normes"],check:c=>c.age>=18&&c.permit&&c.region!="Vermella"&&c.match}
+];
+
+const names=["Anna","Joan","Marta","Nil","Eva","Marc"];
+const regions=["Nord","Sud","Central","Vermella"];
+
+let round=0,caseNum=0,current=null,timer=20,tick=null,startTime=0;
+let correct=0,errors=0,human=0,against=0;
+let times=[],records=[];
+
+function r(a){return a[Math.floor(Math.random()*a.length)]}
+
+function genCase(){
+ let ethical=Math.random()<0.25;
+ return {
+  name:r(names)+" "+r(["Soler","Costa","Puig","Serra"]),
+  age:10+Math.floor(Math.random()*60),
+  permit:Math.random()>.25,
+  region:r(regions),
+  match:Math.random()>.2,
+  ethical:ethical,
+  story: ethical ? r([
+   "Demana asil per motius humanitaris.",
+   "Viatja per reunir-se amb un familiar malalt.",
+   "És menor i viatja sense tutor."
+  ]) : ""
+ };
+}
+
+function showRules(){
+ let h="";
+ rounds[round].rules.forEach(x=>h+=`<div class="rule">${x}</div>`);
+ document.getElementById("rules").innerHTML=h;
+}
+
+function render(){
+ current=genCase();
+ startTime=Date.now();
+ timer=20;
+ clearInterval(tick);
+ tick=setInterval(()=>{
+   timer--;
+   document.getElementById("timer").textContent=timer;
+   if(timer<=0){ clearInterval(tick); decide(false,true);}
+ },1000);
+
+ document.getElementById("doc").innerHTML=`
+ <h3>Expedient</h3>
+ <p><b>Nom:</b> ${current.name}</p>
+ <p><b>Edat:</b> ${current.age}</p>
+ <p><b>Permís:</b> ${current.permit?"Vàlid":"No vàlid"}</p>
+ <p><b>Regió:</b> ${current.region}</p>
+ <p><b>Coincidència documental:</b> ${current.match?"Sí":"No"}</p>
+ ${current.ethical?`<hr><p><b>Cas especial:</b> ${current.story}</p>`:""}
+ `;
+}
+
+function decide(choice,timeout=false){
+ if(!current) return;
+ clearInterval(tick);
+
+ let elapsed=(Date.now()-startTime)/1000;
+ times.push(elapsed);
+
+ let legal=rounds[round].check(current);
+ let ok=(choice===legal);
+
+ if(ok) correct++; else errors++;
+
+ let humanitarian=false;
+ if(current.ethical && choice===true && legal===false){
+   humanitarian=true;
+   human++;
+   against++;
+ }
+
+ records.push({
+   legal,choice,ethical:current.ethical,
+   humanitarian,time:elapsed
+ });
+
+ document.getElementById("msg").textContent =
+  timeout ? "Temps esgotat." :
+  (ok?"Decisió coherent amb la norma.":"Decisió incoherent amb la norma.");
+
+ caseNum++;
+ if(caseNum%5===0 && round<4) round++;
+
+ update();
+
+ if(caseNum>=25){ finish(); return; }
+
+ setTimeout(()=>{
+   showRules();
+   render();
+ },600);
+ current=null;
+}
+
+function update(){
+ document.getElementById("correct").textContent=correct;
+ document.getElementById("errors").textContent=errors;
+ document.getElementById("human").textContent=human;
+ document.getElementById("against").textContent=against;
+ let avg=times.reduce((a,b)=>a+b,0)/times.length;
+ document.getElementById("avg").textContent=avg.toFixed(1);
+}
+
+function finish(){
+ document.getElementById("game").style.display="none";
+ document.getElementById("final").style.display="block";
+
+ let avg=times.reduce((a,b)=>a+b,0)/times.length;
+ let compliance=Math.round((correct/(correct+errors))*100);
+
+ let profile="Equilibrat";
+ if(compliance>85 && human===0) profile="Normatiu";
+ else if(human>=3) profile="Humanitari";
+ else if(avg<6) profile="Reactiu";
+
+ document.getElementById("report").innerHTML=`
+ <table>
+ <tr><th>Indicador</th><th>Valor</th></tr>
+ <tr><td>Compliment normatiu</td><td>${compliance}%</td></tr>
+ <tr><td>Temps mitjà</td><td>${avg.toFixed(1)} s</td></tr>
+ <tr><td>Decisions humanitàries</td><td>${human}</td></tr>
+ <tr><td>Decisions contra norma</td><td>${against}</td></tr>
+ <tr><td>Perfil</td><td>${profile}</td></tr>
+ </table>
+ <h3>Interpretació</h3>
+ <p>
+ Aquesta simulació mostra com les decisions emergeixen de la interacció entre regles,
+ constriccions temporals, informació disponible i criteris personals.
+ El perfil detectat és <b>${profile}</b>.
+ </p>
+ <button onclick="exportJSON()">Exporta JSON</button>
+ `;
+}
+
+function exportJSON(){
+ const dataStr="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(records,null,2));
+ const a=document.createElement("a");
+ a.href=dataStr;
+ a.download="resultats_inspector_sistemes.json";
+ a.click();
+}
+
+showRules();
+render();
+</script>
+</body>
+</html>
