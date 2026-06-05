@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<title>Xarxes i Col·lapse — Simulació Acadèmica</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:Arial;margin:0;background:#1d2024;color:#eee}
+header{background:#111;padding:12px;border-bottom:3px solid #c89a45}
+#layout{display:grid;grid-template-columns:280px 1fr 320px;gap:10px;padding:10px}
+.panel{background:#2b3036;padding:10px}
+canvas{background:#fafafa;width:100%;height:600px;border:1px solid #555}
+button{padding:8px 12px;margin:4px}
+.metric{margin:6px 0}
+#report{display:none}
+</style>
+</head>
+<body>
+<header>
+<h2>Xarxes i Col·lapse</h2>
+<div>Simulació inspirada en la pedagogia dels sistemes i les xarxes</div>
+</header>
+
+<div id="layout">
+<div class="panel">
+<h3>Hipòtesi</h3>
+<p>El jugador no controla els passatgers sinó l'estructura de la xarxa.</p>
+<h3>Recursos</h3>
+<div class="metric">Línies disponibles: <span id="lines">3</span></div>
+<div class="metric">Estacions saturades: <span id="sat">0</span></div>
+<button onclick="addLine()">Afegir línia</button>
+<button onclick="resetNet()">Reiniciar</button>
+</div>
+
+<div class="panel">
+<canvas id="c" width="900" height="600"></canvas>
+</div>
+
+<div class="panel">
+<h3>Indicadors</h3>
+<div class="metric">Passatgers: <span id="pax">0</span></div>
+<div class="metric">Transportats: <span id="served">0</span></div>
+<div class="metric">Temps: <span id="time">0</span></div>
+<div class="metric">Eficiència: <span id="eff">0</span>%</div>
+<hr>
+<div id="report"></div>
+</div>
+</div>
+
+<script>
+const cv=document.getElementById('c');
+const ctx=cv.getContext('2d');
+
+let nodes=[];
+let links=[];
+let lines=3;
+let passengers=0;
+let served=0;
+let t=0;
+
+function init(){
+ nodes=[];
+ for(let i=0;i<10;i++){
+   nodes.push({
+     x:80+Math.random()*700,
+     y:80+Math.random()*450,
+     q:0
+   });
+ }
+ links=[[0,1],[1,2],[2,3]];
+}
+function addLine(){
+ if(lines<=0)return;
+ links.push([Math.floor(Math.random()*nodes.length),
+             Math.floor(Math.random()*nodes.length)]);
+ lines--;
+ document.getElementById("lines").textContent=lines;
+}
+function resetNet(){
+ location.reload();
+}
+
+function step(){
+ t++;
+ document.getElementById("time").textContent=t;
+
+ let n=nodes[Math.floor(Math.random()*nodes.length)];
+ n.q++;
+ passengers++;
+
+ links.forEach(l=>{
+   let a=nodes[l[0]],b=nodes[l[1]];
+   if(a.q>0){a.q--;served++;}
+   if(b.q>0){b.q--;served++;}
+ });
+
+ draw();
+ update();
+
+ if(t>180) finish();
+}
+
+function update(){
+ let sat=nodes.filter(n=>n.q>8).length;
+ document.getElementById("sat").textContent=sat;
+ document.getElementById("pax").textContent=passengers;
+ document.getElementById("served").textContent=served;
+ let eff=passengers?Math.round(served/passengers*100):0;
+ document.getElementById("eff").textContent=eff;
+}
+
+function draw(){
+ ctx.clearRect(0,0,cv.width,cv.height);
+
+ ctx.strokeStyle="#666";
+ ctx.lineWidth=4;
+
+ links.forEach(l=>{
+   let a=nodes[l[0]],b=nodes[l[1]];
+   ctx.beginPath();
+   ctx.moveTo(a.x,a.y);
+   ctx.lineTo(b.x,b.y);
+   ctx.stroke();
+ });
+
+ nodes.forEach(n=>{
+   ctx.beginPath();
+   ctx.arc(n.x,n.y,15+Math.min(n.q,15),0,Math.PI*2);
+   ctx.fillStyle="black";
+   ctx.fill();
+   ctx.fillStyle="white";
+   ctx.fillText(n.q,n.x-4,n.y+4);
+ });
+}
+
+function finish(){
+ clearInterval(loop);
+
+ let eff=passengers?Math.round(served/passengers*100):0;
+ let profile="Adaptatiu";
+ if(eff<60) profile="Reactiu";
+ if(eff>90) profile="Optimitzador";
+
+ document.getElementById("report").style.display="block";
+ document.getElementById("report").innerHTML=`
+ <h3>Informe acadèmic</h3>
+ <p><b>Perfil:</b> ${profile}</p>
+ <p><b>Eficiència:</b> ${eff}%</p>
+ <p>
+ La simulació mostra que la decisió consisteix a intervenir sobre
+ l'estructura de la xarxa i no sobre els elements individuals.
+ Les congestions emergeixen de la relació entre recursos limitats,
+ creixement de la demanda i configuració del sistema.
+ </p>
+ <p>
+ Categories observables: regla, sistema, feedback, adaptació,
+ col·lapse i presa de decisions sota restriccions.
+ </p>`;
+}
+
+init();
+draw();
+let loop=setInterval(step,1000);
+</script>
+</body>
+</html>
