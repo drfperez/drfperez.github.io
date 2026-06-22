@@ -1,0 +1,540 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <title>EcoTrivial</title>
+  <meta name="description" content="EcoTrivial: joc educatiu sobre agricultura ecològica amb editor de preguntes, importació/exportació i mode projector." />
+  <meta name="theme-color" content="#2f8f4e" />
+
+  <!-- Enllaços als recursos -->
+  <link rel="icon" type="image/png" href="icons/favicon.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="EcoTrivial" />
+</head>
+<body>
+  <section class="screen" id="startScreen">
+    <div class="screen-card">
+      <div class="hero">
+        <div class="hero-badge">🌾</div>
+        <div>
+          <h1>EcoTrivial: Agricultura ecològica</h1>
+          <p>Aquesta versió incorpora <strong>editor de preguntes</strong>, <strong>importació/exportació CSV i JSON</strong> i el <strong>banc complet de 48 preguntes</strong> (8 per categoria) per defecte.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>⚙️ Configuració de la partida</h2>
+          <div class="field">
+            <label>Mode de joc</label>
+            <div class="mode-selector">
+              <div class="mode-card active" id="modeSolo"><strong>👩‍🌾 Individual</strong><span>Per pràctica individual.</span></div>
+              <div class="mode-card" id="modeTeams"><strong>👥 2 equips</strong><span>Torns, punts i falques pròpies.</span></div>
+              <div class="mode-card" id="modeProjector"><strong>🖥️ Projector</strong><span>Interfície gran per a l’aula.</span></div>
+            </div>
+          </div>
+          <div class="field"><label for="team1Input">Nom del jugador / Equip 1</label><input id="team1Input" type="text" maxlength="18" value="Equip Verd" /></div>
+          <div class="field" id="team2Field"><label for="team2Input">Nom Equip 2</label><input id="team2Input" type="text" maxlength="18" value="Equip Blau" /></div>
+          <div class="row">
+            <div class="field"><label for="difficultySelect">Dificultat</label><select id="difficultySelect"><option value="basic">Bàsic · 1 encert = falca</option><option value="medium" selected>Mitjà · 2 encerts = falca</option><option value="advanced">Avançat · només caselles W</option></select></div>
+            <div class="field"><label for="timerSelect">Temps per pregunta</label><select id="timerSelect"><option value="0">Sense límit</option><option value="20" selected>20 segons</option><option value="30">30 segons</option><option value="45">45 segons</option></select></div>
+          </div>
+          <div class="chips"><span class="chip">🎯 6 falques + meta</span><span class="chip">📚 Feedback explicatiu</span><span class="chip">⌨️ Espai / 1-4</span></div>
+          <div class="actions">
+            <button class="btn-primary" id="btnStart">▶ Començar partida</button>
+            <button class="btn-ghost" id="btnHelpStart">❓ Centre d’ajuda</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>🧩 Banc de preguntes</h2>
+          <div class="status-line" id="bankStatus">Carregant banc…</div>
+          <div class="actions" style="justify-content:flex-start;">
+            <button class="btn-primary" id="btnOpenEditor">✏️ Obrir editor</button>
+            <button class="btn-ghost" id="btnImport">📥 Importar</button>
+            <button class="btn-ghost" id="btnExportJson">⬇️ Exportar JSON</button>
+            <button class="btn-ghost" id="btnExportCsv">⬇️ Exportar CSV</button>
+            <button class="btn-secondary" id="btnTemplateCsv">Plantilla CSV</button>
+            <button class="btn-secondary" id="btnTemplateJson">Plantilla JSON</button>
+            <button class="btn-ghost" id="btnEditHelp">🛠️ Com editar el joc</button>
+            <button class="btn-danger" id="btnResetBank">♻️ Banc per defecte</button>
+          </div>
+          <input class="hidden" id="questionFile" type="file" accept=".csv,.json,application/json,text/csv" />
+          <div class="note">
+            <strong>Formats admesos</strong><br>
+            CSV amb columnes: <code>categoria;pregunta;opcio1;opcio2;opcio3;opcio4;correcte;explicacio</code><br>
+            JSON com a <code>array</code> d’objectes o objecte per categories.<br><br>
+            Categories vàlides: <code>verd</code>, <code>blau</code>, <code>taronja</code>, <code>vermell</code>, <code>groc</code>, <code>lila</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="app hidden" id="gameScreen">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge">🌾</div>
+        <div>
+          <h2>EcoTrivial</h2>
+          <p>Editor integrat, importació/exportació i banc complet per defecte.</p>
+        </div>
+      </div>
+      <div class="pill">🎯 Aconsegueix les 6 falques i arriba al centre</div>
+    </header>
+
+    <main class="layout">
+      <section class="card board-card">
+        <div class="board-head">
+          <div>
+            <h3>Tauler interactiu</h3>
+            <div class="subtle">W = falca · B = bonus · ↺ = torna a tirar · R = repte docent</div>
+          </div>
+          <div class="subtle">Espai/Enter = dau · 1-4 = respondre</div>
+        </div>
+        <div class="board" id="board"></div>
+      </section>
+
+      <aside class="side">
+        <section class="card stats">
+          <div class="stat"><div class="k">⏱️ Temps</div><div class="v" id="uiGameTime">00:00</div></div>
+          <div class="stat"><div class="k">🎲 Dau</div><div class="v" id="uiLastRoll">—</div></div>
+          <div class="stat"><div class="k">🎛️ Dificultat</div><div class="v" id="uiDifficulty">Mitjà</div></div>
+          <div class="stat"><div class="k">📚 Banc</div><div class="v" id="uiBankSize">—</div></div>
+        </section>
+
+        <section class="card teams-block">
+          <div class="teams-head"><strong>Participants</strong><span class="pill" id="turnLabel">Torn de —</span></div>
+          <div class="team-list" id="teamList"></div>
+        </section>
+
+        <section class="card controls">
+          <div class="dice-area">
+            <div class="dice" id="dice">🎲</div>
+            <div style="font-weight:900">Llença el dau</div>
+            <div class="subtle">Avança, respon i guanya falques.</div>
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" id="btnRoll">🎲 Llençar dau</button>
+            <button class="btn-secondary" id="btnHome">🏠 Inici</button>
+          </div>
+          <div class="actions" style="margin-top:10px;">
+            <button class="btn-ghost" id="btnHelpGame">❓ Ajuda ràpida</button>
+          </div>
+        </section>
+
+        <section class="card message" id="statusBox" aria-live="polite">Prem <strong>“Llençar dau”</strong> per començar.</section>
+        <section class="card legend"><strong>Com funciona</strong><ul><li><strong>W</strong>: casella de falca.</li><li><strong>B</strong>: bonus +5.</li><li><strong>↺</strong>: si encertes, mantens el torn.</li><li><strong>R</strong>: repte docent +5.</li></ul></section>
+      </aside>
+    </main>
+
+    <div class="app-footer">
+      <strong>EcoTrivial</strong> · eina de repàs, diagnosi i dinamització d’aula amb banc editable de preguntes.
+    </div>
+  </div>
+
+  <div class="overlay" id="questionOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="questionText">
+      <div class="modal-top">
+        <div class="tag" id="categoryTag">🌿 Verd</div>
+        <div class="modal-info">
+          <div class="mini-pill" id="modalTurnInfo">Torn de —</div>
+          <div class="mini-pill" id="modalSpecialInfo">Casella normal</div>
+          <div class="mini-pill" id="modalTimerInfo">⏳ —</div>
+        </div>
+      </div>
+      <div class="question" id="questionText">Carregant pregunta...</div>
+      <div class="timer-bar" id="timerBar"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="answers" id="answersBox"></div>
+      <div class="feedback" id="feedbackBox"><h4 id="feedbackTitle">✅ Correcte!</h4><p id="feedbackText">Explicació...</p></div>
+      <div class="modal-actions"><button class="btn-primary" id="btnContinue" style="display:none">Continuar ▶</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="editorOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+      <div class="modal-top">
+        <div>
+          <div class="tag" style="background:#e9f4e4;color:#214726">✏️ Editor de preguntes</div>
+          <h3 id="editorTitle" style="margin:.75rem 0 0;font-size:1.35rem;">Gestiona el banc de preguntes</h3>
+        </div>
+        <div class="modal-actions" style="margin-top:0;">
+          <button class="btn-ghost" id="btnOpenEditHelpFromEditor">🛠️ Ajuda d’edició</button>
+          <button class="btn-secondary" id="btnCloseEditor">Tancar</button>
+        </div>
+      </div>
+
+      <div class="editor-grid">
+        <section>
+          <div class="editor-toolbar"><strong id="editorCount">Preguntes</strong><button class="btn-primary" id="btnNewQuestion">➕ Nova pregunta</button></div>
+          <div class="cats" id="categoryTabs"></div>
+          <div class="question-list" id="questionList"></div>
+        </section>
+
+        <section>
+          <div class="row">
+            <div class="field"><label for="editorCategory">Categoria</label><select id="editorCategory"></select></div>
+            <div class="field"><label for="editorCorrect">Resposta correcta</label><select id="editorCorrect"><option value="0">Opció 1</option><option value="1">Opció 2</option><option value="2">Opció 3</option><option value="3">Opció 4</option></select></div>
+          </div>
+
+          <div class="field"><label for="editorQuestion">Pregunta</label><textarea id="editorQuestion" placeholder="Escriu la pregunta..."></textarea></div>
+
+          <div class="row">
+            <div class="field"><label for="editorOption1">Opció 1</label><input id="editorOption1" type="text" /></div>
+            <div class="field"><label for="editorOption2">Opció 2</label><input id="editorOption2" type="text" /></div>
+          </div>
+
+          <div class="row">
+            <div class="field"><label for="editorOption3">Opció 3</label><input id="editorOption3" type="text" /></div>
+            <div class="field"><label for="editorOption4">Opció 4</label><input id="editorOption4" type="text" /></div>
+          </div>
+
+          <div class="field"><label for="editorExplanation">Explicació</label><textarea id="editorExplanation" placeholder="Explicació breu que veurà l’alumnat després de respondre."></textarea></div>
+
+          <div class="editor-actions">
+            <button class="btn-primary" id="btnSaveQuestion">💾 Desar</button>
+            <button class="btn-ghost" id="btnDuplicateQuestion">📄 Duplicar</button>
+            <button class="btn-danger" id="btnDeleteQuestion">🗑️ Eliminar</button>
+            <button class="btn-secondary" id="btnEditorExportJson">⬇️ JSON</button>
+            <button class="btn-secondary" id="btnEditorExportCsv">⬇️ CSV</button>
+          </div>
+
+          <div class="status-line" id="editorStatus">Selecciona una pregunta o crea’n una de nova.</div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="helpCenterOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpCenterTitle">
+      <div class="modal-top">
+        <div>
+          <div class="tag" style="background:#e9f4e4;color:#214726">📚 Centre d’ajuda de l’EcoTrivial</div>
+          <h3 id="helpCenterTitle" style="margin:.75rem 0 0;font-size:1.5rem;">Guia ràpida del joc i de l’edició</h3>
+          <p class="subtle" style="max-width:85ch;">
+            Aquí tens una ajuda clara, visual i molt didàctica per entendre tant el funcionament del joc com la manera d’editar-lo i adaptar-lo a l’aula.
+          </p>
+        </div>
+        <div class="modal-actions" style="margin-top:0;">
+          <button class="btn-secondary" id="btnCloseHelpCenter">Tancar</button>
+        </div>
+      </div>
+
+      <div class="help-tabs">
+        <button class="help-tab-btn active" id="tabPlayHelp">❓ Com jugar</button>
+        <button class="help-tab-btn" id="tabEditHelp">🛠️ Com editar el joc</button>
+      </div>
+
+      <section class="help-panel active" id="playHelpPanel">
+        <div class="help-intro">
+          <strong>En una frase:</strong> has d’aconseguir les <strong>6 falques</strong> i arribar a la <strong>⭐ META</strong>.
+          Cada tirada et porta a una nova pregunta, i cada resposta serveix per aprendre, revisar i consolidar continguts.
+        </div>
+
+        <div class="tour-mini">
+          <div class="tour-box">
+            <div class="icon">🎲</div>
+            <strong>Llença</strong>
+            <p>Tira el dau i avança pel tauler.</p>
+          </div>
+          <div class="tour-box">
+            <div class="icon">❓</div>
+            <strong>Respon</strong>
+            <p>Contesta la pregunta de la categoria.</p>
+          </div>
+          <div class="tour-box">
+            <div class="icon">🏆</div>
+            <strong>Guanya</strong>
+            <p>Suma punts i aconsegueix falques.</p>
+          </div>
+          <div class="tour-box">
+            <div class="icon">⭐</div>
+            <strong>Arriba</strong>
+            <p>Amb totes les falques, ves a la meta.</p>
+          </div>
+        </div>
+
+        <div class="help-grid" style="margin-top:16px;">
+          <section class="help-card">
+            <h4>🎯 Objectiu del joc</h4>
+            <div class="help-highlight">
+              Has d’aconseguir les <strong>6 falques</strong> (una per categoria) i després arribar a la <strong>casella central ⭐ META</strong> per guanyar la partida.
+            </div>
+
+            <h4 style="margin-top:16px;">👣 Com es juga pas a pas</h4>
+            <div class="help-steps">
+              <div class="help-step">
+                <div class="help-step-num">1</div>
+                <div>
+                  <strong>Llença el dau</strong>
+                  <p>Quan sigui el teu torn, prem <strong>“🎲 Llençar dau”</strong>. El teu equip avançarà automàticament pel tauler.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">2</div>
+                <div>
+                  <strong>Respon la pregunta</strong>
+                  <p>En caure a una casella, apareixerà una pregunta de la categoria corresponent. Pots respondre fent clic o amb les tecles <span class="help-kbd">1</span> <span class="help-kbd">2</span> <span class="help-kbd">3</span> <span class="help-kbd">4</span>.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">3</div>
+                <div>
+                  <strong>Guanya punts i falques</strong>
+                  <p>Si encertes, sumes punts. Segons la dificultat, també pots aconseguir una <strong>falca</strong> de la categoria.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">4</div>
+                <div>
+                  <strong>Aprèn amb l’explicació</strong>
+                  <p>Tant si encertes com si falles, el joc mostra una explicació perquè l’activitat tingui valor didàctic i no sigui només competitiva.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">5</div>
+                <div>
+                  <strong>Arriba al centre amb totes les falques</strong>
+                  <p>Només pots guanyar si arribes a la <strong>META</strong> després d’haver obtingut les 6 falques.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="help-card">
+            <h4>🧩 Significat de les caselles especials</h4>
+            <div class="legend-mini">
+              <div class="help-item"><strong>W</strong> = Casella de <strong>falca</strong>. En alguns nivells és la clau per obtenir-la.</div>
+              <div class="help-item"><strong>B</strong> = Casella <strong>bonus</strong>. Si encertes, sumes <strong>+5 punts extra</strong>.</div>
+              <div class="help-item"><strong>↺</strong> = <strong>Torna a tirar</strong>. Si encertes, mantens el torn.</div>
+              <div class="help-item"><strong>R</strong> = <strong>Repte docent</strong>. Si encertes, sumes <strong>+5 punts extra</strong>.</div>
+              <div class="help-item"><strong>⭐</strong> = <strong>META</strong>. Necessites totes les falques per guanyar.</div>
+            </div>
+
+            <h4 style="margin-top:16px;">📚 Categories del joc</h4>
+            <div class="help-list">
+              <div class="help-item">🌿 <strong>Verd</strong> · Cultius, sòl i biodiversitat.</div>
+              <div class="help-item">💧 <strong>Blau</strong> · Aigua, sequera i ecosistemes.</div>
+              <div class="help-item">🐄 <strong>Taronja</strong> · Ramaderia ecològica i benestar animal.</div>
+              <div class="help-item">📜 <strong>Vermell</strong> · Certificació, normativa i consum responsable.</div>
+              <div class="help-item">🌻 <strong>Groc</strong> · Agroecologia, salut i sostenibilitat social.</div>
+              <div class="help-item">🍇 <strong>Lila</strong> · Productes de proximitat, temporada i territori.</div>
+            </div>
+
+            <h4 style="margin-top:16px;">🎚️ Dificultats</h4>
+            <div class="help-list">
+              <div class="help-item"><strong>Bàsic</strong> · Amb 1 encert en una categoria ja pots obtenir la falca.</div>
+              <div class="help-item"><strong>Mitjà</strong> · Necessites 2 encerts en la mateixa categoria per obtenir la falca.</div>
+              <div class="help-item"><strong>Avançat</strong> · Només aconsegueixes la falca si encertes en una casella <strong>W</strong>.</div>
+            </div>
+
+            <h4 style="margin-top:16px;">⌨️ Dreceres de teclat</h4>
+            <div class="help-list">
+              <div class="help-item"><span class="help-kbd">Espai</span> o <span class="help-kbd">Enter</span> = llençar el dau o continuar.</div>
+              <div class="help-item"><span class="help-kbd">1</span> <span class="help-kbd">2</span> <span class="help-kbd">3</span> <span class="help-kbd">4</span> = respondre una opció.</div>
+              <div class="help-item"><span class="help-kbd">Esc</span> = tancar l’ajuda o l’editor.</div>
+            </div>
+
+            <div class="help-highlight">
+              <strong>Consell docent:</strong> aquest joc funciona molt bé com a activitat de repàs, diagnosi inicial o tancament d’unitat. L’explicació després de cada resposta ajuda a consolidar aprenentatges.
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="help-panel" id="editHelpPanel">
+        <div class="help-intro">
+          <strong>Idea clau:</strong> pots adaptar completament el joc canviant el <strong>banc de preguntes</strong>.
+          Això et permet reutilitzar l’EcoTrivial per cursos diferents, per unitats diferents i fins i tot per matèries diferents.
+        </div>
+
+        <div class="help-grid">
+          <section class="help-card">
+            <h4>🎯 Què pots editar exactament?</h4>
+            <div class="help-highlight">
+              L’EcoTrivial et permet personalitzar el <strong>banc de preguntes</strong> del joc.
+              Això vol dir que pots:
+              <br><br>
+              • afegir preguntes noves
+              <br>
+              • modificar preguntes existents
+              <br>
+              • duplicar-les per crear variacions
+              <br>
+              • eliminar-ne
+              <br>
+              • importar bancs nous en <strong>CSV</strong> o <strong>JSON</strong>
+              <br>
+              • exportar el teu banc actual per guardar-lo o compartir-lo
+            </div>
+
+            <h4 style="margin-top:16px;">👣 Com editar una pregunta des de l’editor</h4>
+            <div class="help-steps">
+              <div class="help-step">
+                <div class="help-step-num">1</div>
+                <div>
+                  <strong>Obre l’editor</strong>
+                  <p>Prem el botó <strong>“✏️ Obrir editor”</strong>. Se t’obrirà el gestor de preguntes.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">2</div>
+                <div>
+                  <strong>Tria una categoria</strong>
+                  <p>A l’esquerra pots seleccionar la categoria que vols revisar: Verd, Blau, Taronja, Vermell, Groc o Lila.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">3</div>
+                <div>
+                  <strong>Selecciona o crea una pregunta</strong>
+                  <p>Pots fer clic sobre una pregunta existent o bé prémer <strong>“➕ Nova pregunta”</strong> per crear-ne una des de zero.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">4</div>
+                <div>
+                  <strong>Omple els camps</strong>
+                  <p>Escriu la pregunta, les 4 opcions, marca la bona i afegeix una explicació didàctica.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">5</div>
+                <div>
+                  <strong>Desa els canvis</strong>
+                  <p>Prem <strong>“💾 Desar”</strong>. El sistema ho guarda al navegador.</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 style="margin-top:16px;">🧩 Significat de cada camp</h4>
+            <div class="help-list">
+              <div class="help-item"><strong>Categoria</strong><br>Defineix a quin bloc temàtic pertany la pregunta.</div>
+              <div class="help-item"><strong>Pregunta</strong><br>És l’enunciat que llegirà l’alumnat. Ha de ser clar i precís.</div>
+              <div class="help-item"><strong>Opcions 1-4</strong><br>El joc necessita exactament <strong>4 opcions</strong>.</div>
+              <div class="help-item"><strong>Resposta correcta</strong><br>Has d’indicar quina opció és la bona.</div>
+              <div class="help-item"><strong>Explicació</strong><br>És molt important per donar valor didàctic al joc.</div>
+            </div>
+          </section>
+
+          <section class="help-card">
+            <h4>📥 Importar preguntes des d’un fitxer</h4>
+            <div class="help-steps">
+              <div class="help-step">
+                <div class="help-step-num">1</div>
+                <div>
+                  <strong>Prepara el fitxer</strong>
+                  <p>Pots usar <strong>CSV</strong> o <strong>JSON</strong>. Si tens dubtes, descarrega primer una plantilla.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">2</div>
+                <div>
+                  <strong>Prem “📥 Importar”</strong>
+                  <p>Selecciona el fitxer i el joc validarà que sigui correcte.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">3</div>
+                <div>
+                  <strong>Revisió automàtica</strong>
+                  <p>Si falta informació, el joc et dirà quin error hi ha.</p>
+                </div>
+              </div>
+
+              <div class="help-step">
+                <div class="help-step-num">4</div>
+                <div>
+                  <strong>Activació del nou banc</strong>
+                  <p>Si tot és correcte, el banc nou queda actiu immediatament.</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 style="margin-top:16px;">📄 Format CSV explicat</h4>
+            <div class="help-highlight">
+              El CSV ha de tenir aquestes columnes:
+              <br><br>
+              <code>categoria;pregunta;opcio1;opcio2;opcio3;opcio4;correcte;explicacio</code>
+            </div>
+
+            <h4 style="margin-top:16px;">🧾 Format JSON explicat</h4>
+            <div class="help-item">
+              Cada registre ha d’incloure:
+              <br><br>
+              <code>categoria</code>, <code>pregunta</code>, <code>opcions</code>, <code>correcte</code>, <code>explicacio</code>
+            </div>
+
+            <h4 style="margin-top:16px;">⚠️ Errors habituals i com evitar-los</h4>
+            <div class="help-list">
+              <div class="help-item"><strong>Error 1:</strong> menys de 4 opcions.<br><em>Solució:</em> omple sempre totes les opcions.</div>
+              <div class="help-item"><strong>Error 2:</strong> categoria no vàlida.<br><em>Solució:</em> usa només <code>verd</code>, <code>blau</code>, <code>taronja</code>, <code>vermell</code>, <code>groc</code> o <code>lila</code>.</div>
+              <div class="help-item"><strong>Error 3:</strong> resposta correcta incorrecta.<br><em>Solució:</em> indica 0, 1, 2 o 3.</div>
+              <div class="help-item"><strong>Error 4:</strong> banc massa petit.<br><em>Solució:</em> almenys 6 preguntes totals i una per categoria.</div>
+            </div>
+
+            <h4 style="margin-top:16px;">💡 Recomanacions didàctiques</h4>
+            <div class="help-list">
+              <div class="help-item">Escriu preguntes amb llenguatge clar i ajustat al nivell de l’alumnat.</div>
+              <div class="help-item">Evita opcions enganyoses o molt confuses.</div>
+              <div class="help-item">Aprofita el camp <strong>explicació</strong> per reforçar aprenentatges.</div>
+              <div class="help-item">Crea bancs diferents per unitat, curs o projecte.</div>
+              <div class="help-item">Exporta el banc per compartir-lo amb altres docents.</div>
+            </div>
+
+            <div class="help-highlight">
+              <strong>Consell final:</strong> pensa el joc com una eina de repàs, diagnosi i conversa.
+              Les millors preguntes són les que ajuden a pensar, argumentar i recordar millor.
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <div class="modal-actions">
+        <button class="btn-primary" id="btnHelpCenterOk">Entès ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="screen hidden" id="endScreen">
+    <div class="screen-card">
+      <div class="winner-box"><div class="cup">🏆</div><h2>Final de partida</h2><p id="winnerText">Resultat final</p></div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h3>📊 Resum general</h3>
+          <div class="summary-line"><span>Temps final</span><strong id="finalTime">00:00</strong></div>
+          <div class="summary-line"><span>Mode</span><strong id="finalMode">—</strong></div>
+          <div class="summary-line"><span>Dificultat</span><strong id="finalDifficulty">—</strong></div>
+          <div class="summary-line"><span>Banc de preguntes</span><strong id="finalBank">—</strong></div>
+          <div class="note" id="teacherSummary">Comentari final per al docent.</div>
+        </div>
+        <div class="summary-card"><h3>👥 Resultat per participant</h3><div id="teamsSummary"></div></div>
+      </div>
+      <div class="actions"><button class="btn-secondary" id="btnRestartSame">🔁 Repetir</button><button class="btn-primary" id="btnBackStart">🏠 Tornar a l’inici</button></div>
+    </div>
+  </section>
+
+  <!-- Scripts JS -->
+  <script src="js/app.js"></script>
+  <script src="js/sw-register.js"></script>
+</body>
+</html>
