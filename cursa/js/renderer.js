@@ -56,7 +56,7 @@
             const rows = theme.board.rows || 8;
             const cols = theme.board.cols || 8;
             const cells = theme.board.cells;
-            const inner = theme.board.innerDecorations || ["âœ¨", "ðŸ”¬", "ðŸŒ¿"];
+            const inner = theme.board.innerDecorations || ["✨", "🔬", "🌿"];
 
             this.boardEl.innerHTML = "";
             this.tokenElements.clear();
@@ -113,7 +113,7 @@
 
         updateTurn(player, gameActive) {
             if (!player) return;
-            this.turnNameEl.textContent = gameActive ? player.name : "ðŸ† Partida acabada!";
+            this.turnNameEl.textContent = gameActive ? player.name : "🏆 Partida acabada!";
             this.turnColorEl.style.backgroundColor = player.color;
         }
 
@@ -178,7 +178,7 @@
 
         askQuestion(questionObj, theme) {
             return new Promise(resolve => {
-                this.modalEmoji.textContent = theme.emoji || "â“";
+                this.modalEmoji.textContent = theme.emoji || "❓";
                 this.modalTitle.textContent = "Pregunta";
                 this.questionText.textContent = questionObj.question;
                 this.optionsContainer.innerHTML = "";
@@ -197,12 +197,12 @@
 
                         if (index === questionObj.correct) {
                             btn.classList.add("correct");
-                            this.resultText.textContent = "âœ… Correcte!";
+                            this.resultText.textContent = "✅ Correcte!";
                             this.resultText.style.color = "#7CFC90";
                         } else {
                             btn.classList.add("wrong");
                             allButtons[questionObj.correct].classList.add("correct");
-                            this.resultText.textContent = "âŒ Incorrecte!";
+                            this.resultText.textContent = "❌ Incorrecte!";
                             this.resultText.style.color = "#ff8a80";
                         }
 
@@ -217,7 +217,7 @@
         }
 
         showVictory(player, theme, onPlayAgain) {
-            this.modalEmoji.textContent = "ðŸ†";
+            this.modalEmoji.textContent = "🏆";
             this.modalTitle.textContent = "ENHORABONA!";
             this.questionText.innerHTML = `
                 <strong>${player.name}</strong><br><br>
@@ -231,7 +231,7 @@
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "btn-modal";
-            btn.textContent = "ðŸŽ‰ Tornar a l'inici";
+            btn.textContent = "🎉 Tornar a l'inici";
             btn.addEventListener("click", onPlayAgain);
 
             this.optionsContainer.appendChild(btn);
