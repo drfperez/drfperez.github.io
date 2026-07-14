@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ca" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web del professor</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3Q2S940G6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-3Q2S940G6T');
+  </script>
+  
+  <!-- Estàndard 2026: Tailwind CSS + DaisyUI via CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body class="bg-base-200/40 min-h-screen font-sans text-base-content">
+
+<div id="navbar-placeholder"></div>
+
+<main class="container mx-auto max-w-5xl px-4 py-12">
+  <!-- Presentació -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-base-content mb-4">Benvinguts a la meva web educativa</h1>
+    <p class="text-xl text-base-content/80 max-w-3xl mx-auto">Soc en <strong class="text-base-content">Francesc Pérez</strong>, docent apassionat per la tecnologia, la programació, la robòtica, les ciències i la creativitat aplicada a l’educació.</p>
+  </div>
+
+  <!-- GitHub -->
+  <div class="mb-10">
+    <div class="card bg-base-100 shadow-sm border border-base-200/60">
+      <div class="card-body flex-row flex-wrap sm:flex-nowrap items-center gap-6 p-6">
+        <i class="fa-brands fa-github text-6xl text-neutral"></i>
+        <div>
+          <h5 class="card-title text-xl mb-1">El meu GitHub</h5>
+          <p class="text-base-content/70 mb-4">Explora els meus projectes de programació, codi font i activitats educatives.</p>
+          <a href="https://github.com/drfperez" class="btn btn-neutral btn-sm" target="_blank">
+            Visita el meu GitHub <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Totes les altres webs agrupades en una targeta -->
+  <div class="card bg-base-100 shadow-sm border border-base-200/60">
+    <div class="card-body p-6 md:p-8">
+      <h4 class="card-title justify-center mb-8 text-2xl font-bold">🌐 Altres webs educatives meves</h4>
+      
+      <!-- Utilitzem el sistema CSS Grid modern en comptes de Flexbox Rows de Bootstrap -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+
+        <!-- Tecnologia -->
+        <a href="https://blocs.xtec.cat/enginyeria" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fas fa-wrench text-2xl text-primary mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Tecnologia i Enginyeria</strong>
+              <small class="text-base-content/70 text-sm">Problemes de Tecnologia i Enginyeria per Batxillerat.</small>
+            </div>
+          </div>
+        </a>
+
+        <!-- Bloc Xtec -->
+        <a href="https://blocs.xtec.cat/tecno" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fas fa-blog text-2xl text-secondary mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Bloc XTEC</strong>
+              <small class="text-base-content/70 text-sm">Recursos transversals per a l’aula.</small>
+            </div>
+          </div>
+        </a>
+
+        <!-- Biotecnologia -->
+        <a href="https://blocs.xtec.cat/biotecnologia" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fas fa-dna text-2xl text-success mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Biotecnologia</strong>
+              <small class="text-base-content/70 text-sm">Notícies de recerca biotecnològica.</small>
+            </div>
+          </div>
+        </a>
+
+        <!-- Python -->
+        <a href="https://blocs.xtec.cat/python3" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fa-brands fa-python text-2xl text-warning mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Pràctiques Python</strong>
+              <small class="text-base-content/70 text-sm">100 Exercicis per aprendre a programar.</small>
+            </div>
+          </div>
+        </a>
+
+        <!-- Neocities -->
+        <a href="https://pompeu.neocities.org" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fas fa-globe text-2xl text-primary mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Bloc Neocities</strong>
+              <small class="text-base-content/70 text-sm">Recursos tecnològics creatius.</small>
+            </div>
+          </div>
+        </a>
+
+        <!-- Musical Arts -->
+        <a href="https://coldplaybarcelona.github.io" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fas fa-music text-2xl text-info mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Musical Arts</strong>
+              <small class="text-base-content/70 text-sm">Una mirada artística a la música.</small>
+            </div>
+          </div>
+        </a>
+
+        <!-- Art -->
+        <a href="https://blocs.xtec.cat/arteducation" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fas fa-palette text-2xl text-error mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Bloc d'Art</strong>
+              <small class="text-base-content/70 text-sm">Projecte Erasmus+ d'Educació visual.</small>
+            </div>
+          </div>
+        </a>
+
+        <!-- Teatre -->
+        <a href="https://blocs.xtec.cat/comeonstage/" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fas fa-theater-masks text-2xl text-secondary mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Bloc de Teatre</strong>
+              <small class="text-base-content/70 text-sm">Expressió i dramatització a l’aula.</small>
+            </div>
+          </div>
+        </a>
+
+        <!-- Medi Ambient -->
+        <a href="https://blocs.xtec.cat/5cities" target="_blank" class="hover:bg-base-200 p-4 rounded-xl transition-all text-base-content no-underline group border border-transparent hover:border-base-300 shadow-sm hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <i class="fas fa-tree text-2xl text-success mt-1 group-hover:scale-110 transition-transform"></i>
+            <div>
+              <strong class="block mb-1">Bloc de Medi Ambient</strong>
+              <small class="text-base-content/70 text-sm">Sostenibilitat i ciència social.</small>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="navbar.js"></script>
+
+</body>
+</html>
