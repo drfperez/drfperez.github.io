@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gaudí i les cadenes penjants — Dr. Francisco Pérez García</title>
+<meta name="description" content="Projecte de recerca sobre la interpretació variacional dels models de cadenes penjants d'Antoni Gaudí.">
+
+<!-- MathJax per a les equacions -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<style>
+  :root {
+    --fg: #1a1a1a;
+    --muted: #555;
+    --accent: #0b5c8a;
+    --bg: #fdfdfd;
+    --rule: #e2e2e2;
+    --code-bg: #f4f6f8;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--fg);
+    background: var(--bg);
+  }
+  header.site {
+    border-bottom: 1px solid var(--rule);
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #fff;
+  }
+  header.site .brand {
+    font-weight: 600;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  header.site nav a {
+    margin-left: 1rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  header.site nav a:hover { text-decoration: underline; }
+
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    line-height: 1.25;
+    margin: 0 0 0.5rem;
+  }
+  .subtitle {
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin: 0 0 1.5rem;
+    font-weight: 400;
+  }
+  .meta {
+    font-size: 0.9rem;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.75rem 0;
+    margin: 1.5rem 0 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+  .meta span strong { color: var(--fg); }
+
+  h2 {
+    font-size: 1.35rem;
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.3rem;
+  }
+  h3 {
+    font-size: 1.1rem;
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p { margin: 0.9rem 0; }
+  ul, ol { margin: 0.9rem 0; padding-left: 1.4rem; }
+  li { margin: 0.35rem 0; }
+
+  blockquote {
+    border-left: 3px solid var(--accent);
+    margin: 1.25rem 0;
+    padding: 0.25rem 1rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-size: 0.92em;
+  }
+
+  .callout {
+    background: #f0f7fb;
+    border: 1px solid #cfe4ef;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+  }
+  .callout strong { color: var(--accent); }
+
+  .refs {
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .refs li { margin: 0.5rem 0; }
+
+  footer.site {
+    border-top: 1px solid var(--rule);
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  footer.site a { color: var(--accent); text-decoration: none; }
+  footer.site a:hover { text-decoration: underline; }
+
+  .status {
+    display: inline-block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #fff3cd;
+    color: #7a5a00;
+    padding: 0.2rem 0.55rem;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <a href="/" class="brand">Dr. Francisco Pérez García</a>
+  <nav>
+    <a href="/">Inici</a>
+    <a href="/#recerca">Recerca</a>
+    <a href="/#publicacions">Publicacions</a>
+    <a href="/#contacte">Contacte</a>
+  </nav>
+</header>
+
+<main>
+
+  <span class="status">Projecte en curs</span>
+
+  <h1>Gaudí i les cadenes penjants: una interpretació variacional</h1>
+  <p class="subtitle">
+    Com els models funiculars de Gaudí funcionaven com a computadors analògics
+    i per què això els connecta amb el disseny paramètric contemporani.
+  </p>
+
+  <div class="meta">
+    <span><strong>Autor:</strong> Francisco Pérez García</span>
+    <span><strong>Àmbit:</strong> Geometria aplicada, tecnologia educativa</span>
+    <span><strong>Estat:</strong> Article en preparació per a <em>Nexus Network Journal</em></span>
+  </div>
+
+  <h2>Resum</h2>
+  <p>
+    Antoni Gaudí va fer servir models de cadenes penjants per trobar les formes
+    dels seus edificis. Tradicionalment, aquests models s'han descrit com una
+    eina empírica: el arquitecte deixava que la cadena es deformés sota la
+    gravetat, n'observava la corba i la copiava. Recentment, alguns autors
+    els han descrit com una forma primerenca de <em>computació analògica</em>.
+    Totes dues descripcions són correctes, però cap d'elles identifica
+    <strong>quin problema matemàtic</strong> resolia realment el sistema físic.
+  </p>
+  <p>
+    Aquest projecte proposa una resposta precisa: cada cadena en equilibri
+    resol un <strong>problema variacional amb restriccions</strong>, és a dir,
+    troba la corba que minimitza l'energia potencial gravitatòria subjecta a
+    una longitud fixada i a unes condicions de contorn donades. En aquest
+    sentit, el taller de Gaudí funcionava com un <strong>ordinador analògic
+    variacional</strong>: el dissenyador triava paràmetres, i el sistema físic
+    retornava la forma òptima.
+  </p>
+
+  <div class="callout">
+    <strong>Idea central.</strong> No és nou que Gaudí fes servir cadenes.
+    La novetat és identificar <em>què</em> calculaven: la solució d'un
+    problema de càlcul de variacions. Això converteix el seu mètode en un
+    antecedent directe del disseny paramètric i basat en optimització actual.
+  </div>
+
+  <h2>El problema variacional de la cadena</h2>
+  <p>
+    Considerem una cadena homogènia de longitud $L$ i densitat lineal $\rho$,
+    suspesa entre dos punts fixos $P_1=(x_1,y_1)$ i $P_2=(x_2,y_2)$.
+    La seva configuració d'equilibri ve donada per una funció $y(x)$ que
+    minimitza l'energia potencial gravitatòria:
+  </p>
+
+  $$E[y] = \rho g \int_{x_1}^{x_2} y(x)\sqrt{1+y'(x)^2}\,\mathrm{d}x$$
+
+  <p>subjecta a la restricció de longitud</p>
+
+  $$\int_{x_1}^{x_2}\sqrt{1+y'(x)^2}\,\mathrm{d}x = L.$$
+
+  <p>
+    Aquest és un problema isoperimètric clàssic. La seva solució és la
+    <strong>catenària</strong>:
+  </p>
+
+  $$y(x) = a\cosh\!\left(\frac{x-b}{a}\right) + c_0,$$
+
+  <p>
+    on $a>0$, $b$ i $c_0$ queden determinats per les condicions de contorn i
+    per la longitud $L$. La derivació es fa amb el mètode del multiplicador de
+    Lagrange i la identitat de Beltrami.
+  </p>
+
+  <h3>Del problema continu a la xarxa discreta</h3>
+  <p>
+    Gaudí no treballava amb una sola cadena, sinó amb xarxes tridimensionals
+    de cables connectats en nodes i carregats amb pesos. Aquestes xarxes
+    també admeten una formulació variacional: l'equilibri és el minimitzador
+    de l'energia potencial del conjunt, subjecte a les longituds fixes dels
+    segments i a les posicions dels ancoratges. Les condicions de
+    Karush–Kuhn–Tucker d'aquest problema coincideixen exactament amb les
+    equacions d'equilibri nodal de l'estàtica funicular:
+  </p>
+
+  $$\sum_{e=(i,j)\ni i} t_e\,\frac{\mathbf{x}_j-\mathbf{x}_i}{\|\mathbf{x}_j-\mathbf{x}_i\|} = \mathbf{f}_i.$$
+
+  <p>
+    Aquesta equivalència és el nucli tècnic del projecte: demostra que la
+    xarxa física i el problema d'optimització són, matemàticament, la
+    mateixa cosa.
+  </p>
+
+  <h2>Per què això connecta amb el disseny paramètric</h2>
+  <p>
+    El flux de treball de Gaudí es pot formalitzar com una aplicació que
+    envia paràmetres físics (longituds, càrregues, posicions d'ancoratge)
+    a configuracions d'equilibri:
+  </p>
+
+  $$F : \mathcal{P} \to \mathcal{M}.$$
+
+  <p>
+    Aquesta és, estructuralment, la mateixa lògica que fan servir els sistemes
+    de disseny paramètric actuals: el dissenyador especifica paràmetres, i el
+    sistema calcula la geometria òptima. La diferència és el medi de càlcul
+    —plom i cadena en Gaudí, silici avui—, no el contingut matemàtic.
+  </p>
+
+  <h2>Dimensió educativa</h2>
+  <p>
+    Aquest projecte té una segona dimensió, orientada a l'aula de secundària.
+    La geometria de Gaudí és un context excel·lent per treballar:
+  </p>
+  <ul>
+    <li>La funció cosinus hiperbòlic i les seves propietats.</li>
+    <li>El concepte d'optimització amb restriccions.</li>
+    <li>La relació entre forma física i model matemàtic.</li>
+    <li>La història de la tecnologia i el disseny assistit per ordinador.</li>
+  </ul>
+  <p>
+    Els materials didàctics derivats d'aquesta recerca es publicaran en obert
+    i estaran pensats per ser utilitzats directament a l'aula de tecnologia,
+    matemàtiques i física.
+  </p>
+
+  <h2>Estat del projecte</h2>
+  <ul>
+    <li><strong>Article científic:</strong> en preparació per a <em>Nexus Network Journal</em> (Springer).</li>
+    <li><strong>Validació quantitativa:</strong> en curs, amb l'objectiu de comparar les corbes dels arcs construïts amb les prediccions del model variacional.</li>
+    <li><strong>Materials didàctics:</strong> pendents de desenvolupament un cop validada la part matemàtica.</li>
+  </ul>
+
+  <h2>Referències principals</h2>
+  <ol class="refs">
+    <li>Lorenzo-Eiroa, P. (2023). Gaudí's analog computational model as backpropagation. <em>Digital Signifiers in an Architecture of Information</em>, Routledge.</li>
+    <li>Truesdell, C. (1983). The influence of elasticity on analysis: the classic heritage. <em>Bulletin of the AMS</em>, 9(3), 293–310.</li>
+    <li>Huerta, S. (2006). Structural design in the work of Gaudí. <em>Architectural Science Review</em>, 49(4), 324–339.</li>
+    <li>Schek, H.-J. (1974). The force density method for form finding and computation of general networks. <em>Computer Methods in Applied Mechanics and Engineering</em>, 3(1), 115–134.</li>
+    <li>Adriaenssens, S., Block, P., Veenendaal, D., & Williams, C. (eds.) (2014). <em>Shell Structures for Architecture: Form Finding and Optimization</em>. Routledge.</li>
+  </ol>
+
+  <h2>Contacte</h2>
+  <p>
+    Si tens interès en aquest projecte, vols col·laborar-hi o necessites
+    materials didàctics relacionats, pots escriure'm a
+    <a href="mailto:contacte@drfperez.github.io">contacte@drfperez.github.io</a>
+    o consultar el meu perfil a
+    <a href="https://orcid.org/0000-0002-1395-5573" target="_blank" rel="noopener">ORCID</a>.
+  </p>
+
+</main>
+
+<footer class="site">
+  © 2026 Dr. Francisco Pérez García ·
+  <a href="https://drfperez.github.io">drfperez.github.io</a> ·
+  <a href="https://orcid.org/0000-0002-1395-5573">ORCID</a>
+</footer>
+
+</body>
+  </html>
